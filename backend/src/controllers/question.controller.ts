@@ -237,8 +237,36 @@ export const createQuestion = async (req: AuthRequest, res: Response): Promise<v
 
         const question = questionResult.rows[0];
 
-        // Add tags
-        for (const tagId of tags) {
+        // Add tags - convert tag names to tag IDs
+        for (const tagName of tags) {
+            // First, try to find existing tag by name or slug
+            let tagResult = await pool.query(
+                'SELECT id FROM tags WHERE name = $1 OR slug = $1',
+                [tagName.toLowerCase()]
+            );
+
+            let tagId;
+            if (tagResult.rows.length > 0) {
+                // Tag exists, use its ID
+                tagId = tagResult.rows[0].id;
+                
+                // Increment usage count
+                await pool.query(
+                    'UPDATE tags SET usage_count = usage_count + 1 WHERE id = $1',
+                    [tagId]
+                );
+            } else {
+                // Tag doesn't exist, create it
+                const newTagResult = await pool.query(
+                    `INSERT INTO tags (name, slug, description, usage_count, created_by) 
+                     VALUES ($1, $2, $3, 1, $4) 
+                     RETURNING id`,
+                    [tagName.toLowerCase(), tagName.toLowerCase(), `Tag untuk ${tagName}`, userId]
+                );
+                tagId = newTagResult.rows[0].id;
+            }
+
+            // Link tag to question
             await pool.query(
                 'INSERT INTO question_tags (question_id, tag_id) VALUES ($1, $2)',
                 [question.id, tagId]
