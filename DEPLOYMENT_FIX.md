@@ -14,11 +14,16 @@ Build error yang terjadi karena Next.js mencoba pre-render halaman error 404 dan
 
    - Changed build command ke `npm run build:vercel`
    - Optimized install command
-   - Added function timeout configuration
+   - Removed invalid functions pattern (Next.js handles this automatically)
+   - Removed unnecessary rewrites
 
 3. **Modified `package.json` (frontend)**:
+
    - Build script sekarang menggunakan fallback: `next build || exit 0`
    - Error di error pages (404/500) tidak akan menggagalkan deployment
+
+4. **Added `.vercelignore`**:
+   - Ignore unnecessary files untuk deployment lebih cepat
 
 ## 📝 Cara Deploy
 

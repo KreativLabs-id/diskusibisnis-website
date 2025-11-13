@@ -1,0 +1,43 @@
+# Dependencies
+node_modules
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# Testing
+coverage
+*.log
+
+# Next.js
+.next/
+out/
+build
+dist
+
+# Misc
+.DS_Store
+*.pem
+.env*.local
+.cache
+
+# Debug
+*.log
+.pnp
+.pnp.js
+
+# Backend (not needed for frontend deployment)
+backend/node_modules
+backend/dist
+backend/.env
+
+# Documentation
+*.md
+!README.md
+
+# IDE
+.vscode
+.idea
+*.swp
+*.swo
+*~
