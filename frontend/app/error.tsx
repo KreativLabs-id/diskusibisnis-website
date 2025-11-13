@@ -1,10 +1,11 @@
 'use client';
 
+import Link from 'next/link';
+
 export default function Error({
-  error,
   reset,
 }: {
-  error: Error & { digest?: string };
+  error?: Error & { digest?: string };
   reset: () => void;
 }) {
   return (
@@ -30,12 +31,12 @@ export default function Error({
             Coba Lagi
           </button>
           
-          <a
+          <Link
             href="/"
             className="inline-flex items-center justify-center gap-2 w-full px-6 py-3 bg-white border border-slate-200 text-slate-700 rounded-lg font-medium hover:bg-slate-50 transition-colors"
           >
             🏠 Kembali ke Beranda
-          </a>
+          </Link>
         </div>
       </div>
     </div>

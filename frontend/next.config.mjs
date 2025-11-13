@@ -29,6 +29,23 @@ const nextConfig = {
     ignoreDuringBuilds: true,
   },
 
+  // Production build options
+  productionBrowserSourceMaps: false,
+
+  // Optimize output for Vercel deployment
+  output: "standalone",
+
+  // Configure webpack to handle build errors more gracefully
+  webpack: (config, { isServer }) => {
+    if (!isServer) {
+      config.resolve.fallback = {
+        ...config.resolve.fallback,
+        fs: false,
+      };
+    }
+    return config;
+  },
+
   // Headers for security
   async headers() {
     return [

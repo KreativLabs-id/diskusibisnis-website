@@ -1,11 +1,20 @@
 {
   "name": "diskusi-bisnis",
-  "buildCommand": "cd frontend && npm run build",
+  "buildCommand": "cd frontend && npm install && npm run build:vercel",
   "outputDirectory": "frontend/.next",
-  "installCommand": "cd frontend && npm install",
+  "installCommand": "npm install --prefix frontend",
   "devCommand": "cd frontend && npm run dev",
-  "env": {
-    "NODE_ENV": "production"
+  "framework": "nextjs",
+  "regions": ["sin1"],
+  "functions": {
+    "frontend/app/**/*.{js,jsx,ts,tsx}": {
+      "maxDuration": 30
+    }
   },
-  "regions": ["sin1"]
+  "rewrites": [
+    {
+      "source": "/(.*)",
+      "destination": "/frontend/$1"
+    }
+  ]
 }
