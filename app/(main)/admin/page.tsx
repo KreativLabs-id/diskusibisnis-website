@@ -1,0 +1,179 @@
+'use client';
+
+import { useAuth } from '@/contexts/AuthContext';
+import { useEffect, useState } from 'react';
+import { useRouter } from 'next/navigation';
+import { adminAPI } from '@/lib/api';
+import { Users, MessageSquare, BarChart3, Shield, AlertTriangle, CheckCircle } from 'lucide-react';
+import Link from 'next/link';
+
+interface AdminStats {
+  users: number;
+  questions: number;
+  answers: number;
+  tags: number;
+}
+
+export default function AdminDashboard() {
+  const { user, loading } = useAuth();
+  const router = useRouter();
+  const [stats, setStats] = useState<AdminStats | null>(null);
+  const [statsLoading, setStatsLoading] = useState(true);
+
+  useEffect(() => {
+    if (!loading && (!user || user.role !== 'admin')) {
+      router.push('/');
+      return;
+    }
+
+    if (user && user.role === 'admin') {
+      fetchStats();
+    }
+  }, [user, loading, router]);
+
+  const fetchStats = async () => {
+    try {
+      setStatsLoading(true);
+      const response = await adminAPI.getStats();
+      setStats(response.data.data);
+    } catch (error) {
+      console.error('Error fetching admin stats:', error);
+    } finally {
+      setStatsLoading(false);
+    }
+  };
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-green-600"></div>
+      </div>
+    );
+  }
+
+  if (!user || user.role !== 'admin') {
+    return null;
+  }
+
+  return (
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      {/* Header */}
+      <div className="mb-8">
+        <div className="flex items-center gap-3 mb-2">
+          <div className="p-2 bg-red-100 rounded-lg">
+            <Shield className="w-6 h-6 text-red-600" />
+          </div>
+          <h1 className="text-3xl font-bold text-slate-900">Admin Dashboard</h1>
+        </div>
+        <p className="text-slate-600">Kelola platform DiskusiBisnis</p>
+      </div>
+
+      {/* Stats Cards */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+        <div className="bg-white rounded-xl border border-slate-200 p-6">
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-sm font-medium text-slate-600">Total Users</p>
+              <p className="text-2xl font-bold text-slate-900">
+                {statsLoading ? '...' : stats?.users || 0}
+              </p>
+            </div>
+            <div className="p-3 bg-blue-100 rounded-lg">
+              <Users className="w-6 h-6 text-blue-600" />
+            </div>
+          </div>
+        </div>
+
+        <div className="bg-white rounded-xl border border-slate-200 p-6">
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-sm font-medium text-slate-600">Total Questions</p>
+              <p className="text-2xl font-bold text-slate-900">
+                {statsLoading ? '...' : stats?.questions || 0}
+              </p>
+            </div>
+            <div className="p-3 bg-green-100 rounded-lg">
+              <MessageSquare className="w-6 h-6 text-green-600" />
+            </div>
+          </div>
+        </div>
+
+        <div className="bg-white rounded-xl border border-slate-200 p-6">
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-sm font-medium text-slate-600">Total Answers</p>
+              <p className="text-2xl font-bold text-slate-900">
+                {statsLoading ? '...' : stats?.answers || 0}
+              </p>
+            </div>
+            <div className="p-3 bg-purple-100 rounded-lg">
+              <CheckCircle className="w-6 h-6 text-purple-600" />
+            </div>
+          </div>
+        </div>
+
+        <div className="bg-white rounded-xl border border-slate-200 p-6">
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-sm font-medium text-slate-600">Total Tags</p>
+              <p className="text-2xl font-bold text-slate-900">
+                {statsLoading ? '...' : stats?.tags || 0}
+              </p>
+            </div>
+            <div className="p-3 bg-orange-100 rounded-lg">
+              <BarChart3 className="w-6 h-6 text-orange-600" />
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Quick Actions */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <Link
+          href="/admin/users"
+          className="bg-white rounded-xl border border-slate-200 p-6 hover:border-blue-300 hover:shadow-md transition-all duration-200 group"
+        >
+          <div className="flex items-center gap-4">
+            <div className="p-3 bg-blue-100 rounded-lg group-hover:bg-blue-200 transition-colors">
+              <Users className="w-6 h-6 text-blue-600" />
+            </div>
+            <div>
+              <h3 className="font-semibold text-slate-900">Manage Users</h3>
+              <p className="text-sm text-slate-600">View, ban, and manage user accounts</p>
+            </div>
+          </div>
+        </Link>
+
+        <Link
+          href="/admin/questions"
+          className="bg-white rounded-xl border border-slate-200 p-6 hover:border-green-300 hover:shadow-md transition-all duration-200 group"
+        >
+          <div className="flex items-center gap-4">
+            <div className="p-3 bg-green-100 rounded-lg group-hover:bg-green-200 transition-colors">
+              <MessageSquare className="w-6 h-6 text-green-600" />
+            </div>
+            <div>
+              <h3 className="font-semibold text-slate-900">Manage Questions</h3>
+              <p className="text-sm text-slate-600">Review and moderate questions</p>
+            </div>
+          </div>
+        </Link>
+
+        <Link
+          href="/admin/reports"
+          className="bg-white rounded-xl border border-slate-200 p-6 hover:border-red-300 hover:shadow-md transition-all duration-200 group"
+        >
+          <div className="flex items-center gap-4">
+            <div className="p-3 bg-red-100 rounded-lg group-hover:bg-red-200 transition-colors">
+              <AlertTriangle className="w-6 h-6 text-red-600" />
+            </div>
+            <div>
+              <h3 className="font-semibold text-slate-900">Reports</h3>
+              <p className="text-sm text-slate-600">Handle user reports and violations</p>
+            </div>
+          </div>
+        </Link>
+      </div>
+    </div>
+  );
+}
