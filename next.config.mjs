@@ -33,7 +33,7 @@ const nextConfig = {
   productionBrowserSourceMaps: false,
 
   // Optimize output for Vercel deployment
-  output: "standalone",
+  // output: "standalone", // Commented out for Vercel deployment
 
   // Configure webpack to handle build errors more gracefully
   webpack: (config, { isServer }) => {
