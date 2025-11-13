@@ -2,8 +2,7 @@ import type { Metadata, Viewport } from "next";
 import { Poppins } from "next/font/google";
 import "./globals.css";
 import "../styles/mobile-fixes.css";
-import { AuthProvider } from "@/contexts/AuthContext";
-import { NotificationProvider } from "@/contexts/NotificationContext";
+import ClientProviders from "./components/ClientProviders";
 
 const poppins = Poppins({
   subsets: ["latin"],
@@ -54,13 +53,11 @@ export default function RootLayout({
   return (
     <html lang="id" className="h-full">
       <body className={`${poppins.variable} font-sans antialiased bg-slate-50 h-full`}>
-        <AuthProvider>
-          <NotificationProvider>
-            <div className="h-full">
-              {children}
-            </div>
-          </NotificationProvider>
-        </AuthProvider>
+        <ClientProviders>
+          <div className="h-full">
+            {children}
+          </div>
+        </ClientProviders>
       </body>
     </html>
   );

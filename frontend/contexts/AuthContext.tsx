@@ -30,6 +30,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     // Check if user is logged in on mount
     const initAuth = () => {
+      if (typeof window === 'undefined') {
+        setLoading(false);
+        return;
+      }
+      
       const token = localStorage.getItem('token');
       const savedUser = localStorage.getItem('user');
       
@@ -53,8 +58,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     const response = await authAPI.login({ email, password });
     const { user, token } = response.data.data;
     
-    localStorage.setItem('token', token);
-    localStorage.setItem('user', JSON.stringify(user));
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('token', token);
+      localStorage.setItem('user', JSON.stringify(user));
+    }
     setUser(user);
   };
 
@@ -62,21 +69,27 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     const response = await authAPI.register({ email, password, displayName });
     const { user, token } = response.data.data;
     
-    localStorage.setItem('token', token);
-    localStorage.setItem('user', JSON.stringify(user));
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('token', token);
+      localStorage.setItem('user', JSON.stringify(user));
+    }
     setUser(user);
   };
 
   const logout = () => {
-    localStorage.removeItem('token');
-    localStorage.removeItem('user');
-    setUser(null);
-    window.location.href = '/';
+    if (typeof window !== 'undefined') {
+      localStorage.removeItem('token');
+      localStorage.removeItem('user');
+      setUser(null);
+      window.location.href = '/';
+    }
   };
 
   const updateUser = (updatedUser: User) => {
     setUser(updatedUser);
-    localStorage.setItem('user', JSON.stringify(updatedUser));
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('user', JSON.stringify(updatedUser));
+    }
   };
 
   return (
