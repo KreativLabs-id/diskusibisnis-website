@@ -13,9 +13,9 @@
     --color-primary: #10b981;
     --color-primary-dark: #059669;
     --color-primary-light: #d1fae5;
-    --color-blue: #2563eb;
-    --color-blue-dark: #1d4ed8;
-    --color-blue-light: #dbeafe;
+    --color-secondary: #2563eb;
+    --color-secondary-dark: #1d4ed8;
+    --color-secondary-light: #dbeafe;
     --color-accent: #f59e0b;
     --color-accent-secondary: #8b5cf6;
     --color-success: #059669;
@@ -37,8 +37,8 @@
 
     /* Gradients */
     --gradient-primary: linear-gradient(135deg, #10b981 0%, #059669 100%);
-    --gradient-blue: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
-    --gradient-secondary: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+    --gradient-secondary: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
+    --gradient-accent: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
     --gradient-surface: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
     --gradient-subtle: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
 
@@ -209,7 +209,7 @@
     box-shadow: 0 0 20px -5px rgb(16 185 129 / 0.3);
   }
 
-  .shadow-glow-blue {
+  .shadow-glow-secondary {
     box-shadow: 0 0 20px -5px rgb(37 99 235 / 0.3);
   }
 

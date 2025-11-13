@@ -55,7 +55,32 @@ export default function TagDetailPage() {
   const fetchTagData = async () => {
     try {
       const response = await tagAPI.getBySlug(slug);
-      setTag(response.data.data);
+      // Extract tag data correctly from nested structure
+      let tagData = null;
+      if (response.data.data && response.data.data.tag) {
+        tagData = response.data.data.tag;
+      } else if (response.data.tag) {
+        tagData = response.data.tag;
+      } else if (response.data.data) {
+        tagData = response.data.data;
+      }
+      
+      if (!tagData || !tagData.name) {
+        setError('Tag tidak ditemukan');
+        return;
+      }
+      
+      // Map the data to match frontend interface
+      const mappedTag = {
+        id: tagData.id,
+        name: tagData.name,
+        slug: tagData.slug,
+        description: tagData.description,
+        questionCount: tagData.question_count || tagData.usage_count || 0,
+        createdAt: tagData.created_at
+      };
+      
+      setTag(mappedTag);
     } catch (error) {
       console.error('Error fetching tag:', error);
       setError('Tag tidak ditemukan');
@@ -66,7 +91,28 @@ export default function TagDetailPage() {
 
   const fetchQuestions = async () => {
     try {
-      const response = await questionAPI.getAll({ tag: slug });
+      // First get tag data to get the tag name
+      const tagResponse = await tagAPI.getBySlug(slug);
+      
+      // Extract tag data correctly
+      let tagData = null;
+      if (tagResponse.data.data && tagResponse.data.data.tag) {
+        tagData = tagResponse.data.data.tag;
+      } else if (tagResponse.data.tag) {
+        tagData = tagResponse.data.tag;
+      } else if (tagResponse.data.data) {
+        tagData = tagResponse.data.data;
+      }
+      
+      if (!tagData || !tagData.name) {
+        setQuestions([]);
+        return;
+      }
+      
+      const tagName = tagData.name;
+      
+      // Then get questions by tag name
+      const response = await questionAPI.getAll({ tag: tagName });
       const questionsData = response.data.data;
       
       // Handle different response structures
@@ -233,7 +279,7 @@ export default function TagDetailPage() {
                             href={`/tags/${questionTag.slug}`}
                             className={`px-2 py-1 text-xs rounded-md border transition-colors ${
                               questionTag.slug === tag.slug
-                                ? 'bg-blue-100 text-blue-700 border-blue-200'
+                                ? 'bg-emerald-100 text-emerald-700 border-emerald-200'
                                 : 'bg-slate-100 text-slate-700 border-slate-200 hover:bg-slate-200'
                             }`}
                           >
@@ -246,7 +292,7 @@ export default function TagDetailPage() {
                       <div className="flex items-center justify-between text-sm text-slate-500">
                         <Link
                           href={`/profile/${question.author_id || 'unknown'}`}
-                          className="flex items-center gap-2 hover:text-blue-600 transition-colors"
+                          className="flex items-center gap-2 hover:text-emerald-600 transition-colors"
                         >
                           {question.author_avatar ? (
                             <img
@@ -255,7 +301,7 @@ export default function TagDetailPage() {
                               className="w-6 h-6 rounded-full"
                             />
                           ) : (
-                            <div className="w-6 h-6 rounded-full bg-blue-600 flex items-center justify-center">
+                            <div className="w-6 h-6 rounded-full bg-emerald-600 flex items-center justify-center">
                               <span className="text-white text-xs font-medium">
                                 {question.author_name.charAt(0).toUpperCase()}
                               </span>

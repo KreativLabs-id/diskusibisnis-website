@@ -12,6 +12,8 @@ import {
   Heart
 } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
+import { bookmarkAPI } from '@/lib/api';
+import { formatDate } from '@/lib/utils';
 import QuestionCard from '@/components/questions/QuestionCard';
 
 interface SavedQuestion {
@@ -47,12 +49,27 @@ export default function SavedPage() {
   const fetchSavedQuestions = async () => {
     try {
       setLoading(true);
-      // TODO: Implement saved questions API
-      // const response = await savedAPI.getAll();
-      // setSavedQuestions(response.data.data || []);
+      const response = await bookmarkAPI.getAll();
+      const bookmarks = response.data.data.bookmarks || [];
       
-      // Mock data for now
-      setSavedQuestions([]);
+      // Map bookmarks to SavedQuestion format
+      const mappedQuestions = bookmarks.map((bookmark: any) => ({
+        id: bookmark.id,
+        title: bookmark.title,
+        content: bookmark.content,
+        author_name: bookmark.author_name,
+        author_avatar: bookmark.author_avatar,
+        author_reputation: bookmark.author_reputation || 0,
+        upvotes_count: bookmark.upvotes_count || 0,
+        views_count: bookmark.views_count || 0,
+        answers_count: bookmark.answers_count || 0,
+        has_accepted_answer: false,
+        tags: bookmark.tags || [],
+        created_at: bookmark.created_at,
+        saved_at: bookmark.bookmarked_at
+      }));
+      
+      setSavedQuestions(mappedQuestions);
     } catch (error) {
       console.error('Error fetching saved questions:', error);
       setSavedQuestions([]);

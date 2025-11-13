@@ -5,13 +5,14 @@ import { useAuth } from '@/contexts/AuthContext';
 import { Search, Bell, User, LogOut, Settings, Plus, Menu, X, ChevronDown } from 'lucide-react';
 import { useState, useEffect, useRef } from 'react';
 import NotificationDropdown from '@/components/ui/NotificationDropdown';
+import LoadingSpinner from '@/components/ui/LoadingSpinner';
 
 interface NavbarProps {
   onMenuClick?: () => void;
 }
 
 export default function Navbar({ onMenuClick }: NavbarProps) {
-  const { user, logout } = useAuth();
+  const { user, logout, loading } = useAuth();
   const [showUserMenu, setShowUserMenu] = useState(false);
   const userMenuRef = useRef<HTMLDivElement>(null);
 
@@ -54,7 +55,12 @@ export default function Navbar({ onMenuClick }: NavbarProps) {
 
           {/* Navigation - Mobile Optimized */}
           <div className="flex items-center space-x-2">
-            {user ? (
+            {loading ? (
+              <>
+                <LoadingSpinner size="md" text="Memuat..." className="hidden sm:flex" />
+                <LoadingSpinner size="md" text="" className="sm:hidden" />
+              </>
+            ) : user ? (
               <>
                 {/* Desktop: Full Tanya Button */}
                 <Link
@@ -65,14 +71,6 @@ export default function Navbar({ onMenuClick }: NavbarProps) {
                   <span>Tanya</span>
                 </Link>
 
-                {/* Mobile: Icon Only */}
-                <Link
-                  href="/ask"
-                  className="md:hidden p-2.5 bg-emerald-600 text-white rounded-xl hover:bg-emerald-700 transition-colors shadow-lg"
-                  title="Tanya Pertanyaan"
-                >
-                  <Plus className="w-5 h-5" />
-                </Link>
 
                 <div className="hidden md:block">
                   <NotificationDropdown />
@@ -161,10 +159,10 @@ export default function Navbar({ onMenuClick }: NavbarProps) {
                       {user.role === 'admin' && (
                         <Link
                           href="/admin"
-                          className="flex items-center space-x-3 px-5 py-3 text-blue-600 hover:bg-blue-50 transition-all duration-200 rounded-lg mx-2"
+                          className="flex items-center space-x-3 px-5 py-3 text-emerald-600 hover:bg-emerald-50 transition-all duration-200 rounded-lg mx-2"
                         >
-                          <div className="p-1.5 bg-blue-100 rounded-lg">
-                            <Settings className="w-4 h-4 text-blue-600" />
+                          <div className="p-1.5 bg-emerald-100 rounded-lg">
+                            <Settings className="w-4 h-4 text-emerald-600" />
                           </div>
                           <span className="font-medium">Admin Dashboard</span>
                         </Link>

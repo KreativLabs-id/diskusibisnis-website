@@ -19,6 +19,7 @@ import {
   LogOut
 } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
+import LoadingSpinner from '@/components/ui/LoadingSpinner';
 
 interface SidebarItemProps {
   href: string;
@@ -63,7 +64,7 @@ interface SidebarProps {
 
 export default function Sidebar({ onItemClick }: SidebarProps) {
   const pathname = usePathname();
-  const { user, logout } = useAuth();
+  const { user, logout, loading } = useAuth();
 
   const publicItems = [
     { href: '/', icon: Home, label: 'Beranda' },
@@ -108,7 +109,18 @@ export default function Sidebar({ onItemClick }: SidebarProps) {
         </div>
 
         {/* User-specific items */}
-        {user && userItems.length > 0 && (
+        {loading ? (
+          <div>
+            <div className="pt-2">
+              <h3 className="text-xs font-semibold text-slate-500 mb-3 px-4">
+                Pribadi
+              </h3>
+              <div className="px-4 py-2.5">
+                <LoadingSpinner size="sm" text="Memuat..." />
+              </div>
+            </div>
+          </div>
+        ) : user && userItems.length > 0 && (
           <div>
             <div className="pt-2">
               <h3 className="text-xs font-semibold text-slate-500 mb-3 px-4">
@@ -132,7 +144,18 @@ export default function Sidebar({ onItemClick }: SidebarProps) {
         )}
 
         {/* Profile Section - Mobile Only */}
-        {user && profileItems.length > 0 && (
+        {loading ? (
+          <div className="lg:hidden">
+            <div className="pt-2">
+              <h3 className="text-xs font-semibold text-slate-500 mb-3 px-4">
+                Akun
+              </h3>
+              <div className="px-4 py-2.5">
+                <LoadingSpinner size="sm" text="Memuat..." />
+              </div>
+            </div>
+          </div>
+        ) : user && profileItems.length > 0 && (
           <div className="lg:hidden">
             <div className="pt-2">
               <h3 className="text-xs font-semibold text-slate-500 mb-3 px-4">

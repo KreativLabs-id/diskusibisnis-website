@@ -1,6 +1,7 @@
 import axios from 'axios';
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api';
+// Use Next.js API routes instead of external backend
+const API_URL = '/api';
 
 const api = axios.create({
   baseURL: API_URL,
@@ -95,7 +96,11 @@ export const commentAPI = {
 // Votes
 export const voteAPI = {
   cast: (data: { votableType: string; votableId: string; voteType: string }) =>
-    api.post('/votes', data),
+    api.post('/votes', { 
+      targetType: data.votableType, 
+      targetId: data.votableId, 
+      voteType: data.voteType 
+    }),
   remove: (id: string) =>
     api.delete(`/votes/${id}`),
 };
@@ -158,4 +163,28 @@ export const adminAPI = {
     api.delete(`/admin/comments/${id}`),
   getStats: () =>
     api.get('/admin/stats'),
+};
+
+// Bookmark API
+export const bookmarkAPI = {
+  getAll: () =>
+    api.get('/bookmarks'),
+  add: (questionId: string) =>
+    api.post('/bookmarks', { questionId }),
+  remove: (questionId: string) =>
+    api.delete(`/bookmarks?questionId=${questionId}`),
+};
+
+// Community API
+export const communityAPI = {
+  getAll: (params?: { search?: string; category?: string; page?: number; limit?: number }) =>
+    api.get('/communities', { params }),
+  getById: (id: string) =>
+    api.get(`/communities/${id}`),
+  create: (data: { name: string; description: string; category: string; location?: string }) =>
+    api.post('/communities', data),
+  join: (id: string) =>
+    api.post(`/communities/${id}/join`),
+  getMembers: (id: string) =>
+    api.get(`/communities/${id}/members`),
 };

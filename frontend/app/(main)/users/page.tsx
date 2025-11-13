@@ -42,7 +42,23 @@ export default function UsersPage() {
     try {
       setLoading(true);
       const response = await userAPI.getAll({ sort: sortBy });
-      setUsers(response.data.data || []);
+      const usersData = response.data?.data?.users || response.data?.users || [];
+      
+      // Map the data to match frontend interface
+      const mappedUsers = usersData.map((user: any) => ({
+        id: user.id,
+        displayName: user.displayName,
+        email: user.email,
+        avatarUrl: user.avatarUrl,
+        reputationPoints: user.reputationPoints,
+        role: user.role,
+        bio: user.bio,
+        createdAt: user.createdAt,
+        questionsCount: user.questionCount,
+        answersCount: user.answerCount
+      }));
+      
+      setUsers(Array.isArray(mappedUsers) ? mappedUsers : []);
     } catch (error) {
       console.error('Error fetching users:', error);
       setUsers([]);
@@ -51,10 +67,10 @@ export default function UsersPage() {
     }
   };
 
-  const filteredUsers = users.filter(user =>
+  const filteredUsers = Array.isArray(users) ? users.filter(user =>
     user.displayName.toLowerCase().includes(searchQuery.toLowerCase()) ||
     user.email.toLowerCase().includes(searchQuery.toLowerCase())
-  );
+  ) : [];
 
   const formatTimeAgo = (dateString: string) => {
     const date = new Date(dateString);

@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Clear Authentication</title>
+    <style>
+        body { font-family: Arial, sans-serif; max-width: 600px; margin: 50px auto; padding: 20px; }
+        .container { background: #f8f9fa; padding: 30px; border-radius: 10px; border: 1px solid #e9ecef; }
+        .btn { background: #10b981; color: white; padding: 10px 20px; border: none; border-radius: 5px; cursor: pointer; margin: 5px; }
+        .btn:hover { background: #059669; }
+        .credentials { background: #fff; padding: 15px; border-radius: 5px; margin: 15px 0; border-left: 4px solid #10b981; }
+        .error { color: #dc3545; }
+        .success { color: #28a745; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔐 Authentication Helper</h1>
+        <p>Jika Anda mengalami masalah saat membuat komunitas (error 401), ikuti langkah berikut:</p>
+        
+        <div class="credentials">
+            <h3>📝 Kredensial Login Test:</h3>
+            <p><strong>Email:</strong> test@example.com</p>
+            <p><strong>Password:</strong> test123</p>
+        </div>
+        
+        <h3>🛠️ Langkah Perbaikan:</h3>
+        <ol>
+            <li>Klik tombol "Clear Authentication" untuk menghapus session lama</li>
+            <li>Login ulang dengan kredensial di atas</li>
+            <li>Coba buat komunitas lagi</li>
+        </ol>
+        
+        <button class="btn" onclick="clearAuth()">Clear Authentication</button>
+        <button class="btn" onclick="goToLogin()">Go to Login</button>
+        
+        <div id="status"></div>
+    </div>
+    
+    <script>
+        function clearAuth() {
+            const statusDiv = document.getElementById('status');
+            
+            try {
+                // Clear all authentication data
+                localStorage.removeItem('token');
+                localStorage.removeItem('user');
+                localStorage.removeItem('viewedQuestions');
+                
+                // Clear all localStorage items that might be related to auth
+                Object.keys(localStorage).forEach(key => {
+                    if (key.includes('auth') || key.includes('user') || key.includes('token')) {
+                        localStorage.removeItem(key);
+                    }
+                });
+                
+                statusDiv.innerHTML = '<p class="success">✅ Authentication cleared successfully!</p>';
+                
+                setTimeout(() => {
+                    window.location.href = '/login';
+                }, 2000);
+                
+            } catch (error) {
+                statusDiv.innerHTML = '<p class="error">❌ Error clearing authentication: ' + error.message + '</p>';
+            }
+        }
+        
+        function goToLogin() {
+            window.location.href = '/login';
+        }
+        
+        // Check current auth status
+        window.onload = function() {
+            const token = localStorage.getItem('token');
+            const user = localStorage.getItem('user');
+            const statusDiv = document.getElementById('status');
+            
+            if (token && user) {
+                statusDiv.innerHTML = '<p style="color: #6c757d;">ℹ️ Current session detected. Clear it if experiencing issues.</p>';
+            } else {
+                statusDiv.innerHTML = '<p style="color: #6c757d;">ℹ️ No active session found.</p>';
+            }
+        };
+    </script>
+</body>
+</html>

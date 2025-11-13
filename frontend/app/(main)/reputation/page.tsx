@@ -88,7 +88,7 @@ export default function ReputationPage() {
       case 'answer_upvote':
         return <ThumbsUp className="w-4 h-4 text-green-600" />;
       case 'answer_accepted':
-        return <CheckCircle className="w-4 h-4 text-blue-600" />;
+        return <CheckCircle className="w-4 h-4 text-emerald-600" />;
       case 'question_posted':
         return <MessageSquare className="w-4 h-4 text-purple-600" />;
       default:
@@ -106,7 +106,7 @@ export default function ReputationPage() {
         </p>
         <Link
           href="/login"
-          className="inline-flex items-center px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium"
+          className="inline-flex items-center px-6 py-3 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 transition-colors font-medium"
         >
           Login untuk Melanjutkan
         </Link>
@@ -156,8 +156,8 @@ export default function ReputationPage() {
 
           <div className="bg-white rounded-xl border border-slate-200 p-4 sm:p-6">
             <div className="flex items-center gap-3 mb-2">
-              <div className="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center">
-                <Award className="w-5 h-5 text-blue-600" />
+              <div className="w-10 h-10 bg-emerald-100 rounded-lg flex items-center justify-center">
+                <Award className="w-5 h-5 text-emerald-600" />
               </div>
               <div>
                 <p className="text-sm text-slate-600">Peringkat</p>
@@ -200,7 +200,7 @@ export default function ReputationPage() {
               </p>
               <Link
                 href="/questions"
-                className="inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+                className="inline-flex items-center px-4 py-2 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 transition-colors"
               >
                 Jelajahi Pertanyaan
               </Link>
@@ -217,7 +217,7 @@ export default function ReputationPage() {
                     {activity.questionTitle && (
                       <Link
                         href={`/questions/${activity.questionId}`}
-                        className="text-sm text-blue-600 hover:text-blue-700 transition-colors"
+                        className="text-sm text-emerald-600 hover:text-emerald-700 transition-colors"
                       >
                         {activity.questionTitle}
                       </Link>
@@ -240,7 +240,7 @@ export default function ReputationPage() {
       </div>
 
       {/* How Reputation Works */}
-      <div className="mt-8 bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-200 rounded-xl p-6">
+      <div className="mt-8 bg-gradient-to-r from-emerald-50 to-emerald-100 border border-emerald-200 rounded-xl p-6">
         <h3 className="text-lg font-semibold text-slate-900 mb-4">Cara Kerja Reputasi</h3>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm text-slate-700">
           <div className="space-y-2">

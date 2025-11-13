@@ -11,7 +11,7 @@ const getNotificationIcon = (type: string) => {
     case 'answer':
       return <MessageSquare className="w-5 h-5 text-green-600" />;
     case 'comment':
-      return <MessageSquare className="w-5 h-5 text-blue-600" />;
+      return <MessageSquare className="w-5 h-5 text-emerald-600" />;
     case 'vote':
       return <ThumbsUp className="w-5 h-5 text-orange-600" />;
     case 'mention':
@@ -59,7 +59,7 @@ const NotificationItem: React.FC<NotificationItemProps> = ({ notification, onMar
       className={`p-6 hover:bg-slate-50 transition-colors cursor-pointer border-l-4 ${
         notification.is_read 
           ? 'border-transparent bg-white' 
-          : 'border-blue-500 bg-blue-50/30'
+          : 'border-emerald-500 bg-emerald-50/30'
       }`}
       onClick={handleClick}
     >
@@ -75,7 +75,7 @@ const NotificationItem: React.FC<NotificationItemProps> = ({ notification, onMar
               {notification.title}
             </h3>
             {!notification.is_read && (
-              <div className="w-3 h-3 bg-blue-600 rounded-full flex-shrink-0 ml-3 mt-1"></div>
+              <div className="w-3 h-3 bg-emerald-600 rounded-full flex-shrink-0 ml-3 mt-1"></div>
             )}
           </div>
           {notification.message && (
@@ -147,7 +147,7 @@ export default function NotificationsPage() {
             {unreadCount > 0 && (
               <button
                 onClick={handleMarkAllAsRead}
-                className="flex items-center space-x-2 px-4 py-2 text-blue-600 hover:text-blue-700 hover:bg-blue-50 rounded-lg transition-colors font-medium"
+                className="flex items-center space-x-2 px-4 py-2 text-emerald-600 hover:text-emerald-700 hover:bg-emerald-50 rounded-lg transition-colors font-medium"
               >
                 <CheckCheck className="w-4 h-4" />
                 <span>Tandai semua dibaca</span>
@@ -160,7 +160,7 @@ export default function NotificationsPage() {
         <div className="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
           {loading ? (
             <div className="p-12 text-center">
-              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
+              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-emerald-600 mx-auto"></div>
               <p className="text-slate-500 mt-4">Memuat notifikasi...</p>
             </div>
           ) : notifications.length === 0 ? (

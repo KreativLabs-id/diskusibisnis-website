@@ -1,4 +1,4 @@
-﻿'use client';
+'use client';
 
 import { FormEvent, useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
@@ -80,7 +80,7 @@ export default function AskPage() {
     return (
       <div className="min-h-screen bg-slate-50 flex items-center justify-center">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-emerald-600 mx-auto"></div>
           <p className="mt-4 text-slate-600">Memuat...</p>
         </div>
       </div>
@@ -104,7 +104,7 @@ export default function AskPage() {
         </button>
 
         <div className="bg-white border border-slate-200 rounded-2xl p-6 mb-8 shadow-sm">
-          <p className="inline-flex items-center gap-2 text-sm text-blue-600 font-semibold">
+          <p className="inline-flex items-center gap-2 text-sm text-emerald-600 font-semibold">
             <HelpCircle className="w-4 h-4" />
             Formulir Pertanyaan
           </p>
@@ -140,7 +140,7 @@ export default function AskPage() {
               value={title}
               onChange={(e) => setTitle(e.target.value)}
               placeholder="Contoh: Strategi pemasaran digital untuk meningkatkan penjualan harian"
-              className="w-full px-4 py-3 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
+              className="w-full px-4 py-3 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-500 text-sm"
               required
             />
           </div>
@@ -156,7 +156,7 @@ export default function AskPage() {
               value={content}
               onChange={(e) => setContent(e.target.value)}
               placeholder="Jelaskan latar belakang bisnis, masalah utama, data pendukung, dan solusi yang sudah dicoba..."
-              className="w-full px-4 py-3 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
+              className="w-full px-4 py-3 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-500 text-sm"
               required
             />
             <p className="text-xs text-slate-500 mt-1">
@@ -182,10 +182,10 @@ export default function AskPage() {
                   disabled={!selectedTags.includes(tag) && selectedTags.length >= 3}
                   className={`inline-flex items-center gap-2 px-4 py-2 rounded-full border text-sm font-medium transition-colors ${
                     selectedTags.includes(tag)
-                      ? 'bg-blue-600 text-white border-blue-600'
+                      ? 'bg-emerald-600 text-white border-emerald-600'
                       : !selectedTags.includes(tag) && selectedTags.length >= 3
                       ? 'bg-slate-100 text-slate-400 border-slate-200 cursor-not-allowed'
-                      : 'bg-slate-50 text-slate-600 border-slate-200 hover:border-blue-400'
+                      : 'bg-slate-50 text-slate-600 border-slate-200 hover:border-emerald-400'
                   }`}
                 >
                   <Tag className="w-4 h-4" />
@@ -195,12 +195,12 @@ export default function AskPage() {
             </div>
           </div>
 
-          <div className="bg-blue-50 border border-blue-200 rounded-xl p-4">
+          <div className="bg-emerald-50 border border-emerald-200 rounded-xl p-4">
             <div className="flex items-start gap-3">
-              <Lightbulb className="w-5 h-5 text-blue-600 shrink-0 mt-0.5" />
+              <Lightbulb className="w-5 h-5 text-emerald-600 shrink-0 mt-0.5" />
               <div>
-                <p className="text-sm font-medium text-blue-900">Tips Pertanyaan Berkualitas</p>
-                <ul className="text-xs text-blue-700 mt-2 space-y-1 list-disc list-inside">
+                <p className="text-sm font-medium text-emerald-900">Tips Pertanyaan Berkualitas</p>
+                <ul className="text-xs text-emerald-700 mt-2 space-y-1 list-disc list-inside">
                   <li>Jelaskan masalah dengan spesifik dan detail</li>
                   <li>Sertakan data atau angka pendukung jika ada</li>
                   <li>Ceritakan apa yang sudah Anda coba</li>
@@ -222,7 +222,7 @@ export default function AskPage() {
             <button
               type="submit"
               disabled={loading || selectedTags.length === 0}
-              className="px-6 py-2.5 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+              className="px-6 py-2.5 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 transition-colors font-medium disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
             >
               {loading ? (
                 <>

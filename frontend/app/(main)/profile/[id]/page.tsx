@@ -5,6 +5,7 @@ import { useParams, useRouter } from 'next/navigation';
 import { useAuth } from '@/contexts/AuthContext';
 import { User, Mail, Calendar, Award, MessageSquare, CheckCircle, Edit, ArrowLeft } from 'lucide-react';
 import { userAPI } from '@/lib/api';
+import { formatDate } from '@/lib/utils';
 import Link from 'next/link';
 
 interface UserProfile {
@@ -51,17 +52,30 @@ export default function ProfilePage() {
   const fetchProfile = async () => {
     try {
       const response = await userAPI.getProfile(params.id as string);
-      const data = response.data.data;
+      // Extract user data correctly
+      let userData = null;
+      if (response.data.data && response.data.data.user) {
+        userData = response.data.data.user;
+      } else if (response.data.user) {
+        userData = response.data.user;
+      } else if (response.data.data) {
+        userData = response.data.data;
+      }
+      
+      if (!userData) {
+        console.error('No user data found');
+        return;
+      }
       
       // Map snake_case to camelCase
       setProfile({
-        id: data.id,
-        displayName: data.display_name || data.displayName,
-        email: data.email,
-        avatarUrl: data.avatar_url || data.avatarUrl,
-        bio: data.bio,
-        reputationPoints: data.reputation_points || data.reputationPoints || 0,
-        createdAt: data.created_at || data.createdAt
+        id: userData.id,
+        displayName: userData.displayName || userData.display_name || 'User',
+        email: userData.email,
+        avatarUrl: userData.avatarUrl || userData.avatar_url,
+        bio: userData.bio,
+        reputationPoints: userData.reputationPoints || userData.reputation_points || 0,
+        createdAt: userData.createdAt || userData.created_at
       });
     } catch (error) {
       console.error('Error fetching profile:', error);
@@ -73,17 +87,27 @@ export default function ProfilePage() {
   const fetchQuestions = async () => {
     try {
       const response = await userAPI.getQuestions(params.id as string);
-      const data = response.data.data || [];
+      // Extract questions data correctly
+      let questionsData = [];
+      if (response.data.data && response.data.data.questions) {
+        questionsData = response.data.data.questions;
+      } else if (response.data.questions) {
+        questionsData = response.data.questions;
+      } else if (response.data.data) {
+        questionsData = response.data.data;
+      }
       
       // Map snake_case to camelCase
-      setQuestions(data.map((q: Record<string, unknown>) => ({
-        id: q.id as string,
-        title: q.title as string,
-        upvotesCount: (q.upvotes_count || q.upvotesCount || 0) as number,
-        answersCount: (q.answers_count || q.answersCount || 0) as number,
-        viewsCount: (q.views_count || q.viewsCount || 0) as number,
-        createdAt: (q.created_at || q.createdAt) as string
-      })));
+      const mappedQuestions = questionsData.map((q: any) => ({
+        id: q.id,
+        title: q.title,
+        upvotesCount: q.upvotes || q.upvotes_count || q.upvotesCount || 0,
+        answersCount: q.answer_count || q.answers_count || q.answersCount || 0,
+        viewsCount: q.views_count || q.viewsCount || 0,
+        createdAt: q.created_at || q.createdAt
+      }));
+      
+      setQuestions(mappedQuestions);
     } catch (error) {
       console.error('Error fetching questions:', error);
     }
@@ -92,18 +116,28 @@ export default function ProfilePage() {
   const fetchAnswers = async () => {
     try {
       const response = await userAPI.getAnswers(params.id as string);
-      const data = response.data.data || [];
+      // Extract answers data correctly
+      let answersData = [];
+      if (response.data.data && response.data.data.answers) {
+        answersData = response.data.data.answers;
+      } else if (response.data.answers) {
+        answersData = response.data.answers;
+      } else if (response.data.data) {
+        answersData = response.data.data;
+      }
       
       // Map snake_case to camelCase
-      setAnswers(data.map((a: Record<string, unknown>) => ({
-        id: a.id as string,
-        content: a.content as string,
-        upvotesCount: (a.upvotes_count || a.upvotesCount || 0) as number,
-        isAccepted: (a.is_accepted || a.isAccepted || false) as boolean,
-        questionId: (a.question_id || a.questionId) as string,
-        questionTitle: (a.question_title || a.questionTitle) as string,
-        createdAt: (a.created_at || a.createdAt) as string
-      })));
+      const mappedAnswers = answersData.map((a: any) => ({
+        id: a.id,
+        content: a.content,
+        upvotesCount: a.upvotes || a.upvotes_count || a.upvotesCount || 0,
+        isAccepted: a.is_accepted || a.isAccepted || false,
+        questionId: a.question_id || a.questionId,
+        questionTitle: a.question_title || a.questionTitle,
+        createdAt: a.created_at || a.createdAt
+      }));
+      
+      setAnswers(mappedAnswers);
     } catch (error) {
       console.error('Error fetching answers:', error);
     }
@@ -184,7 +218,7 @@ export default function ProfilePage() {
                   )}
                   <div className="flex items-center gap-2 text-sm text-slate-500">
                     <Calendar className="w-4 h-4" />
-                    Bergabung {new Date(profile.createdAt).toLocaleDateString('id-ID', { year: 'numeric', month: 'long' })}
+                    Bergabung {profile.createdAt ? new Date(profile.createdAt).toLocaleDateString('id-ID', { year: 'numeric', month: 'long' }) : 'Invalid Date'}
                   </div>
                 </div>
                 {isOwnProfile && (

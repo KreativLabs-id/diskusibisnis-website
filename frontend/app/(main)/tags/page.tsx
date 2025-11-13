@@ -26,7 +26,7 @@ export default function TagsPage() {
   }, []);
 
   useEffect(() => {
-    let result = [...tags];
+    let result = Array.isArray(tags) ? [...tags] : [];
 
     // Filter by search query
     if (searchQuery) {
@@ -49,7 +49,19 @@ export default function TagsPage() {
   const fetchTags = async () => {
     try {
       const response = await tagAPI.getAll();
-      setTags(response.data.data || []);
+      const tagsData = response.data?.data?.tags || response.data?.tags || [];
+      
+      // Map the data to match frontend interface
+      const mappedTags = tagsData.map((tag: any) => ({
+        id: tag.id,
+        name: tag.name,
+        slug: tag.slug,
+        description: tag.description,
+        questionCount: tag.question_count || 0,
+        createdAt: tag.created_at
+      }));
+      
+      setTags(Array.isArray(mappedTags) ? mappedTags : []);
     } catch (error) {
       console.error('Error fetching tags:', error);
       setTags([]);
@@ -60,7 +72,7 @@ export default function TagsPage() {
 
   const getTagColor = (index: number) => {
     const colors = [
-      'bg-blue-50 text-blue-700 border-blue-200',
+      'bg-emerald-50 text-emerald-700 border-emerald-200',
       'bg-green-50 text-green-700 border-green-200',
       'bg-purple-50 text-purple-700 border-purple-200',
       'bg-amber-50 text-amber-700 border-amber-200',
@@ -74,7 +86,7 @@ export default function TagsPage() {
     return (
       <div className="min-h-screen bg-slate-50 flex items-center justify-center">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-emerald-600 mx-auto"></div>
           <p className="mt-4 text-slate-600">Memuat tags...</p>
         </div>
       </div>
@@ -160,7 +172,7 @@ export default function TagsPage() {
                 <Link
                   key={tag.id}
                   href={`/tags/${tag.slug}`}
-                  className="bg-white border border-slate-200 rounded-2xl p-6 hover:shadow-lg hover:border-blue-300 transition-all group"
+                  className="bg-white border border-slate-200 rounded-2xl p-6 hover:shadow-lg hover:border-emerald-300 transition-all group"
                 >
                   <div className="flex items-start justify-between mb-3">
                     <div
@@ -188,9 +200,9 @@ export default function TagsPage() {
         )}
 
         {/* Info Box */}
-        <div className="mt-8 bg-linear-to-r from-blue-50 to-indigo-50 border border-blue-200 rounded-2xl p-6">
+        <div className="mt-8 bg-gradient-to-r from-emerald-50 to-emerald-100 border border-emerald-200 rounded-2xl p-6">
           <div className="flex items-start gap-4">
-            <div className="w-10 h-10 bg-blue-600 rounded-xl flex items-center justify-center shrink-0">
+            <div className="w-10 h-10 bg-emerald-600 rounded-xl flex items-center justify-center shrink-0">
               <Tag className="w-5 h-5 text-white" />
             </div>
             <div>
@@ -199,17 +211,17 @@ export default function TagsPage() {
               </h3>
               <ul className="text-sm text-slate-700 space-y-2">
                 <li className="flex items-start gap-2">
-                  <span className="text-blue-600 font-bold">•</span>
+                  <span className="text-emerald-600 font-bold">•</span>
                   <span>
                     Gunakan tag saat membuat pertanyaan untuk membantu orang lain menemukan topik Anda
                   </span>
                 </li>
                 <li className="flex items-start gap-2">
-                  <span className="text-blue-600 font-bold">•</span>
+                  <span className="text-emerald-600 font-bold">•</span>
                   <span>Klik tag untuk melihat semua pertanyaan dalam kategori tersebut</span>
                 </li>
                 <li className="flex items-start gap-2">
-                  <span className="text-blue-600 font-bold">•</span>
+                  <span className="text-emerald-600 font-bold">•</span>
                   <span>Pilih maksimal 3 tag yang paling relevan dengan pertanyaan Anda</span>
                 </li>
               </ul>

@@ -102,18 +102,20 @@ export default function UnansweredPage() {
   );
 
   const renderEmptyState = (
-    <div className="bg-white rounded-xl border border-dashed border-slate-300 p-12 text-center">
-      <HelpCircle className="w-16 h-16 text-green-300 mx-auto mb-4" />
-      <h3 className="text-xl font-semibold text-slate-900 mb-2">
-        Semua Pertanyaan Sudah Terjawab!
+    <div className="bg-white rounded-xl border border-slate-200 p-8 text-center">
+      <div className="w-12 h-12 bg-emerald-100 rounded-xl flex items-center justify-center mx-auto mb-4">
+        <HelpCircle className="w-6 h-6 text-emerald-600" />
+      </div>
+      <h3 className="text-lg font-semibold text-slate-900 mb-2">
+        Semua Pertanyaan Sudah Terjawab
       </h3>
-      <p className="text-slate-500 mb-6 max-w-md mx-auto">
-        Luar biasa! Saat ini tidak ada pertanyaan yang belum terjawab. Komunitas sangat aktif membantu satu sama lain.
+      <p className="text-slate-500 mb-6 text-sm max-w-sm mx-auto">
+        Komunitas sangat aktif! Tidak ada pertanyaan yang menunggu jawaban saat ini.
       </p>
       <div className="flex flex-col sm:flex-row gap-3 justify-center">
         <Link
           href="/questions"
-          className="inline-flex items-center px-6 py-3 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 transition-colors font-medium"
+          className="inline-flex items-center px-4 py-2 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 transition-colors font-medium text-sm"
         >
           Lihat Semua Pertanyaan
         </Link>
@@ -162,18 +164,20 @@ export default function UnansweredPage() {
             <h3 className="text-lg font-semibold text-slate-900 mb-2">
               Bantu Komunitas dengan Menjawab!
             </h3>
-            <p className="text-sm text-slate-700 mb-3">
-              Setiap jawaban yang Anda berikan membantu sesama pemilik UMKM dan meningkatkan reputasi Anda di komunitas.
-            </p>
-            <div className="flex items-center gap-4 text-sm text-slate-600">
-              <span className="flex items-center gap-1">
-                <span className="w-2 h-2 bg-green-500 rounded-full"></span>
-                Dapatkan +10 poin untuk setiap jawaban yang di-upvote
-              </span>
-              <span className="flex items-center gap-1">
-                <span className="w-2 h-2 bg-emerald-500 rounded-full"></span>
-                Dapatkan +15 poin jika jawaban Anda diterima
-              </span>
+            <div className="space-y-2">
+              <p className="text-sm text-slate-700">
+                Setiap jawaban membantu sesama UMKM dan meningkatkan reputasi Anda.
+              </p>
+              <div className="flex flex-col sm:flex-row gap-2 text-sm text-slate-600">
+                <span className="flex items-center gap-2">
+                  <span className="w-2 h-2 bg-emerald-500 rounded-full"></span>
+                  <span>+10 poin per jawaban</span>
+                </span>
+                <span className="flex items-center gap-2">
+                  <span className="w-2 h-2 bg-green-500 rounded-full"></span>
+                  <span>+15 poin jika diterima</span>
+                </span>
+              </div>
             </div>
           </div>
         </div>

@@ -3,8 +3,8 @@
 import { useEffect, useState, useCallback } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { ArrowBigUp, ArrowBigDown, MessageCircle, Eye, Edit, Trash, CheckCircle, ArrowLeft } from 'lucide-react';
-import { questionAPI, answerAPI, voteAPI } from '@/lib/api';
+import { ArrowBigUp, ArrowBigDown, MessageCircle, Eye, Edit, Trash, CheckCircle, ArrowLeft, Bookmark, BookmarkCheck } from 'lucide-react';
+import { questionAPI, answerAPI, voteAPI, bookmarkAPI } from '@/lib/api';
 import { useAuth } from '@/contexts/AuthContext';
 import { formatDate } from '@/lib/utils';
 
@@ -35,6 +35,7 @@ interface QuestionData {
     user_vote?: 'upvote' | 'downvote' | null;
   }>;
   user_vote?: 'upvote' | 'downvote' | null;
+  is_bookmarked?: boolean;
 }
 
 export default function QuestionDetailPage() {
@@ -136,17 +137,46 @@ export default function QuestionDetailPage() {
     }
 
     try {
-      await questionAPI.delete(params.id as string);
-      window.location.href = '/';
-    } catch (error) {
+      console.log('Deleting question:', params.id);
+      console.log('User:', user);
+      const response = await questionAPI.delete(params.id as string);
+      console.log('Delete response:', response);
+      alert('Pertanyaan berhasil dihapus');
+      router.push('/');
+    } catch (error: any) {
       console.error('Error deleting question:', error);
-      alert('Gagal menghapus pertanyaan');
+      if (error.response?.status === 401) {
+        alert('Anda harus login untuk menghapus pertanyaan');
+      } else if (error.response?.status === 403) {
+        alert('Anda tidak memiliki izin untuk menghapus pertanyaan ini');
+      } else {
+        alert('Gagal menghapus pertanyaan: ' + (error.response?.data?.message || error.message));
+      }
     }
   };
 
   const handleEditQuestion = () => {
     // Redirect to edit page
-    window.location.href = `/questions/${params.id}/edit`;
+    router.push(`/questions/${params.id}/edit`);
+  };
+
+  const handleBookmark = async () => {
+    if (!user) {
+      alert('Silakan login untuk menyimpan pertanyaan');
+      return;
+    }
+
+    try {
+      if (question?.is_bookmarked) {
+        await bookmarkAPI.remove(question.id);
+      } else if (question) {
+        await bookmarkAPI.add(question.id);
+      }
+      fetchQuestion(); // Refresh to update bookmark status
+    } catch (error) {
+      console.error('Error toggling bookmark:', error);
+      alert('Gagal menyimpan pertanyaan');
+    }
   };
 
   if (loading) {
@@ -165,7 +195,7 @@ export default function QuestionDetailPage() {
     return (
       <div className="container mx-auto px-4 py-8 text-center">
         <h2 className="text-2xl font-bold text-gray-900 mb-4">Pertanyaan tidak ditemukan</h2>
-        <Link href="/" className="text-blue-600 hover:text-blue-700">
+        <Link href="/" className="text-emerald-600 hover:text-emerald-700">
           Kembali ke beranda
         </Link>
       </div>
@@ -225,81 +255,90 @@ export default function QuestionDetailPage() {
                   : 'text-gray-400 hover:text-gray-600'
               }`} />
             </button>
+            
+            {/* Bookmark Button */}
+            <button
+              onClick={handleBookmark}
+              disabled={!user}
+              className={`p-2 rounded-lg transition-colors ${
+                question.is_bookmarked 
+                  ? 'bg-emerald-100 text-emerald-600' 
+                  : user 
+                    ? 'hover:bg-slate-50 text-gray-400 hover:text-gray-600' 
+                    : 'opacity-50 cursor-not-allowed text-gray-400'
+              }`}
+              title={!user ? 'Login untuk menyimpan' : question.is_bookmarked ? 'Hapus dari tersimpan' : 'Simpan pertanyaan'}
+            >
+              {question.is_bookmarked ? (
+                <BookmarkCheck className="w-5 h-5" />
+              ) : (
+                <Bookmark className="w-5 h-5" />
+              )}
+            </button>
           </div>
 
           {/* Content */}
           <div className="flex-1">
-            <h1 className="text-3xl font-bold text-gray-900 mb-4">{question.title}</h1>
+            {/* Question Title - Enhanced Visual Hierarchy */}
+            <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-gray-900 mb-6 leading-tight">{question.title}</h1>
             
-            <div className="flex items-center gap-3 text-sm text-slate-500 mb-4">
-              <div className="flex items-center gap-1.5">
-                <Eye className="w-4 h-4" />
-                <span>{question.views_count}</span>
-              </div>
-              <div className="flex items-center gap-1.5">
-                <MessageCircle className="w-4 h-4" />
-                <span>{question.answers_count}</span>
-              </div>
-              <span>{formatDate(question.created_at)}</span>
+            {/* Question Content */}
+            <div className="prose max-w-none mb-6">
+              <p className="text-gray-700 text-base leading-relaxed">{question.content}</p>
             </div>
 
-            <div className="prose max-w-none mb-4">
-              <p className="text-gray-700">{question.content}</p>
-            </div>
-
-            {/* Tags */}
-            <div className="flex flex-wrap gap-2 mb-4">
-              {question.tags.map((tag) => (
+            {/* Question Tags */}
+            <div className="flex flex-wrap gap-2 mb-6">
+              {question.tags?.map((tag) => (
                 <Link
                   key={tag.id}
                   href={`/tags/${tag.slug}`}
-                  className="px-3 py-1 bg-emerald-50 text-emerald-700 rounded-full text-sm font-medium hover:bg-emerald-100 transition-colors"
+                  className="px-3 py-1.5 bg-slate-100 text-slate-700 rounded-full text-sm font-medium hover:bg-slate-200 transition-colors"
                 >
                   {tag.name}
                 </Link>
               ))}
             </div>
 
-            {/* Author */}
+            {/* Question Meta Info - Reorganized */}
             <div className="flex items-center justify-between pt-4 border-t border-slate-200">
-              <div className="flex items-center gap-2">
-                <div className="w-8 h-8 rounded-full bg-gradient-to-br from-emerald-500 to-emerald-600 flex items-center justify-center">
-                  <span className="text-white text-sm font-medium">
-                    {question.author_name?.charAt(0).toUpperCase()}
-                  </span>
+              <div className="flex items-center gap-4 text-sm text-slate-600">
+                <div className="flex items-center gap-1.5">
+                  <Eye className="w-4 h-4" />
+                  <span>{question.views_count} views</span>
                 </div>
-                <div>
-                  <p className="font-medium text-slate-900">{question.author_name}</p>
-                  <p className="text-sm text-slate-500">{question.author_reputation || 0} reputasi</p>
+                <div className="flex items-center gap-1.5">
+                  <MessageCircle className="w-4 h-4" />
+                  <span>{question.answers_count} jawaban</span>
                 </div>
               </div>
-              {user?.id === question.author_id && (
-                <div className="flex gap-2">
-                  <button 
-                    onClick={handleEditQuestion}
-                    className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
-                    title="Edit pertanyaan"
-                  >
-                    <Edit className="w-4 h-4 text-gray-600" />
-                  </button>
-                  <button 
-                    onClick={handleDeleteQuestion}
-                    className="p-2 hover:bg-red-50 rounded-lg transition-colors"
-                    title="Hapus pertanyaan"
-                  >
-                    <Trash className="w-4 h-4 text-red-600" />
-                  </button>
+              <div className="flex items-center gap-3">
+                <div className="flex items-center gap-2">
+                  <div className="w-8 h-8 rounded-full bg-gradient-to-br from-emerald-500 to-emerald-600 flex items-center justify-center">
+                    <span className="text-white text-sm font-medium">
+                      {question.author_name?.charAt(0).toUpperCase()}
+                    </span>
+                  </div>
+                  <div className="text-right">
+                    <p className="font-medium text-slate-900 text-sm">{question.author_name}</p>
+                    <p className="text-xs text-slate-500">{formatDate(question.created_at)}</p>
+                  </div>
                 </div>
-              )}
+              </div>
             </div>
           </div>
         </div>
       </div>
 
-      {/* Answers */}
-      <h2 className="text-2xl font-bold text-gray-900 mb-4">
-        {question.answers_count} Jawaban
-      </h2>
+      {/* Answers Section - Enhanced Separator */}
+      <div className="border-t-4 border-slate-100 pt-8 mt-8">
+        <div className="bg-slate-50 -mx-4 px-4 py-3 mb-6 rounded-lg">
+          <h2 className="text-xl font-bold text-gray-900 flex items-center gap-2">
+            <MessageCircle className="w-5 h-5 text-emerald-600" />
+            {question.answers_count} Jawaban
+          </h2>
+        </div>
+      </div>
 
       <div className="space-y-6 mb-8">
         {question.answers?.map((answer) => (
@@ -359,9 +398,9 @@ export default function QuestionDetailPage() {
               {/* Content */}
               <div className="flex-1">
                 {answer.is_accepted && (
-                  <div className="flex items-center gap-2 text-emerald-700 font-semibold mb-3 bg-emerald-100 px-3 py-1.5 rounded-full text-sm">
-                    <CheckCircle className="w-4 h-4" />
-                    <span>Jawaban Terbaik</span>
+                  <div className="flex items-center gap-2 text-emerald-800 font-semibold mb-4 bg-emerald-100 border border-emerald-200 px-4 py-2 rounded-lg text-sm">
+                    <CheckCircle className="w-5 h-5 text-emerald-600" />
+                    <span>✓ Jawaban Terbaik</span>
                   </div>
                 )}
 

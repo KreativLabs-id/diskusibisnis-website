@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { 
   Globe, 
@@ -12,28 +12,51 @@ import {
   MapPin,
   Calendar,
   ArrowRight,
-  Plus
+  Plus,
+  Tag
 } from 'lucide-react';
+import { communityAPI } from '@/lib/api';
 
 interface Community {
   id: string;
   name: string;
+  slug: string;
   description: string;
-  memberCount: number;
-  questionCount: number;
+  member_count: number;
+  question_count: number;
   category: string;
   location?: string;
-  isPopular: boolean;
-  createdAt: string;
-  avatar?: string;
+  is_popular?: boolean;
+  created_at: string;
+  avatar_url?: string;
 }
 
 export default function CommunitiesPage() {
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
+  const [communities, setCommunities] = useState<Community[]>([]);
+  const [loading, setLoading] = useState(true);
 
-  // Real data - will be fetched from API
-  const communities: Community[] = [];
+  useEffect(() => {
+    fetchCommunities();
+  }, [selectedCategory, searchQuery]);
+
+  const fetchCommunities = async () => {
+    try {
+      setLoading(true);
+      const params: any = {};
+      if (selectedCategory !== 'all') params.category = selectedCategory;
+      if (searchQuery) params.search = searchQuery;
+      
+      const response = await communityAPI.getAll(params);
+      setCommunities(response.data.data.communities || []);
+    } catch (error) {
+      console.error('Error fetching communities:', error);
+      setCommunities([]);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const categories = [
     { value: 'all', label: 'Semua Kategori' },
@@ -44,6 +67,13 @@ export default function CommunitiesPage() {
     { value: 'Teknologi', label: 'Teknologi' }
   ];
 
+  const formatMemberCount = (count: number): string => {
+    if (count >= 1000) {
+      return (count / 1000).toFixed(1) + 'k';
+    }
+    return count.toString();
+  };
+
   const filteredCommunities = communities.filter(community => {
     const matchesSearch = community.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
                          community.description.toLowerCase().includes(searchQuery.toLowerCase());
@@ -51,22 +81,25 @@ export default function CommunitiesPage() {
     return matchesSearch && matchesCategory;
   });
 
-  const formatMemberCount = (count: number) => {
-    if (count >= 1000) {
-      return `${(count / 1000).toFixed(1)}k`;
-    }
-    return count.toString();
-  };
 
   return (
     <div className="max-w-6xl mx-auto">
       {/* Compact Header */}
       <div className="mb-4">
-        <div className="flex items-center gap-2 mb-2">
-          <div className="w-8 h-8 bg-emerald-100 rounded-lg flex items-center justify-center">
-            <Globe className="w-4 h-4 text-emerald-600" />
+        <div className="flex items-center justify-between mb-2">
+          <div className="flex items-center gap-2">
+            <div className="w-8 h-8 bg-emerald-100 rounded-lg flex items-center justify-center">
+              <Globe className="w-4 h-4 text-emerald-600" />
+            </div>
+            <h1 className="text-xl sm:text-2xl font-bold text-slate-900">Jelajahi Komunitas</h1>
           </div>
-          <h1 className="text-xl sm:text-2xl font-bold text-slate-900">Jelajahi Komunitas</h1>
+          <Link
+            href="/communities/create"
+            className="flex items-center gap-2 px-4 py-2 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 transition-colors text-sm font-medium"
+          >
+            <Plus className="w-4 h-4" />
+            <span className="hidden sm:inline">Buat Komunitas</span>
+          </Link>
         </div>
         <p className="text-slate-600 text-sm">
           Temukan komunitas UMKM yang sesuai
@@ -111,54 +144,60 @@ export default function CommunitiesPage() {
             <Star className="w-5 h-5 text-yellow-500" />
             Komunitas Populer
           </h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            {communities.filter(c => c.isPopular).map((community) => (
-              <div key={community.id} className="bg-white rounded-xl border border-slate-200 p-6 hover:shadow-lg transition-all">
-                <div className="flex items-start gap-4 mb-4">
-                  <div className="w-12 h-12 bg-gradient-to-br from-emerald-500 to-emerald-600 rounded-xl flex items-center justify-center">
-                    <span className="text-white font-bold text-lg">
+          <div className="space-y-4 sm:space-y-0 sm:grid sm:grid-cols-1 md:grid-cols-2 sm:gap-4 md:gap-6">
+            {communities.filter(c => c.is_popular).map((community) => (
+              <Link key={community.id} href={`/communities/${community.slug}`} className="bg-white rounded-xl border border-slate-200 p-4 sm:p-6 hover:shadow-lg transition-all group block">
+                {/* Header dengan ikon dan nama */}
+                <div className="flex items-start gap-3 mb-4">
+                  <div className="w-12 h-12 sm:w-14 sm:h-14 bg-gradient-to-br from-emerald-500 to-emerald-600 rounded-xl flex items-center justify-center shrink-0">
+                    <span className="text-white font-bold text-base sm:text-lg">
                       {community.name.charAt(0)}
                     </span>
                   </div>
-                  <div className="flex-1">
-                    <div className="flex items-center gap-2 mb-1">
-                      <h3 className="font-semibold text-slate-900">{community.name}</h3>
-                      <span className="px-2 py-1 bg-yellow-100 text-yellow-800 text-xs rounded-full font-medium">
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-start gap-2 mb-2">
+                      <h3 className="font-semibold text-slate-900 group-hover:text-emerald-600 transition-colors text-base sm:text-lg leading-tight break-words">
+                        {community.name}
+                      </h3>
+                      <span className="px-2 py-1 bg-yellow-100 text-yellow-800 text-xs rounded-full font-medium shrink-0">
                         Populer
                       </span>
                     </div>
-                    <p className="text-sm text-slate-600 mb-2">{community.description}</p>
-                    <div className="flex items-center gap-4 text-xs text-slate-500">
-                      <span className="flex items-center gap-1">
-                        <Users className="w-3 h-3" />
-                        {formatMemberCount(community.memberCount)} anggota
-                      </span>
-                      <span className="flex items-center gap-1">
-                        <MessageSquare className="w-3 h-3" />
-                        {community.questionCount} pertanyaan
-                      </span>
-                      {community.location && (
-                        <span className="flex items-center gap-1">
-                          <MapPin className="w-3 h-3" />
-                          {community.location}
-                        </span>
-                      )}
-                    </div>
+                    <p className="text-sm text-slate-600 mb-3 line-clamp-2 leading-relaxed">
+                      {community.description}
+                    </p>
                   </div>
                 </div>
-                <div className="flex items-center justify-between">
-                  <span className="px-3 py-1 bg-emerald-100 text-emerald-800 text-xs rounded-full font-medium">
+                
+                {/* Stats section */}
+                <div className="flex flex-wrap items-center gap-3 sm:gap-4 text-xs text-slate-500 mb-4">
+                  <span className="flex items-center gap-1.5">
+                    <Users className="w-3.5 h-3.5" />
+                    <span>{formatMemberCount(community.member_count)} anggota</span>
+                  </span>
+                  <span className="flex items-center gap-1.5">
+                    <MessageSquare className="w-3.5 h-3.5" />
+                    <span>{community.question_count} pertanyaan</span>
+                  </span>
+                  {community.location && (
+                    <span className="flex items-center gap-1.5">
+                      <MapPin className="w-3.5 h-3.5" />
+                      <span>{community.location}</span>
+                    </span>
+                  )}
+                </div>
+                
+                {/* Footer dengan kategori dan link */}
+                <div className="flex items-center justify-between pt-3 border-t border-slate-100">
+                  <span className="px-3 py-1.5 bg-emerald-50 text-emerald-700 text-xs rounded-full font-medium border border-emerald-200">
                     {community.category}
                   </span>
-                  <Link
-                    href={`/communities/${community.id}`}
-                    className="inline-flex items-center gap-1 text-emerald-600 hover:text-emerald-700 text-sm font-medium transition-colors"
-                  >
-                    Lihat Detail
-                    <ArrowRight className="w-3 h-3" />
-                  </Link>
+                  <span className="inline-flex items-center gap-1.5 text-emerald-600 hover:text-emerald-700 text-sm font-medium transition-colors">
+                    <span>Lihat Detail</span>
+                    <ArrowRight className="w-3.5 h-3.5" />
+                  </span>
                 </div>
-              </div>
+              </Link>
             ))}
           </div>
         </div>
@@ -187,63 +226,68 @@ export default function CommunitiesPage() {
                 : 'Jadilah yang pertama membuat komunitas untuk kategori ini!'
               }
             </p>
-            <button className="inline-flex items-center px-6 py-3 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 transition-colors font-medium">
+            <Link
+              href="/communities/create"
+              className="inline-flex items-center px-6 py-3 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 transition-colors font-medium"
+            >
               Buat Komunitas Baru
-            </button>
+            </Link>
           </div>
         ) : (
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <div className="space-y-4 sm:space-y-0 sm:grid sm:grid-cols-1 lg:grid-cols-2 sm:gap-4 lg:gap-6">
             {filteredCommunities.map((community) => (
-              <div key={community.id} className="bg-white rounded-xl border border-slate-200 p-6 hover:shadow-lg transition-all group">
-                <div className="flex items-start gap-4 mb-4">
-                  <div className="w-12 h-12 bg-gradient-to-br from-emerald-500 to-emerald-600 rounded-xl flex items-center justify-center">
-                    <span className="text-white font-bold text-lg">
+              <Link key={community.id} href={`/communities/${community.slug}`} className="bg-white rounded-xl border border-slate-200 p-4 sm:p-6 hover:shadow-lg transition-all group block">
+                {/* Header dengan ikon dan nama */}
+                <div className="flex items-start gap-3 mb-4">
+                  <div className="w-12 h-12 sm:w-14 sm:h-14 bg-gradient-to-br from-emerald-500 to-emerald-600 rounded-xl flex items-center justify-center shrink-0">
+                    <span className="text-white font-bold text-base sm:text-lg">
                       {community.name.charAt(0)}
                     </span>
                   </div>
-                  <div className="flex-1">
-                    <div className="flex items-center gap-2 mb-1">
-                      <h3 className="font-semibold text-slate-900 group-hover:text-emerald-600 transition-colors">
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-start gap-2 mb-2">
+                      <h3 className="font-semibold text-slate-900 group-hover:text-emerald-600 transition-colors text-base sm:text-lg leading-tight break-words">
                         {community.name}
                       </h3>
-                      {community.isPopular && (
-                        <Star className="w-4 h-4 text-yellow-500" />
+                      {community.is_popular && (
+                        <Star className="w-4 h-4 text-yellow-500 shrink-0 mt-0.5" />
                       )}
                     </div>
-                    <p className="text-sm text-slate-600 mb-3 line-clamp-2">
+                    <p className="text-sm text-slate-600 mb-3 line-clamp-2 leading-relaxed">
                       {community.description}
                     </p>
-                    <div className="flex items-center gap-4 text-xs text-slate-500 mb-3">
-                      <span className="flex items-center gap-1">
-                        <Users className="w-3 h-3" />
-                        {formatMemberCount(community.memberCount)} anggota
-                      </span>
-                      <span className="flex items-center gap-1">
-                        <MessageSquare className="w-3 h-3" />
-                        {community.questionCount} pertanyaan
-                      </span>
-                      {community.location && (
-                        <span className="flex items-center gap-1">
-                          <MapPin className="w-3 h-3" />
-                          {community.location}
-                        </span>
-                      )}
-                    </div>
                   </div>
                 </div>
-                <div className="flex items-center justify-between">
-                  <span className="px-3 py-1 bg-slate-100 text-slate-700 text-xs rounded-full font-medium">
+                
+                {/* Stats section */}
+                <div className="flex flex-wrap items-center gap-3 sm:gap-4 text-xs text-slate-500 mb-4">
+                  <span className="flex items-center gap-1.5">
+                    <Users className="w-3.5 h-3.5" />
+                    <span>{formatMemberCount(community.member_count)} anggota</span>
+                  </span>
+                  <span className="flex items-center gap-1.5">
+                    <MessageSquare className="w-3.5 h-3.5" />
+                    <span>{community.question_count} pertanyaan</span>
+                  </span>
+                  {community.location && (
+                    <span className="flex items-center gap-1.5">
+                      <MapPin className="w-3.5 h-3.5" />
+                      <span>{community.location}</span>
+                    </span>
+                  )}
+                </div>
+                
+                {/* Footer dengan kategori dan link */}
+                <div className="flex items-center justify-between pt-3 border-t border-slate-100">
+                  <span className="px-3 py-1.5 bg-emerald-50 text-emerald-700 text-xs rounded-full font-medium border border-emerald-200">
                     {community.category}
                   </span>
-                  <Link
-                    href={`/communities/${community.id}`}
-                    className="inline-flex items-center gap-1 text-emerald-600 hover:text-emerald-700 text-sm font-medium transition-colors"
-                  >
-                    Bergabung
-                    <ArrowRight className="w-3 h-3" />
-                  </Link>
+                  <span className="inline-flex items-center gap-1.5 text-emerald-600 hover:text-emerald-700 text-sm font-medium transition-colors">
+                    <span>Lihat Detail</span>
+                    <ArrowRight className="w-3.5 h-3.5" />
+                  </span>
                 </div>
-              </div>
+              </Link>
             ))}
           </div>
         )}
@@ -260,10 +304,13 @@ export default function CommunitiesPage() {
         <p className="text-slate-600 text-sm mb-4">
           Buat komunitas baru untuk sesama pemilik UMKM
         </p>
-        <button className="inline-flex items-center gap-2 px-4 py-2 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 transition-colors font-medium text-sm">
+        <Link
+          href="/communities/create"
+          className="inline-flex items-center gap-2 px-4 py-2 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 transition-colors font-medium text-sm"
+        >
           <Plus className="w-4 h-4" />
           Buat Komunitas Baru
-        </button>
+        </Link>
       </div>
     </div>
   );

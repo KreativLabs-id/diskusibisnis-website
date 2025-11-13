@@ -12,7 +12,7 @@ export function NotificationProvider({ children }: { children: React.ReactNode }
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const [loading, setLoading] = useState(false);
 
-  const unreadCount = notifications.filter(n => !n.is_read).length;
+  const unreadCount = Array.isArray(notifications) ? notifications.filter(n => !n.is_read).length : 0;
 
   const fetchNotifications = async () => {
     if (!user) return;
@@ -20,7 +20,8 @@ export function NotificationProvider({ children }: { children: React.ReactNode }
     try {
       setLoading(true);
       const response = await notificationAPI.getAll();
-      setNotifications(response.data.data || []);
+      const notificationData = response.data?.data?.notifications || response.data?.notifications || [];
+      setNotifications(Array.isArray(notificationData) ? notificationData : []);
     } catch (error) {
       console.error('Error fetching notifications:', error);
     } finally {
@@ -32,11 +33,11 @@ export function NotificationProvider({ children }: { children: React.ReactNode }
     try {
       await notificationAPI.markAsRead(id);
       setNotifications(prev => 
-        prev.map(notification => 
+        Array.isArray(prev) ? prev.map(notification => 
           notification.id === id 
             ? { ...notification, is_read: true }
             : notification
-        )
+        ) : []
       );
     } catch (error) {
       console.error('Error marking notification as read:', error);
@@ -47,7 +48,7 @@ export function NotificationProvider({ children }: { children: React.ReactNode }
     try {
       await notificationAPI.markAllAsRead();
       setNotifications(prev => 
-        prev.map(notification => ({ ...notification, is_read: true }))
+        Array.isArray(prev) ? prev.map(notification => ({ ...notification, is_read: true })) : []
       );
     } catch (error) {
       console.error('Error marking all notifications as read:', error);
@@ -55,7 +56,7 @@ export function NotificationProvider({ children }: { children: React.ReactNode }
   };
 
   const addNotification = (notification: Notification) => {
-    setNotifications(prev => [notification, ...prev]);
+    setNotifications(prev => Array.isArray(prev) ? [notification, ...prev] : [notification]);
   };
 
   // Fetch notifications when user logs in

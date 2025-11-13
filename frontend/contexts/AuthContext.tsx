@@ -1,7 +1,7 @@
 'use client';
 
 import React, { createContext, useContext, useState, useEffect } from 'react';
-import { authAPI } from '@/lib/api';
+import { authAPI, userAPI } from '@/lib/api';
 
 interface User {
   id: string;
@@ -19,6 +19,7 @@ interface AuthContextType {
   register: (email: string, password: string, displayName: string) => Promise<void>;
   logout: () => void;
   updateUser: (user: User) => void;
+  refreshUser: () => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -92,8 +93,30 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
   };
 
+  const refreshUser = async () => {
+    if (!user) return;
+    
+    try {
+      const response = await userAPI.getProfile(user.id);
+      const userData = response.data.data.user || response.data.user;
+      
+      const updatedUser = {
+        id: userData.id,
+        email: userData.email,
+        displayName: userData.displayName || userData.display_name,
+        avatarUrl: userData.avatarUrl || userData.avatar_url,
+        role: userData.role,
+        reputationPoints: userData.reputationPoints || userData.reputation_points || 0
+      };
+      
+      updateUser(updatedUser);
+    } catch (error) {
+      console.error('Error refreshing user data:', error);
+    }
+  };
+
   return (
-    <AuthContext.Provider value={{ user, loading, login, register, logout, updateUser }}>
+    <AuthContext.Provider value={{ user, loading, login, register, logout, updateUser, refreshUser }}>
       {children}
     </AuthContext.Provider>
   );

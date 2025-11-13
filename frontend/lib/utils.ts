@@ -9,23 +9,21 @@ export function formatDate(date: string | Date): string {
   if (!date) return 'Tanggal tidak valid';
   
   try {
-    // Ensure date string has 'Z' suffix for UTC
-    let dateStr = typeof date === 'string' ? date : date.toISOString();
-    if (!dateStr.endsWith('Z') && !dateStr.includes('+') && !dateStr.includes('T')) {
-      dateStr = dateStr + 'Z';
-    }
-    
-    const d = new Date(dateStr);
+    // Parse the date properly
+    const d = new Date(date);
     
     // Check if date is valid
     if (isNaN(d.getTime())) {
       return 'Tanggal tidak valid';
     }
     
+    // Get current time in Indonesia timezone (UTC+7)
     const now = new Date();
+    const nowIndonesia = new Date(now.getTime() + (7 * 60 * 60 * 1000)); // Add 7 hours for WIB
+    const dateIndonesia = new Date(d.getTime() + (7 * 60 * 60 * 1000)); // Add 7 hours for WIB
     
-    // Calculate difference in milliseconds
-    const diff = now.getTime() - d.getTime();
+    // Calculate difference in milliseconds using Indonesia time
+    const diff = nowIndonesia.getTime() - dateIndonesia.getTime();
     
     // Convert to different units
     const seconds = Math.floor(diff / 1000);
@@ -41,11 +39,12 @@ export function formatDate(date: string | Date): string {
     if (days < 7) return `${days} hari lalu`;
     if (weeks < 4) return `${weeks} minggu lalu`;
     
-    // Return formatted date
+    // Return formatted date in Indonesia timezone
     return new Intl.DateTimeFormat('id-ID', {
       year: 'numeric',
       month: 'long',
-      day: 'numeric'
+      day: 'numeric',
+      timeZone: 'Asia/Jakarta'
     }).format(d);
   } catch (error) {
     console.error('Error formatting date:', error);
