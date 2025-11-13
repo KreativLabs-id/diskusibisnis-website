@@ -4,6 +4,10 @@ import { requireAuth } from '@/lib/auth-middleware';
 import { createVoteNotification } from '@/lib/notification-service';
 
 // POST /api/votes - Create or update vote
+
+// Force dynamic rendering for API routes
+export const dynamic = 'force-dynamic';
+
 export async function POST(request: NextRequest) {
     try {
         const user = requireAuth(request);

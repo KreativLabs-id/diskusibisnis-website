@@ -2,6 +2,10 @@ import { NextRequest, NextResponse } from 'next/server';
 import pool from '@/lib/database';
 
 // POST /api/questions/[id]/view - Increment view count
+
+// Force dynamic rendering for API routes
+export const dynamic = 'force-dynamic';
+
 export async function POST(
     request: NextRequest,
     { params }: { params: { id: string } }

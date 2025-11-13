@@ -4,6 +4,10 @@ import { authenticateToken, requireAuth } from '@/lib/auth-middleware';
 import { generateUniqueSlug } from '@/lib/slug-utils';
 
 // GET /api/questions/[id] - Get question by ID
+
+// Force dynamic rendering for API routes
+export const dynamic = 'force-dynamic';
+
 export async function GET(
     request: NextRequest,
     { params }: { params: { id: string } }

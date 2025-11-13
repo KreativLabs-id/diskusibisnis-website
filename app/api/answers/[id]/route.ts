@@ -3,6 +3,10 @@ import pool from '@/lib/database';
 import { requireAuth } from '@/lib/auth-middleware';
 
 // PUT /api/answers/[id] - Update answer
+
+// Force dynamic rendering for API routes
+export const dynamic = 'force-dynamic';
+
 export async function PUT(
     request: NextRequest,
     { params }: { params: { id: string } }

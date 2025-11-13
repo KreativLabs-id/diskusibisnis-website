@@ -3,6 +3,10 @@ import pool from '@/lib/database';
 import { requireAuth } from '@/lib/auth-middleware';
 
 // POST /api/questions/[id]/close - Close question
+
+// Force dynamic rendering for API routes
+export const dynamic = 'force-dynamic';
+
 export async function POST(
     request: NextRequest,
     { params }: { params: { id: string } }

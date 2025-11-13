@@ -3,6 +3,10 @@ import pool from '@/lib/database';
 import { requireAuth } from '@/lib/auth-middleware';
 
 // GET /api/communities/[slug] - Get community by slug
+
+// Force dynamic rendering for API routes
+export const dynamic = 'force-dynamic';
+
 export async function GET(
     request: NextRequest,
     { params }: { params: { slug: string } }

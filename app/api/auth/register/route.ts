@@ -3,6 +3,10 @@ import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import pool from '@/lib/database';
 
+// Force dynamic rendering for API routes
+export const dynamic = 'force-dynamic';
+
+
 export async function POST(request: NextRequest) {
     try {
         const { email, password, displayName } = await request.json();

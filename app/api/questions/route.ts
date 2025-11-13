@@ -4,6 +4,10 @@ import { authenticateToken, requireAuth } from '@/lib/auth-middleware';
 import { generateSlug, generateUniqueSlug } from '@/lib/slug-utils';
 
 // GET /api/questions - Get all questions with filters
+
+// Force dynamic rendering for API routes
+export const dynamic = 'force-dynamic';
+
 export async function GET(request: NextRequest) {
     try {
         const { searchParams } = new URL(request.url);

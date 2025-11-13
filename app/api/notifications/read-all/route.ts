@@ -3,6 +3,10 @@ import pool from '@/lib/database';
 import { requireAuth } from '@/lib/auth-middleware';
 
 // PUT /api/notifications/read-all - Mark all notifications as read
+
+// Force dynamic rendering for API routes
+export const dynamic = 'force-dynamic';
+
 export async function PUT(request: NextRequest) {
     try {
         const user = requireAuth(request);

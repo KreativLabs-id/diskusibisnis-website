@@ -2,6 +2,10 @@ import { NextRequest, NextResponse } from 'next/server';
 import pool from '@/lib/database';
 
 // GET /api/users/[id]/questions - Get user's questions
+
+// Force dynamic rendering for API routes
+export const dynamic = 'force-dynamic';
+
 export async function GET(
     request: NextRequest,
     { params }: { params: { id: string } }
