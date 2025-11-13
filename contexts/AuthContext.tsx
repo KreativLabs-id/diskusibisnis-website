@@ -20,6 +20,7 @@ interface AuthContextType {
   logout: () => void;
   updateUser: (user: User) => void;
   refreshUser: () => Promise<void>;
+  forceRefreshUser: () => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -64,6 +65,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       localStorage.setItem('user', JSON.stringify(user));
     }
     setUser(user);
+    
+    // Refresh user data from server to get latest role
+    setTimeout(() => {
+      refreshUser();
+    }, 1000);
   };
 
   const register = async (email: string, password: string, displayName: string) => {
@@ -115,8 +121,30 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
   };
 
+  const forceRefreshUser = async () => {
+    if (!user) return;
+    
+    try {
+      const response = await userAPI.getProfile(user.id);
+      const userData = response.data.data.user || response.data.user;
+      
+      const updatedUser = {
+        id: userData.id,
+        email: userData.email,
+        displayName: userData.displayName || userData.display_name,
+        avatarUrl: userData.avatarUrl || userData.avatar_url,
+        role: userData.role,
+        reputationPoints: userData.reputationPoints || userData.reputation_points || 0
+      };
+      
+      updateUser(updatedUser);
+    } catch (error) {
+      console.error('Error force refreshing user data:', error);
+    }
+  };
+
   return (
-    <AuthContext.Provider value={{ user, loading, login, register, logout, updateUser, refreshUser }}>
+    <AuthContext.Provider value={{ user, loading, login, register, logout, updateUser, refreshUser, forceRefreshUser }}>
       {children}
     </AuthContext.Provider>
   );

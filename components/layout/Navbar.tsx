@@ -12,7 +12,7 @@ interface NavbarProps {
 }
 
 export default function Navbar({ onMenuClick }: NavbarProps) {
-  const { user, logout, loading } = useAuth();
+  const { user, logout, loading, forceRefreshUser } = useAuth();
   const [showUserMenu, setShowUserMenu] = useState(false);
   const userMenuRef = useRef<HTMLDivElement>(null);
 
@@ -160,12 +160,29 @@ export default function Navbar({ onMenuClick }: NavbarProps) {
                         <Link
                           href="/admin"
                           className="flex items-center space-x-3 px-5 py-3 text-emerald-600 hover:bg-emerald-50 transition-all duration-200 rounded-lg mx-2"
+                          onClick={() => setShowUserMenu(false)}
                         >
                           <div className="p-1.5 bg-emerald-100 rounded-lg">
                             <Settings className="w-4 h-4 text-emerald-600" />
                           </div>
                           <span className="font-medium">Admin Dashboard</span>
                         </Link>
+                      )}
+                      
+                      {/* Debug info - remove in production */}
+                      {process.env.NODE_ENV === 'development' && (
+                        <div className="px-5 py-2 text-xs text-slate-500 border-t border-slate-100 mt-2">
+                          <div>Role: {user.role || 'undefined'}</div>
+                          <button
+                            onClick={() => {
+                              forceRefreshUser();
+                              setShowUserMenu(false);
+                            }}
+                            className="mt-1 text-blue-600 hover:text-blue-800"
+                          >
+                            Refresh Role
+                          </button>
+                        </div>
                       )}
                       <div className="border-t border-slate-100 mt-2 pt-2">
                         <button
