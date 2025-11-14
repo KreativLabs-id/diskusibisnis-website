@@ -1,6 +1,6 @@
 'use client';
 
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { 
@@ -16,10 +16,12 @@ import {
   Users2,
   User,
   Settings,
-  LogOut
+  LogOut,
+  Download
 } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import LoadingSpinner from '@/components/ui/LoadingSpinner';
+import { pwaInstaller } from '@/lib/pwa-installer';
 
 interface SidebarItemProps {
   href: string;
@@ -65,6 +67,52 @@ interface SidebarProps {
 export default function Sidebar({ onItemClick }: SidebarProps) {
   const pathname = usePathname();
   const { user, logout, loading } = useAuth();
+  const [canInstall, setCanInstall] = useState(false);
+  const [isInstalled, setIsInstalled] = useState(false);
+  const [isInstalling, setIsInstalling] = useState(false);
+
+  useEffect(() => {
+    // Check if PWA can be installed
+    const checkInstallability = () => {
+      if (pwaInstaller) {
+        setCanInstall(pwaInstaller.canInstall());
+        setIsInstalled(pwaInstaller.isAppInstalled());
+      }
+    };
+
+    checkInstallability();
+
+    // Listen for install events
+    const handleInstallAvailable = () => {
+      setCanInstall(true);
+      setIsInstalled(false);
+    };
+
+    const handleInstalled = () => {
+      setCanInstall(false);
+      setIsInstalled(true);
+      setIsInstalling(false);
+    };
+
+    window.addEventListener('pwaInstallAvailable', handleInstallAvailable);
+    window.addEventListener('pwaInstalled', handleInstalled);
+
+    return () => {
+      window.removeEventListener('pwaInstallAvailable', handleInstallAvailable);
+      window.removeEventListener('pwaInstalled', handleInstalled);
+    };
+  }, []);
+
+  const handleInstallClick = async () => {
+    if (!pwaInstaller) return;
+    
+    setIsInstalling(true);
+    const accepted = await pwaInstaller.promptInstall();
+    
+    if (!accepted) {
+      setIsInstalling(false);
+    }
+  };
 
   const publicItems = [
     { href: '/', icon: Home, label: 'Beranda' },
@@ -225,6 +273,32 @@ export default function Sidebar({ onItemClick }: SidebarProps) {
             </nav>
           </div>
         </div>
+
+        {/* PWA Install Button - Only show if not installed */}
+        {canInstall && !isInstalled && (
+          <div className="pt-2">
+            <button
+              onClick={handleInstallClick}
+              disabled={isInstalling}
+              className="w-full flex items-center gap-3 px-4 py-3 rounded-lg bg-gradient-to-r from-green-500 to-emerald-600 text-white font-medium hover:from-green-600 hover:to-emerald-700 transition-all duration-200 shadow-sm hover:shadow-md disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              {isInstalling ? (
+                <>
+                  <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                  <span className="text-sm">Installing...</span>
+                </>
+              ) : (
+                <>
+                  <Download className="w-4 h-4" />
+                  <div className="text-left flex-1">
+                    <div className="text-sm font-semibold">Install Aplikasi</div>
+                    <div className="text-xs text-green-100">Akses lebih cepat</div>
+                  </div>
+                </>
+              )}
+            </button>
+          </div>
+        )}
       </div>
     </div>
   );

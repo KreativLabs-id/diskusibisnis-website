@@ -68,10 +68,8 @@ export class PWAInstaller {
       navigator.serviceWorker.addEventListener('controllerchange', () => {
         console.log('[PWA] New service worker activated');
         
-        // Show update notification
-        if (confirm('Update tersedia! Muat ulang aplikasi untuk mendapatkan versi terbaru?')) {
-          window.location.reload();
-        }
+        // Dispatch custom event untuk update modal
+        window.dispatchEvent(new CustomEvent('pwaUpdateAvailable'));
       });
     }
   }

@@ -3,6 +3,7 @@
 import { AuthProvider } from '@/contexts/AuthContext';
 import { NotificationProvider } from '@/contexts/NotificationContext';
 import { PWAInstallPrompt } from '@/components/PWAInstallPrompt';
+import { PWAUpdateModal } from '@/components/PWAUpdateModal';
 import { OfflineIndicator } from '@/components/OfflineIndicator';
 
 export default function ClientProviders({
@@ -16,6 +17,7 @@ export default function ClientProviders({
         <OfflineIndicator />
         {children}
         <PWAInstallPrompt />
+        <PWAUpdateModal />
       </NotificationProvider>
     </AuthProvider>
   );
