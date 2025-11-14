@@ -18,7 +18,8 @@ import {
 import { questionAPI, answerAPI, voteAPI, bookmarkAPI } from '@/lib/api';
 import { useAuth } from '@/contexts/AuthContext';
 import VerifiedBadge from '@/components/ui/VerifiedBadge';
-import LottieLoader from '@/components/ui/LottieLoader';
+import FloatingActionButton from '@/components/ui/FloatingActionButton';
+import AlertModal from '@/components/ui/AlertModal';
 
 interface QuestionData {
   id: string;
@@ -60,6 +61,16 @@ export default function QuestionDetailPage() {
   const [loading, setLoading] = useState(true);
   const [answerContent, setAnswerContent] = useState('');
   const [submitting, setSubmitting] = useState(false);
+  const [alertModal, setAlertModal] = useState<{
+    isOpen: boolean;
+    type: 'success' | 'error' | 'warning' | 'info';
+    title: string;
+    message: string;
+  }>({ isOpen: false, type: 'info', title: '', message: '' });
+
+  const showAlert = (type: 'success' | 'error' | 'warning' | 'info', title: string, message: string) => {
+    setAlertModal({ isOpen: true, type, title, message });
+  };
 
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
@@ -120,7 +131,7 @@ export default function QuestionDetailPage() {
 
   const handleVote = async (votableType: string, votableId: string, voteType: string) => {
     if (!user) {
-      alert('Silakan login untuk melakukan voting');
+      showAlert('warning', 'Login Diperlukan', 'Silakan login untuk melakukan voting');
       return;
     }
 
@@ -161,7 +172,7 @@ export default function QuestionDetailPage() {
       
     } catch (error) {
       console.error('Error voting:', error);
-      alert('Gagal melakukan voting');
+      showAlert('error', 'Voting Gagal', 'Gagal melakukan voting');
       // Refresh on error to ensure consistency
       fetchQuestion();
     }
@@ -170,7 +181,7 @@ export default function QuestionDetailPage() {
   const handleSubmitAnswer = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!user) {
-      alert('Please login to answer');
+      showAlert('warning', 'Login Diperlukan', 'Silakan login untuk menjawab pertanyaan');
       return;
     }
 
@@ -208,16 +219,17 @@ export default function QuestionDetailPage() {
       console.log('User:', user);
       const response = await questionAPI.delete(params.id as string);
       console.log('Delete response:', response);
-      alert('Pertanyaan berhasil dihapus');
-      router.push('/');
+      showAlert('success', 'Berhasil', 'Pertanyaan berhasil dihapus');
+      setTimeout(() => router.push('/'), 1500);
+      return;
     } catch (error: any) {
       console.error('Error deleting question:', error);
       if (error.response?.status === 401) {
-        alert('Anda harus login untuk menghapus pertanyaan');
+        showAlert('warning', 'Login Diperlukan', 'Anda harus login untuk menghapus pertanyaan');
       } else if (error.response?.status === 403) {
-        alert('Anda tidak memiliki izin untuk menghapus pertanyaan ini');
+        showAlert('error', 'Akses Ditolak', 'Anda tidak memiliki izin untuk menghapus pertanyaan ini');
       } else {
-        alert('Gagal menghapus pertanyaan: ' + (error.response?.data?.message || error.message));
+        showAlert('error', 'Gagal Menghapus', error.response?.data?.message || error.message);
       }
     }
   };
@@ -229,7 +241,7 @@ export default function QuestionDetailPage() {
 
   const handleBookmark = async () => {
     if (!user) {
-      alert('Silakan login untuk menyimpan pertanyaan');
+      showAlert('warning', 'Login Diperlukan', 'Silakan login untuk menyimpan pertanyaan');
       return;
     }
 
@@ -242,16 +254,51 @@ export default function QuestionDetailPage() {
       fetchQuestion(); // Refresh to update bookmark status
     } catch (error) {
       console.error('Error toggling bookmark:', error);
-      alert('Gagal menyimpan pertanyaan');
+      showAlert('error', 'Bookmark Gagal', 'Gagal menyimpan pertanyaan');
     }
   };
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-slate-50 flex items-center justify-center">
-        <div className="flex flex-col items-center">
-          <LottieLoader size="xl" />
-          <p className="text-slate-600 mt-4 font-medium">Memuat pertanyaan...</p>
+      <div className="min-h-screen bg-slate-50 p-4">
+        <div className="max-w-4xl mx-auto space-y-6">
+          {/* Question skeleton */}
+          <div className="bg-white rounded-xl border border-slate-200 p-6 animate-pulse">
+            <div className="flex gap-6">
+              <div className="flex flex-col items-center gap-3">
+                <div className="w-16 h-10 bg-slate-200 rounded-lg" />
+                <div className="w-16 h-10 bg-slate-200 rounded-lg" />
+              </div>
+              <div className="flex-1 space-y-4">
+                <div className="h-8 bg-slate-200 rounded w-3/4" />
+                <div className="space-y-2">
+                  <div className="h-4 bg-slate-200 rounded w-full" />
+                  <div className="h-4 bg-slate-200 rounded w-5/6" />
+                  <div className="h-4 bg-slate-200 rounded w-4/5" />
+                </div>
+                <div className="flex gap-2">
+                  <div className="h-6 w-20 bg-slate-200 rounded-full" />
+                  <div className="h-6 w-24 bg-slate-200 rounded-full" />
+                </div>
+              </div>
+            </div>
+          </div>
+          {/* Answers skeleton */}
+          <div className="bg-white rounded-xl border border-slate-200 p-6">
+            <div className="h-6 bg-slate-200 rounded w-32 mb-4" />
+            {[1, 2].map((i) => (
+              <div key={i} className="border-t border-slate-200 pt-6 mt-6 animate-pulse">
+                <div className="space-y-3">
+                  <div className="h-4 bg-slate-200 rounded w-full" />
+                  <div className="h-4 bg-slate-200 rounded w-5/6" />
+                  <div className="flex items-center gap-3 pt-3">
+                    <div className="h-8 w-8 bg-slate-200 rounded-full" />
+                    <div className="h-4 w-32 bg-slate-200 rounded" />
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
         </div>
       </div>
     );
@@ -286,7 +333,7 @@ export default function QuestionDetailPage() {
             {/* Vote Section - Horizontal on Mobile */}
             <div className="flex sm:flex-col items-center justify-center gap-3 sm:gap-2 order-2 sm:order-1">
             <button
-              onClick={() => user ? handleVote('question', question.id, 'upvote') : alert('Silakan login untuk voting')}
+              onClick={() => user ? handleVote('question', question.id, 'upvote') : showAlert('warning', 'Login Diperlukan', 'Silakan login untuk voting')}
               disabled={!user}
               className={`p-2 rounded-lg transition-colors ${
                 question.user_vote === 'upvote' 
@@ -308,7 +355,7 @@ export default function QuestionDetailPage() {
               <span className="text-xs text-slate-500 sm:hidden">votes</span>
             </div>
             <button
-              onClick={() => user ? handleVote('question', question.id, 'downvote') : alert('Silakan login untuk voting')}
+              onClick={() => user ? handleVote('question', question.id, 'downvote') : showAlert('warning', 'Login Diperlukan', 'Silakan login untuk voting')}
               disabled={!user}
               className={`p-2 rounded-lg transition-colors ${
                 question.user_vote === 'downvote' 
@@ -425,7 +472,7 @@ export default function QuestionDetailPage() {
                 {/* Vote Section - Horizontal on Mobile */}
                 <div className="flex sm:flex-col items-center justify-center gap-3 sm:gap-2 order-2 sm:order-1">
                 <button
-                  onClick={() => user ? handleVote('answer', answer.id, 'upvote') : alert('Silakan login untuk voting')}
+                  onClick={() => user ? handleVote('answer', answer.id, 'upvote') : showAlert('warning', 'Login Diperlukan', 'Silakan login untuk voting')}
                   disabled={!user}
                   className={`p-2 rounded-lg transition-colors ${
                     answer.user_vote === 'upvote' 
@@ -447,7 +494,7 @@ export default function QuestionDetailPage() {
                   <span className="text-xs text-slate-500 sm:hidden">votes</span>
                 </div>
                 <button
-                  onClick={() => user ? handleVote('answer', answer.id, 'downvote') : alert('Silakan login untuk voting')}
+                  onClick={() => user ? handleVote('answer', answer.id, 'downvote') : showAlert('warning', 'Login Diperlukan', 'Silakan login untuk voting')}
                   disabled={!user}
                   className={`p-2 rounded-lg transition-colors ${
                     answer.user_vote === 'downvote' 
@@ -565,6 +612,15 @@ export default function QuestionDetailPage() {
           </button>
         )}
       </div>
+
+      {/* Alert Modal */}
+      <AlertModal
+        isOpen={alertModal.isOpen}
+        onClose={() => setAlertModal({ ...alertModal, isOpen: false })}
+        type={alertModal.type}
+        title={alertModal.title}
+        message={alertModal.message}
+      />
     </div>
   );
 }

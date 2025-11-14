@@ -13,7 +13,6 @@ import {
   Award
 } from 'lucide-react';
 import { userAPI } from '@/lib/api';
-import LottieLoader from '@/components/ui/LottieLoader';
 import VerifiedBadge from '@/components/ui/VerifiedBadge';
 
 interface User {
@@ -96,9 +95,49 @@ export default function UsersPage() {
   };
 
   const renderSkeleton = (
-    <div className="flex flex-col items-center justify-center py-12">
-      <LottieLoader size="xl" />
-      <p className="text-slate-600 mt-4 font-medium">Memuat pengguna...</p>
+    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
+      {[1, 2, 3, 4, 5, 6].map((i) => (
+        <div
+          key={i}
+          className="bg-white rounded-xl border border-slate-200 p-6 animate-pulse"
+        >
+          <div className="flex flex-col items-center text-center">
+            {/* Avatar skeleton */}
+            <div className="w-20 h-20 bg-slate-200 rounded-full mb-4" />
+            
+            {/* Name skeleton */}
+            <div className="h-6 bg-slate-200 rounded w-3/4 mb-2" />
+            
+            {/* Role badge skeleton */}
+            <div className="h-5 w-20 bg-slate-200 rounded-full mb-3" />
+            
+            {/* Stats skeleton */}
+            <div className="flex items-center justify-center gap-4 mb-4 w-full">
+              <div className="text-center">
+                <div className="h-6 w-12 bg-slate-200 rounded mb-1 mx-auto" />
+                <div className="h-3 w-16 bg-slate-200 rounded" />
+              </div>
+              <div className="text-center">
+                <div className="h-6 w-12 bg-slate-200 rounded mb-1 mx-auto" />
+                <div className="h-3 w-16 bg-slate-200 rounded" />
+              </div>
+              <div className="text-center">
+                <div className="h-6 w-12 bg-slate-200 rounded mb-1 mx-auto" />
+                <div className="h-3 w-16 bg-slate-200 rounded" />
+              </div>
+            </div>
+            
+            {/* Bio skeleton */}
+            <div className="w-full space-y-2 mb-4">
+              <div className="h-3 bg-slate-200 rounded w-full" />
+              <div className="h-3 bg-slate-200 rounded w-4/5 mx-auto" />
+            </div>
+            
+            {/* Button skeleton */}
+            <div className="h-9 bg-slate-200 rounded-lg w-full" />
+          </div>
+        </div>
+      ))}
     </div>
   );
 

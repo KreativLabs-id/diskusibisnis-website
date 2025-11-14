@@ -15,6 +15,21 @@ export async function GET(request: NextRequest) {
         const limit = parseInt(searchParams.get('limit') || '20');
         const search = searchParams.get('search') || '';
         const category = searchParams.get('category') || '';
+        const memberOnly = searchParams.get('member') === 'true';
+        
+        // Get current user if member filter is requested
+        let currentUserId = null;
+        if (memberOnly) {
+            try {
+                const user = requireAuth(request);
+                currentUserId = user.id;
+            } catch (error) {
+                return NextResponse.json({
+                    success: false,
+                    message: 'Authentication required for member filter'
+                }, { status: 401 });
+            }
+        }
         
         const offset = (page - 1) * limit;
         
@@ -29,6 +44,16 @@ export async function GET(request: NextRequest) {
             LEFT JOIN public.questions q ON c.id = q.community_id
             WHERE 1=1
         `;
+        
+        // Add member filter if requested
+        if (memberOnly && currentUserId) {
+            query += ` AND EXISTS (
+                SELECT 1 FROM public.community_members 
+                WHERE community_id = c.id AND user_id = $1
+            )`;
+            queryParams.push(currentUserId);
+            paramIndex++;
+        }
         
         const queryParams: any[] = [];
         let paramIndex = 1;

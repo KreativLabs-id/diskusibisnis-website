@@ -1,10 +1,10 @@
 'use client';
 
 import { FormEvent, useState, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { useAuth } from '@/contexts/AuthContext';
 import { HelpCircle, Tag, Lightbulb, AlertCircle, ArrowLeft } from 'lucide-react';
-import { questionAPI } from '@/lib/api';
+import api, { questionAPI } from '@/lib/api';
 
 const suggestedTags = [
   'marketing',
@@ -19,10 +19,13 @@ const suggestedTags = [
 
 export default function AskPage() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const { user, loading: authLoading } = useAuth();
   const [selectedTags, setSelectedTags] = useState<string[]>([]);
   const [title, setTitle] = useState('');
   const [content, setContent] = useState('');
+  const [communitySlug, setCommunitySlug] = useState('');
+  const [communities, setCommunities] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
@@ -31,6 +34,26 @@ export default function AskPage() {
       router.push('/login');
     }
   }, [user, authLoading, router]);
+
+  useEffect(() => {
+    // Check if community is pre-selected from URL
+    const community = searchParams.get('community');
+    if (community) {
+      setCommunitySlug(community);
+    }
+    
+    // Fetch user's communities
+    fetchCommunities();
+  }, [searchParams]);
+
+  const fetchCommunities = async () => {
+    try {
+      const response = await api.get('/api/communities?member=true');
+      setCommunities(response.data.data.communities || []);
+    } catch (error) {
+      console.error('Error fetching communities:', error);
+    }
+  };
 
   const toggleTag = (tag: string) => {
     setSelectedTags((prev) =>
@@ -64,6 +87,7 @@ export default function AskPage() {
         title,
         content,
         tags: selectedTags,
+        community_slug: communitySlug || undefined,
       });
 
       const questionId = response.data.data.id;
@@ -78,10 +102,19 @@ export default function AskPage() {
 
   if (authLoading) {
     return (
-      <div className="min-h-screen bg-slate-50 flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-emerald-600 mx-auto"></div>
-          <p className="mt-4 text-slate-600">Memuat...</p>
+      <div className="min-h-screen bg-slate-50">
+        <div className="max-w-4xl mx-auto px-4 py-10">
+          <div className="animate-pulse space-y-6">
+            <div className="h-8 bg-slate-200 rounded w-1/3"></div>
+            <div className="bg-white rounded-2xl p-6 space-y-4">
+              <div className="h-10 bg-slate-200 rounded"></div>
+              <div className="h-40 bg-slate-200 rounded"></div>
+              <div className="h-10 bg-slate-200 rounded"></div>
+              <div className="flex justify-end">
+                <div className="h-10 bg-slate-200 rounded w-32"></div>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
     );
@@ -129,6 +162,29 @@ export default function AskPage() {
           onSubmit={handleSubmit}
           className="bg-white border border-slate-200 rounded-2xl p-6 space-y-6 shadow-sm"
         >
+          <div>
+            <label htmlFor="community" className="block text-sm font-medium text-slate-700 mb-2">
+              Komunitas (Opsional)
+            </label>
+            <select
+              id="community"
+              name="community"
+              value={communitySlug}
+              onChange={(e) => setCommunitySlug(e.target.value)}
+              className="w-full px-4 py-3 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-500 text-sm bg-white"
+            >
+              <option value="">Semua Komunitas / Umum</option>
+              {communities.map((community) => (
+                <option key={community.id} value={community.slug}>
+                  {community.name}
+                </option>
+              ))}
+            </select>
+            <p className="text-xs text-slate-500 mt-1">
+              Pilih komunitas jika pertanyaan Anda spesifik untuk komunitas tersebut
+            </p>
+          </div>
+
           <div>
             <label htmlFor="title" className="block text-sm font-medium text-slate-700 mb-2">
               Judul Pertanyaan <span className="text-red-500">*</span>

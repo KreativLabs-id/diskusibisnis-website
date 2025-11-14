@@ -35,7 +35,7 @@ export async function GET(
                 ARRAY_AGG(DISTINCT t.name) FILTER (WHERE t.name IS NOT NULL) as tags
              FROM public.questions q 
              LEFT JOIN public.answers a ON q.id = a.question_id 
-             LEFT JOIN public.votes v ON q.id = v.votable_id AND v.votable_type = 'question'
+             LEFT JOIN public.votes v ON q.id = v.question_id
              LEFT JOIN public.question_tags qt ON q.id = qt.question_id
              LEFT JOIN public.tags t ON qt.tag_id = t.id
              WHERE q.author_id = $1 

@@ -159,9 +159,16 @@ export default function NotificationsPage() {
         {/* Notifications List */}
         <div className="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
           {loading ? (
-            <div className="p-12 text-center">
-              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-emerald-600 mx-auto"></div>
-              <p className="text-slate-500 mt-4">Memuat notifikasi...</p>
+            <div className="animate-pulse divide-y divide-slate-200">
+              {[1,2,3,4,5,6].map(i => (
+                <div key={i} className="p-4 flex gap-4">
+                  <div className="w-10 h-10 bg-slate-200 rounded-full shrink-0"></div>
+                  <div className="flex-1 space-y-2">
+                    <div className="h-4 bg-slate-200 rounded w-3/4"></div>
+                    <div className="h-3 bg-slate-200 rounded w-1/2"></div>
+                  </div>
+                </div>
+              ))}
             </div>
           ) : notifications.length === 0 ? (
             <div className="p-12 text-center">

@@ -35,72 +35,70 @@ export default function Navbar({ onMenuClick }: NavbarProps) {
   }, [showUserMenu]);
 
   return (
-    <nav className="w-full bg-gradient-to-r from-white via-emerald-50/30 to-white border-b border-slate-200/60 backdrop-blur-sm">
-      <div className="container mx-auto px-4">
-        <div className="flex items-center justify-between h-18">
+    <nav className="w-full bg-white sticky top-0 z-40 shadow-sm">
+      <div className="container mx-auto px-3 sm:px-4">
+        <div className="flex items-center justify-between h-14 sm:h-16 gap-2">
           {/* Mobile Menu Button */}
           <button
             onClick={onMenuClick}
-            className="lg:hidden p-2.5 rounded-xl hover:bg-white/80 hover:shadow-sm transition-all duration-200"
+            className="lg:hidden p-2 rounded-lg hover:bg-slate-50 transition-colors shrink-0"
           >
-            <Menu className="w-6 h-6 text-slate-600" />
+            <Menu className="w-5 h-5 sm:w-6 sm:h-6 text-slate-700" />
           </button>
 
-          {/* Logo - Simplified */}
-          <Link href="/" className="group">
-            <span className="text-2xl font-bold bg-gradient-to-r from-emerald-600 to-emerald-700 bg-clip-text text-transparent group-hover:from-emerald-700 group-hover:to-emerald-800 transition-all duration-200">
+          {/* Logo - Centered on mobile, left on desktop */}
+          <Link href="/" className="group flex-1 lg:flex-none text-center lg:text-left">
+            <span className="text-lg sm:text-xl lg:text-2xl font-bold bg-gradient-to-r from-emerald-600 to-emerald-700 bg-clip-text text-transparent group-hover:from-emerald-700 group-hover:to-emerald-800 transition-all duration-200">
               DiskusiBisnis
             </span>
           </Link>
 
-
           {/* Navigation - Mobile Optimized */}
-          <div className="flex items-center space-x-2">
+          <div className="flex items-center gap-1.5 sm:gap-2 shrink-0">
             {loading ? (
-              <>
-                <LoadingSpinner size="md" text="Memuat..." className="hidden sm:flex" />
-                <LoadingSpinner size="md" text="" className="sm:hidden" />
-              </>
+              <div className="w-8 h-8 flex items-center justify-center">
+                <div className="animate-spin rounded-full h-5 w-5 border-2 border-emerald-600 border-t-transparent"></div>
+              </div>
             ) : user ? (
               <>
                 {/* Desktop: Full Tanya Button */}
                 <Link
                   href="/ask"
-                  className="hidden md:flex items-center space-x-2 px-5 py-2.5 bg-gradient-to-r from-emerald-600 to-emerald-700 text-white rounded-xl hover:from-emerald-700 hover:to-emerald-800 transition-all duration-200 font-semibold shadow-lg hover:shadow-xl transform hover:-translate-y-0.5"
+                  className="hidden md:flex items-center gap-2 px-4 py-2 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 transition-colors font-semibold text-sm shadow-sm"
                 >
                   <Plus className="w-4 h-4" />
                   <span>Tanya</span>
                 </Link>
 
+                {/* Notification - All devices */}
+                <NotificationDropdown />
 
-                <div className="hidden md:block">
-                  <NotificationDropdown />
-                </div>
-
+                {/* User Menu */}
                 <div className="relative" ref={userMenuRef}>
                   <button
                     onClick={() => setShowUserMenu(!showUserMenu)}
-                    className="flex items-center space-x-3 p-2 hover:bg-white/80 hover:shadow-sm rounded-xl transition-all duration-200 group"
+                    className="flex items-center gap-2 p-1.5 sm:p-2 hover:bg-slate-50 rounded-lg transition-colors group"
                   >
                     {user.avatarUrl ? (
                       <img
                         src={user.avatarUrl}
                         alt={user.displayName || 'User'}
-                        className="w-8 h-8 rounded-full object-cover ring-2 ring-slate-200 group-hover:ring-emerald-300 transition-all"
+                        className="w-8 h-8 sm:w-9 sm:h-9 rounded-full object-cover border-2 border-slate-200 group-hover:border-emerald-300 transition-colors"
                       />
                     ) : (
-                      <div className="w-8 h-8 rounded-full bg-gradient-to-br from-emerald-600 to-emerald-700 flex items-center justify-center group-hover:from-emerald-700 group-hover:to-emerald-800 transition-all">
-                        <span className="text-white text-sm font-bold">
+                      <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-emerald-600 flex items-center justify-center group-hover:bg-emerald-700 transition-colors">
+                        <span className="text-white text-xs sm:text-sm font-bold">
                           {user.displayName?.charAt(0)?.toUpperCase() || 'U'}
                         </span>
                       </div>
                     )}
-                    <div className="text-left hidden sm:block">
-                      <span className="text-sm font-semibold text-slate-900 block">{user.displayName || 'User'}</span>
+                    <div className="text-left hidden lg:block">
+                      <span className="text-sm font-semibold text-slate-900 block leading-tight">{user.displayName || 'User'}</span>
                       {(user.reputationPoints || 0) >= 10 && (
                         <span className="text-xs text-emerald-600 font-medium">{user.reputationPoints} poin</span>
                       )}
                     </div>
+                    <ChevronDown className="w-4 h-4 text-slate-400 hidden lg:block" />
                   </button>
 
                   {showUserMenu && (

@@ -28,33 +28,65 @@ export async function GET(
         
         const communityId = communityResult.rows[0].id;
         
-        // Get members
-        const result = await pool.query(`
-            SELECT 
-                cm.id, cm.user_id, cm.role, cm.created_at as joined_at,
-                u.display_name, u.avatar_url, u.is_verified
-            FROM public.community_members cm
-            JOIN public.users u ON cm.user_id = u.id
-            WHERE cm.community_id = $1
-            ORDER BY 
-                CASE cm.role 
-                    WHEN 'admin' THEN 1 
-                    WHEN 'moderator' THEN 2 
-                    ELSE 3 
-                END,
-                cm.created_at ASC
-        `, [communityId]);
+        // Get members - Try with is_verified first, fallback if column doesn't exist
+        let result;
+        try {
+            result = await pool.query(`
+                SELECT 
+                    cm.id, 
+                    cm.user_id, 
+                    cm.role, 
+                    cm.joined_at,
+                    u.display_name, 
+                    u.avatar_url,
+                    u.is_verified
+                FROM public.community_members cm
+                JOIN public.users u ON cm.user_id = u.id
+                WHERE cm.community_id = $1
+                ORDER BY 
+                    CASE cm.role 
+                        WHEN 'admin' THEN 1 
+                        WHEN 'moderator' THEN 2 
+                        ELSE 3 
+                    END,
+                    cm.joined_at ASC
+            `, [communityId]);
+        } catch (columnError: any) {
+            // If is_verified column doesn't exist, query without it
+            console.log('is_verified column not found, falling back to query without it');
+            result = await pool.query(`
+                SELECT 
+                    cm.id, 
+                    cm.user_id, 
+                    cm.role, 
+                    cm.joined_at,
+                    u.display_name, 
+                    u.avatar_url,
+                    false as is_verified
+                FROM public.community_members cm
+                JOIN public.users u ON cm.user_id = u.id
+                WHERE cm.community_id = $1
+                ORDER BY 
+                    CASE cm.role 
+                        WHEN 'admin' THEN 1 
+                        WHEN 'moderator' THEN 2 
+                        ELSE 3 
+                    END,
+                    cm.joined_at ASC
+            `, [communityId]);
+        }
         
         return NextResponse.json({
             success: true,
             data: { members: result.rows }
         });
         
-    } catch (error) {
+    } catch (error: any) {
         console.error('Get community members error:', error);
         return NextResponse.json({
             success: false,
-            message: 'Server error'
+            message: error.message || 'Server error',
+            error: process.env.NODE_ENV === 'development' ? error.message : undefined
         }, { status: 500 });
     }
 }

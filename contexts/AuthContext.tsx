@@ -32,7 +32,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   useEffect(() => {
     // Check if user is logged in on mount
-    const initAuth = () => {
+    const initAuth = async () => {
       if (typeof window === 'undefined') {
         setLoading(false);
         return;
@@ -43,7 +43,29 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       
       if (token && savedUser) {
         try {
-          setUser(JSON.parse(savedUser));
+          const parsedUser = JSON.parse(savedUser);
+          setUser(parsedUser);
+          
+          // Refresh user data from server
+          try {
+            const response = await userAPI.getProfile(parsedUser.id);
+            const userData = response.data.data.user || response.data.user;
+            
+            const updatedUser = {
+              id: userData.id,
+              email: userData.email || parsedUser.email,
+              displayName: userData.displayName || userData.display_name,
+              avatarUrl: userData.avatarUrl || userData.avatar_url,
+              role: userData.role || parsedUser.role,
+              reputationPoints: userData.reputationPoints || userData.reputation_points || 0,
+              isVerified: userData.isVerified || userData.is_verified || (userData.role === 'admin')
+            };
+            
+            setUser(updatedUser);
+            localStorage.setItem('user', JSON.stringify(updatedUser));
+          } catch (error) {
+            console.error('Error refreshing user on init:', error);
+          }
         } catch (error) {
           console.error('Error parsing user data:', error);
           localStorage.removeItem('token');

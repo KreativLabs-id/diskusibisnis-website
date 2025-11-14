@@ -40,7 +40,7 @@ export async function GET(request: NextRequest) {
             LEFT JOIN public.answers a_accepted ON q.id = a_accepted.question_id AND a_accepted.is_accepted = true
             LEFT JOIN public.question_tags qt ON q.id = qt.question_id
             LEFT JOIN public.tags t ON qt.tag_id = t.id
-            WHERE 1=1
+            WHERE q.community_id IS NULL
         `;
         
         const queryParams: any[] = [];
@@ -112,7 +112,7 @@ export async function GET(request: NextRequest) {
             FROM public.questions q
             LEFT JOIN public.question_tags qt ON q.id = qt.question_id
             LEFT JOIN public.tags t ON qt.tag_id = t.id
-            WHERE 1=1
+            WHERE q.community_id IS NULL
         `;
         
         const countParams: any[] = [];
@@ -164,7 +164,7 @@ export async function GET(request: NextRequest) {
 export async function POST(request: NextRequest) {
     try {
         const user = requireAuth(request);
-        const { title, content, tags } = await request.json();
+        const { title, content, tags, community_slug } = await request.json();
         
         if (!title || !content) {
             return NextResponse.json({
@@ -179,12 +179,24 @@ export async function POST(request: NextRequest) {
         try {
             await client.query('BEGIN');
             
+            // Get community ID if community_slug is provided
+            let communityId = null;
+            if (community_slug) {
+                const communityResult = await client.query(
+                    'SELECT id FROM public.communities WHERE slug = $1',
+                    [community_slug]
+                );
+                if (communityResult.rows.length > 0) {
+                    communityId = communityResult.rows[0].id;
+                }
+            }
+            
             // Create question
             const questionResult = await client.query(
-                `INSERT INTO public.questions (title, content, author_id) 
-                 VALUES ($1, $2, $3) 
+                `INSERT INTO public.questions (title, content, author_id, community_id) 
+                 VALUES ($1, $2, $3, $4) 
                  RETURNING id, title, content, views_count, is_closed, created_at, updated_at`,
-                [title, content, user.id]
+                [title, content, user.id, communityId]
             );
             
             const question = questionResult.rows[0];

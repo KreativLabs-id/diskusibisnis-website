@@ -26,7 +26,7 @@ export async function GET(request: NextRequest) {
              JOIN questions q ON b.question_id = q.id
              JOIN users u ON q.author_id = u.id
              LEFT JOIN answers a ON q.id = a.question_id
-             LEFT JOIN votes v ON q.id = v.votable_id AND v.votable_type = 'question'
+             LEFT JOIN votes v ON q.id = v.question_id
              LEFT JOIN question_tags qt ON q.id = qt.question_id
              LEFT JOIN tags t ON qt.tag_id = t.id
              WHERE b.user_id = $1

@@ -15,7 +15,6 @@ import {
 
 import { questionAPI, tagAPI } from '@/lib/api';
 import QuestionCard from '../questions/QuestionCard';
-import LottieLoader from '@/components/ui/LottieLoader';
 import { useAuth } from '@/contexts/AuthContext';
 import Link from 'next/link';
 
@@ -98,9 +97,46 @@ export default function HomePage() {
   ];
 
   const renderSkeleton = (
-    <div className="flex flex-col items-center justify-center py-12">
-      <LottieLoader size="xl" />
-      <p className="text-slate-600 mt-4 font-medium">Memuat pertanyaan...</p>
+    <div className="space-y-4">
+      {[1, 2, 3, 4, 5].map((i) => (
+        <div
+          key={i}
+          className="bg-white rounded-xl border border-slate-200 p-6 animate-pulse"
+        >
+          <div className="flex gap-6">
+            {/* Vote section skeleton */}
+            <div className="flex flex-col items-center gap-3">
+              <div className="w-16 h-10 bg-slate-200 rounded-lg" />
+              <div className="w-16 h-10 bg-slate-200 rounded-lg" />
+            </div>
+            
+            {/* Content skeleton */}
+            <div className="flex-1 space-y-3">
+              {/* Title */}
+              <div className="h-6 bg-slate-200 rounded w-3/4" />
+              
+              {/* Description */}
+              <div className="space-y-2">
+                <div className="h-4 bg-slate-200 rounded w-full" />
+                <div className="h-4 bg-slate-200 rounded w-5/6" />
+              </div>
+              
+              {/* Tags and meta */}
+              <div className="flex flex-wrap items-center gap-2">
+                <div className="h-6 w-20 bg-slate-200 rounded-full" />
+                <div className="h-6 w-24 bg-slate-200 rounded-full" />
+                <div className="h-6 w-16 bg-slate-200 rounded-full" />
+              </div>
+              
+              {/* Footer */}
+              <div className="flex items-center gap-4 pt-3">
+                <div className="h-8 w-8 bg-slate-200 rounded-full" />
+                <div className="h-4 w-32 bg-slate-200 rounded" />
+              </div>
+            </div>
+          </div>
+        </div>
+      ))}
     </div>
   );
 
@@ -169,15 +205,20 @@ export default function HomePage() {
       <main className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
         {/* Tag Filter Display */}
         {currentTag && (
-          <div className="flex items-center gap-3 p-4 mb-6 bg-white border border-emerald-200 rounded-xl shadow-sm">
+          <div className="flex items-center gap-2 sm:gap-3 p-3 sm:p-4 mb-4 sm:mb-6 bg-gradient-to-r from-emerald-50 to-green-50 border border-emerald-200 rounded-xl shadow-sm">
             <Tag className="w-4 h-4 text-emerald-600 flex-shrink-0" />
-            <span className="text-slate-700 font-medium">
-              Menampilkan pertanyaan dengan tag{' '}
-              <span className="px-2.5 py-1 bg-emerald-100 text-emerald-700 rounded-full text-sm font-semibold">#{currentTag.name}</span>
-            </span>
+            <div className="flex-1 min-w-0">
+              <span className="text-xs sm:text-sm text-slate-600 block sm:inline">
+                <span className="hidden sm:inline">Menampilkan pertanyaan dengan tag </span>
+                <span className="sm:hidden">Tag: </span>
+              </span>
+              <span className="inline-flex items-center px-2.5 py-1 bg-emerald-600 text-white rounded-full text-xs sm:text-sm font-semibold ml-1">
+                #{currentTag.name}
+              </span>
+            </div>
             <Link
               href="/"
-              className="ml-auto p-1.5 hover:bg-slate-100 rounded-lg transition-colors flex-shrink-0 group"
+              className="p-1.5 hover:bg-white/80 rounded-lg transition-colors flex-shrink-0 group"
               title="Hapus filter"
             >
               <X className="w-4 h-4 text-slate-500 group-hover:text-slate-700" />

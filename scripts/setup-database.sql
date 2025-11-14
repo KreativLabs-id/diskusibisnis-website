@@ -286,9 +286,10 @@ CREATE TRIGGER update_comments_updated_at BEFORE UPDATE ON comments
 -- +2  : Create answer
 -- +5  : Question upvoted
 -- +10 : Answer upvoted
--- -2  : Content downvoted
 -- +15 : Answer accepted (answer author)
 -- +2  : Accept answer (question author)
+-- -2  : Content downvoted (content author loses)
+-- -1  : Give downvote (voter loses)
 -- Min : 0 (never negative)
 -- ============================================
 
@@ -333,6 +334,7 @@ BEGIN
                 WHERE id = (SELECT author_id FROM answers WHERE id = NEW.answer_id);
             END IF;
         ELSIF NEW.vote_type = 'downvote' THEN
+            -- Content author loses 2 points
             IF NEW.question_id IS NOT NULL THEN
                 UPDATE users SET reputation_points = reputation_points - 2 
                 WHERE id = (SELECT author_id FROM questions WHERE id = NEW.question_id);
@@ -340,6 +342,9 @@ BEGIN
                 UPDATE users SET reputation_points = reputation_points - 2 
                 WHERE id = (SELECT author_id FROM answers WHERE id = NEW.answer_id);
             END IF;
+            -- Voter loses 1 point
+            UPDATE users SET reputation_points = reputation_points - 1 
+            WHERE id = NEW.user_id;
         END IF;
     END IF;
     
@@ -354,6 +359,7 @@ BEGIN
                 WHERE id = (SELECT author_id FROM answers WHERE id = OLD.answer_id);
             END IF;
         ELSIF OLD.vote_type = 'downvote' THEN
+            -- Reverse: Content author gets 2 points back
             IF OLD.question_id IS NOT NULL THEN
                 UPDATE users SET reputation_points = reputation_points + 2 
                 WHERE id = (SELECT author_id FROM questions WHERE id = OLD.question_id);
@@ -361,6 +367,9 @@ BEGIN
                 UPDATE users SET reputation_points = reputation_points + 2 
                 WHERE id = (SELECT author_id FROM answers WHERE id = OLD.answer_id);
             END IF;
+            -- Reverse: Voter gets 1 point back
+            UPDATE users SET reputation_points = reputation_points + 1 
+            WHERE id = OLD.user_id;
         END IF;
     END IF;
     
@@ -375,7 +384,8 @@ BEGIN
                 UPDATE users SET reputation_points = reputation_points - 10 
                 WHERE id = (SELECT author_id FROM answers WHERE id = OLD.answer_id);
             END IF;
-        ELSE
+        ELSIF OLD.vote_type = 'downvote' THEN
+            -- Reverse downvote: content author gets 2 back, voter gets 1 back
             IF OLD.question_id IS NOT NULL THEN
                 UPDATE users SET reputation_points = reputation_points + 2 
                 WHERE id = (SELECT author_id FROM questions WHERE id = OLD.question_id);
@@ -383,6 +393,8 @@ BEGIN
                 UPDATE users SET reputation_points = reputation_points + 2 
                 WHERE id = (SELECT author_id FROM answers WHERE id = OLD.answer_id);
             END IF;
+            UPDATE users SET reputation_points = reputation_points + 1 
+            WHERE id = OLD.user_id;
         END IF;
         
         -- Apply new vote
@@ -394,7 +406,8 @@ BEGIN
                 UPDATE users SET reputation_points = reputation_points + 10 
                 WHERE id = (SELECT author_id FROM answers WHERE id = NEW.answer_id);
             END IF;
-        ELSE
+        ELSIF NEW.vote_type = 'downvote' THEN
+            -- Apply downvote: content author loses 2, voter loses 1
             IF NEW.question_id IS NOT NULL THEN
                 UPDATE users SET reputation_points = reputation_points - 2 
                 WHERE id = (SELECT author_id FROM questions WHERE id = NEW.question_id);
@@ -402,6 +415,8 @@ BEGIN
                 UPDATE users SET reputation_points = reputation_points - 2 
                 WHERE id = (SELECT author_id FROM answers WHERE id = NEW.answer_id);
             END IF;
+            UPDATE users SET reputation_points = reputation_points - 1 
+            WHERE id = NEW.user_id;
         END IF;
     END IF;
     

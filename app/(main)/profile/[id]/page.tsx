@@ -155,10 +155,32 @@ export default function ProfilePage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-slate-50 flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-emerald-600 mx-auto"></div>
-          <p className="mt-4 text-slate-600">Memuat profil...</p>
+      <div className="min-h-screen bg-slate-50">
+        <div className="max-w-5xl mx-auto px-4 py-8">
+          <div className="animate-pulse">
+            <div className="bg-white rounded-2xl p-6 mb-6">
+              <div className="flex items-center gap-4 mb-4">
+                <div className="w-20 h-20 bg-slate-200 rounded-full"></div>
+                <div className="flex-1">
+                  <div className="h-6 bg-slate-200 rounded w-1/3 mb-2"></div>
+                  <div className="h-4 bg-slate-200 rounded w-1/4"></div>
+                </div>
+              </div>
+              <div className="grid grid-cols-3 gap-4">
+                {[1,2,3].map(i => (
+                  <div key={i} className="h-16 bg-slate-200 rounded"></div>
+                ))}
+              </div>
+            </div>
+            <div className="grid grid-cols-2 gap-6">
+              {[1,2].map(i => (
+                <div key={i} className="bg-white rounded-2xl p-6 space-y-3">
+                  <div className="h-4 bg-slate-200 rounded w-1/2"></div>
+                  <div className="h-24 bg-slate-200 rounded"></div>
+                </div>
+              ))}
+            </div>
+          </div>
         </div>
       </div>
     );

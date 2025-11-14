@@ -1,6 +1,33 @@
 # DiskusiBisnis - Database Setup
 
-## 🚀 Quick Start - Database Setup
+## 🚨 Production Migration (Jika Sudah Deploy)
+
+**Jika Anda mendapat error di Vercel:**
+```
+error: column v.votable_id does not exist
+```
+
+Artinya database production Anda masih menggunakan struktur lama. Jalankan migration:
+
+```bash
+# PASTIKAN DATABASE_URL di .env.local mengarah ke PRODUCTION database
+node scripts/run-production-migration.js
+```
+
+Migration ini akan:
+- ✅ Menambahkan kolom `question_id` dan `answer_id`
+- ✅ Memigrate data dari `votable_id`/`votable_type` lama
+- ✅ Update semua triggers ke struktur baru
+- ✅ Kolom lama tetap ada untuk keamanan
+- ⚠️ Setelah testing, hapus kolom lama secara manual
+
+**PENTING:** Backup database dulu sebelum migration!
+
+**📖 [Baca panduan lengkap di PRODUCTION-MIGRATION-GUIDE.md](./PRODUCTION-MIGRATION-GUIDE.md)**
+
+---
+
+## 🚀 Quick Start - Database Setup (Baru)
 
 ### Metode 1: Via Node.js (Recommended)
 ```bash

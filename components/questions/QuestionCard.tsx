@@ -61,25 +61,28 @@ export default function QuestionCard({ question }: { question: Question }) {
             )}
           </div>
 
-          {/* Stats Row - Compact */}
-          <div className="flex items-center gap-4 text-xs text-slate-500 py-2 border-t border-slate-100">
-            <div className="flex items-center gap-1">
-              <ThumbsUp className="w-3.5 h-3.5" />
-              <span className="font-medium">{question.upvotes_count || 0}</span>
+          {/* Stats Row - Responsive */}
+          <div className="flex flex-wrap items-center gap-3 sm:gap-4 text-xs text-slate-500 py-2 border-t border-slate-100">
+            <div className="flex items-center gap-1.5">
+              <ThumbsUp className="w-4 h-4 text-emerald-600" />
+              <span className="font-semibold text-slate-900">{question.upvotes_count || 0}</span>
+              <span className="hidden sm:inline">vote</span>
             </div>
-            <div className="flex items-center gap-1">
-              <MessageCircle className="w-3.5 h-3.5" />
-              <span className={`font-medium ${question.has_accepted_answer ? 'text-emerald-600' : question.answers_count > 0 ? 'text-emerald-600' : 'text-slate-500'}`}>
+            <div className="flex items-center gap-1.5">
+              <MessageCircle className={`w-4 h-4 ${question.has_accepted_answer ? 'text-green-600' : question.answers_count > 0 ? 'text-emerald-600' : 'text-slate-400'}`} />
+              <span className={`font-semibold ${question.has_accepted_answer ? 'text-green-600' : question.answers_count > 0 ? 'text-emerald-600' : 'text-slate-900'}`}>
                 {question.answers_count || 0}
               </span>
+              <span className="hidden sm:inline">jawaban</span>
             </div>
-            <div className="flex items-center gap-1">
-              <Eye className="w-3.5 h-3.5" />
-              <span>{formatNumber(question.views_count)}</span>
+            <div className="flex items-center gap-1.5">
+              <Eye className="w-4 h-4 text-slate-400" />
+              <span className="font-medium text-slate-700">{formatNumber(question.views_count)}</span>
+              <span className="hidden sm:inline">views</span>
             </div>
-            <div className="flex items-center gap-1">
+            <div className="flex items-center gap-1.5 ml-auto">
               <Clock className="w-3.5 h-3.5" />
-              <span>{formatDate(question.created_at)}</span>
+              <span className="text-slate-600">{formatDate(question.created_at)}</span>
             </div>
           </div>
 

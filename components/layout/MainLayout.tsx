@@ -23,7 +23,7 @@ export default function MainLayout({ children }: MainLayoutProps) {
       )}
       
       {/* Top Navigation - Fixed */}
-      <header className="fixed top-0 left-0 right-0 z-50 bg-white border-b border-slate-200 h-16">
+      <header className="fixed top-0 left-0 right-0 z-50 bg-white h-16">
         <Navbar onMenuClick={() => setSidebarOpen(!sidebarOpen)} />
       </header>
       

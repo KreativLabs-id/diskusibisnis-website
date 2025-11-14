@@ -34,7 +34,7 @@ export async function GET(
                 COUNT(DISTINCT v.id) FILTER (WHERE v.vote_type = 'upvote') as upvotes
              FROM public.answers a 
              JOIN public.questions q ON a.question_id = q.id 
-             LEFT JOIN public.votes v ON a.id = v.votable_id AND v.votable_type = 'answer'
+             LEFT JOIN public.votes v ON a.id = v.answer_id
              WHERE a.author_id = $1 
              GROUP BY a.id, q.id, q.title
              ORDER BY a.created_at DESC`,

@@ -84,10 +84,24 @@ export default function TagsPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-slate-50 flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-emerald-600 mx-auto"></div>
-          <p className="mt-4 text-slate-600">Memuat tags...</p>
+      <div className="min-h-screen bg-slate-50">
+        <div className="max-w-7xl mx-auto px-4 py-8">
+          <div className="animate-pulse">
+            <div className="h-8 bg-slate-200 rounded w-1/4 mb-2"></div>
+            <div className="h-4 bg-slate-200 rounded w-1/2 mb-6"></div>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+              {[1,2,3,4,5,6,7,8,9].map(i => (
+                <div key={i} className="bg-white rounded-xl p-4 space-y-2">
+                  <div className="h-6 bg-slate-200 rounded w-1/2"></div>
+                  <div className="h-4 bg-slate-200 rounded"></div>
+                  <div className="flex justify-between">
+                    <div className="h-4 bg-slate-200 rounded w-1/3"></div>
+                    <div className="h-4 bg-slate-200 rounded w-1/4"></div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
         </div>
       </div>
     );

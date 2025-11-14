@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation';
 import { useAuth } from '@/contexts/AuthContext';
 import { ArrowLeft, Users, MapPin, Tag, FileText, Plus } from 'lucide-react';
 import { communityAPI } from '@/lib/api';
-import LoadingSpinner from '@/components/ui/LoadingSpinner';
+import AlertModal from '@/components/ui/AlertModal';
 
 const categories = [
   'Regional',
@@ -30,11 +30,21 @@ export default function CreateCommunityPage() {
     category: '',
     location: ''
   });
+  const [alertModal, setAlertModal] = useState<{
+    isOpen: boolean;
+    type: 'success' | 'error' | 'warning' | 'info';
+    title: string;
+    message: string;
+  }>({ isOpen: false, type: 'info', title: '', message: '' });
+
+  const showAlert = (type: 'success' | 'error' | 'warning' | 'info', title: string, message: string) => {
+    setAlertModal({ isOpen: true, type, title, message });
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!user) {
-      alert('Silakan login untuk membuat komunitas');
+      showAlert('warning', 'Login Diperlukan', 'Silakan login untuk membuat komunitas');
       return;
     }
 
@@ -43,12 +53,12 @@ export default function CreateCommunityPage() {
       const response = await communityAPI.create(formData);
       
       if (response.data.success) {
-        alert('Komunitas berhasil dibuat!');
-        router.push('/communities');
+        showAlert('success', 'Berhasil', 'Komunitas berhasil dibuat!');
+        setTimeout(() => router.push('/communities'), 1500);
       }
     } catch (error: any) {
       console.error('Error creating community:', error);
-      alert(error.response?.data?.message || 'Gagal membuat komunitas');
+      showAlert('error', 'Gagal Membuat Komunitas', error.response?.data?.message || 'Gagal membuat komunitas');
     } finally {
       setLoading(false);
     }
@@ -61,9 +71,25 @@ export default function CreateCommunityPage() {
     });
   };
 
-  // Show loading spinner while checking authentication
+  // Show loading skeleton while checking authentication
   if (authLoading) {
-    return <LoadingSpinner size="xl" text="Memeriksa status login" fullScreen />;
+    return (
+      <div className="min-h-screen bg-slate-50 p-4">
+        <div className="max-w-2xl mx-auto">
+          <div className="bg-white rounded-xl border border-slate-200 p-6 animate-pulse">
+            <div className="h-8 bg-slate-200 rounded w-64 mb-6" />
+            <div className="space-y-4">
+              {[1, 2, 3, 4, 5].map((i) => (
+                <div key={i}>
+                  <div className="h-4 bg-slate-200 rounded w-32 mb-2" />
+                  <div className="h-10 bg-slate-200 rounded" />
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      </div>
+    );
   }
 
   // Show login required if user is not authenticated
@@ -239,6 +265,15 @@ export default function CreateCommunityPage() {
           </form>
         </div>
       </div>
+
+      {/* Alert Modal */}
+      <AlertModal
+        isOpen={alertModal.isOpen}
+        onClose={() => setAlertModal({ ...alertModal, isOpen: false })}
+        type={alertModal.type}
+        title={alertModal.title}
+        message={alertModal.message}
+      />
     </div>
   );
 }

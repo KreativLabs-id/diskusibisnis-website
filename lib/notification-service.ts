@@ -29,8 +29,8 @@ export const createAnswerNotification = async (
     await createNotification({
         userId: questionOwnerId,
         type: 'answer',
-        title: `${answererName} menjawab pertanyaan Anda`,
-        message: `"${questionTitle}"`,
+        title: 'Jawaban baru',
+        message: `**${answererName}** menjawab pertanyaan Anda: **${questionTitle}**`,
         link: `/questions/${questionId}`
     });
 };
@@ -45,8 +45,8 @@ export const createCommentNotification = async (
     await createNotification({
         userId: targetUserId,
         type: 'comment',
-        title: `${commenterName} mengomentari ${contentType === 'question' ? 'pertanyaan' : 'jawaban'} Anda`,
-        message: `"${contentTitle}"`,
+        title: 'Komentar baru',
+        message: `**${commenterName}** mengomentari ${contentType === 'question' ? 'pertanyaan' : 'jawaban'} Anda: **${contentTitle}**`,
         link: `/questions/${contentId}`
     });
 };
@@ -63,8 +63,8 @@ export const createVoteNotification = async (
         await createNotification({
             userId: targetUserId,
             type: 'vote',
-            title: `${voterName} menyukai ${contentType === 'question' ? 'pertanyaan' : 'jawaban'} Anda`,
-            message: `"${contentTitle}"`,
+            title: 'Vote positif',
+            message: `**${voterName}** menyukai ${contentType === 'question' ? 'pertanyaan' : 'jawaban'} Anda: **${contentTitle}**`,
             link: `/questions/${contentId}`
         });
     }
@@ -79,8 +79,8 @@ export const createMentionNotification = async (
     await createNotification({
         userId: mentionedUserId,
         type: 'mention',
-        title: `${mentionerName} menyebut Anda dalam diskusi`,
-        message: `"${contentTitle}"`,
+        title: 'Mention',
+        message: `**${mentionerName}** menyebut Anda dalam diskusi: **${contentTitle}**`,
         link: `/questions/${contentId}`
     });
 };

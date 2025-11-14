@@ -6,6 +6,7 @@ import Link from 'next/link';
 import { ArrowLeft, Save, X } from 'lucide-react';
 import { questionAPI } from '@/lib/api';
 import { useAuth } from '@/contexts/AuthContext';
+import AlertModal from '@/components/ui/AlertModal';
 
 interface QuestionData {
   id: string;
@@ -26,6 +27,16 @@ export default function EditQuestionPage() {
   const [content, setContent] = useState('');
   const [tags, setTags] = useState<string[]>([]);
   const [tagInput, setTagInput] = useState('');
+  const [alertModal, setAlertModal] = useState<{
+    isOpen: boolean;
+    type: 'success' | 'error' | 'warning' | 'info';
+    title: string;
+    message: string;
+  }>({ isOpen: false, type: 'info', title: '', message: '' });
+
+  const showAlert = (type: 'success' | 'error' | 'warning' | 'info', title: string, message: string) => {
+    setAlertModal({ isOpen: true, type, title, message });
+  };
 
   useEffect(() => {
     const fetchQuestion = async () => {
@@ -36,8 +47,8 @@ export default function EditQuestionPage() {
         
         // Check if user is the author
         if (!user || questionData.author_id !== user.id) {
-          alert('Anda tidak memiliki izin untuk mengedit pertanyaan ini');
-          router.push(`/questions/${params.id}`);
+          showAlert('error', 'Akses Ditolak', 'Anda tidak memiliki izin untuk mengedit pertanyaan ini');
+          setTimeout(() => router.push(`/questions/${params.id}`), 1500);
           return;
         }
         
@@ -47,8 +58,8 @@ export default function EditQuestionPage() {
         setTags(questionData.tags.map((tag: any) => tag.name));
       } catch (error) {
         console.error('Error fetching question:', error);
-        alert('Gagal memuat pertanyaan');
-        router.push('/');
+        showAlert('error', 'Gagal Memuat', 'Gagal memuat pertanyaan');
+        setTimeout(() => router.push('/'), 1500);
       } finally {
         setLoading(false);
       }
@@ -78,7 +89,7 @@ export default function EditQuestionPage() {
     e.preventDefault();
     
     if (!title.trim() || !content.trim()) {
-      alert('Judul dan konten tidak boleh kosong');
+      showAlert('warning', 'Data Tidak Lengkap', 'Judul dan konten tidak boleh kosong');
       return;
     }
 
@@ -90,11 +101,11 @@ export default function EditQuestionPage() {
         tags
       });
       
-      alert('Pertanyaan berhasil diperbarui');
-      router.push(`/questions/${params.id}`);
+      showAlert('success', 'Berhasil', 'Pertanyaan berhasil diperbarui');
+      setTimeout(() => router.push(`/questions/${params.id}`), 1500);
     } catch (error) {
       console.error('Error updating question:', error);
-      alert('Gagal memperbarui pertanyaan');
+      showAlert('error', 'Gagal Memperbarui', 'Gagal memperbarui pertanyaan');
     } finally {
       setSaving(false);
     }
@@ -233,6 +244,15 @@ export default function EditQuestionPage() {
           </button>
         </div>
       </form>
+
+      {/* Alert Modal */}
+      <AlertModal
+        isOpen={alertModal.isOpen}
+        onClose={() => setAlertModal({ ...alertModal, isOpen: false })}
+        type={alertModal.type}
+        title={alertModal.title}
+        message={alertModal.message}
+      />
     </div>
   );
 }

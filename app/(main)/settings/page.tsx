@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import { useAuth } from '@/contexts/AuthContext';
 import { User, Mail, Lock, Save, AlertCircle, Upload, Camera } from 'lucide-react';
 import { userAPI } from '@/lib/api';
+import AlertModal from '@/components/ui/AlertModal';
 
 export default function SettingsPage() {
   const router = useRouter();
@@ -17,6 +18,17 @@ export default function SettingsPage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
+  const [showPasswordModal, setShowPasswordModal] = useState(false);
+  const [alertModal, setAlertModal] = useState<{
+    isOpen: boolean;
+    type: 'success' | 'error' | 'warning' | 'info';
+    title: string;
+    message: string;
+  }>({ isOpen: false, type: 'info', title: '', message: '' });
+
+  const showAlert = (type: 'success' | 'error' | 'warning' | 'info', title: string, message: string) => {
+    setAlertModal({ isOpen: true, type, title, message });
+  };
 
   useEffect(() => {
     if (!authLoading && !user) {
@@ -45,21 +57,23 @@ export default function SettingsPage() {
       const response = await userAPI.updateProfile(user.id, formData);
       
       // Update user in context
-      updateUser({
-        ...user,
-        displayName: response.data.data.displayName,
-        avatarUrl: response.data.data.avatarUrl,
-      });
+      if (response.data.success) {
+        updateUser({
+          ...user,
+          displayName: response.data.data.displayName || formData.displayName,
+          avatarUrl: response.data.data.avatarUrl || formData.avatarUrl,
+        });
 
-      setSuccess('Profil berhasil diperbarui!');
-      
-      // Redirect to profile after 2 seconds
-      setTimeout(() => {
-        router.push(`/profile/${user.id}`);
-      }, 2000);
-    } catch (err) {
-      const error = err as { response?: { data?: { message?: string } } };
-      setError(error.response?.data?.message || 'Gagal memperbarui profil');
+        setSuccess('Profil berhasil diperbarui!');
+        
+        // Redirect to profile after 2 seconds
+        setTimeout(() => {
+          router.push(`/profile/${user.id}`);
+        }, 2000);
+      }
+    } catch (err: any) {
+      console.error('Update profile error:', err);
+      setError(err.response?.data?.message || 'Gagal memperbarui profil');
     } finally {
       setLoading(false);
     }
@@ -67,10 +81,18 @@ export default function SettingsPage() {
 
   if (authLoading) {
     return (
-      <div className="min-h-screen bg-slate-50 flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-emerald-600 mx-auto"></div>
-          <p className="mt-4 text-slate-600">Memuat...</p>
+      <div className="min-h-screen bg-slate-50">
+        <div className="max-w-3xl mx-auto px-4 py-10">
+          <div className="animate-pulse space-y-6">
+            <div className="h-8 bg-slate-200 rounded w-1/3"></div>
+            <div className="h-4 bg-slate-200 rounded w-2/3"></div>
+            <div className="bg-white rounded-2xl p-6 space-y-4">
+              <div className="h-6 bg-slate-200 rounded w-1/4"></div>
+              <div className="h-10 bg-slate-200 rounded"></div>
+              <div className="h-20 bg-slate-200 rounded"></div>
+              <div className="h-10 bg-slate-200 rounded"></div>
+            </div>
+          </div>
         </div>
       </div>
     );
@@ -175,7 +197,7 @@ export default function SettingsPage() {
                         const url = URL.createObjectURL(file);
                         setFormData({ ...formData, avatarUrl: url });
                         // TODO: Implement actual file upload to server
-                        alert('Fitur upload foto akan segera tersedia');
+                        showAlert('info', 'Segera Hadir', 'Fitur upload foto akan segera tersedia');
                       }
                     }}
                   />
@@ -272,12 +294,163 @@ export default function SettingsPage() {
                   <p className="text-sm text-slate-500">••••••••</p>
                 </div>
               </div>
-              <button className="text-sm text-emerald-600 hover:text-emerald-700 font-medium">
+              <button 
+                onClick={() => setShowPasswordModal(true)}
+                className="text-sm text-emerald-600 hover:text-emerald-700 font-medium"
+              >
                 Ubah Password
               </button>
             </div>
           </div>
         </div>
+      </div>
+
+      {/* Change Password Modal */}
+      {showPasswordModal && (
+        <PasswordChangeModal 
+          userId={user.id}
+          onClose={() => setShowPasswordModal(false)}
+        />
+      )}
+
+      {/* Alert Modal */}
+      <AlertModal
+        isOpen={alertModal.isOpen}
+        onClose={() => setAlertModal({ ...alertModal, isOpen: false })}
+        type={alertModal.type}
+        title={alertModal.title}
+        message={alertModal.message}
+      />
+    </div>
+  );
+}
+
+function PasswordChangeModal({ userId, onClose }: { userId: string; onClose: () => void }) {
+  const [currentPassword, setCurrentPassword] = useState('');
+  const [newPassword, setNewPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
+  const [success, setSuccess] = useState('');
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    if (newPassword !== confirmPassword) {
+      setError('Password baru tidak cocok');
+      return;
+    }
+
+    if (newPassword.length < 6) {
+      setError('Password minimal 6 karakter');
+      return;
+    }
+
+    setLoading(true);
+    setError('');
+    setSuccess('');
+
+    try {
+      const response = await fetch('/api/auth/change-password', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ userId, currentPassword, newPassword }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.message);
+      }
+
+      setSuccess('Password berhasil diubah!');
+      setTimeout(() => {
+        onClose();
+      }, 1500);
+    } catch (err: any) {
+      setError(err.message || 'Gagal mengubah password');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+      <div className="bg-white rounded-2xl max-w-md w-full p-6">
+        <h2 className="text-xl font-bold text-slate-900 mb-4">Ubah Password</h2>
+        
+        {error && (
+          <div className="bg-red-50 border border-red-200 rounded-lg p-3 mb-4 flex items-start gap-2">
+            <AlertCircle className="w-4 h-4 text-red-600 shrink-0 mt-0.5" />
+            <p className="text-sm text-red-600">{error}</p>
+          </div>
+        )}
+
+        {success && (
+          <div className="bg-green-50 border border-green-200 rounded-lg p-3 mb-4 flex items-start gap-2">
+            <AlertCircle className="w-4 h-4 text-green-600 shrink-0 mt-0.5" />
+            <p className="text-sm text-green-600">{success}</p>
+          </div>
+        )}
+
+        <form onSubmit={handleSubmit} className="space-y-4">
+          <div>
+            <label className="block text-sm font-medium text-slate-900 mb-1">
+              Password Lama
+            </label>
+            <input
+              type="password"
+              value={currentPassword}
+              onChange={(e) => setCurrentPassword(e.target.value)}
+              className="w-full px-4 py-2 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500"
+              required
+            />
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-slate-900 mb-1">
+              Password Baru
+            </label>
+            <input
+              type="password"
+              value={newPassword}
+              onChange={(e) => setNewPassword(e.target.value)}
+              className="w-full px-4 py-2 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500"
+              required
+            />
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-slate-900 mb-1">
+              Konfirmasi Password Baru
+            </label>
+            <input
+              type="password"
+              value={confirmPassword}
+              onChange={(e) => setConfirmPassword(e.target.value)}
+              className="w-full px-4 py-2 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500"
+              required
+            />
+          </div>
+
+          <div className="flex gap-3 pt-4">
+            <button
+              type="button"
+              onClick={onClose}
+              className="flex-1 px-4 py-2 border border-slate-200 text-slate-700 rounded-lg hover:bg-slate-50 transition-colors"
+              disabled={loading}
+            >
+              Batal
+            </button>
+            <button
+              type="submit"
+              className="flex-1 px-4 py-2 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 transition-colors disabled:opacity-50"
+              disabled={loading}
+            >
+              {loading ? 'Menyimpan...' : 'Simpan'}
+            </button>
+          </div>
+        </form>
       </div>
     </div>
   );

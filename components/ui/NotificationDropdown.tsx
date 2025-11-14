@@ -58,38 +58,44 @@ const NotificationItem: React.FC<NotificationItemProps> = ({
     onClose();
   };
 
+  // Parse bold text patterns like **name** or **title**
+  const formatMessage = (text: string) => {
+    const parts = text.split(/(\*\*.*?\*\*)/g);
+    return parts.map((part, i) => {
+      if (part.startsWith('**') && part.endsWith('**')) {
+        return <strong key={i} className="font-semibold text-slate-900">{part.slice(2, -2)}</strong>;
+      }
+      return <span key={i}>{part}</span>;
+    });
+  };
+
   const content = (
     <div 
-      className={`p-4 hover:bg-slate-50 transition-colors cursor-pointer border-l-4 ${
+      className={`px-4 py-3 hover:bg-slate-50 active:bg-slate-100 transition-colors cursor-pointer border-l-3 ${
         notification.is_read 
           ? 'border-transparent bg-white' 
           : 'border-emerald-500 bg-emerald-50/30'
       }`}
       onClick={handleClick}
     >
-      <div className="flex items-start space-x-3">
-        <div className="flex-shrink-0 mt-1">
+      <div className="flex items-start gap-3">
+        <div className="shrink-0 mt-0.5">
           {getNotificationIcon(notification.type)}
         </div>
         <div className="flex-1 min-w-0">
-          <div className="flex items-start justify-between">
-            <h4 className={`text-sm font-medium ${
-              notification.is_read ? 'text-slate-700' : 'text-slate-900'
-            }`}>
-              {notification.title}
-            </h4>
+          <div className="flex items-start gap-2">
+            <div className="flex-1 min-w-0">
+              <p className={`text-sm leading-relaxed ${
+                notification.is_read ? 'text-slate-600' : 'text-slate-700'
+              }`}>
+                {formatMessage(notification.message || notification.title)}
+              </p>
+            </div>
             {!notification.is_read && (
-              <div className="w-2 h-2 bg-emerald-600 rounded-full flex-shrink-0 ml-2 mt-1"></div>
+              <div className="w-2 h-2 bg-emerald-500 rounded-full shrink-0 mt-1.5"></div>
             )}
           </div>
-          {notification.message && (
-            <p className={`text-sm mt-1 ${
-              notification.is_read ? 'text-slate-500' : 'text-slate-600'
-            }`}>
-              {notification.message}
-            </p>
-          )}
-          <p className="text-xs text-slate-400 mt-2">
+          <p className="text-xs text-slate-400 mt-1.5">
             {formatTimeAgo(notification.created_at)}
           </p>
         </div>
@@ -99,13 +105,13 @@ const NotificationItem: React.FC<NotificationItemProps> = ({
 
   if (notification.link) {
     return (
-      <Link href={notification.link} className="block">
+      <Link href={notification.link} className="block border-b border-slate-100 last:border-0">
         {content}
       </Link>
     );
   }
 
-  return content;
+  return <div className="border-b border-slate-100 last:border-0">{content}</div>;
 };
 
 export default function NotificationDropdown() {
@@ -154,87 +160,115 @@ export default function NotificationDropdown() {
       {/* Notification Bell Button */}
       <button
         onClick={handleToggle}
-        className="relative p-2 hover:bg-slate-100 rounded-lg transition-colors"
+        className="relative p-2 hover:bg-slate-50 rounded-lg transition-colors"
         aria-label="Notifications"
       >
         <Bell className="w-5 h-5 text-slate-700" />
         {unreadCount > 0 && (
-          <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full min-w-[18px] h-[18px] flex items-center justify-center font-medium">
-            {unreadCount > 99 ? '99+' : unreadCount}
+          <span className="absolute top-0 right-0 bg-red-500 text-white text-[10px] rounded-full min-w-4 h-4 flex items-center justify-center font-bold leading-none px-1">
+            {unreadCount > 9 ? '9+' : unreadCount}
           </span>
         )}
       </button>
 
-      {/* Dropdown Menu */}
+      {/* Dropdown Menu - Full Mobile Width */}
       {isOpen && (
-        <div className="absolute right-0 mt-2 w-96 bg-white rounded-lg shadow-lg border border-slate-200 z-50 max-h-[500px] overflow-hidden">
-          {/* Header */}
-          <div className="px-4 py-3 border-b border-slate-200 bg-slate-50">
+                <div className="fixed inset-x-0 top-14 sm:absolute sm:right-0 sm:left-auto sm:inset-x-auto mt-0 sm:mt-2 w-full sm:w-80 lg:w-96 bg-white sm:rounded-xl shadow-2xl border-t sm:border border-slate-200 flex flex-col sm:max-h-128 z-50">
+          {/* Header - Clean & Minimal */}
+          <div className="px-4 py-3 border-b border-slate-200 bg-white shrink-0">
             <div className="flex items-center justify-between">
-              <h3 className="text-lg font-semibold text-slate-900">Notifikasi</h3>
-              <div className="flex items-center space-x-2">
+              <div>
+                <h3 className="text-base font-bold text-slate-900">Pemberitahuan</h3>
                 {unreadCount > 0 && (
-                  <button
-                    onClick={handleMarkAllAsRead}
-                    className="text-xs text-emerald-600 hover:text-emerald-700 font-medium flex items-center space-x-1"
-                  >
-                    <CheckCheck className="w-3 h-3" />
-                    <span>Tandai semua dibaca</span>
-                  </button>
+                  <p className="text-xs text-emerald-600 font-medium mt-0.5">
+                    {unreadCount} belum dibaca
+                  </p>
                 )}
-                <button
-                  onClick={() => setIsOpen(false)}
-                  className="p-1 hover:bg-slate-200 rounded"
-                >
-                  <X className="w-4 h-4 text-slate-500" />
-                </button>
               </div>
+              {/* Action Menu Button */}
+              {unreadCount > 0 && (
+                <button
+                  onClick={handleMarkAllAsRead}
+                  className="p-2 hover:bg-slate-100 rounded-lg transition-colors"
+                  title="Tandai semua dibaca"
+                >
+                  <CheckCheck className="w-5 h-5 text-emerald-600" />
+                </button>
+              )}
             </div>
-            {unreadCount > 0 && (
-              <p className="text-sm text-slate-600 mt-1">
-                {unreadCount} notifikasi belum dibaca
-              </p>
-            )}
           </div>
 
-          {/* Notifications List */}
-          <div className="max-h-96 overflow-y-auto">
+          {/* Notifications List - Scrollable */}
+          <div className="flex-1 overflow-y-auto overscroll-contain">
             {loading ? (
               <div className="p-8 text-center">
                 <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-emerald-600 mx-auto"></div>
-                <p className="text-sm text-slate-500 mt-2">Memuat notifikasi...</p>
+                <p className="text-sm text-slate-500 mt-3">Memuat pemberitahuan...</p>
               </div>
             ) : notifications.length === 0 ? (
               <div className="p-8 text-center">
-                <Bell className="w-12 h-12 text-slate-300 mx-auto mb-3" />
-                <p className="text-slate-500 font-medium">Tidak ada notifikasi</p>
-                <p className="text-sm text-slate-400 mt-1">
-                  Notifikasi baru akan muncul di sini
+                <div className="w-16 h-16 bg-slate-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                  <Bell className="w-8 h-8 text-slate-400" />
+                </div>
+                <p className="text-base text-slate-700 font-semibold">Tidak ada pemberitahuan</p>
+                <p className="text-sm text-slate-500 mt-1">
+                  Pemberitahuan baru akan muncul di sini
                 </p>
               </div>
             ) : (
-              <div className="divide-y divide-slate-100">
-                {notifications.map((notification) => (
-                  <NotificationItem
-                    key={notification.id}
-                    notification={notification}
-                    onMarkAsRead={markAsRead}
-                    onClose={() => setIsOpen(false)}
-                  />
-                ))}
-              </div>
+              <>
+                {/* Unread Section */}
+                {notifications.some(n => !n.is_read) && (
+                  <div>
+                    <div className="px-4 py-2 bg-slate-50 sticky top-0 z-10">
+                      <p className="text-xs font-semibold text-slate-600 uppercase tracking-wider">Belum Dibaca</p>
+                    </div>
+                    <div>
+                      {notifications.filter(n => !n.is_read).map((notification) => (
+                        <NotificationItem
+                          key={notification.id}
+                          notification={notification}
+                          onMarkAsRead={markAsRead}
+                          onClose={() => setIsOpen(false)}
+                        />
+                      ))}
+                    </div>
+                  </div>
+                )}
+                
+                {/* Read Section */}
+                {notifications.some(n => n.is_read) && (
+                  <div>
+                    {notifications.some(n => !n.is_read) && (
+                      <div className="px-4 py-2 bg-slate-50 sticky top-0 z-10">
+                        <p className="text-xs font-semibold text-slate-600 uppercase tracking-wider">Sudah Dibaca</p>
+                      </div>
+                    )}
+                    <div>
+                      {notifications.filter(n => n.is_read).map((notification) => (
+                        <NotificationItem
+                          key={notification.id}
+                          notification={notification}
+                          onMarkAsRead={markAsRead}
+                          onClose={() => setIsOpen(false)}
+                        />
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </>
             )}
           </div>
 
-          {/* Footer */}
+          {/* Footer - Full Width Button */}
           {notifications.length > 0 && (
-            <div className="px-4 py-3 border-t border-slate-200 bg-slate-50">
+            <div className="border-t border-slate-200 bg-white shrink-0">
               <Link
                 href="/notifications"
-                className="text-sm text-emerald-600 hover:text-emerald-700 font-medium"
+                className="block w-full px-4 py-3 text-center text-sm font-semibold text-emerald-600 hover:bg-emerald-50 transition-colors"
                 onClick={() => setIsOpen(false)}
               >
-                Lihat semua notifikasi
+                Lihat Semua Pemberitahuan
               </Link>
             </div>
           )}
