@@ -94,6 +94,12 @@ export default function QuestionDetailPage() {
   };
 
   const fetchQuestion = useCallback(async () => {
+    if (!params.id || params.id === 'undefined') {
+      console.error('Invalid question ID');
+      setLoading(false);
+      return;
+    }
+    
     try {
       setLoading(true);
       const response = await questionAPI.getById(params.id as string);
@@ -106,7 +112,7 @@ export default function QuestionDetailPage() {
   }, [params.id]);
 
   useEffect(() => {
-    if (params.id) {
+    if (params.id && params.id !== 'undefined') {
       const questionId = params.id as string;
       
       // Always fetch question data
@@ -200,12 +206,21 @@ export default function QuestionDetailPage() {
     }
   };
 
-  const handleAcceptAnswer = async (answerId: string) => {
+  const handleAcceptAnswer = async (answerId: string, isCurrentlyAccepted: boolean) => {
     try {
-      await answerAPI.accept(answerId);
+      const response = await answerAPI.accept(answerId);
+      const action = response.data.action;
+      
+      if (action === 'accepted') {
+        showAlert('success', 'Berhasil', 'Jawaban telah diterima!');
+      } else if (action === 'unaccepted') {
+        showAlert('info', 'Dibatalkan', 'Penerimaan jawaban telah dibatalkan');
+      }
+      
       fetchQuestion();
     } catch (error) {
       console.error('Error accepting answer:', error);
+      showAlert('error', 'Gagal', 'Terjadi kesalahan saat memproses jawaban');
     }
   };
 
@@ -549,13 +564,35 @@ export default function QuestionDetailPage() {
                       </div>
                     </div>
                     <div className="flex gap-2 mt-2 sm:mt-0">
-                      {user?.id === question.author_id && !answer.is_accepted && (
-                        <button
-                          onClick={() => handleAcceptAnswer(answer.id)}
-                          className="px-3 sm:px-4 py-1.5 sm:py-2 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 transition-colors text-xs sm:text-sm font-medium"
-                        >
-                          Terima Jawaban
-                        </button>
+                      {user?.id === question.author_id && (
+                        <>
+                          {answer.is_accepted ? (
+                            <button
+                              onClick={() => handleAcceptAnswer(answer.id, answer.is_accepted)}
+                              className="px-3 sm:px-4 py-1.5 sm:py-2 bg-slate-200 text-slate-700 hover:bg-slate-300 rounded-lg transition-colors text-xs sm:text-sm font-medium"
+                              title="Klik untuk membatalkan penerimaan"
+                            >
+                              Batalkan Penerimaan
+                            </button>
+                          ) : (
+                            <button
+                              onClick={() => handleAcceptAnswer(answer.id, answer.is_accepted)}
+                              disabled={question.answers?.some(a => a.is_accepted && a.id !== answer.id)}
+                              className={`px-3 sm:px-4 py-1.5 sm:py-2 rounded-lg transition-colors text-xs sm:text-sm font-medium ${
+                                question.answers?.some(a => a.is_accepted && a.id !== answer.id)
+                                  ? 'bg-slate-100 text-slate-400 cursor-not-allowed'
+                                  : 'bg-emerald-600 text-white hover:bg-emerald-700'
+                              }`}
+                              title={
+                                question.answers?.some(a => a.is_accepted && a.id !== answer.id)
+                                  ? 'Sudah ada jawaban lain yang diterima'
+                                  : 'Klik untuk menerima jawaban ini'
+                              }
+                            >
+                              Terima Jawaban
+                            </button>
+                          )}
+                        </>
                       )}
                     </div>
                   </div>

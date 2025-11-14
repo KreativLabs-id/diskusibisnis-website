@@ -10,10 +10,20 @@ export const dynamic = 'force-dynamic';
 
 export async function GET(
     request: NextRequest,
-    { params }: { params: { id: string } }
+    { params }: { params: Promise<{ id: string }> | { id: string } }
 ) {
     try {
-        const questionId = params.id;
+        // Await params for Next.js 15 compatibility
+        const resolvedParams = await Promise.resolve(params);
+        const questionId = resolvedParams.id;
+        
+        // Validate question ID
+        if (!questionId || questionId === 'undefined' || questionId === 'null') {
+            return NextResponse.json({
+                success: false,
+                message: 'Invalid question ID'
+            }, { status: 400 });
+        }
         
         // Try to get user from token (optional for this endpoint)
         let currentUserId = null;
@@ -125,11 +135,23 @@ export async function GET(
 // PUT /api/questions/[id] - Update question
 export async function PUT(
     request: NextRequest,
-    { params }: { params: { id: string } }
+    { params }: { params: Promise<{ id: string }> | { id: string } }
 ) {
     try {
         const user = requireAuth(request);
-        const questionId = params.id;
+        
+        // Await params for Next.js 15 compatibility
+        const resolvedParams = await Promise.resolve(params);
+        const questionId = resolvedParams.id;
+        
+        // Validate question ID
+        if (!questionId || questionId === 'undefined' || questionId === 'null') {
+            return NextResponse.json({
+                success: false,
+                message: 'Invalid question ID'
+            }, { status: 400 });
+        }
+        
         const { title, content, tags } = await request.json();
         
         // Check if question exists and user is author
@@ -250,11 +272,22 @@ export async function PUT(
 // DELETE /api/questions/[id] - Delete question
 export async function DELETE(
     request: NextRequest,
-    { params }: { params: { id: string } }
+    { params }: { params: Promise<{ id: string }> | { id: string } }
 ) {
     try {
         const user = requireAuth(request);
-        const questionId = params.id;
+        
+        // Await params for Next.js 15 compatibility
+        const resolvedParams = await Promise.resolve(params);
+        const questionId = resolvedParams.id;
+        
+        // Validate question ID
+        if (!questionId || questionId === 'undefined' || questionId === 'null') {
+            return NextResponse.json({
+                success: false,
+                message: 'Invalid question ID'
+            }, { status: 400 });
+        }
         
         // Check if question exists and user is author
         const questionResult = await pool.query(

@@ -13,10 +13,18 @@ export async function GET(request: NextRequest) {
         const { searchParams } = new URL(request.url);
         const page = parseInt(searchParams.get('page') || '1');
         const limit = parseInt(searchParams.get('limit') || '10');
-        const sort = searchParams.get('sort') || 'newest';
+        let sort = searchParams.get('sort') || 'newest';
         const search = searchParams.get('search') || '';
         const tag = searchParams.get('tag') || '';
-        const status = searchParams.get('status') || '';
+        let status = searchParams.get('status') || '';
+        
+        // Map frontend sort values to backend values
+        if (sort === 'popular') {
+            sort = 'most_voted';
+        } else if (sort === 'unanswered') {
+            status = 'unanswered';
+            sort = 'newest'; // Sort unanswered by newest
+        }
         
         const offset = (page - 1) * limit;
         
@@ -29,15 +37,13 @@ export async function GET(request: NextRequest) {
                 u.reputation_points as author_reputation, 
                 COALESCE(u.is_verified, false) as author_is_verified,
                 COUNT(DISTINCT a.id) as answers_count,
-                COALESCE(
-                    (SELECT COUNT(*) FROM public.votes v WHERE v.question_id = q.id AND v.vote_type = 'upvote'), 
-                    0
-                ) as upvotes_count,
+                COUNT(DISTINCT CASE WHEN v.vote_type = 'upvote' THEN v.id END) as upvotes_count,
                 CASE WHEN COUNT(DISTINCT a_accepted.id) > 0 THEN true ELSE false END as has_accepted_answer
             FROM public.questions q
             LEFT JOIN public.users u ON q.author_id = u.id
             LEFT JOIN public.answers a ON q.id = a.question_id
             LEFT JOIN public.answers a_accepted ON q.id = a_accepted.question_id AND a_accepted.is_accepted = true
+            LEFT JOIN public.votes v ON v.question_id = q.id
             LEFT JOIN public.question_tags qt ON q.id = qt.question_id
             LEFT JOIN public.tags t ON qt.tag_id = t.id
             WHERE q.community_id IS NULL
@@ -78,7 +84,8 @@ export async function GET(request: NextRequest) {
                 baseQuery += ` ORDER BY q.views_count DESC`;
                 break;
             case 'most_voted':
-                baseQuery += ` ORDER BY upvotes_count DESC`;
+                // Popular: Sort by votes first, then by views if votes are equal
+                baseQuery += ` ORDER BY upvotes_count DESC, q.views_count DESC, q.created_at DESC`;
                 break;
             default:
                 baseQuery += ` ORDER BY q.created_at DESC`;
@@ -89,22 +96,40 @@ export async function GET(request: NextRequest) {
         
         const result = await pool.query(baseQuery, queryParams);
         
-        // Fetch tags for each question
-        const questionsWithTags = await Promise.all(
-            result.rows.map(async (question) => {
-                const tagsResult = await pool.query(`
-                    SELECT t.id, t.name, t.slug
-                    FROM public.tags t
-                    JOIN public.question_tags qt ON t.id = qt.tag_id
-                    WHERE qt.question_id = $1
-                `, [question.id]);
-                
-                return {
-                    ...question,
-                    tags: tagsResult.rows
-                };
-            })
-        );
+        // Fetch all tags for all questions in ONE query (optimization)
+        const questionIds = result.rows.map(q => q.id);
+        let questionsWithTags = result.rows;
+        
+        if (questionIds.length > 0) {
+            const tagsResult = await pool.query(`
+                SELECT 
+                    qt.question_id,
+                    t.id, t.name, t.slug
+                FROM public.tags t
+                JOIN public.question_tags qt ON t.id = qt.tag_id
+                WHERE qt.question_id = ANY($1)
+                ORDER BY qt.question_id, t.name
+            `, [questionIds]);
+            
+            // Group tags by question_id
+            const tagsByQuestion = tagsResult.rows.reduce((acc, row) => {
+                if (!acc[row.question_id]) {
+                    acc[row.question_id] = [];
+                }
+                acc[row.question_id].push({
+                    id: row.id,
+                    name: row.name,
+                    slug: row.slug
+                });
+                return acc;
+            }, {} as Record<string, any[]>);
+            
+            // Attach tags to questions
+            questionsWithTags = result.rows.map(question => ({
+                ...question,
+                tags: tagsByQuestion[question.id] || []
+            }));
+        }
         
         // Get total count for pagination
         let countQuery = `

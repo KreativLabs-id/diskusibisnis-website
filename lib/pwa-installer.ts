@@ -2,6 +2,7 @@
 export class PWAInstaller {
   private deferredPrompt: any = null;
   private isInstalled = false;
+  private eventDispatched = false;
 
   constructor() {
     if (typeof window !== 'undefined') {
@@ -14,6 +15,17 @@ export class PWAInstaller {
     if (window.matchMedia('(display-mode: standalone)').matches) {
       this.isInstalled = true;
       console.log('[PWA] App is installed');
+      return; // Don't need to setup install prompt if already installed
+    }
+
+    // Check if already dismissed or installed in localStorage
+    const dismissed = localStorage.getItem('pwaPromptDismissed');
+    const installed = localStorage.getItem('pwaInstalled');
+    
+    if (installed === 'true') {
+      this.isInstalled = true;
+      console.log('[PWA] App already marked as installed');
+      return;
     }
 
     // Listen for beforeinstallprompt event
@@ -22,8 +34,14 @@ export class PWAInstaller {
       this.deferredPrompt = e;
       console.log('[PWA] Install prompt ready');
       
-      // Dispatch custom event
-      window.dispatchEvent(new CustomEvent('pwaInstallAvailable'));
+      // Only dispatch event once per session
+      if (!this.eventDispatched && typeof sessionStorage !== 'undefined') {
+        const alreadyShown = sessionStorage.getItem('pwaPromptShown');
+        if (alreadyShown !== 'true') {
+          this.eventDispatched = true;
+          window.dispatchEvent(new CustomEvent('pwaInstallAvailable'));
+        }
+      }
     });
 
     // Listen for app installed

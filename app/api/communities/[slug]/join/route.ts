@@ -9,11 +9,19 @@ export const dynamic = 'force-dynamic';
 
 export async function POST(
     request: NextRequest,
-    { params }: { params: { slug: string } }
+    { params }: { params: Promise<{ slug: string }> | { slug: string } }
 ) {
     try {
         const user = requireAuth(request);
-        const slug = params.slug;
+        const resolvedParams = await Promise.resolve(params);
+        const slug = resolvedParams.slug;
+        
+        if (!slug || slug === 'undefined' || slug === 'null') {
+            return NextResponse.json({
+                success: false,
+                message: 'Invalid slug'
+            }, { status: 400 });
+        }
         
         // First get community ID from slug
         const communityResult = await pool.query(

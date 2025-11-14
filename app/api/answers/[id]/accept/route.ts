@@ -9,11 +9,19 @@ export const dynamic = 'force-dynamic';
 
 export async function POST(
     request: NextRequest,
-    { params }: { params: { id: string } }
+    { params }: { params: Promise<{ id: string }> | { id: string } }
 ) {
     try {
         const user = requireAuth(request);
-        const answerId = params.id;
+        const resolvedParams = await Promise.resolve(params);
+        const answerId = resolvedParams.id;
+        
+        if (!answerId || answerId === 'undefined' || answerId === 'null') {
+            return NextResponse.json({
+                success: false,
+                message: 'Invalid answer ID'
+            }, { status: 400 });
+        }
         
         // Get answer and question details
         const answerResult = await pool.query(
@@ -47,36 +55,70 @@ export async function POST(
         try {
             await client.query('BEGIN');
             
-            // Unaccept any previously accepted answer for this question
-            await client.query(
-                'UPDATE public.answers SET is_accepted = FALSE WHERE question_id = $1',
-                [answer.question_id]
-            );
+            // Check if this answer is already accepted
+            const isCurrentlyAccepted = answer.is_accepted;
             
-            // Accept this answer
-            await client.query(
-                'UPDATE public.answers SET is_accepted = TRUE WHERE id = $1',
-                [answerId]
-            );
-            
-            // Update question to mark it has accepted answer
-            await client.query(
-                'UPDATE public.questions SET has_accepted_answer = TRUE WHERE id = $1',
-                [answer.question_id]
-            );
-            
-            // Add reputation points to answer author (+15 points for accepted answer)
-            await client.query(
-                'UPDATE public.users SET reputation_points = reputation_points + 15 WHERE id = $1',
-                [answer.author_id]
-            );
-            
-            await client.query('COMMIT');
-            
-            return NextResponse.json({
-                success: true,
-                message: 'Answer accepted successfully'
-            });
+            if (isCurrentlyAccepted) {
+                // UNACCEPT: Remove acceptance
+                await client.query(
+                    'UPDATE public.answers SET is_accepted = FALSE WHERE id = $1',
+                    [answerId]
+                );
+                
+                // Remove reputation points from answer author (-15 points)
+                await client.query(
+                    'UPDATE public.users SET reputation_points = GREATEST(0, reputation_points - 15) WHERE id = $1',
+                    [answer.author_id]
+                );
+                
+                await client.query('COMMIT');
+                
+                return NextResponse.json({
+                    success: true,
+                    message: 'Answer unaccepted successfully',
+                    action: 'unaccepted'
+                });
+            } else {
+                // ACCEPT: First, unaccept any previously accepted answer for this question
+                const previousAcceptedResult = await client.query(
+                    'SELECT id, author_id FROM public.answers WHERE question_id = $1 AND is_accepted = TRUE',
+                    [answer.question_id]
+                );
+                
+                // Remove reputation from previous accepted answer author if exists
+                if (previousAcceptedResult.rows.length > 0) {
+                    await client.query(
+                        'UPDATE public.users SET reputation_points = GREATEST(0, reputation_points - 15) WHERE id = $1',
+                        [previousAcceptedResult.rows[0].author_id]
+                    );
+                }
+                
+                // Unaccept all answers for this question
+                await client.query(
+                    'UPDATE public.answers SET is_accepted = FALSE WHERE question_id = $1',
+                    [answer.question_id]
+                );
+                
+                // Accept this answer
+                await client.query(
+                    'UPDATE public.answers SET is_accepted = TRUE WHERE id = $1',
+                    [answerId]
+                );
+                
+                // Add reputation points to answer author (+15 points for accepted answer)
+                await client.query(
+                    'UPDATE public.users SET reputation_points = reputation_points + 15 WHERE id = $1',
+                    [answer.author_id]
+                );
+                
+                await client.query('COMMIT');
+                
+                return NextResponse.json({
+                    success: true,
+                    message: 'Answer accepted successfully',
+                    action: 'accepted'
+                });
+            }
             
         } catch (error) {
             await client.query('ROLLBACK');

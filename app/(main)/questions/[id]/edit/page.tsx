@@ -40,6 +40,12 @@ export default function EditQuestionPage() {
 
   useEffect(() => {
     const fetchQuestion = async () => {
+      if (!params.id || params.id === 'undefined') {
+        showAlert('error', 'Error', 'ID pertanyaan tidak valid');
+        setTimeout(() => router.push('/'), 1500);
+        return;
+      }
+      
       try {
         setLoading(true);
         const response = await questionAPI.getById(params.id as string);
@@ -65,7 +71,7 @@ export default function EditQuestionPage() {
       }
     };
 
-    if (params.id && user) {
+    if (params.id && params.id !== 'undefined' && user) {
       fetchQuestion();
     }
   }, [params.id, user, router]);

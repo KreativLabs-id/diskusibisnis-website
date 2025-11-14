@@ -11,9 +11,15 @@ export function PWAInstallPrompt() {
     // Cek apakah sudah pernah dismiss atau install
     const dismissed = localStorage.getItem('pwaPromptDismissed');
     const installed = localStorage.getItem('pwaInstalled');
+    const promptShownThisSession = sessionStorage.getItem('pwaPromptShown');
     
     if (installed === 'true') {
       return; // Jangan tampilkan lagi jika sudah install
+    }
+
+    // Jika sudah pernah ditampilkan dalam session ini, jangan tampilkan lagi
+    if (promptShownThisSession === 'true') {
+      return;
     }
 
     if (dismissed) {
@@ -25,6 +31,14 @@ export function PWAInstallPrompt() {
     }
 
     const handleInstallAvailable = () => {
+      // Cek lagi apakah sudah ditampilkan dalam session ini
+      if (sessionStorage.getItem('pwaPromptShown') === 'true') {
+        return;
+      }
+      
+      // Mark sebagai sudah ditampilkan dalam session ini
+      sessionStorage.setItem('pwaPromptShown', 'true');
+      
       // Tunggu 5 detik sebelum menampilkan prompt (hanya pertama kali)
       setTimeout(() => {
         setShowPrompt(true);
@@ -35,6 +49,7 @@ export function PWAInstallPrompt() {
       setShowPrompt(false);
       setIsInstalling(false);
       localStorage.setItem('pwaInstalled', 'true');
+      sessionStorage.setItem('pwaPromptShown', 'true');
       
       // Show success notification
       if (pwaInstaller) {
@@ -67,6 +82,8 @@ export function PWAInstallPrompt() {
 
   const handleDismiss = () => {
     setShowPrompt(false);
+    // Mark sebagai sudah ditampilkan dalam session ini
+    sessionStorage.setItem('pwaPromptShown', 'true');
     // Tampilkan lagi setelah 7 hari
     localStorage.setItem('pwaPromptDismissed', Date.now().toString());
   };

@@ -9,11 +9,19 @@ export const dynamic = 'force-dynamic';
 
 export async function PUT(
     request: NextRequest,
-    { params }: { params: { id: string } }
+    { params }: { params: Promise<{ id: string }> | { id: string } }
 ) {
     try {
         const user = requireAuth(request);
-        const answerId = params.id;
+        const resolvedParams = await Promise.resolve(params);
+        const answerId = resolvedParams.id;
+        
+        if (!answerId || answerId === 'undefined' || answerId === 'null') {
+            return NextResponse.json({
+                success: false,
+                message: 'Invalid answer ID'
+            }, { status: 400 });
+        }
         const { content } = await request.json();
         
         if (!content) {
@@ -81,11 +89,19 @@ export async function PUT(
 // DELETE /api/answers/[id] - Delete answer
 export async function DELETE(
     request: NextRequest,
-    { params }: { params: { id: string } }
+    { params }: { params: Promise<{ id: string }> | { id: string } }
 ) {
     try {
         const user = requireAuth(request);
-        const answerId = params.id;
+        const resolvedParams = await Promise.resolve(params);
+        const answerId = resolvedParams.id;
+        
+        if (!answerId || answerId === 'undefined' || answerId === 'null') {
+            return NextResponse.json({
+                success: false,
+                message: 'Invalid answer ID'
+            }, { status: 400 });
+        }
         
         // Check if answer exists and get question_id
         const answerResult = await pool.query(

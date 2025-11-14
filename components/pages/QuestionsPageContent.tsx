@@ -47,7 +47,10 @@ export default function QuestionsPageContent() {
     try {
       setLoading(true);
       const sort = searchParams.get('sort') || sortBy;
-      const response = await questionAPI.getAll({ sort });
+      const response = await questionAPI.getAll({ 
+        sort,
+        limit: 20 // Increase limit for better performance
+      });
       setQuestions(response.data.data?.questions || response.data.questions || []);
     } catch (error) {
       console.error('Error fetching questions:', error);

@@ -48,7 +48,7 @@ export default function AskPage() {
 
   const fetchCommunities = async () => {
     try {
-      const response = await api.get('/api/communities?member=true');
+      const response = await api.get('/communities?member=true');
       setCommunities(response.data.data.communities || []);
     } catch (error) {
       console.error('Error fetching communities:', error);
@@ -90,7 +90,14 @@ export default function AskPage() {
         community_slug: communitySlug || undefined,
       });
 
-      const questionId = response.data.data.id;
+      // Get question ID from response
+      const questionData = response.data.data?.question || response.data.data;
+      const questionId = questionData?.id;
+      
+      if (!questionId) {
+        throw new Error('Question ID not found in response');
+      }
+      
       router.push(`/questions/${questionId}`);
     } catch (err) {
       const error = err as { response?: { data?: { message?: string } } };

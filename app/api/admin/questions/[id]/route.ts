@@ -9,7 +9,7 @@ export const dynamic = 'force-dynamic';
 
 export async function DELETE(
     request: NextRequest,
-    { params }: { params: { id: string } }
+    { params }: { params: Promise<{ id: string }> | { id: string } }
 ) {
     try {
         const user = requireAuth(request);
@@ -22,7 +22,15 @@ export async function DELETE(
             }, { status: 403 });
         }
         
-        const questionId = params.id;
+        const resolvedParams = await Promise.resolve(params);
+        const questionId = resolvedParams.id;
+        
+        if (!questionId || questionId === 'undefined' || questionId === 'null') {
+            return NextResponse.json({
+                success: false,
+                message: 'Invalid question ID'
+            }, { status: 400 });
+        }
         
         // Start transaction
         const client = await pool.connect();

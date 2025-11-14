@@ -33,6 +33,9 @@ export async function GET(request: NextRequest) {
         
         const offset = (page - 1) * limit;
         
+        const queryParams: any[] = [];
+        let paramIndex = 1;
+        
         let query = `
             SELECT 
                 c.id, c.name, c.slug, c.description, c.category, c.location,
@@ -49,14 +52,11 @@ export async function GET(request: NextRequest) {
         if (memberOnly && currentUserId) {
             query += ` AND EXISTS (
                 SELECT 1 FROM public.community_members 
-                WHERE community_id = c.id AND user_id = $1
+                WHERE community_id = c.id AND user_id = $${paramIndex}
             )`;
             queryParams.push(currentUserId);
             paramIndex++;
         }
-        
-        const queryParams: any[] = [];
-        let paramIndex = 1;
         
         if (search) {
             query += ` AND (c.name ILIKE $${paramIndex} OR c.description ILIKE $${paramIndex})`;
@@ -85,6 +85,16 @@ export async function GET(request: NextRequest) {
         
         const countParams: any[] = [];
         let countParamIndex = 1;
+        
+        // Add member filter to count query
+        if (memberOnly && currentUserId) {
+            countQuery += ` AND EXISTS (
+                SELECT 1 FROM public.community_members 
+                WHERE community_id = c.id AND user_id = $${countParamIndex}
+            )`;
+            countParams.push(currentUserId);
+            countParamIndex++;
+        }
         
         if (search) {
             countQuery += ` AND (c.name ILIKE $${countParamIndex} OR c.description ILIKE $${countParamIndex})`;

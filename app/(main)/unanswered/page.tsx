@@ -43,21 +43,16 @@ export default function UnansweredPage() {
     try {
       setLoading(true);
       const response = await questionAPI.getAll({ 
-        sort: sortBy === 'newest' ? 'newest' : sortBy === 'votes' ? 'popular' : 'newest'
+        sort: sortBy === 'votes' ? 'most_voted' : sortBy === 'views' ? 'most_viewed' : 'newest',
+        status: 'unanswered',
+        limit: 20
       });
       const questionsData = response.data.data;
       
       if (Array.isArray(questionsData)) {
-        // Filter out questions that have answers or accepted answers
-        const unansweredQuestions = questionsData.filter((q: Question) => 
-          q.answers_count === 0 && !q.has_accepted_answer
-        );
-        setQuestions(unansweredQuestions);
+        setQuestions(questionsData);
       } else if (questionsData && Array.isArray(questionsData.questions)) {
-        const unansweredQuestions = questionsData.questions.filter((q: Question) => 
-          q.answers_count === 0 && !q.has_accepted_answer
-        );
-        setQuestions(unansweredQuestions);
+        setQuestions(questionsData.questions);
       } else {
         setQuestions([]);
       }

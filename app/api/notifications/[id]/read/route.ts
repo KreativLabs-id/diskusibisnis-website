@@ -9,11 +9,19 @@ export const dynamic = 'force-dynamic';
 
 export async function PUT(
     request: NextRequest,
-    { params }: { params: { id: string } }
+    { params }: { params: Promise<{ id: string }> | { id: string } }
 ) {
     try {
         const user = requireAuth(request);
-        const notificationId = params.id;
+        const resolvedParams = await Promise.resolve(params);
+        const notificationId = resolvedParams.id;
+        
+        if (!notificationId || notificationId === 'undefined' || notificationId === 'null') {
+            return NextResponse.json({
+                success: false,
+                message: 'Invalid notification ID'
+            }, { status: 400 });
+        }
         
         // Mark notification as read (only if it belongs to the user)
         const result = await pool.query(

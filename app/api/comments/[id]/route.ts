@@ -9,11 +9,19 @@ export const dynamic = 'force-dynamic';
 
 export async function PUT(
     request: NextRequest,
-    { params }: { params: { id: string } }
+    { params }: { params: Promise<{ id: string }> | { id: string } }
 ) {
     try {
         const user = requireAuth(request);
-        const commentId = params.id;
+        const resolvedParams = await Promise.resolve(params);
+        const commentId = resolvedParams.id;
+        
+        if (!commentId || commentId === 'undefined' || commentId === 'null') {
+            return NextResponse.json({
+                success: false,
+                message: 'Invalid comment ID'
+            }, { status: 400 });
+        }
         const { content } = await request.json();
         
         if (!content) {
@@ -81,11 +89,19 @@ export async function PUT(
 // DELETE /api/comments/[id] - Delete comment
 export async function DELETE(
     request: NextRequest,
-    { params }: { params: { id: string } }
+    { params }: { params: Promise<{ id: string }> | { id: string } }
 ) {
     try {
         const user = requireAuth(request);
-        const commentId = params.id;
+        const resolvedParams = await Promise.resolve(params);
+        const commentId = resolvedParams.id;
+        
+        if (!commentId || commentId === 'undefined' || commentId === 'null') {
+            return NextResponse.json({
+                success: false,
+                message: 'Invalid comment ID'
+            }, { status: 400 });
+        }
         
         // Check if comment exists
         const commentResult = await pool.query(

@@ -9,11 +9,22 @@ export const dynamic = 'force-dynamic';
 
 export async function POST(
     request: NextRequest,
-    { params }: { params: { id: string } }
+    { params }: { params: Promise<{ id: string }> | { id: string } }
 ) {
     try {
         const user = requireAuth(request);
-        const questionId = params.id;
+        
+        // Await params for Next.js 15 compatibility
+        const resolvedParams = await Promise.resolve(params);
+        const questionId = resolvedParams.id;
+        
+        // Validate question ID
+        if (!questionId || questionId === 'undefined' || questionId === 'null') {
+            return NextResponse.json({
+                success: false,
+                message: 'Invalid question ID'
+            }, { status: 400 });
+        }
         
         // Check if question exists and get author
         const questionResult = await pool.query(

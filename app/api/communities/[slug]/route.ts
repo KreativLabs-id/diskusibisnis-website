@@ -9,10 +9,18 @@ export const dynamic = 'force-dynamic';
 
 export async function GET(
     request: NextRequest,
-    { params }: { params: { slug: string } }
+    { params }: { params: Promise<{ slug: string }> | { slug: string } }
 ) {
     try {
-        const slug = params.slug;
+        const resolvedParams = await Promise.resolve(params);
+        const slug = resolvedParams.slug;
+        
+        if (!slug || slug === 'undefined' || slug === 'null') {
+            return NextResponse.json({
+                success: false,
+                message: 'Invalid slug'
+            }, { status: 400 });
+        }
         
         // Try to get user from token (optional for this endpoint)
         let currentUserId = null;

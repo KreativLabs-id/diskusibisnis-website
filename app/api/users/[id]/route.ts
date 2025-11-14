@@ -9,10 +9,18 @@ export const dynamic = 'force-dynamic';
 
 export async function GET(
     request: NextRequest,
-    { params }: { params: { id: string } }
+    { params }: { params: Promise<{ id: string }> | { id: string } }
 ) {
     try {
-        const userId = params.id;
+        const resolvedParams = await Promise.resolve(params);
+        const userId = resolvedParams.id;
+        
+        if (!userId || userId === 'undefined' || userId === 'null') {
+            return NextResponse.json({
+                success: false,
+                message: 'Invalid user ID'
+            }, { status: 400 });
+        }
         
         const result = await pool.query(
             `SELECT id, display_name, avatar_url, bio, reputation_points, created_at, is_verified 
@@ -57,11 +65,19 @@ export async function GET(
 // PUT /api/users/[id] - Update user profile
 export async function PUT(
     request: NextRequest,
-    { params }: { params: { id: string } }
+    { params }: { params: Promise<{ id: string }> | { id: string } }
 ) {
     try {
         const user = requireAuth(request);
-        const userId = params.id;
+        const resolvedParams = await Promise.resolve(params);
+        const userId = resolvedParams.id;
+        
+        if (!userId || userId === 'undefined' || userId === 'null') {
+            return NextResponse.json({
+                success: false,
+                message: 'Invalid user ID'
+            }, { status: 400 });
+        }
         const { displayName, bio, avatarUrl } = await request.json();
         
         // Check if user is updating their own profile

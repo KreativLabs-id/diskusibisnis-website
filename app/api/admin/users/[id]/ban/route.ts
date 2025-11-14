@@ -9,11 +9,19 @@ export const dynamic = 'force-dynamic';
 
 export async function POST(
     request: NextRequest,
-    { params }: { params: { id: string } }
+    { params }: { params: Promise<{ id: string }> | { id: string } }
 ) {
     try {
         const user = requireAuth(request);
-        const targetUserId = params.id;
+        const resolvedParams = await Promise.resolve(params);
+        const targetUserId = resolvedParams.id;
+        
+        if (!targetUserId || targetUserId === 'undefined' || targetUserId === 'null') {
+            return NextResponse.json({
+                success: false,
+                message: 'Invalid user ID'
+            }, { status: 400 });
+        }
         
         // Check if user is admin
         if (user.role !== 'admin') {

@@ -9,10 +9,18 @@ export const dynamic = 'force-dynamic';
 
 export async function GET(
     request: NextRequest,
-    { params }: { params: { slug: string } }
+    { params }: { params: Promise<{ slug: string }> | { slug: string } }
 ) {
     try {
-        const slug = params.slug;
+        const resolvedParams = await Promise.resolve(params);
+        const slug = resolvedParams.slug;
+        
+        if (!slug || slug === 'undefined' || slug === 'null') {
+            return NextResponse.json({
+                success: false,
+                message: 'Invalid slug'
+            }, { status: 400 });
+        }
         
         const result = await pool.query(
             `SELECT 
@@ -48,11 +56,19 @@ export async function GET(
 // PUT /api/tags/[slug] - Update tag (admin only)
 export async function PUT(
     request: NextRequest,
-    { params }: { params: { slug: string } }
+    { params }: { params: Promise<{ slug: string }> | { slug: string } }
 ) {
     try {
         const user = requireAuth(request);
-        const slug = params.slug;
+        const resolvedParams = await Promise.resolve(params);
+        const slug = resolvedParams.slug;
+        
+        if (!slug || slug === 'undefined' || slug === 'null') {
+            return NextResponse.json({
+                success: false,
+                message: 'Invalid slug'
+            }, { status: 400 });
+        }
         const { name, description } = await request.json();
         
         // Check if user is admin
@@ -105,11 +121,19 @@ export async function PUT(
 // DELETE /api/tags/[slug] - Delete tag (admin only)
 export async function DELETE(
     request: NextRequest,
-    { params }: { params: { slug: string } }
+    { params }: { params: Promise<{ slug: string }> | { slug: string } }
 ) {
     try {
         const user = requireAuth(request);
-        const slug = params.slug;
+        const resolvedParams = await Promise.resolve(params);
+        const slug = resolvedParams.slug;
+        
+        if (!slug || slug === 'undefined' || slug === 'null') {
+            return NextResponse.json({
+                success: false,
+                message: 'Invalid slug'
+            }, { status: 400 });
+        }
         
         // Check if user is admin
         if (user.role !== 'admin') {

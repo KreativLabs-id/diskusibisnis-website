@@ -57,11 +57,11 @@ export const authAPI = {
 
 // Questions
 export const questionAPI = {
-  getAll: (params?: { sort?: string; tag?: string; search?: string; page?: number; limit?: number }) =>
+  getAll: (params?: { sort?: string; tag?: string; search?: string; page?: number; limit?: number; status?: string }) =>
     api.get('/questions', { params }),
   getById: (id: string) =>
     api.get(`/questions/${id}`),
-  create: (data: { title: string; content: string; tags: string[] }) =>
+  create: (data: { title: string; content: string; tags: string[]; community_slug?: string }) =>
     api.post('/questions', data),
   update: (id: string, data: { title: string; content: string; tags?: string[] }) =>
     api.put(`/questions/${id}`, data),

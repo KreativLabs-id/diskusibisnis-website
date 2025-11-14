@@ -8,10 +8,18 @@ export const dynamic = 'force-dynamic';
 
 export async function GET(
     request: NextRequest,
-    { params }: { params: { slug: string } }
+    { params }: { params: Promise<{ slug: string }> | { slug: string } }
 ) {
     try {
-        const slug = params.slug;
+        const resolvedParams = await Promise.resolve(params);
+        const slug = resolvedParams.slug;
+        
+        if (!slug || slug === 'undefined' || slug === 'null') {
+            return NextResponse.json({
+                success: false,
+                message: 'Invalid slug'
+            }, { status: 400 });
+        }
         const { searchParams } = new URL(request.url);
         const page = parseInt(searchParams.get('page') || '1');
         const limit = parseInt(searchParams.get('limit') || '20');

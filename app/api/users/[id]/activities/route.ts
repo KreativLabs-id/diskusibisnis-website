@@ -7,10 +7,18 @@ export const dynamic = 'force-dynamic';
 
 export async function GET(
     request: NextRequest,
-    { params }: { params: { id: string } }
+    { params }: { params: Promise<{ id: string }> | { id: string } }
 ) {
     try {
-        const userId = params.id;
+        const resolvedParams = await Promise.resolve(params);
+        const userId = resolvedParams.id;
+        
+        if (!userId || userId === 'undefined' || userId === 'null') {
+            return NextResponse.json({
+                success: false,
+                message: 'Invalid user ID'
+            }, { status: 400 });
+        }
         
         // Get user's questions
         const questionsResult = await pool.query(

@@ -49,7 +49,10 @@ export default function HomePage() {
   const fetchQuestions = useCallback(async () => {
     try {
       setLoading(true);
-      const params: { sort: string; tag?: string } = { sort: sortBy };
+      const params: { sort: string; tag?: string; limit?: number } = { 
+        sort: sortBy,
+        limit: 20 // Increase limit to reduce pagination requests
+      };
       if (tagParam) {
         params.tag = tagParam;
       }
