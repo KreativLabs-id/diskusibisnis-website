@@ -19,7 +19,7 @@ export async function GET(request: NextRequest) {
         let query = `
             SELECT 
                 u.id, u.email, u.display_name, u.avatar_url, u.bio,
-                u.role, u.reputation_points, u.created_at,
+                u.role, u.reputation_points, u.created_at, u.is_verified,
                 COUNT(DISTINCT q.id) as question_count,
                 COUNT(DISTINCT a.id) as answer_count
             FROM public.users u
@@ -89,6 +89,7 @@ export async function GET(request: NextRequest) {
             role: user.role,
             reputationPoints: user.reputation_points,
             createdAt: user.created_at,
+            isVerified: user.is_verified || false,
             questionCount: parseInt(user.question_count),
             answerCount: parseInt(user.answer_count)
         }));

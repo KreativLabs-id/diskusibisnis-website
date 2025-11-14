@@ -15,6 +15,7 @@ import {
 
 import { questionAPI, tagAPI } from '@/lib/api';
 import QuestionCard from '../questions/QuestionCard';
+import LottieLoader from '@/components/ui/LottieLoader';
 import { useAuth } from '@/contexts/AuthContext';
 import Link from 'next/link';
 
@@ -22,15 +23,19 @@ interface Question {
   id: string;
   title: string;
   content: string;
+  author_id: string;
   author_name: string;
   author_avatar: string;
   author_reputation: number;
+  author_is_verified: boolean;
   upvotes_count: number;
   views_count: number;
   answers_count: number;
   has_accepted_answer: boolean;
+  is_closed: boolean;
   tags: Array<{ id: string; name: string; slug: string }>;
   created_at: string;
+  updated_at: string;
 }
 
 export default function HomePage() {
@@ -50,7 +55,8 @@ export default function HomePage() {
         params.tag = tagParam;
       }
       const response = await questionAPI.getAll(params);
-      setQuestions(response.data.data.questions || []);
+      const questions = response.data.data?.questions || response.data.questions || [];
+      setQuestions(questions);
     } catch (error) {
       console.error('Error fetching questions:', error);
       setQuestions([]);
@@ -92,29 +98,9 @@ export default function HomePage() {
   ];
 
   const renderSkeleton = (
-    <div className="space-y-4">
-      {[1, 2, 3].map((i) => (
-        <div
-          key={i}
-          className="bg-white rounded-2xl border border-slate-200 p-6 animate-pulse"
-        >
-          <div className="flex gap-6">
-            <div className="space-y-3 min-w-[60px]">
-              <div className="h-8 w-12 rounded bg-slate-200" />
-              <div className="h-10 w-12 rounded-lg bg-slate-200" />
-            </div>
-            <div className="flex-1 space-y-3">
-              <div className="h-5 bg-slate-200 rounded w-2/3" />
-              <div className="h-4 bg-slate-200 rounded w-1/2" />
-              <div className="flex gap-2">
-                <div className="h-6 w-16 rounded-full bg-slate-200" />
-                <div className="h-6 w-20 rounded-full bg-slate-200" />
-                <div className="h-6 w-18 rounded-full bg-slate-200" />
-              </div>
-            </div>
-          </div>
-        </div>
-      ))}
+    <div className="flex flex-col items-center justify-center py-12">
+      <LottieLoader size="xl" />
+      <p className="text-slate-600 mt-4 font-medium">Memuat pertanyaan...</p>
     </div>
   );
 
@@ -199,7 +185,7 @@ export default function HomePage() {
           </div>
         )}
         
-        {/* Sort Options - Pill Style */}
+        {/* Sort Options - Icon-based for Mobile */}
         <div className="flex items-center gap-2 mb-6 overflow-x-auto">
           {sortOptions.map((option) => {
             const Icon = option.icon;
@@ -207,14 +193,15 @@ export default function HomePage() {
               <button
                 key={option.value}
                 onClick={() => setSortBy(option.value as 'newest' | 'popular' | 'unanswered')}
-                className={`inline-flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium whitespace-nowrap transition-all flex-shrink-0 ${
+                className={`inline-flex items-center gap-2 px-3 py-2 rounded-full text-sm font-medium whitespace-nowrap transition-all flex-shrink-0 ${
                   sortBy === option.value
                     ? 'bg-emerald-600 text-white shadow-md'
                     : 'bg-slate-100 text-slate-700 hover:bg-slate-200 hover:text-slate-900'
                 }`}
+                title={option.label}
               >
                 <Icon className="w-4 h-4" />
-                <span>{option.label}</span>
+                <span className="hidden sm:inline">{option.label}</span>
               </button>
             );
           })}
@@ -233,6 +220,15 @@ export default function HomePage() {
               </div>
               )}
       </main>
+
+      {/* Floating Action Button - Mobile */}
+      <Link
+        href="/ask"
+        className="fixed bottom-6 right-6 z-50 md:hidden w-14 h-14 bg-gradient-to-r from-emerald-600 to-emerald-700 text-white rounded-full shadow-lg hover:shadow-xl hover:from-emerald-700 hover:to-emerald-800 transition-all duration-200 flex items-center justify-center group"
+        title="Ajukan Pertanyaan"
+      >
+        <Plus className="w-6 h-6 group-hover:scale-110 transition-transform" />
+      </Link>
     </div>
   );
 }

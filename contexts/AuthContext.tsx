@@ -10,6 +10,7 @@ interface User {
   avatarUrl?: string;
   role: string;
   reputationPoints: number;
+  isVerified: boolean;
 }
 
 interface AuthContextType {
@@ -112,7 +113,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         displayName: userData.displayName || userData.display_name,
         avatarUrl: userData.avatarUrl || userData.avatar_url,
         role: userData.role,
-        reputationPoints: userData.reputationPoints || userData.reputation_points || 0
+        reputationPoints: userData.reputationPoints || userData.reputation_points || 0,
+        isVerified: userData.isVerified || userData.is_verified || (userData.role === 'admin')
       };
       
       updateUser(updatedUser);
@@ -134,7 +136,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         displayName: userData.displayName || userData.display_name,
         avatarUrl: userData.avatarUrl || userData.avatar_url,
         role: userData.role,
-        reputationPoints: userData.reputationPoints || userData.reputation_points || 0
+        reputationPoints: userData.reputationPoints || userData.reputation_points || 0,
+        isVerified: userData.isVerified || userData.is_verified || (userData.role === 'admin')
       };
       
       updateUser(updatedUser);

@@ -15,7 +15,7 @@ export async function GET(
         const userId = params.id;
         
         const result = await pool.query(
-            `SELECT id, display_name, avatar_url, bio, reputation_points, created_at 
+            `SELECT id, display_name, avatar_url, bio, reputation_points, created_at, is_verified 
              FROM public.users 
              WHERE id = $1 AND is_banned = FALSE`,
             [userId]
@@ -39,7 +39,8 @@ export async function GET(
                     avatarUrl: user.avatar_url,
                     bio: user.bio,
                     reputationPoints: user.reputation_points,
-                    createdAt: user.created_at
+                    createdAt: user.created_at,
+                    isVerified: user.is_verified || false
                 }
             }
         });

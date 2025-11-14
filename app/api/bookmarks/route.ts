@@ -17,6 +17,7 @@ export async function GET(request: NextRequest) {
                 b.created_at as bookmarked_at,
                 q.id, q.title, q.content, q.views_count, q.created_at,
                 u.display_name as author_name,
+                COALESCE(u.is_verified, false) as author_is_verified,
                 COUNT(DISTINCT a.id) as answers_count,
                 COUNT(DISTINCT v.id) FILTER (WHERE v.vote_type = 'upvote') as upvotes_count,
                 ARRAY_AGG(DISTINCT jsonb_build_object('id', t.id, 'name', t.name, 'slug', t.slug)) 
@@ -29,7 +30,7 @@ export async function GET(request: NextRequest) {
              LEFT JOIN question_tags qt ON q.id = qt.question_id
              LEFT JOIN tags t ON qt.tag_id = t.id
              WHERE b.user_id = $1
-             GROUP BY b.id, b.created_at, q.id, u.display_name
+             GROUP BY b.id, b.created_at, q.id, u.display_name, u.is_verified
              ORDER BY b.created_at DESC`,
             [user.id]
         );

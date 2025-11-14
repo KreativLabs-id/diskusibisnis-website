@@ -1,13 +1,62 @@
 # DiskusiBisnis - Database Setup
 
-## 📋 Quick Setup
+## 🚀 Quick Start - Database Setup
 
-Untuk setup database DiskusiBisnis, cukup jalankan satu file SQL ini:
+### Metode 1: Via Node.js (Recommended)
+```bash
+# Setup database lengkap (semua table + triggers + seed data)
+node scripts/run-sql.js setup-database.sql
 
-```sql
--- Jalankan file ini di PostgreSQL database Anda
-\i setup-database.sql
+# Atau lebih simple (default):
+node scripts/run-sql.js
 ```
+
+### Metode 2: Via Supabase SQL Editor
+1. Buka Supabase Dashboard → SQL Editor
+2. Copy-paste isi file `setup-database.sql`
+3. Run script
+4. Selesai! ✅
+
+### Metode 3: Via psql (Command Line)
+```bash
+psql -h <host> -U <user> -d <database> -f scripts/setup-database.sql
+```
+
+---
+
+## 📋 Apa yang Di-setup?
+
+File **`setup-database.sql`** berisi SEMUA yang dibutuhkan:
+
+✅ **Core Tables** (11 tables)
+- Users, Questions, Answers, Comments, Votes
+- Tags, Question_Tags, Communities, Community_Members
+- Bookmarks, Notifications
+
+✅ **Reputation System** (Complete & Fixed)
+- Create question: +1 point
+- Create answer: +2 points
+- Question upvoted: +5 points
+- Answer upvoted: +10 points
+- Content downvoted: -2 points
+- Answer accepted: +15 points (answer author) + 2 points (question author)
+- Never goes below 0
+
+✅ **Notification System**
+- Answer posted → Question author notified
+- Upvote → Content author notified (via API)
+
+✅ **Auto Counting**
+- Vote counts
+- Community members count
+- Community questions count
+- Tag usage count
+
+✅ **Seed Data**
+- 10 default tags
+- 5 sample communities
+
+---
 
 ## 🚀 Apa yang Akan Di-Setup
 
@@ -46,6 +95,61 @@ Untuk setup database DiskusiBisnis, cukup jalankan satu file SQL ini:
 - Pajak, Marketing, Legalitas, Keuangan
 - SDM, Operasional, Digital, Modal
 - Ekspor, Teknologi
+
+### 🏘️ **Sample Communities (5)**
+- UMKM Jakarta, Digital Marketing UMKM
+- Kuliner Nusantara, Ekspor Import Indonesia
+- Fintech untuk UMKM
+
+---
+
+## 📂 File Structure & Purpose
+
+### Main Files
+
+| File | Purpose | When to Use |
+|------|---------|-------------|
+| **setup-database.sql** | 🎯 Complete database setup (ALL-IN-ONE) | Fresh install or reset |
+| **run-sql.js** | Script runner utility | Run any SQL file easily |
+| **add-verified-users.sql** | Add verified badge to users | Admin task |
+| **update-user-role.sql** | Update user roles | Admin task |
+
+### Documentation Files
+
+| File | Content |
+|------|---------|
+| **README.md** | Main documentation & quick start guide |
+| **DATABASE-DOCUMENTATION.md** | Complete database schema documentation |
+
+---
+
+## 🎯 Recommended Workflow
+
+### Fresh Installation
+```bash
+# 1. Setup database
+node scripts/run-sql.js setup-database.sql
+
+# 2. Verify
+node scripts/verify-database.js  # (if available)
+
+# 3. Start dev server
+npm run dev
+```
+
+### If You Have Issues
+
+**Vote not working?**
+- Already fixed in setup-database.sql ✅
+- Just re-run: `node scripts/run-sql.js`
+
+**Reputation not updating?**
+- Already fixed in setup-database.sql ✅
+- Just re-run: `node scripts/run-sql.js`
+
+**Notifications not showing?**
+- Already fixed in setup-database.sql ✅
+- Just re-run: `node scripts/run-sql.js`
 
 ### 🏘️ **Sample Communities (5)**
 - UMKM Jakarta (Regional)
@@ -92,9 +196,13 @@ JWT_SECRET="your-super-secret-jwt-key-here"
 
 ```
 scripts/
-├── setup-database.sql    # Complete database setup (RUN THIS)
-├── build.js             # Build script untuk production
-└── README.md            # Documentation ini
+├── setup-database.sql          # 🎯 Complete database setup (RUN THIS)
+├── run-sql.js                  # 🔧 SQL runner utility
+├── add-verified-users.sql      # 👤 Add verified badge to users
+├── update-user-role.sql        # 🔐 Update user roles
+├── build.js                    # 📦 Build script untuk production
+├── README.md                   # 📖 Main documentation
+└── DATABASE-DOCUMENTATION.md   # 📚 Complete schema docs
 ```
 
 ## ✅ **Post-Setup Checklist**

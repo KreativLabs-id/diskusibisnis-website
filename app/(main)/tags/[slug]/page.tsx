@@ -5,6 +5,7 @@ import { useParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { Tag, ArrowLeft, MessageSquare, ThumbsUp, User, Calendar, Search } from 'lucide-react';
 import { tagAPI, questionAPI } from '@/lib/api';
+import VerifiedBadge from '@/components/ui/VerifiedBadge';
 
 interface TagData {
   id: string;
@@ -22,6 +23,7 @@ interface Question {
   author_name: string;
   author_avatar?: string;
   author_id?: string;
+  author_is_verified?: boolean;
   tags: Array<{
     id: string;
     name: string;
@@ -308,6 +310,7 @@ export default function TagDetailPage() {
                             </div>
                           )}
                           <span>{question.author_name}</span>
+                          <VerifiedBadge isVerified={question.author_is_verified || false} size="sm" />
                         </Link>
                         <span>{formatTimeAgo(question.created_at)}</span>
                       </div>

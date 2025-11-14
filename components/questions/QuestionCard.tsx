@@ -3,6 +3,7 @@
 import Link from 'next/link';
 import { formatDate, formatNumber } from '@/lib/utils';
 import { Eye, MessageCircle, ThumbsUp, Clock, User, Award } from 'lucide-react';
+import VerifiedBadge from '@/components/ui/VerifiedBadge';
 
 interface Question {
   id: string;
@@ -11,6 +12,7 @@ interface Question {
   author_name: string;
   author_avatar: string;
   author_reputation: number;
+  author_is_verified: boolean;
   upvotes_count: number;
   views_count: number;
   answers_count: number;
@@ -97,6 +99,7 @@ export default function QuestionCard({ question }: { question: Question }) {
             <div>
               <div className="flex items-center gap-1.5">
                 <p className="text-sm font-medium text-slate-700">{question.author_name || 'Unknown'}</p>
+                <VerifiedBadge isVerified={question.author_is_verified} size="sm" />
                 {question.author_reputation >= 100 && (
                   <span className="px-1.5 py-0.5 rounded bg-amber-100 text-amber-700 text-xs font-semibold">
                     {formatNumber(question.author_reputation)}

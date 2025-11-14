@@ -2,12 +2,13 @@ import { NextRequest, NextResponse } from 'next/server';
 import pool from '@/lib/database';
 import { requireAuth } from '@/lib/auth-middleware';
 
-// GET /api/admin/users - Get all users (admin only)
-
-// Force dynamic rendering for API routes
+// POST /api/admin/communities/[id]/ban - Ban community (admin only)
 export const dynamic = 'force-dynamic';
 
-export async function GET(request: NextRequest) {
+export async function POST(
+    request: NextRequest,
+    { params }: { params: { id: string } }
+) {
     try {
         const user = requireAuth(request);
         
@@ -19,19 +20,34 @@ export async function GET(request: NextRequest) {
             }, { status: 403 });
         }
         
-        const result = await pool.query(
-            `SELECT id, email, display_name, role, reputation_points, is_banned, is_verified, created_at 
-             FROM public.users 
-             ORDER BY created_at DESC`
+        const communityId = params.id;
+        
+        // Check if community exists
+        const communityResult = await pool.query(
+            'SELECT id FROM public.communities WHERE id = $1',
+            [communityId]
+        );
+        
+        if (communityResult.rows.length === 0) {
+            return NextResponse.json({
+                success: false,
+                message: 'Community not found'
+            }, { status: 404 });
+        }
+        
+        // Ban community
+        await pool.query(
+            'UPDATE public.communities SET is_banned = TRUE WHERE id = $1',
+            [communityId]
         );
         
         return NextResponse.json({
             success: true,
-            data: { users: result.rows }
+            message: 'Community banned successfully'
         });
         
     } catch (error) {
-        console.error('Get admin users error:', error);
+        console.error('Ban community error:', error);
         
         if (error instanceof Error && error.message === 'Authentication required') {
             return NextResponse.json({

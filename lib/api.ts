@@ -153,6 +153,10 @@ export const adminAPI = {
     api.post(`/admin/users/${id}/unban`),
   deleteUser: (id: string) =>
     api.delete(`/admin/users/${id}`),
+  verifyUser: (id: string) =>
+    api.post(`/admin/users/${id}/verify`),
+  unverifyUser: (id: string) =>
+    api.post(`/admin/users/${id}/unverify`),
   getQuestions: () =>
     api.get('/admin/questions'),
   deleteQuestion: (id: string) =>
@@ -161,6 +165,12 @@ export const adminAPI = {
     api.delete(`/admin/answers/${id}`),
   deleteComment: (id: string) =>
     api.delete(`/admin/comments/${id}`),
+  getCommunities: () =>
+    api.get('/admin/communities'),
+  banCommunity: (id: string) =>
+    api.post(`/admin/communities/${id}/ban`),
+  unbanCommunity: (id: string) =>
+    api.post(`/admin/communities/${id}/unban`),
   getStats: () =>
     api.get('/admin/stats'),
 };

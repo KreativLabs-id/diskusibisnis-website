@@ -14,20 +14,25 @@ import Link from 'next/link';
 
 import { questionAPI } from '@/lib/api';
 import QuestionCard from '@/components/questions/QuestionCard';
+import LottieLoader from '@/components/ui/LottieLoader';
 
 interface Question {
   id: string;
   title: string;
   content: string;
+  author_id: string;
   author_name: string;
   author_avatar: string;
   author_reputation: number;
+  author_is_verified: boolean;
   upvotes_count: number;
   views_count: number;
   answers_count: number;
   has_accepted_answer: boolean;
+  is_closed: boolean;
   tags: Array<{ id: string; name: string; slug: string }>;
   created_at: string;
+  updated_at: string;
 }
 
 export default function UnansweredPage() {
@@ -76,57 +81,31 @@ export default function UnansweredPage() {
   ];
 
   const renderSkeleton = (
-    <div className="space-y-4">
-      {[1, 2, 3, 4].map((i) => (
-        <div
-          key={i}
-          className="bg-white rounded-xl border border-slate-200 p-6 animate-pulse"
-        >
-          <div className="flex gap-6">
-            <div className="space-y-3">
-              <div className="h-10 w-16 rounded-lg bg-slate-200" />
-              <div className="h-10 w-16 rounded-lg bg-slate-200" />
-            </div>
-            <div className="flex-1 space-y-3">
-              <div className="h-6 bg-slate-200 rounded w-3/4" />
-              <div className="h-4 bg-slate-200 rounded w-1/2" />
-              <div className="flex gap-2">
-                <div className="h-6 w-20 rounded-full bg-slate-200" />
-                <div className="h-6 w-16 rounded-full bg-slate-200" />
-              </div>
-            </div>
-          </div>
-        </div>
-      ))}
+    <div className="flex flex-col items-center justify-center py-12">
+      <LottieLoader size="xl" />
+      <p className="text-slate-600 mt-4 font-medium">Memuat pertanyaan...</p>
     </div>
   );
 
   const renderEmptyState = (
     <div className="bg-white rounded-xl border border-slate-200 p-8 text-center">
-      <div className="w-12 h-12 bg-emerald-100 rounded-xl flex items-center justify-center mx-auto mb-4">
-        <HelpCircle className="w-6 h-6 text-emerald-600" />
+      <div className="w-8 h-8 bg-emerald-100 rounded-lg flex items-center justify-center mx-auto mb-3">
+        <svg className="w-4 h-4 text-emerald-600" fill="currentColor" viewBox="0 0 20 20">
+          <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+        </svg>
       </div>
       <h3 className="text-lg font-semibold text-slate-900 mb-2">
-        Semua Pertanyaan Sudah Terjawab
+        Semua Pertanyaan Sudah Terjawab!
       </h3>
       <p className="text-slate-500 mb-6 text-sm max-w-sm mx-auto">
         Komunitas sangat aktif! Tidak ada pertanyaan yang menunggu jawaban saat ini.
       </p>
-      <div className="flex flex-col sm:flex-row gap-3 justify-center">
-        <Link
-          href="/questions"
-          className="inline-flex items-center px-4 py-2 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 transition-colors font-medium text-sm"
-        >
-          Lihat Semua Pertanyaan
-        </Link>
-        <Link
-          href="/ask"
-          className="inline-flex items-center gap-2 px-6 py-3 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 transition-colors font-medium"
-        >
-          <Plus className="w-4 h-4" />
-          Ajukan Pertanyaan
-        </Link>
-      </div>
+      <Link
+        href="/questions"
+        className="inline-flex items-center px-6 py-2.5 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 transition-colors font-medium text-sm"
+      >
+        Lihat Pertanyaan Terpopuler
+      </Link>
     </div>
   );
 
@@ -183,22 +162,24 @@ export default function UnansweredPage() {
         </div>
       </div>
 
-      {/* Sort Dropdown */}
-      <div className="flex items-center gap-3 mb-6">
-        <span className="text-sm font-medium text-slate-600">Urutkan Berdasarkan:</span>
-        <div className="relative">
-          <select
-            value={sortBy}
-            onChange={(e) => setSortBy(e.target.value as 'newest' | 'votes' | 'views')}
-            className="appearance-none bg-white border border-slate-200 rounded-lg px-4 py-2 pr-8 text-sm font-medium text-slate-700 hover:bg-slate-50 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition-colors"
-          >
-            {sortOptions.map((option) => (
-              <option key={option.value} value={option.value}>
-                {option.label}
-              </option>
-            ))}
-          </select>
-          <ChevronDown className="absolute right-2 top-1/2 transform -translate-y-1/2 w-4 h-4 text-slate-400 pointer-events-none" />
+      {/* Compact Sort Filter */}
+      <div className="flex items-center justify-between mb-4">
+        <div className="flex items-center gap-2">
+          <span className="text-xs text-slate-500">Urutkan:</span>
+          <div className="relative">
+            <select
+              value={sortBy}
+              onChange={(e) => setSortBy(e.target.value as 'newest' | 'votes' | 'views')}
+              className="appearance-none bg-slate-50 border-0 rounded-md px-3 py-1 pr-6 text-xs font-medium text-slate-700 hover:bg-slate-100 focus:outline-none focus:ring-1 focus:ring-emerald-500 transition-colors"
+            >
+              {sortOptions.map((option) => (
+                <option key={option.value} value={option.value}>
+                  {option.label}
+                </option>
+              ))}
+            </select>
+            <ChevronDown className="absolute right-1 top-1/2 transform -translate-y-1/2 w-3 h-3 text-slate-400 pointer-events-none" />
+          </div>
         </div>
       </div>
 

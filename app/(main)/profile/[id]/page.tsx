@@ -7,6 +7,7 @@ import { User, Mail, Calendar, Award, MessageSquare, CheckCircle, Edit, ArrowLef
 import { userAPI } from '@/lib/api';
 import { formatDate } from '@/lib/utils';
 import Link from 'next/link';
+import VerifiedBadge from '@/components/ui/VerifiedBadge';
 
 interface UserProfile {
   id: string;
@@ -16,6 +17,7 @@ interface UserProfile {
   bio?: string;
   reputationPoints: number;
   createdAt: string;
+  isVerified?: boolean;
 }
 
 interface Question {
@@ -75,7 +77,8 @@ export default function ProfilePage() {
         avatarUrl: userData.avatarUrl || userData.avatar_url,
         bio: userData.bio,
         reputationPoints: userData.reputationPoints || userData.reputation_points || 0,
-        createdAt: userData.createdAt || userData.created_at
+        createdAt: userData.createdAt || userData.created_at,
+        isVerified: userData.isVerified || userData.is_verified || false
       });
     } catch (error) {
       console.error('Error fetching profile:', error);
@@ -209,7 +212,10 @@ export default function ProfilePage() {
             <div className="flex-1">
               <div className="flex flex-col sm:flex-row sm:items-start justify-between mb-4 gap-3 sm:gap-0">
                 <div>
-                  <h1 className="text-xl sm:text-2xl font-bold text-slate-900 mb-1">{profile.displayName || 'User'}</h1>
+                  <div className="flex items-center gap-2 mb-1">
+                    <h1 className="text-xl sm:text-2xl font-bold text-slate-900">{profile.displayName || 'User'}</h1>
+                    <VerifiedBadge isVerified={profile.isVerified || false} size="md" />
+                  </div>
                   {profile.email && isOwnProfile && (
                     <div className="flex items-center gap-2 text-sm text-slate-500 mb-2">
                       <Mail className="w-4 h-4" />

@@ -26,22 +26,33 @@ export async function GET(
         
         const result = await pool.query(`
             SELECT 
-                q.id, q.title, q.content, q.views_count, q.is_closed, q.created_at, q.updated_at,
+                q.id, q.title, q.content, 
+                COALESCE(q.views_count, 0) as views_count, 
+                q.is_closed, q.created_at, q.updated_at,
                 u.id as author_id, u.display_name as author_name, u.avatar_url as author_avatar,
-                u.reputation_points as author_reputation,
-                COUNT(DISTINCT v_up.id) as upvotes_count,
-                COUNT(DISTINCT v_down.id) as downvotes_count,
+                u.reputation_points as author_reputation, 
+                COALESCE(u.is_verified, false) as author_is_verified,
+                COALESCE(
+                    (SELECT COUNT(*) FROM public.votes v WHERE v.question_id = q.id AND v.vote_type = 'upvote'), 
+                    0
+                ) as upvotes_count,
+                COALESCE(
+                    (SELECT COUNT(*) FROM public.votes v WHERE v.question_id = q.id AND v.vote_type = 'downvote'), 
+                    0
+                ) as downvotes_count,
                 COUNT(DISTINCT a.id) as answers_count,
-                CASE WHEN $2::uuid IS NOT NULL THEN 
-                    (SELECT vote_type FROM votes WHERE votable_id = q.id AND votable_type = 'question' AND user_id = $2::uuid)
-                ELSE NULL END as user_vote,
-                CASE WHEN $2::uuid IS NOT NULL THEN 
-                    EXISTS(SELECT 1 FROM bookmarks WHERE question_id = q.id AND user_id = $2::uuid)
-                ELSE FALSE END as is_bookmarked
+                CASE 
+                    WHEN $2::uuid IS NOT NULL THEN 
+                        (SELECT v.vote_type FROM public.votes v WHERE v.question_id = q.id AND v.user_id = $2)
+                    ELSE NULL 
+                END as user_vote,
+                CASE 
+                    WHEN $2::uuid IS NOT NULL THEN 
+                        EXISTS(SELECT 1 FROM public.bookmarks b WHERE b.question_id = q.id AND b.user_id = $2)
+                    ELSE FALSE 
+                END as is_bookmarked
             FROM public.questions q
             LEFT JOIN public.users u ON q.author_id = u.id
-            LEFT JOIN public.votes v_up ON q.id = v_up.votable_id AND v_up.votable_type = 'question' AND v_up.vote_type = 'upvote'
-            LEFT JOIN public.votes v_down ON q.id = v_down.votable_id AND v_down.votable_type = 'question' AND v_down.vote_type = 'downvote'
             LEFT JOIN public.answers a ON q.id = a.question_id
             WHERE q.id = $1
             GROUP BY q.id, u.id
@@ -71,18 +82,24 @@ export async function GET(
             SELECT 
                 a.id, a.content, a.is_accepted, a.created_at, a.updated_at,
                 u.id as author_id, u.display_name as author_name, u.avatar_url as author_avatar,
-                u.reputation_points as author_reputation,
-                COUNT(DISTINCT v.id) FILTER (WHERE v.vote_type = 'upvote') as upvotes_count,
-                COUNT(DISTINCT v2.id) FILTER (WHERE v2.vote_type = 'downvote') as downvotes_count,
-                CASE WHEN $2::uuid IS NOT NULL THEN 
-                    (SELECT vote_type FROM votes WHERE votable_id = a.id AND votable_type = 'answer' AND user_id = $2::uuid)
-                ELSE NULL END as user_vote
+                u.reputation_points as author_reputation, 
+                COALESCE(u.is_verified, false) as author_is_verified,
+                COALESCE(
+                    (SELECT COUNT(*) FROM public.votes v WHERE v.answer_id = a.id AND v.vote_type = 'upvote'), 
+                    0
+                ) as upvotes_count,
+                COALESCE(
+                    (SELECT COUNT(*) FROM public.votes v WHERE v.answer_id = a.id AND v.vote_type = 'downvote'), 
+                    0
+                ) as downvotes_count,
+                CASE 
+                    WHEN $2::uuid IS NOT NULL THEN 
+                        (SELECT v.vote_type FROM public.votes v WHERE v.answer_id = a.id AND v.user_id = $2)
+                    ELSE NULL 
+                END as user_vote
             FROM public.answers a
             LEFT JOIN public.users u ON a.author_id = u.id
-            LEFT JOIN public.votes v ON a.id = v.votable_id AND v.votable_type = 'answer' AND v.vote_type = 'upvote'
-            LEFT JOIN public.votes v2 ON a.id = v2.votable_id AND v2.votable_type = 'answer' AND v2.vote_type = 'downvote'
             WHERE a.question_id = $1
-            GROUP BY a.id, u.id
             ORDER BY a.is_accepted DESC, a.created_at ASC
         `, [questionId, currentUserId]);
         

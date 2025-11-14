@@ -21,15 +21,10 @@ export default function AdminDashboard() {
   const [statsLoading, setStatsLoading] = useState(true);
 
   useEffect(() => {
-    if (!loading && (!user || user.role !== 'admin')) {
-      router.push('/');
-      return;
-    }
-
-    if (user && user.role === 'admin') {
+    if (!loading && user && user.role === 'admin') {
       fetchStats();
     }
-  }, [user, loading, router]);
+  }, [user, loading]);
 
   const fetchStats = async () => {
     try {
@@ -52,7 +47,23 @@ export default function AdminDashboard() {
   }
 
   if (!user || user.role !== 'admin') {
-    return null;
+    return (
+      <div className="max-w-2xl mx-auto px-4 py-16 text-center">
+        <div className="p-4 bg-red-100 rounded-full w-16 h-16 mx-auto mb-4 flex items-center justify-center">
+          <Shield className="w-8 h-8 text-red-600" />
+        </div>
+        <h1 className="text-2xl font-bold text-slate-900 mb-2">Access Denied</h1>
+        <p className="text-slate-600 mb-6">
+          You need admin privileges to access this page.
+        </p>
+        <Link
+          href="/"
+          className="inline-flex items-center px-6 py-3 bg-green-600 text-white rounded-lg font-medium hover:bg-green-700 transition-colors"
+        >
+          🏠 Back to Home
+        </Link>
+      </div>
+    );
   }
 
   return (
@@ -128,7 +139,7 @@ export default function AdminDashboard() {
       </div>
 
       {/* Quick Actions */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-4 gap-6">
         <Link
           href="/admin/users"
           className="bg-white rounded-xl border border-slate-200 p-6 hover:border-blue-300 hover:shadow-md transition-all duration-200 group"
@@ -155,6 +166,21 @@ export default function AdminDashboard() {
             <div>
               <h3 className="font-semibold text-slate-900">Manage Questions</h3>
               <p className="text-sm text-slate-600">Review and moderate questions</p>
+            </div>
+          </div>
+        </Link>
+
+        <Link
+          href="/admin/communities"
+          className="bg-white rounded-xl border border-slate-200 p-6 hover:border-purple-300 hover:shadow-md transition-all duration-200 group"
+        >
+          <div className="flex items-center gap-4">
+            <div className="p-3 bg-purple-100 rounded-lg group-hover:bg-purple-200 transition-colors">
+              <Users className="w-6 h-6 text-purple-600" />
+            </div>
+            <div>
+              <h3 className="font-semibold text-slate-900">Manage Communities</h3>
+              <p className="text-sm text-slate-600">Ban/unban communities and monitor activity</p>
             </div>
           </div>
         </Link>

@@ -6,6 +6,7 @@ import { Search, Bell, User, LogOut, Settings, Plus, Menu, X, ChevronDown } from
 import { useState, useEffect, useRef } from 'react';
 import NotificationDropdown from '@/components/ui/NotificationDropdown';
 import LoadingSpinner from '@/components/ui/LoadingSpinner';
+import VerifiedBadge from '@/components/ui/VerifiedBadge';
 
 interface NavbarProps {
   onMenuClick?: () => void;
@@ -120,7 +121,10 @@ export default function Navbar({ onMenuClick }: NavbarProps) {
                             </div>
                           )}
                           <div>
-                            <p className="text-sm font-bold text-slate-900">{user.displayName || 'User'}</p>
+                            <div className="flex items-center gap-2">
+                              <p className="text-sm font-bold text-slate-900">{user.displayName || 'User'}</p>
+                              <VerifiedBadge isVerified={user.isVerified} size="sm" />
+                            </div>
                             <div className="flex items-center gap-2 mt-1">
                               {(user.reputationPoints || 0) >= 10 && (
                                 <span className="px-2 py-0.5 bg-emerald-100 text-emerald-700 rounded-full text-xs font-semibold">
@@ -169,21 +173,6 @@ export default function Navbar({ onMenuClick }: NavbarProps) {
                         </Link>
                       )}
                       
-                      {/* Debug info - remove in production */}
-                      {process.env.NODE_ENV === 'development' && (
-                        <div className="px-5 py-2 text-xs text-slate-500 border-t border-slate-100 mt-2">
-                          <div>Role: {user.role || 'undefined'}</div>
-                          <button
-                            onClick={() => {
-                              forceRefreshUser();
-                              setShowUserMenu(false);
-                            }}
-                            className="mt-1 text-blue-600 hover:text-blue-800"
-                          >
-                            Refresh Role
-                          </button>
-                        </div>
-                      )}
                       <div className="border-t border-slate-100 mt-2 pt-2">
                         <button
                           onClick={logout}

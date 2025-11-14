@@ -4,8 +4,9 @@ import { useAuth } from '@/contexts/AuthContext';
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { adminAPI } from '@/lib/api';
-import { Users, Ban, UserX, ArrowLeft, Search, Filter, MoreVertical } from 'lucide-react';
+import { Users, Ban, UserX, ArrowLeft, Search, Filter, MoreVertical, CheckCircle, XCircle } from 'lucide-react';
 import Link from 'next/link';
+import VerifiedBadge from '@/components/ui/VerifiedBadge';
 
 interface User {
   id: string;
@@ -14,6 +15,7 @@ interface User {
   role: string;
   reputation_points: number;
   is_banned: boolean;
+  is_verified: boolean;
   created_at: string;
 }
 
@@ -72,6 +74,19 @@ export default function AdminUsers() {
       fetchUsers(); // Refresh the list
     } catch (error) {
       console.error('Error deleting user:', error);
+    }
+  };
+
+  const handleVerifyUser = async (userId: string, isVerified: boolean) => {
+    try {
+      if (isVerified) {
+        await adminAPI.unverifyUser(userId);
+      } else {
+        await adminAPI.verifyUser(userId);
+      }
+      fetchUsers(); // Refresh the list
+    } catch (error) {
+      console.error('Error updating user verification:', error);
     }
   };
 
@@ -167,6 +182,7 @@ export default function AdminUsers() {
                 <th className="text-left py-4 px-6 font-semibold text-slate-900">Role</th>
                 <th className="text-left py-4 px-6 font-semibold text-slate-900">Reputation</th>
                 <th className="text-left py-4 px-6 font-semibold text-slate-900">Status</th>
+                <th className="text-left py-4 px-6 font-semibold text-slate-900">Verified</th>
                 <th className="text-left py-4 px-6 font-semibold text-slate-900">Joined</th>
                 <th className="text-left py-4 px-6 font-semibold text-slate-900">Actions</th>
               </tr>
@@ -174,13 +190,13 @@ export default function AdminUsers() {
             <tbody>
               {usersLoading ? (
                 <tr>
-                  <td colSpan={6} className="text-center py-8">
+                  <td colSpan={7} className="text-center py-8">
                     <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-blue-600 mx-auto"></div>
                   </td>
                 </tr>
               ) : filteredUsers.length === 0 ? (
                 <tr>
-                  <td colSpan={6} className="text-center py-8 text-slate-500">
+                  <td colSpan={7} className="text-center py-8 text-slate-500">
                     No users found
                   </td>
                 </tr>
@@ -212,11 +228,31 @@ export default function AdminUsers() {
                         {u.is_banned ? 'Banned' : 'Active'}
                       </span>
                     </td>
+                    <td className="py-4 px-6">
+                      <div className="flex items-center gap-2">
+                        <VerifiedBadge isVerified={u.is_verified} size="sm" />
+                        <span className={`text-sm ${u.is_verified ? 'text-blue-600' : 'text-slate-500'}`}>
+                          {u.is_verified ? 'Verified' : 'Not Verified'}
+                        </span>
+                      </div>
+                    </td>
                     <td className="py-4 px-6 text-slate-500">
                       {new Date(u.created_at).toLocaleDateString()}
                     </td>
                     <td className="py-4 px-6">
                       <div className="flex items-center gap-2">
+                        <button
+                          onClick={() => handleVerifyUser(u.id, u.is_verified)}
+                          className={`p-2 rounded-lg transition-colors ${
+                            u.is_verified
+                              ? 'hover:bg-orange-100 text-orange-600'
+                              : 'hover:bg-blue-100 text-blue-600'
+                          }`}
+                          title={u.is_verified ? 'Unverify user' : 'Verify user'}
+                          disabled={u.role === 'admin'}
+                        >
+                          {u.is_verified ? <XCircle className="w-4 h-4" /> : <CheckCircle className="w-4 h-4" />}
+                        </button>
                         <button
                           onClick={() => handleBanUser(u.id, u.is_banned)}
                           className={`p-2 rounded-lg transition-colors ${

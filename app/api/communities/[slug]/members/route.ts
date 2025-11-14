@@ -32,7 +32,7 @@ export async function GET(
         const result = await pool.query(`
             SELECT 
                 cm.id, cm.user_id, cm.role, cm.created_at as joined_at,
-                u.display_name, u.avatar_url
+                u.display_name, u.avatar_url, u.is_verified
             FROM public.community_members cm
             JOIN public.users u ON cm.user_id = u.id
             WHERE cm.community_id = $1

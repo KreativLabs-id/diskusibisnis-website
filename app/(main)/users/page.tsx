@@ -13,6 +13,8 @@ import {
   Award
 } from 'lucide-react';
 import { userAPI } from '@/lib/api';
+import LottieLoader from '@/components/ui/LottieLoader';
+import VerifiedBadge from '@/components/ui/VerifiedBadge';
 
 interface User {
   id: string;
@@ -26,6 +28,7 @@ interface User {
   createdAt: string;
   questionsCount?: number;
   answersCount?: number;
+  isVerified?: boolean;
 }
 
 export default function UsersPage() {
@@ -55,7 +58,8 @@ export default function UsersPage() {
         bio: user.bio,
         createdAt: user.createdAt,
         questionsCount: user.questionCount,
-        answersCount: user.answerCount
+        answersCount: user.answerCount,
+        isVerified: user.isVerified || user.is_verified || false
       }));
       
       setUsers(Array.isArray(mappedUsers) ? mappedUsers : []);
@@ -92,22 +96,9 @@ export default function UsersPage() {
   };
 
   const renderSkeleton = (
-    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-      {[1, 2, 3, 4, 5, 6].map((i) => (
-        <div key={i} className="bg-white rounded-xl border border-slate-200 p-6 animate-pulse">
-          <div className="flex items-center gap-4 mb-4">
-            <div className="w-16 h-16 rounded-full bg-slate-200" />
-            <div className="flex-1">
-              <div className="h-5 bg-slate-200 rounded w-3/4 mb-2" />
-              <div className="h-4 bg-slate-200 rounded w-1/2" />
-            </div>
-          </div>
-          <div className="space-y-2">
-            <div className="h-4 bg-slate-200 rounded w-full" />
-            <div className="h-4 bg-slate-200 rounded w-2/3" />
-          </div>
-        </div>
-      ))}
+    <div className="flex flex-col items-center justify-center py-12">
+      <LottieLoader size="xl" />
+      <p className="text-slate-600 mt-4 font-medium">Memuat pengguna...</p>
     </div>
   );
 
@@ -220,9 +211,12 @@ export default function UsersPage() {
                     </div>
                   )}
                   <div className="flex-1 min-w-0">
-                    <h3 className="font-semibold text-slate-900 group-hover:text-emerald-600 transition-colors truncate mb-1">
-                      {user.displayName}
-                    </h3>
+                    <div className="flex items-center gap-1.5 mb-1">
+                      <h3 className="font-semibold text-slate-900 group-hover:text-emerald-600 transition-colors truncate">
+                        {user.displayName}
+                      </h3>
+                      <VerifiedBadge isVerified={user.isVerified || false} size="sm" />
+                    </div>
                     <div className="flex items-center gap-2">
                       <div className="flex items-center gap-1 text-emerald-600">
                         <Trophy className="w-4 h-4" />

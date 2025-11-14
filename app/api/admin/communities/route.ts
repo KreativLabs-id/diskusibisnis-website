@@ -2,9 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import pool from '@/lib/database';
 import { requireAuth } from '@/lib/auth-middleware';
 
-// GET /api/admin/questions - Get all questions (admin only)
-
-// Force dynamic rendering for API routes
+// GET /api/admin/communities - Get all communities (admin only)
 export const dynamic = 'force-dynamic';
 
 export async function GET(request: NextRequest) {
@@ -21,29 +19,27 @@ export async function GET(request: NextRequest) {
         
         const result = await pool.query(
             `SELECT 
-                q.id, 
-                q.title, 
-                q.content, 
-                q.created_at, 
-                q.updated_at,
-                q.view_count as views,
-                u.display_name as author_name,
-                u.email as author_email,
-                (SELECT COUNT(*) FROM public.answers a WHERE a.question_id = q.id) as answer_count,
-                (SELECT COUNT(*) FROM public.votes v WHERE v.question_id = q.id AND v.vote_type = 'upvote') as upvotes,
-                (SELECT COUNT(*) FROM public.votes v WHERE v.question_id = q.id AND v.vote_type = 'downvote') as downvotes
-             FROM public.questions q 
-             JOIN public.users u ON q.author_id = u.id
-             ORDER BY q.created_at DESC`
+                c.id, 
+                c.name, 
+                c.description, 
+                c.slug, 
+                c.is_banned,
+                c.created_at,
+                u.display_name as created_by_name,
+                (SELECT COUNT(*) FROM public.community_members cm WHERE cm.community_id = c.id) as member_count,
+                (SELECT COUNT(*) FROM public.questions q WHERE q.community_id = c.id) as question_count
+             FROM public.communities c 
+             LEFT JOIN public.users u ON c.created_by = u.id
+             ORDER BY c.created_at DESC`
         );
         
         return NextResponse.json({
             success: true,
-            data: { questions: result.rows }
+            data: { communities: result.rows }
         });
         
     } catch (error) {
-        console.error('Get admin questions error:', error);
+        console.error('Get admin communities error:', error);
         
         if (error instanceof Error && error.message === 'Authentication required') {
             return NextResponse.json({

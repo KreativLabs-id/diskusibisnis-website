@@ -18,6 +18,7 @@ import {
 } from 'lucide-react';
 import axios from 'axios';
 import { formatDate } from '@/lib/utils';
+import VerifiedBadge from '@/components/ui/VerifiedBadge';
 
 interface Community {
   id: string;
@@ -41,6 +42,7 @@ interface Member {
   avatar_url?: string;
   role: string;
   joined_at: string;
+  is_verified?: boolean;
 }
 
 export default function CommunityDetailPage() {
@@ -371,6 +373,7 @@ export default function CommunityDetailPage() {
                             <p className="text-sm sm:text-base font-medium text-slate-900 truncate">
                               {member.display_name}
                             </p>
+                            <VerifiedBadge isVerified={member.is_verified || false} size="sm" />
                             {getRoleIcon(member.role)}
                           </div>
                           <p className="text-xs sm:text-sm text-slate-500">

@@ -23,6 +23,7 @@ interface SavedQuestion {
   author_name: string;
   author_avatar: string;
   author_reputation: number;
+  author_is_verified: boolean;
   upvotes_count: number;
   views_count: number;
   answers_count: number;
@@ -60,6 +61,7 @@ export default function SavedPage() {
         author_name: bookmark.author_name,
         author_avatar: bookmark.author_avatar,
         author_reputation: bookmark.author_reputation || 0,
+        author_is_verified: bookmark.author_is_verified || false,
         upvotes_count: bookmark.upvotes_count || 0,
         views_count: bookmark.views_count || 0,
         answers_count: bookmark.answers_count || 0,

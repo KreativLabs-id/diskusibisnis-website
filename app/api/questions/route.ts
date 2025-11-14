@@ -22,17 +22,22 @@ export async function GET(request: NextRequest) {
         
         let baseQuery = `
             SELECT 
-                q.id, q.title, q.content, q.views_count, q.is_closed, q.created_at, q.updated_at,
+                q.id, q.title, q.content, 
+                COALESCE(q.views_count, 0) as views_count, 
+                q.is_closed, q.created_at, q.updated_at,
                 u.id as author_id, u.display_name as author_name, u.avatar_url as author_avatar,
-                u.reputation_points as author_reputation,
+                u.reputation_points as author_reputation, 
+                COALESCE(u.is_verified, false) as author_is_verified,
                 COUNT(DISTINCT a.id) as answers_count,
-                COUNT(DISTINCT v.id) as upvotes_count,
+                COALESCE(
+                    (SELECT COUNT(*) FROM public.votes v WHERE v.question_id = q.id AND v.vote_type = 'upvote'), 
+                    0
+                ) as upvotes_count,
                 CASE WHEN COUNT(DISTINCT a_accepted.id) > 0 THEN true ELSE false END as has_accepted_answer
             FROM public.questions q
             LEFT JOIN public.users u ON q.author_id = u.id
             LEFT JOIN public.answers a ON q.id = a.question_id
             LEFT JOIN public.answers a_accepted ON q.id = a_accepted.question_id AND a_accepted.is_accepted = true
-            LEFT JOIN public.votes v ON q.id = v.votable_id AND v.votable_type = 'question' AND v.vote_type = 'upvote'
             LEFT JOIN public.question_tags qt ON q.id = qt.question_id
             LEFT JOIN public.tags t ON qt.tag_id = t.id
             WHERE 1=1
@@ -73,7 +78,7 @@ export async function GET(request: NextRequest) {
                 baseQuery += ` ORDER BY q.views_count DESC`;
                 break;
             case 'most_voted':
-                baseQuery += ` ORDER BY vote_count DESC`;
+                baseQuery += ` ORDER BY upvotes_count DESC`;
                 break;
             default:
                 baseQuery += ` ORDER BY q.created_at DESC`;

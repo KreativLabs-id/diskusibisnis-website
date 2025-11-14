@@ -14,21 +14,26 @@ import Link from 'next/link';
 
 import { questionAPI } from '@/lib/api';
 import QuestionCard from '@/components/questions/QuestionCard';
+import LottieLoader from '@/components/ui/LottieLoader';
 import { useAuth } from '@/contexts/AuthContext';
 
 interface Question {
   id: string;
   title: string;
   content: string;
+  author_id: string;
   author_name: string;
   author_avatar: string;
   author_reputation: number;
+  author_is_verified: boolean;
   upvotes_count: number;
   views_count: number;
   answers_count: number;
   has_accepted_answer: boolean;
+  is_closed: boolean;
   tags: Array<{ id: string; name: string; slug: string }>;
   created_at: string;
+  updated_at: string;
 }
 
 export default function QuestionsPageContent() {
@@ -64,38 +69,9 @@ export default function QuestionsPageContent() {
   ];
 
   const renderSkeleton = (
-    <div className="space-y-3 sm:space-y-4">
-      {[1, 2, 3, 4, 5].map((i) => (
-        <div key={i} className="bg-white rounded-lg sm:rounded-2xl border border-slate-200 p-3 sm:p-5">
-          <div className="animate-pulse flex gap-3 sm:gap-6">
-            <div className="flex flex-col gap-2 sm:gap-4">
-              <div className="min-w-[50px] sm:min-w-[70px]">
-                <div className="h-6 sm:h-8 bg-slate-200 rounded w-full mb-1"></div>
-                <div className="h-3 bg-slate-200 rounded w-full"></div>
-              </div>
-              <div className="min-w-[50px] sm:min-w-[70px] h-12 sm:h-16 bg-slate-200 rounded-lg sm:rounded-2xl"></div>
-            </div>
-            <div className="flex-1 min-w-0 space-y-2 sm:space-y-3">
-              <div className="h-6 bg-slate-200 rounded w-3/4"></div>
-              <div className="flex flex-wrap gap-1 sm:gap-1.5">
-                {[1, 2, 3].map((j) => (
-                  <div key={j} className="h-6 bg-slate-200 rounded-full w-16"></div>
-                ))}
-              </div>
-              <div className="flex items-center justify-between pt-1 sm:pt-2">
-                <div className="h-3 bg-slate-200 rounded w-20"></div>
-                <div className="flex items-center gap-1.5 sm:gap-2">
-                  <div className="w-6 h-6 sm:w-9 sm:h-9 bg-slate-200 rounded-full"></div>
-                  <div>
-                    <div className="h-3 bg-slate-200 rounded w-16 mb-1"></div>
-                    <div className="h-3 bg-slate-200 rounded w-12"></div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      ))}
+    <div className="flex flex-col items-center justify-center py-12">
+      <LottieLoader size="xl" />
+      <p className="text-slate-600 mt-4 font-medium">Memuat pertanyaan...</p>
     </div>
   );
 
@@ -142,7 +118,7 @@ export default function QuestionsPageContent() {
         </div>
       </div>
 
-      {/* Sort Options - Scrollable */}
+      {/* Sort Options - Icon-based for Mobile */}
       <div className="flex items-center gap-2 mb-4 overflow-x-auto pb-1">
         {sortOptions.map((option) => {
           const Icon = option.icon;
@@ -156,10 +132,10 @@ export default function QuestionsPageContent() {
                   ? 'bg-emerald-600 text-white shadow-sm'
                   : 'bg-slate-100 text-slate-700 hover:bg-slate-200'
               }`}
+              title={option.label}
             >
               <Icon className="w-3.5 h-3.5" />
               <span className="hidden sm:inline">{option.label}</span>
-              <span className="sm:hidden">{option.label.split(' ')[0]}</span>
             </button>
           );
         })}
@@ -185,6 +161,15 @@ export default function QuestionsPageContent() {
           </button>
         </div>
       )}
+
+      {/* Floating Action Button - Mobile */}
+      <Link
+        href="/ask"
+        className="fixed bottom-6 right-6 z-50 md:hidden w-14 h-14 bg-gradient-to-r from-emerald-600 to-emerald-700 text-white rounded-full shadow-lg hover:shadow-xl hover:from-emerald-700 hover:to-emerald-800 transition-all duration-200 flex items-center justify-center group"
+        title="Ajukan Pertanyaan"
+      >
+        <Plus className="w-6 h-6 group-hover:scale-110 transition-transform" />
+      </Link>
     </div>
   );
 }
