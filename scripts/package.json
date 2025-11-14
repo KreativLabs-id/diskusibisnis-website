@@ -1,0 +1,9 @@
+{
+  "name": "generate-icons",
+  "version": "1.0.0",
+  "description": "Generate PWA icons dari logo",
+  "main": "generate-icons.js",
+  "scripts": {
+    "generate": "node generate-icons.js"
+  }
+}
