@@ -6,7 +6,7 @@ const path = require('path');
 const sizes = [72, 96, 128, 144, 152, 192, 384, 512];
 
 async function generateIcons() {
-  const inputFile = path.join(__dirname, '..', 'public', 'logodiskusibisnis.png');
+  const inputFile = path.join(__dirname, '..', 'public', 'logodiskusibisnisaja.png');
   const outputDir = path.join(__dirname, '..', 'public', 'icons');
 
   // Pastikan direktori icons ada

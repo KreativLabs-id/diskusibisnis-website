@@ -8,16 +8,33 @@ export function PWAInstallPrompt() {
   const [isInstalling, setIsInstalling] = useState(false);
 
   useEffect(() => {
+    // Cek apakah sudah pernah dismiss atau install
+    const dismissed = localStorage.getItem('pwaPromptDismissed');
+    const installed = localStorage.getItem('pwaInstalled');
+    
+    if (installed === 'true') {
+      return; // Jangan tampilkan lagi jika sudah install
+    }
+
+    if (dismissed) {
+      const dismissedTime = parseInt(dismissed);
+      const sevenDays = 7 * 24 * 60 * 60 * 1000;
+      if (Date.now() - dismissedTime < sevenDays) {
+        return; // Masih dalam periode 7 hari
+      }
+    }
+
     const handleInstallAvailable = () => {
-      // Tunggu 3 detik sebelum menampilkan prompt
+      // Tunggu 5 detik sebelum menampilkan prompt (hanya pertama kali)
       setTimeout(() => {
         setShowPrompt(true);
-      }, 3000);
+      }, 5000);
     };
 
     const handleInstalled = () => {
       setShowPrompt(false);
       setIsInstalling(false);
+      localStorage.setItem('pwaInstalled', 'true');
       
       // Show success notification
       if (pwaInstaller) {
@@ -61,11 +78,11 @@ export function PWAInstallPrompt() {
       <div className="bg-white rounded-lg shadow-2xl border border-gray-200 overflow-hidden">
         <div className="p-4">
           <div className="flex items-start space-x-3">
-            <div className="flex-shrink-0">
+            <div className="shrink-0">
               <img 
-                src="/icons/icon-96x96.png" 
+                src="/logodiskusibisnisaja.png" 
                 alt="DiskusiBisnis" 
-                className="w-12 h-12 rounded-lg"
+                className="w-12 h-12 rounded-lg object-contain"
               />
             </div>
             <div className="flex-1 min-w-0">
@@ -82,7 +99,7 @@ export function PWAInstallPrompt() {
             <button
               onClick={handleInstall}
               disabled={isInstalling}
-              className="flex-1 bg-blue-600 text-white px-4 py-2 rounded-lg font-medium hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              className="flex-1 bg-green-600 text-white px-4 py-2 rounded-lg font-medium hover:bg-green-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {isInstalling ? 'Installing...' : 'Install'}
             </button>

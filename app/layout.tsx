@@ -83,8 +83,8 @@ export const viewport: Viewport = {
   maximumScale: 5,
   userScalable: true,
   themeColor: [
-    { media: '(prefers-color-scheme: light)', color: '#2563eb' },
-    { media: '(prefers-color-scheme: dark)', color: '#1e40af' }
+    { media: '(prefers-color-scheme: light)', color: '#10b981' },
+    { media: '(prefers-color-scheme: dark)', color: '#059669' }
   ],
 };
 
@@ -96,13 +96,18 @@ export default function RootLayout({
   return (
     <html lang="id" className="h-full">
       <head>
+        <link rel="icon" href="/favicon.ico" sizes="any" />
+        <link rel="icon" type="image/png" sizes="16x16" href="/icons/favicon-16x16.png" />
+        <link rel="icon" type="image/png" sizes="32x32" href="/icons/favicon-32x32.png" />
+        <link rel="icon" type="image/png" sizes="48x48" href="/icons/favicon-48x48.png" />
+        <link rel="apple-touch-icon" sizes="180x180" href="/icons/apple-touch-icon.png" />
         <link rel="manifest" href="/manifest.json" />
         <meta name="mobile-web-app-capable" content="yes" />
         <meta name="apple-mobile-web-app-capable" content="yes" />
         <meta name="application-name" content="DiskusiBisnis" />
         <meta name="apple-mobile-web-app-title" content="DiskusiBisnis" />
         <meta name="msapplication-starturl" content="/" />
-        <meta name="msapplication-TileColor" content="#2563eb" />
+        <meta name="msapplication-TileColor" content="#10b981" />
         <meta name="msapplication-TileImage" content="/icons/icon-144x144.png" />
       </head>
       <body className={`${poppins.variable} font-sans antialiased bg-slate-50 h-full`}>

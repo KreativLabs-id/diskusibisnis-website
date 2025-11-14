@@ -62,8 +62,12 @@ export default function RegisterPage() {
       <div className="w-full max-w-md">
         {/* Header */}
         <div className="text-center mb-8">
-          <div className="w-16 h-16 bg-gradient-to-br from-emerald-600 to-emerald-700 rounded-2xl flex items-center justify-center mx-auto mb-4">
-            <span className="text-white font-bold text-2xl">DB</span>
+          <div className="w-20 h-20 mx-auto mb-4 flex items-center justify-center">
+            <img 
+              src="/logodiskusibisnisaja.png" 
+              alt="DiskusiBisnis Logo" 
+              className="w-full h-full object-contain"
+            />
           </div>
           <h1 className="text-3xl font-bold text-gray-900 mb-2">
             Daftar ke DiskusiBisnis

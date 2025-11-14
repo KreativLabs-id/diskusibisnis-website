@@ -73,8 +73,12 @@ export default function ForgotPasswordPage() {
           </Link>
 
           <div className="flex justify-center mb-6">
-            <div className="w-16 h-16 bg-emerald-100 rounded-full flex items-center justify-center">
-              <Mail className="w-8 h-8 text-emerald-600" />
+            <div className="w-20 h-20 mx-auto flex items-center justify-center">
+              <img 
+                src="/logodiskusibisnisaja.png" 
+                alt="DiskusiBisnis Logo" 
+                className="w-full h-full object-contain"
+              />
             </div>
           </div>
           

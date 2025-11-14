@@ -65,8 +65,12 @@ export default function ResetPasswordPage() {
         <div className="w-full max-w-md">
           <div className="bg-white border border-slate-200 rounded-2xl shadow-sm p-8 text-center">
             <div className="flex justify-center mb-6">
-              <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center">
-                <Lock className="w-8 h-8 text-green-600" />
+              <div className="w-20 h-20 mx-auto flex items-center justify-center">
+                <img 
+                  src="/logodiskusibisnisaja.png" 
+                  alt="DiskusiBisnis Logo" 
+                  className="w-full h-full object-contain"
+                />
               </div>
             </div>
             
@@ -98,8 +102,12 @@ export default function ResetPasswordPage() {
           </Link>
 
           <div className="flex justify-center mb-6">
-            <div className="w-16 h-16 bg-emerald-100 rounded-full flex items-center justify-center">
-              <Lock className="w-8 h-8 text-emerald-600" />
+            <div className="w-20 h-20 mx-auto flex items-center justify-center">
+              <img 
+                src="/logodiskusibisnisaja.png" 
+                alt="DiskusiBisnis Logo" 
+                className="w-full h-full object-contain"
+              />
             </div>
           </div>
           
