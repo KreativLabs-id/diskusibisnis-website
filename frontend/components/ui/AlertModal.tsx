@@ -14,19 +14,14 @@ interface AlertModalProps {
 export default function AlertModal({ isOpen, onClose, type = 'info', title, message }: AlertModalProps) {
   useEffect(() => {
     if (isOpen) {
-      document.body.style.overflow = 'hidden';
-      
-      // Auto close after 3 seconds
+      // Auto close after 2 seconds
       const timer = setTimeout(() => {
         onClose();
-      }, 3000);
+      }, 2000);
       
       return () => {
-        document.body.style.overflow = 'unset';
         clearTimeout(timer);
       };
-    } else {
-      document.body.style.overflow = 'unset';
     }
   }, [isOpen, onClose]);
 
@@ -63,15 +58,9 @@ export default function AlertModal({ isOpen, onClose, type = 'info', title, mess
   const Icon = config.icon;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-start justify-center pt-20 px-4">
-      {/* Backdrop */}
-      <div 
-        className="absolute inset-0 bg-black/20 backdrop-blur-sm"
-        onClick={onClose}
-      />
-      
+    <div className="fixed inset-0 z-50 flex items-start justify-center pt-20 px-4 pointer-events-none">
       {/* Alert Modal */}
-      <div className={`relative bg-white rounded-xl shadow-xl max-w-sm w-full border ${config.borderColor} animate-in slide-in-from-top duration-300`}>
+      <div className={`relative bg-white rounded-xl shadow-xl max-w-sm w-full border ${config.borderColor} animate-in slide-in-from-top duration-300 pointer-events-auto`}>
         <div className="p-5">
           <div className="flex items-start gap-4">
             <div className={`${config.bgColor} p-2 rounded-lg shrink-0`}>
@@ -104,7 +93,7 @@ export default function AlertModal({ isOpen, onClose, type = 'info', title, mess
           to { width: 0%; }
         }
         .animate-progress {
-          animation: progress 3s linear;
+          animation: progress 2s linear;
         }
       `}</style>
     </div>

@@ -65,6 +65,8 @@ export default function QuestionDetailPage() {
   const [loading, setLoading] = useState(true);
   const [answerContent, setAnswerContent] = useState('');
   const [submitting, setSubmitting] = useState(false);
+  const [editingAnswerId, setEditingAnswerId] = useState<string | null>(null);
+  const [editAnswerContent, setEditAnswerContent] = useState('');
   const [alertModal, setAlertModal] = useState<{
     isOpen: boolean;
     type: 'success' | 'error' | 'warning' | 'info';
@@ -301,6 +303,56 @@ export default function QuestionDetailPage() {
     router.push(`/questions/${params.id}/edit`);
   };
 
+  const handleEditAnswer = (answerId: string, currentContent: string) => {
+    setEditingAnswerId(answerId);
+    setEditAnswerContent(currentContent);
+  };
+
+  const handleCancelEditAnswer = () => {
+    setEditingAnswerId(null);
+    setEditAnswerContent('');
+  };
+
+  const handleSaveEditAnswer = async (answerId: string) => {
+    const trimmedContent = editAnswerContent.trim();
+    
+    if (!trimmedContent) {
+      showAlert('warning', 'Konten Kosong', 'Silakan tulis jawaban Anda');
+      return;
+    }
+
+    if (trimmedContent.length < 20) {
+      showAlert('warning', 'Jawaban Terlalu Pendek', 'Jawaban harus minimal 20 karakter');
+      return;
+    }
+
+    try {
+      await answerAPI.update(answerId, trimmedContent);
+      showAlert('success', 'Berhasil', 'Jawaban berhasil diperbarui');
+      setEditingAnswerId(null);
+      setEditAnswerContent('');
+      fetchQuestion();
+    } catch (error: any) {
+      console.error('Error updating answer:', error);
+      showAlert('error', 'Gagal', error.response?.data?.message || 'Gagal memperbarui jawaban');
+    }
+  };
+
+  const handleDeleteAnswer = async (answerId: string) => {
+    if (!confirm('Apakah Anda yakin ingin menghapus jawaban ini?')) {
+      return;
+    }
+
+    try {
+      await answerAPI.delete(answerId);
+      showAlert('success', 'Berhasil', 'Jawaban berhasil dihapus');
+      fetchQuestion();
+    } catch (error: any) {
+      console.error('Error deleting answer:', error);
+      showAlert('error', 'Gagal', error.response?.data?.message || 'Gagal menghapus jawaban');
+    }
+  };
+
   const handleBookmark = async () => {
     if (!user) {
       showAlert('warning', 'Login Diperlukan', 'Silakan login untuk menyimpan pertanyaan');
@@ -468,6 +520,25 @@ export default function QuestionDetailPage() {
                   </div>
                 </div>
                 <div className="flex items-center gap-2 sm:gap-3">
+                  {/* Edit & Delete Buttons for Question Owner */}
+                  {user?.id === question.author_id && (
+                    <div className="flex items-center gap-1 mr-2">
+                      <button
+                        onClick={handleEditQuestion}
+                        className="p-1.5 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
+                        title="Edit Pertanyaan"
+                      >
+                        <Edit className="w-4 h-4" />
+                      </button>
+                      <button
+                        onClick={handleDeleteQuestion}
+                        className="p-1.5 text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+                        title="Hapus Pertanyaan"
+                      >
+                        <Trash className="w-4 h-4" />
+                      </button>
+                    </div>
+                  )}
                   <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-gradient-to-br from-emerald-500 to-emerald-600 flex items-center justify-center">
                     <span className="text-white text-xs sm:text-sm font-medium">
                       {question.author_name?.charAt(0).toUpperCase()}
@@ -536,9 +607,35 @@ export default function QuestionDetailPage() {
                     </div>
                   )}
 
-                  <div className="prose max-w-none mb-3 sm:mb-4">
-                    <p className="text-gray-700 text-sm sm:text-base leading-relaxed break-words">{answer.content}</p>
-                  </div>
+                  {editingAnswerId === answer.id ? (
+                    <div className="mb-3 sm:mb-4">
+                      <textarea
+                        value={editAnswerContent}
+                        onChange={(e) => setEditAnswerContent(e.target.value)}
+                        rows={6}
+                        className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent outline-none text-sm"
+                        placeholder="Edit jawaban Anda..."
+                      />
+                      <div className="flex gap-2 mt-2">
+                        <button
+                          onClick={() => handleSaveEditAnswer(answer.id)}
+                          className="px-4 py-2 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 transition-colors text-sm font-medium"
+                        >
+                          Simpan
+                        </button>
+                        <button
+                          onClick={handleCancelEditAnswer}
+                          className="px-4 py-2 bg-slate-200 text-slate-700 rounded-lg hover:bg-slate-300 transition-colors text-sm font-medium"
+                        >
+                          Batal
+                        </button>
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="prose max-w-none mb-3 sm:mb-4">
+                      <p className="text-gray-700 text-sm sm:text-base leading-relaxed break-words">{answer.content}</p>
+                    </div>
+                  )}
 
                   <div className="space-y-2 sm:space-y-0 sm:flex sm:items-center sm:justify-between pt-3 sm:pt-4 border-t border-slate-200">
                     <div className="flex items-center gap-2">
@@ -558,6 +655,25 @@ export default function QuestionDetailPage() {
                       </div>
                     </div>
                     <div className="flex gap-2 mt-2 sm:mt-0">
+                      {/* Edit & Delete Buttons for Answer Owner */}
+                      {user?.id === answer.author_id && editingAnswerId !== answer.id && (
+                        <div className="flex items-center gap-1">
+                          <button
+                            onClick={() => handleEditAnswer(answer.id, answer.content)}
+                            className="p-1.5 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
+                            title="Edit Jawaban"
+                          >
+                            <Edit className="w-4 h-4" />
+                          </button>
+                          <button
+                            onClick={() => handleDeleteAnswer(answer.id)}
+                            className="p-1.5 text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+                            title="Hapus Jawaban"
+                          >
+                            <Trash className="w-4 h-4" />
+                          </button>
+                        </div>
+                      )}
                       {user?.id === question.author_id && (
                         <>
                           {answer.is_accepted ? (

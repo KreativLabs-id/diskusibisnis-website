@@ -8,13 +8,13 @@ module.exports = {
     extend: {
       fontFamily: {
         sans: [
-          "var(--font-poppins)",
-          "Poppins",
+          "var(--font-inter)",
+          "Inter",
           "system-ui",
           "-apple-system",
           "sans-serif",
         ],
-        poppins: ["var(--font-poppins)", "Poppins", "sans-serif"],
+        inter: ["var(--font-inter)", "Inter", "sans-serif"],
       },
     },
   },

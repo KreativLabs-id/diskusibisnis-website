@@ -1,15 +1,15 @@
 import type { Metadata, Viewport } from "next";
-import { Poppins } from "next/font/google";
+import { Inter } from "next/font/google";
 import "./globals.css";
 import ClientProviders from "./components/ClientProviders";
 
 // Force dynamic rendering for error pages
 export const dynamicParams = true;
 
-const poppins = Poppins({
+const inter = Inter({
   subsets: ["latin"],
   weight: ["400", "500", "600", "700"],
-  variable: "--font-poppins",
+  variable: "--font-inter",
 });
 
 export const metadata: Metadata = {
@@ -94,7 +94,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="id" className="h-full">
+        <html lang="id" suppressHydrationWarning className={inter.variable}>
       <head>
         <link rel="icon" href="/favicon.ico" sizes="any" />
         <link rel="icon" type="image/png" sizes="16x16" href="/icons/favicon-16x16.png" />
@@ -110,7 +110,7 @@ export default function RootLayout({
         <meta name="msapplication-TileColor" content="#10b981" />
         <meta name="msapplication-TileImage" content="/icons/icon-144x144.png" />
       </head>
-      <body className={`${poppins.variable} font-sans antialiased bg-slate-50 h-full`}>
+      <body className={`${inter.variable} font-sans antialiased bg-slate-50 h-full`}>
         <ClientProviders>
           <div className="h-full">
             {children}
