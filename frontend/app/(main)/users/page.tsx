@@ -1,141 +1,68 @@
 'use client';
 
-import React, { useEffect, useState } from 'react';
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { 
-  Users, 
-  Search, 
-  Trophy, 
-  MessageSquare, 
-  ThumbsUp,
-  Calendar,
-  MapPin,
-  Award
-} from 'lucide-react';
+import { Users, Search, Award, MessageSquare, CheckCircle } from 'lucide-react';
 import { userAPI } from '@/lib/api';
-import VerifiedBadge from '@/components/ui/VerifiedBadge';
 import UserAvatar from '@/components/ui/UserAvatar';
+import VerifiedBadge from '@/components/ui/VerifiedBadge';
 
 interface User {
   id: string;
-  displayName: string;
-  email: string;
-  avatarUrl?: string;
-  reputationPoints: number;
+  display_name: string;
+  username?: string;
+  avatar_url?: string;
+  reputation_points: number;
   role: string;
-  location?: string;
-  bio?: string;
-  createdAt: string;
-  questionsCount?: number;
-  answersCount?: number;
-  isVerified?: boolean;
+  is_verified: boolean;
+  created_at: string;
 }
 
 export default function UsersPage() {
   const [users, setUsers] = useState<User[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
-  const [sortBy, setSortBy] = useState<'reputation' | 'newest' | 'name'>('reputation');
 
   useEffect(() => {
     fetchUsers();
-  }, [sortBy]);
+  }, []);
 
   const fetchUsers = async () => {
     try {
       setLoading(true);
-      const response = await userAPI.getAll({ sort: sortBy });
-      const usersData = response.data?.data?.users || response.data?.users || [];
+      const response = await userAPI.getAll({ sort: 'reputation' });
       
-      // Map the data to match frontend interface
-      const mappedUsers = usersData.map((user: any) => ({
-        id: user.id,
-        displayName: user.displayName || user.display_name || 'Anonymous',
-        email: user.email || '',
-        avatarUrl: user.avatarUrl || user.avatar_url,
-        reputationPoints: user.reputationPoints || user.reputation_points || 0,
-        role: user.role || 'user',
-        bio: user.bio,
-        createdAt: user.createdAt || user.created_at || new Date().toISOString(),
-        questionsCount: user.questionCount || user.question_count || 0,
-        answersCount: user.answerCount || user.answer_count || 0,
-        isVerified: user.isVerified || user.is_verified || false
-      }));
+      // Extract users data correctly
+      let usersData = [];
+      if (response.data.data && response.data.data.users) {
+        usersData = response.data.data.users;
+      } else if (response.data.users) {
+        usersData = response.data.users;
+      }
       
-      setUsers(Array.isArray(mappedUsers) ? mappedUsers : []);
+      setUsers(usersData);
     } catch (error) {
       console.error('Error fetching users:', error);
-      setUsers([]);
     } finally {
       setLoading(false);
     }
   };
 
-  const filteredUsers = Array.isArray(users) ? users.filter(user =>
-    (user.displayName?.toLowerCase() || '').includes(searchQuery.toLowerCase()) ||
-    (user.email?.toLowerCase() || '').includes(searchQuery.toLowerCase())
-  ) : [];
-
-  const formatTimeAgo = (dateString: string) => {
-    const date = new Date(dateString);
-    const now = new Date();
-    const diffInDays = Math.floor((now.getTime() - date.getTime()) / (1000 * 60 * 60 * 24));
-
-    if (diffInDays === 0) return 'Hari ini';
-    if (diffInDays === 1) return 'Kemarin';
-    if (diffInDays < 30) return `${diffInDays} hari lalu`;
-    if (diffInDays < 365) return `${Math.floor(diffInDays / 30)} bulan lalu`;
-    return `${Math.floor(diffInDays / 365)} tahun lalu`;
-  };
-
-  const getUserBadge = (reputation: number) => {
-    if (reputation >= 10000) return { name: 'Emas', color: 'text-yellow-600 bg-yellow-100' };
-    if (reputation >= 5000) return { name: 'Perak', color: 'text-gray-600 bg-gray-100' };
-    if (reputation >= 1000) return { name: 'Perunggu', color: 'text-amber-600 bg-amber-100' };
-    return null;
-  };
+  const filteredUsers = users.filter(user =>
+    user.display_name.toLowerCase().includes(searchQuery.toLowerCase())
+  );
 
   const renderSkeleton = (
-    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
+    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
       {[1, 2, 3, 4, 5, 6].map((i) => (
         <div
           key={i}
           className="bg-white rounded-xl border border-slate-200 p-6 animate-pulse"
         >
-          <div className="flex flex-col items-center text-center">
-            {/* Avatar skeleton */}
-            <div className="w-20 h-20 bg-slate-200 rounded-full mb-4" />
-            
-            {/* Name skeleton */}
-            <div className="h-6 bg-slate-200 rounded w-3/4 mb-2" />
-            
-            {/* Role badge skeleton */}
-            <div className="h-5 w-20 bg-slate-200 rounded-full mb-3" />
-            
-            {/* Stats skeleton */}
-            <div className="flex items-center justify-center gap-4 mb-4 w-full">
-              <div className="text-center">
-                <div className="h-6 w-12 bg-slate-200 rounded mb-1 mx-auto" />
-                <div className="h-3 w-16 bg-slate-200 rounded" />
-              </div>
-              <div className="text-center">
-                <div className="h-6 w-12 bg-slate-200 rounded mb-1 mx-auto" />
-                <div className="h-3 w-16 bg-slate-200 rounded" />
-              </div>
-              <div className="text-center">
-                <div className="h-6 w-12 bg-slate-200 rounded mb-1 mx-auto" />
-                <div className="h-3 w-16 bg-slate-200 rounded" />
-              </div>
-            </div>
-            
-            {/* Bio skeleton */}
-            <div className="w-full space-y-2 mb-4">
-              <div className="h-3 bg-slate-200 rounded w-full" />
-              <div className="h-3 bg-slate-200 rounded w-4/5 mx-auto" />
-            </div>
-            
-            {/* Button skeleton */}
-            <div className="h-9 bg-slate-200 rounded-lg w-full" />
+          <div className="flex flex-col items-center space-y-4">
+            <div className="w-20 h-20 rounded-full bg-slate-200" />
+            <div className="w-32 h-5 bg-slate-200 rounded" />
+            <div className="w-24 h-4 bg-slate-200 rounded" />
           </div>
         </div>
       ))}
@@ -143,71 +70,34 @@ export default function UsersPage() {
   );
 
   return (
-    <div className="max-w-7xl mx-auto">
+    <div className="max-w-7xl mx-auto px-4">
       {/* Header */}
-      <div className="mb-4">
-        <div className="flex items-center gap-3 mb-3">
-          <div className="w-8 h-8 sm:w-10 sm:h-10 bg-emerald-100 rounded-xl flex items-center justify-center">
-            <Users className="w-4 h-4 sm:w-5 sm:h-5 text-emerald-600" />
+      <div className="mb-6">
+        <div className="flex items-center gap-3 mb-4">
+          <div className="w-10 h-10 bg-emerald-100 rounded-xl flex items-center justify-center">
+            <Users className="w-5 h-5 text-emerald-600" />
           </div>
           <div>
-            <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold text-slate-900">Pengguna</h1>
+            <h1 className="text-2xl sm:text-3xl font-bold text-slate-900">
+              Pengguna
+            </h1>
             <p className="text-slate-600 text-sm">
-              {users.length} pengguna dalam komunitas kami
+              {users.length} pengguna terdaftar
             </p>
           </div>
         </div>
-      </div>
 
-      {/* Search Bar */}
-      <div className="mb-3">
+        {/* Search */}
         <div className="relative">
-          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400 w-4 h-4" />
+          <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-slate-400" />
           <input
             type="text"
             placeholder="Cari pengguna..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-full pl-9 pr-3 py-2.5 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500 text-sm bg-white"
+            className="w-full pl-12 pr-4 py-3 rounded-lg border border-slate-200 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-200 transition-colors"
           />
         </div>
-      </div>
-
-      {/* Sort Filters - Separate Row */}
-      <div className="flex gap-2 mb-4 overflow-x-auto pb-1">
-        <button
-          onClick={() => setSortBy('reputation')}
-          className={`inline-flex items-center gap-1.5 px-3 py-2 rounded-full text-sm font-medium transition-all whitespace-nowrap flex-shrink-0 ${
-            sortBy === 'reputation'
-              ? 'bg-emerald-600 text-white shadow-sm'
-              : 'bg-slate-100 text-slate-700 hover:bg-slate-200'
-          }`}
-        >
-          <Trophy className="w-4 h-4" />
-          <span>Reputasi</span>
-        </button>
-        <button
-          onClick={() => setSortBy('name')}
-          className={`inline-flex items-center gap-1.5 px-3 py-2 rounded-full text-sm font-medium transition-all whitespace-nowrap flex-shrink-0 ${
-            sortBy === 'name'
-              ? 'bg-emerald-600 text-white shadow-sm'
-              : 'bg-slate-100 text-slate-700 hover:bg-slate-200'
-          }`}
-        >
-          <Users className="w-4 h-4" />
-          <span>Nama</span>
-        </button>
-        <button
-          onClick={() => setSortBy('newest')}
-          className={`inline-flex items-center gap-1.5 px-3 py-2 rounded-full text-sm font-medium transition-all whitespace-nowrap flex-shrink-0 ${
-            sortBy === 'newest'
-              ? 'bg-emerald-600 text-white shadow-sm'
-              : 'bg-slate-100 text-slate-700 hover:bg-slate-200'
-          }`}
-        >
-          <Calendar className="w-4 h-4" />
-          <span>Terbaru</span>
-        </button>
       </div>
 
       {/* Users Grid */}
@@ -217,81 +107,78 @@ export default function UsersPage() {
         <div className="bg-white rounded-xl border border-dashed border-slate-300 p-12 text-center">
           <Users className="w-16 h-16 text-slate-300 mx-auto mb-4" />
           <h3 className="text-xl font-semibold text-slate-900 mb-2">
-            {searchQuery ? 'Pengguna tidak ditemukan' : 'Belum ada pengguna'}
+            Pengguna tidak ditemukan
           </h3>
           <p className="text-slate-500">
             {searchQuery
-              ? 'Coba sesuaikan kata kunci pencarian Anda'
-              : 'Jadilah yang pertama bergabung dengan komunitas kami!'
-            }
+              ? 'Coba sesuaikan kata kunci pencarian'
+              : 'Belum ada pengguna terdaftar'}
           </p>
         </div>
       ) : (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4 lg:gap-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
           {filteredUsers.map((user) => {
-            const badge = getUserBadge(user.reputationPoints);
+            const username = user.username || user.display_name.toLowerCase().replace(/[^a-z0-9]/g, '');
+            
             return (
               <Link
                 key={user.id}
-                href={`/profile/${user.id}`}
-                className="bg-white rounded-xl border border-slate-200 p-4 sm:p-6 hover:shadow-lg hover:border-emerald-300 transition-all group"
+                href={`/profile/${username}`}
+                className="bg-white rounded-xl border border-slate-200 p-6 hover:border-emerald-300 hover:shadow-md transition-all duration-200 group"
               >
-                <div className="flex items-center gap-3 mb-3">
+                <div className="flex flex-col items-center space-y-4">
+                  {/* Avatar */}
                   <UserAvatar
-                    src={user.avatarUrl}
-                    alt={user.displayName}
+                    src={user.avatar_url}
+                    alt={user.display_name}
                     size="lg"
-                    fallbackName={user.displayName}
-                    className="ring-2 ring-slate-200"
+                    fallbackName={user.display_name}
                   />
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-center gap-1.5 mb-1">
-                      <h3 className="font-semibold text-slate-900 group-hover:text-emerald-600 transition-colors truncate">
-                        {user.displayName}
+
+                  {/* Name & Badge */}
+                  <div className="text-center">
+                    <div className="flex items-center justify-center gap-2 mb-1">
+                      <h3 className="text-lg font-semibold text-slate-900 group-hover:text-emerald-600 transition-colors">
+                        {user.display_name}
                       </h3>
-                      <VerifiedBadge isVerified={user.isVerified || false} size="sm" />
+                      <VerifiedBadge isVerified={user.is_verified} size="sm" />
                     </div>
-                    <div className="flex items-center gap-2">
-                      <div className="flex items-center gap-1 text-emerald-600">
-                        <Trophy className="w-4 h-4" />
-                        <span className="font-bold text-lg">{user.reputationPoints}</span>
-                      </div>
-                      {badge && (
-                        <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${badge.color}`}>
-                          {badge.name}
-                        </span>
-                      )}
+                    {user.role === 'admin' && (
+                      <span className="inline-flex items-center gap-1 px-2 py-1 bg-purple-100 text-purple-700 text-xs font-medium rounded-full">
+                        <Award className="w-3 h-3" />
+                        Admin
+                      </span>
+                    )}
+                    {user.role === 'moderator' && (
+                      <span className="inline-flex items-center gap-1 px-2 py-1 bg-blue-100 text-blue-700 text-xs font-medium rounded-full">
+                        <Award className="w-3 h-3" />
+                        Moderator
+                      </span>
+                    )}
+                  </div>
+
+                  {/* Stats */}
+                  <div className="flex items-center gap-4 text-sm">
+                    <div className="flex items-center gap-1 text-slate-600">
+                      <Award className="w-4 h-4 text-amber-500" />
+                      <span className="font-semibold text-slate-900">
+                        {user.reputation_points}
+                      </span>
+                      <span className="hidden sm:inline">reputasi</span>
                     </div>
                   </div>
-                </div>
 
-                {user.bio && (
-                  <p className="text-sm text-slate-600 line-clamp-2 mb-3">
-                    {user.bio}
+                  {/* Join Date */}
+                  <p className="text-xs text-slate-500">
+                    Bergabung {new Date(user.created_at).toLocaleDateString('id-ID', {
+                      year: 'numeric',
+                      month: 'long'
+                    })}
                   </p>
-                )}
-
-                <div className="flex items-center justify-between text-xs text-slate-500">
-                  {user.location && (
-                    <div className="flex items-center gap-1">
-                      <MapPin className="w-3.5 h-3.5" />
-                      <span>{user.location}</span>
-                    </div>
-                  )}
-                  <span>Bergabung {formatTimeAgo(user.createdAt)}</span>
                 </div>
               </Link>
             );
           })}
-        </div>
-      )}
-
-      {/* Load More */}
-      {filteredUsers.length > 0 && filteredUsers.length >= 18 && (
-        <div className="mt-8 text-center">
-          <button className="px-6 py-3 bg-white border border-slate-200 text-slate-700 rounded-lg hover:bg-slate-50 transition-colors font-medium">
-            Muat Lebih Banyak Pengguna
-          </button>
         </div>
       )}
     </div>

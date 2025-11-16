@@ -22,6 +22,7 @@ interface Question {
   content: string;
   images?: string[];
   author_id: string;
+  author_username?: string;
   author_name: string;
   author_avatar: string;
   author_reputation: number;

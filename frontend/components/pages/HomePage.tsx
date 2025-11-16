@@ -23,6 +23,7 @@ interface Question {
   title: string;
   content: string;
   author_id: string;
+  author_username?: string;
   author_name: string;
   author_avatar: string;
   author_reputation: number;

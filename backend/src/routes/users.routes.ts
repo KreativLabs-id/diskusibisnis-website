@@ -2,6 +2,7 @@ import { Router } from 'express';
 import {
   getUsers,
   getUserById,
+  getUserByUsername,
   getUserQuestions,
   getUserAnswers,
   getUserActivities,
@@ -15,6 +16,9 @@ const router = Router();
 
 // Get all users
 router.get('/', getUsers);
+
+// Get user by username (must come before /:id to avoid matching username as id)
+router.get('/username/:username', getUserByUsername);
 
 // Get user activities (must come before /:id)
 router.get('/:id/activities', getUserActivities);

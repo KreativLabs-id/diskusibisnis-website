@@ -128,7 +128,7 @@ export default function Navbar({ onMenuClick }: NavbarProps) {
                         </div>
                       </div>
                       <Link
-                        href={`/profile/${user.id}`}
+                        href={`/profile/${user.username || user.displayName?.toLowerCase().replace(/[^a-z0-9]/g, '')}`}
                         className="flex items-center space-x-2 sm:space-x-3 px-3 sm:px-5 py-2 sm:py-3 text-slate-700 hover:bg-slate-50 transition-all duration-200 rounded-lg mx-1.5 sm:mx-2"
                         onClick={() => setShowUserMenu(false)}
                       >

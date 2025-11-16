@@ -2,6 +2,7 @@ import { Response } from 'express';
 import pool from '../config/database';
 import { AuthRequest } from '../types';
 import { successResponse, errorResponse, notFoundResponse, forbiddenResponse } from '../utils/response.utils';
+import { createMentions } from './mentions.controller';
 
 /**
  * Create new comment
@@ -42,7 +43,12 @@ export const createComment = async (req: AuthRequest, res: Response): Promise<vo
       [content, user.id, commentableType, commentableId]
     );
 
-    successResponse(res, { comment: result.rows[0] }, 'Comment created successfully', 201);
+    const comment = result.rows[0];
+
+    // Create mentions after successful comment creation
+    await createMentions(user.id, 'comment', comment.id, content);
+
+    successResponse(res, { comment }, 'Comment created successfully', 201);
   } catch (error) {
     console.error('Create comment error:', error);
     errorResponse(res, 'Server error');

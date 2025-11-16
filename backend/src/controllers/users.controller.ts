@@ -64,22 +64,43 @@ export const getUsers = async (req: AuthRequest, res: Response): Promise<void> =
 };
 
 /**
- * Get user by ID
+ * Get user by ID or username
  * GET /api/users/:id
+ * Supports both UUID and username
  */
 export const getUserById = async (req: AuthRequest, res: Response): Promise<void> => {
   try {
-    const userId = req.params.id;
+    const idOrUsername = req.params.id;
 
-    const result = await pool.query(`
-      SELECT 
-        id, display_name, avatar_url, reputation_points, 
-        role, is_verified, created_at,
-        (SELECT COUNT(*) FROM questions WHERE author_id = $1) as questions_count,
-        (SELECT COUNT(*) FROM answers WHERE author_id = $1) as answers_count
-      FROM public.users
-      WHERE id = $1
-    `, [userId]);
+    // Check if parameter is UUID or username
+    const isUUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(idOrUsername);
+    
+    let query;
+    if (isUUID) {
+      query = `
+        SELECT 
+          id, display_name, username, avatar_url, bio, reputation_points, 
+          role, is_verified, created_at,
+          (SELECT COUNT(*) FROM questions WHERE author_id = users.id) as questions_count,
+          (SELECT COUNT(*) FROM answers WHERE author_id = users.id) as answers_count,
+          (SELECT COUNT(*) FROM votes WHERE user_id = users.id) as total_votes
+        FROM public.users
+        WHERE id = $1
+      `;
+    } else {
+      query = `
+        SELECT 
+          id, display_name, username, avatar_url, bio, reputation_points, 
+          role, is_verified, created_at,
+          (SELECT COUNT(*) FROM questions WHERE author_id = users.id) as questions_count,
+          (SELECT COUNT(*) FROM answers WHERE author_id = users.id) as answers_count,
+          (SELECT COUNT(*) FROM votes WHERE user_id = users.id) as total_votes
+        FROM public.users
+        WHERE username = $1
+      `;
+    }
+
+    const result = await pool.query(query, [idOrUsername]);
 
     if (result.rows.length === 0) {
       notFoundResponse(res, 'User not found');
@@ -94,15 +115,64 @@ export const getUserById = async (req: AuthRequest, res: Response): Promise<void
 };
 
 /**
+ * Get user by username
+ * GET /api/users/username/:username
+ */
+export const getUserByUsername = async (req: AuthRequest, res: Response): Promise<void> => {
+  try {
+    const username = req.params.username;
+
+    const result = await pool.query(`
+      SELECT 
+        id, display_name, username, avatar_url, bio, reputation_points, 
+        role, is_verified, created_at,
+        (SELECT COUNT(*) FROM questions WHERE author_id = users.id) as questions_count,
+        (SELECT COUNT(*) FROM answers WHERE author_id = users.id) as answers_count,
+        (SELECT COUNT(*) FROM votes WHERE user_id = users.id) as total_votes
+      FROM public.users
+      WHERE username = $1
+    `, [username]);
+
+    if (result.rows.length === 0) {
+      notFoundResponse(res, 'User not found');
+      return;
+    }
+
+    successResponse(res, { user: result.rows[0] });
+  } catch (error) {
+    console.error('Get user by username error:', error);
+    errorResponse(res, 'Server error');
+  }
+};
+
+/**
  * Get user questions
  * GET /api/users/:id/questions
+ * Supports both UUID and username
  */
 export const getUserQuestions = async (req: AuthRequest, res: Response): Promise<void> => {
   try {
-    const userId = req.params.id;
+    const idOrUsername = req.params.id;
     const page = parseInt(req.query.page as string) || 1;
     const limit = parseInt(req.query.limit as string) || 10;
     const offset = (page - 1) * limit;
+
+    // Check if parameter is UUID or username
+    const isUUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(idOrUsername);
+    
+    // Get user ID from username if needed
+    let userId = idOrUsername;
+    if (!isUUID) {
+      const userResult = await pool.query(
+        'SELECT id FROM public.users WHERE username = $1',
+        [idOrUsername]
+      );
+      if (userResult.rows.length === 0) {
+        notFoundResponse(res, 'User not found');
+        return;
+      }
+      userId = userResult.rows[0].id;
+    }
 
     const result = await pool.query(`
       SELECT 
@@ -143,13 +213,31 @@ export const getUserQuestions = async (req: AuthRequest, res: Response): Promise
 /**
  * Get user answers
  * GET /api/users/:id/answers
+ * Supports both UUID and username
  */
 export const getUserAnswers = async (req: AuthRequest, res: Response): Promise<void> => {
   try {
-    const userId = req.params.id;
+    const idOrUsername = req.params.id;
     const page = parseInt(req.query.page as string) || 1;
     const limit = parseInt(req.query.limit as string) || 10;
     const offset = (page - 1) * limit;
+
+    // Check if parameter is UUID or username
+    const isUUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(idOrUsername);
+    
+    // Get user ID from username if needed
+    let userId = idOrUsername;
+    if (!isUUID) {
+      const userResult = await pool.query(
+        'SELECT id FROM public.users WHERE username = $1',
+        [idOrUsername]
+      );
+      if (userResult.rows.length === 0) {
+        notFoundResponse(res, 'User not found');
+        return;
+      }
+      userId = userResult.rows[0].id;
+    }
 
     const result = await pool.query(`
       SELECT 

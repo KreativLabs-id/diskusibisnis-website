@@ -7,6 +7,7 @@ interface User {
   id: string;
   email: string;
   displayName: string;
+  username?: string;
   avatarUrl?: string;
   role: string;
   reputationPoints: number;
@@ -62,6 +63,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
                 id: userData.id,
                 email: userData.email || parsedUser.email,
                 displayName: userData.displayName || userData.display_name,
+                username: userData.username,
                 avatarUrl: userData.avatarUrl || userData.avatar_url,
                 role: userData.role || parsedUser.role,
                 reputationPoints: userData.reputationPoints || userData.reputation_points || 0,
@@ -148,6 +150,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         id: userData.id,
         email: userData.email,
         displayName: userData.displayName || userData.display_name,
+        username: userData.username,
         avatarUrl: userData.avatarUrl || userData.avatar_url,
         role: userData.role,
         reputationPoints: userData.reputationPoints || userData.reputation_points || 0,
@@ -171,6 +174,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         id: userData.id,
         email: userData.email,
         displayName: userData.displayName || userData.display_name,
+        username: userData.username,
         avatarUrl: userData.avatarUrl || userData.avatar_url,
         role: userData.role,
         reputationPoints: userData.reputationPoints || userData.reputation_points || 0,

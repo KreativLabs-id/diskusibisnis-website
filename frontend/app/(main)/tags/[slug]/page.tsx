@@ -22,6 +22,7 @@ interface Question {
   title: string;
   content: string;
   author_name: string;
+  author_username?: string;
   author_avatar?: string;
   author_id?: string;
   author_is_verified?: boolean;
@@ -348,7 +349,7 @@ export default function TagDetailPage() {
                         
                         {/* Author */}
                         <Link
-                          href={`/profile/${question.author_id || 'unknown'}`}
+                          href={`/profile/${question.author_username || question.author_name?.toLowerCase().replace(/[^a-z0-9]/g, '') || 'unknown'}`}
                           className="flex items-center gap-1.5 sm:gap-2 hover:text-emerald-600 transition-colors"
                           onClick={(e) => e.stopPropagation()}
                         >

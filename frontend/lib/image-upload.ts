@@ -3,6 +3,9 @@ import { supabase } from './supabase';
 const BUCKET_NAME = 'question-images';
 const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB
 const ALLOWED_TYPES = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp'];
+const MAX_WIDTH = 1920; // Max width for images
+const MAX_HEIGHT = 1080; // Max height for images
+const COMPRESSION_QUALITY = 0.8; // 80% quality
 
 export interface UploadResult {
   url: string;
@@ -62,6 +65,11 @@ export const uploadImage = async (
       throw new Error(validation.error);
     }
 
+    // Compress image before upload (import from bottom of file)
+    console.log(`Original size: ${(file.size / 1024).toFixed(2)}KB`);
+    const compressedFile = await compressImage(file, MAX_WIDTH, MAX_HEIGHT, COMPRESSION_QUALITY);
+    console.log(`Compressed size: ${(compressedFile.size / 1024).toFixed(2)}KB`);
+
     // Generate unique filename
     const fileName = generateFileName(file.name);
     const filePath = `${userId}/${fileName}`;
@@ -69,7 +77,7 @@ export const uploadImage = async (
     // Upload to Supabase Storage
     const { data, error } = await supabase.storage
       .from(BUCKET_NAME)
-      .upload(filePath, file, {
+      .upload(filePath, compressedFile, {
         cacheControl: '3600',
         upsert: false
       });

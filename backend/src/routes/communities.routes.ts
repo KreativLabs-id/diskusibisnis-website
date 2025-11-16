@@ -33,8 +33,8 @@ router.post(
   createCommunity
 );
 
-// Get community by slug
-router.get('/:slug', getCommunityBySlug);
+// Get community by slug (optionalAuth to check membership status)
+router.get('/:slug', optionalAuth, getCommunityBySlug);
 
 // Join community
 router.post('/:slug/join', requireAuth, joinCommunity);

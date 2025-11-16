@@ -6,6 +6,8 @@ import { useRouter } from 'next/navigation';
 import { adminAPI } from '@/lib/api';
 import { MessageSquare, ArrowLeft, Search, Trash2, Eye, ThumbsUp, ThumbsDown, MessageCircle } from 'lucide-react';
 import Link from 'next/link';
+import AlertModal from '@/components/ui/AlertModal';
+import ConfirmModal from '@/components/ui/ConfirmModal';
 
 interface Question {
   id: string;
@@ -27,6 +29,22 @@ export default function AdminQuestions() {
   const [questions, setQuestions] = useState<Question[]>([]);
   const [questionsLoading, setQuestionsLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
+  const [alertModal, setAlertModal] = useState<{
+    isOpen: boolean;
+    type: 'success' | 'error' | 'warning' | 'info';
+    title: string;
+    message: string;
+  }>({ isOpen: false, type: 'info', title: '', message: '' });
+  const [confirmModal, setConfirmModal] = useState<{
+    isOpen: boolean;
+    title: string;
+    message: string;
+    onConfirm: () => void;
+  }>({ isOpen: false, title: '', message: '', onConfirm: () => {} });
+
+  const showAlert = (type: 'success' | 'error' | 'warning' | 'info', title: string, message: string) => {
+    setAlertModal({ isOpen: true, type, title, message });
+  };
 
   useEffect(() => {
     if (!loading && (!user || user.role !== 'admin')) {
@@ -51,17 +69,22 @@ export default function AdminQuestions() {
     }
   };
 
-  const handleDeleteQuestion = async (questionId: string, title: string) => {
-    if (!confirm(`Are you sure you want to delete the question "${title}"? This action cannot be undone and will also delete all answers and votes.`)) {
-      return;
-    }
-
-    try {
-      await adminAPI.deleteQuestion(questionId);
-      fetchQuestions(); // Refresh the list
-    } catch (error) {
-      console.error('Error deleting question:', error);
-    }
+  const handleDeleteQuestion = (questionId: string, title: string) => {
+    setConfirmModal({
+      isOpen: true,
+      title: 'Delete Question',
+      message: `Are you sure you want to delete the question "${title}"? This action cannot be undone and will also delete all answers and votes.`,
+      onConfirm: async () => {
+        try {
+          await adminAPI.deleteQuestion(questionId);
+          showAlert('success', 'Success', 'Question has been deleted');
+          fetchQuestions(); // Refresh the list
+        } catch (error) {
+          console.error('Error deleting question:', error);
+          showAlert('error', 'Error', 'Failed to delete question');
+        }
+      }
+    });
   };
 
   const filteredQuestions = questions.filter(q => 
@@ -210,6 +233,25 @@ export default function AdminQuestions() {
       <div className="mt-6 text-sm text-slate-500">
         Showing {filteredQuestions.length} of {questions.length} questions
       </div>
+
+      {/* Alert Modal */}
+      <AlertModal
+        isOpen={alertModal.isOpen}
+        onClose={() => setAlertModal({ ...alertModal, isOpen: false })}
+        type={alertModal.type}
+        title={alertModal.title}
+        message={alertModal.message}
+      />
+
+      {/* Confirm Modal */}
+      <ConfirmModal
+        isOpen={confirmModal.isOpen}
+        onClose={() => setConfirmModal({ ...confirmModal, isOpen: false })}
+        onConfirm={confirmModal.onConfirm}
+        title={confirmModal.title}
+        message={confirmModal.message}
+        type="danger"
+      />
     </div>
   );
 }

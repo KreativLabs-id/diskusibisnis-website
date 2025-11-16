@@ -10,6 +10,7 @@ import usersRoutes from './users.routes';
 import bookmarksRoutes from './bookmarks.routes';
 import notificationsRoutes from './notifications.routes';
 import adminRoutes from './admin.routes';
+import mentionsRoutes from './mentions.routes';
 
 const router = Router();
 
@@ -25,5 +26,6 @@ router.use('/users', usersRoutes);
 router.use('/bookmarks', bookmarksRoutes);
 router.use('/notifications', notificationsRoutes);
 router.use('/admin', adminRoutes);
+router.use('/mentions', mentionsRoutes);
 
 export default router;

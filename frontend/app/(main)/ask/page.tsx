@@ -6,6 +6,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { HelpCircle, Tag, Lightbulb, AlertCircle, ArrowLeft } from 'lucide-react';
 import api, { questionAPI } from '@/lib/api';
 import ImageUpload, { UploadedImage } from '@/components/ui/ImageUpload';
+import MentionInput from '@/components/ui/MentionInput';
 
 const suggestedTags = [
   'marketing',
@@ -27,7 +28,6 @@ export default function AskPage() {
   const [title, setTitle] = useState('');
   const [content, setContent] = useState('');
   const [communitySlug, setCommunitySlug] = useState('');
-  const [communities, setCommunities] = useState<any[]>([]);
   const [images, setImages] = useState<UploadedImage[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
@@ -44,29 +44,7 @@ export default function AskPage() {
     if (community) {
       setCommunitySlug(community);
     }
-    
-    // Fetch user's communities only if user is authenticated
-    if (user) {
-      fetchCommunities();
-    }
-  }, [searchParams, user]);
-
-  const fetchCommunities = async () => {
-    if (!user) {
-      // Jika user belum login, set communities kosong
-      setCommunities([]);
-      return;
-    }
-    
-    try {
-      const response = await api.get('/communities?member=true');
-      setCommunities(response.data.data.communities || []);
-    } catch (error) {
-      // Jika error, set kosong aja (user belum punya community)
-      console.error('Error fetching communities:', error);
-      setCommunities([]);
-    }
-  };
+  }, [searchParams]);
 
   const toggleTag = (tag: string) => {
     setSelectedTags((prev) =>
@@ -212,6 +190,20 @@ export default function AskPage() {
             Jelaskan kendala secara spesifik agar mentor dan pelaku usaha lain bisa memberikan solusi
             terbaik. Sertakan data yang relevan, konteks usaha, dan langkah yang sudah Anda coba.
           </p>
+          {communitySlug && (
+            <div className="mt-3 p-3 bg-emerald-50 border border-emerald-200 rounded-lg">
+              <p className="text-sm text-emerald-700">
+                📍 Pertanyaan ini akan diposting di komunitas <span className="font-semibold">{communitySlug}</span>
+              </p>
+            </div>
+          )}
+          {!communitySlug && (
+            <div className="mt-3 p-3 bg-blue-50 border border-blue-200 rounded-lg">
+              <p className="text-sm text-blue-700">
+                💡 <span className="font-semibold">Tips:</span> Untuk bertanya di komunitas spesifik, klik tombol "Buat Pertanyaan" dari halaman komunitas tersebut
+              </p>
+            </div>
+          )}
         </div>
 
         {error && (
@@ -228,29 +220,6 @@ export default function AskPage() {
           onSubmit={handleSubmit}
           className="bg-white border border-slate-200 rounded-2xl p-6 space-y-6 shadow-sm"
         >
-          <div>
-            <label htmlFor="community" className="block text-sm font-medium text-slate-700 mb-2">
-              Komunitas (Opsional)
-            </label>
-            <select
-              id="community"
-              name="community"
-              value={communitySlug}
-              onChange={(e) => setCommunitySlug(e.target.value)}
-              className="w-full px-4 py-3 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-500 text-sm bg-white"
-            >
-              <option value="">Semua Komunitas / Umum</option>
-              {communities.map((community) => (
-                <option key={community.id} value={community.slug}>
-                  {community.name}
-                </option>
-              ))}
-            </select>
-            <p className="text-xs text-slate-500 mt-1">
-              Pilih komunitas jika pertanyaan Anda spesifik untuk komunitas tersebut
-            </p>
-          </div>
-
           <div>
             <div className="flex items-center justify-between mb-2">
               <label htmlFor="title" className="block text-sm font-medium text-slate-700">
@@ -281,18 +250,17 @@ export default function AskPage() {
                 {content.length}/20 karakter
               </span>
             </div>
-            <textarea
-              id="content"
-              name="content"
-              rows={8}
+            <MentionInput
               value={content}
-              onChange={(e) => setContent(e.target.value)}
-              placeholder="Jelaskan latar belakang bisnis, masalah utama, data pendukung, dan solusi yang sudah dicoba..."
-              className="w-full px-4 py-3 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-500 text-sm"
-              required
+              onChange={setContent}
+              placeholder="Jelaskan latar belakang bisnis, masalah utama, data pendukung, dan solusi yang sudah dicoba... Ketik @ untuk mention user atau paste link"
+              className="text-sm"
+              minRows={8}
+              maxRows={20}
+              disabled={loading}
             />
             <p className="text-xs text-slate-500 mt-1">
-              Gunakan paragraf singkat, bullet point, atau angka untuk memudahkan pembaca.
+              Gunakan paragraf singkat, bullet point, atau angka untuk memudahkan pembaca. Ketik @ untuk mention user.
             </p>
           </div>
 

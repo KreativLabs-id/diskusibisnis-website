@@ -6,6 +6,7 @@ import Link from 'next/link';
 import { useAuth } from '@/contexts/AuthContext';
 import { ArrowLeft, Target, Users as UsersIcon, Lightbulb, Gift, Edit } from 'lucide-react';
 import api from '@/lib/api';
+import AlertModal from '@/components/ui/AlertModal';
 
 interface Community {
   id: string;
@@ -36,6 +37,16 @@ export default function CommunityAboutPage() {
     benefits: ''
   });
   const [saving, setSaving] = useState(false);
+  const [alertModal, setAlertModal] = useState<{
+    isOpen: boolean;
+    type: 'success' | 'error' | 'warning' | 'info';
+    title: string;
+    message: string;
+  }>({ isOpen: false, type: 'info', title: '', message: '' });
+
+  const showAlert = (type: 'success' | 'error' | 'warning' | 'info', title: string, message: string) => {
+    setAlertModal({ isOpen: true, type, title, message });
+  };
 
   useEffect(() => {
     loadCommunity();
@@ -66,8 +77,9 @@ export default function CommunityAboutPage() {
       await api.put(`/communities/${community.slug}/about`, formData);
       await loadCommunity();
       setEditing(false);
+      showAlert('success', 'Berhasil', 'Perubahan berhasil disimpan');
     } catch (error: any) {
-      alert(error.response?.data?.message || 'Gagal menyimpan perubahan');
+      showAlert('error', 'Gagal', error.response?.data?.message || 'Gagal menyimpan perubahan');
     } finally {
       setSaving(false);
     }
@@ -295,6 +307,15 @@ export default function CommunityAboutPage() {
           </div>
         )}
       </div>
+
+      {/* Alert Modal */}
+      <AlertModal
+        isOpen={alertModal.isOpen}
+        onClose={() => setAlertModal({ ...alertModal, isOpen: false })}
+        type={alertModal.type}
+        title={alertModal.title}
+        message={alertModal.message}
+      />
     </div>
   );
 }

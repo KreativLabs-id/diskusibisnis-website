@@ -12,6 +12,8 @@ interface Question {
   title: string;
   content: string;
   images?: string[];
+  author_id?: string;
+  author_username?: string;
   author_name: string;
   author_avatar: string;
   author_reputation: number;
@@ -27,6 +29,11 @@ interface Question {
 export default function QuestionCard({ question }: { question: Question }) {
   const router = useRouter();
   const plainContent = (question.content || '').replace(/<[^>]*>/g, '').trim();
+  
+  // Generate username from author_name if author_username is not available
+  const authorUsername = question.author_username || 
+    question.author_name.toLowerCase().replace(/[^a-z0-9]/g, '');
+  
   const preview =
     plainContent.length > 150 ? `${plainContent.substring(0, 150)}...` : plainContent;
 
@@ -122,7 +129,7 @@ export default function QuestionCard({ question }: { question: Question }) {
               fallbackName={question.author_name}
             />
             <Link
-              href={`/profile/${question.id}`}
+              href={`/profile/${authorUsername}`}
               onClick={(e) => e.stopPropagation()}
               className="flex flex-col"
             >

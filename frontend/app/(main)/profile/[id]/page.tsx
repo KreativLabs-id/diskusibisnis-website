@@ -50,11 +50,16 @@ export default function ProfilePage() {
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState<'questions' | 'answers'>('questions');
 
-  const isOwnProfile = currentUser?.id === params.id;
+  const idOrUsername = params.id as string;
+  const isUUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(idOrUsername);
+  const isOwnProfile = currentUser?.id === idOrUsername;
 
   const fetchProfile = async () => {
     try {
-      const response = await userAPI.getProfile(params.id as string);
+      // Jika UUID gunakan endpoint lama, jika username gunakan endpoint baru
+      const response = isUUID 
+        ? await userAPI.getProfile(idOrUsername)
+        : await userAPI.getProfileByUsername(idOrUsername);
       // Extract user data correctly
       let userData = null;
       if (response.data.data && response.data.data.user) {

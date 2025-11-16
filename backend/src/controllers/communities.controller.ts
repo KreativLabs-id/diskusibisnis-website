@@ -176,31 +176,58 @@ export const getCommunityBySlug = async (req: AuthRequest, res: Response): Promi
     const slug = req.params.slug;
     const currentUserId = req.user?.id || null;
 
-    const result = await pool.query(`
-      SELECT 
-        c.id, c.name, c.slug, c.description, c.category, c.location, c.created_at, c.created_by,
-        c.vision, c.mission, c.target_members, c.benefits,
-        u.display_name as creator_name,
-        COUNT(DISTINCT cm.id) as members_count,
-        CASE WHEN $2::uuid IS NOT NULL THEN 
-          EXISTS(SELECT 1 FROM community_members WHERE community_id = c.id AND user_id = $2::uuid)
-        ELSE FALSE END as is_member,
-        CASE WHEN $2::uuid IS NOT NULL THEN 
-          (SELECT role FROM community_members WHERE community_id = c.id AND user_id = $2::uuid)
-        ELSE NULL END as user_role
-      FROM public.communities c
-      LEFT JOIN public.users u ON c.created_by = u.id
-      LEFT JOIN public.community_members cm ON c.id = cm.community_id
-      WHERE c.slug = $1
-      GROUP BY c.id, u.display_name
-    `, [slug, currentUserId]);
+    console.log(`[getCommunityBySlug] Fetching community: ${slug}, userId: ${currentUserId}, type: ${typeof currentUserId}`);
+
+    // Build query based on whether user is authenticated
+    let query: string;
+    let params: any[];
+    
+    if (currentUserId) {
+      query = `
+        SELECT 
+          c.id, c.name, c.slug, c.description, c.category, c.location, c.created_at, c.created_by,
+          c.vision, c.mission, c.target_members, c.benefits,
+          u.display_name as creator_name,
+          COUNT(DISTINCT cm.id) as members_count,
+          CASE WHEN user_cm.user_id IS NOT NULL THEN TRUE ELSE FALSE END as is_member,
+          user_cm.role as user_role
+        FROM public.communities c
+        LEFT JOIN public.users u ON c.created_by = u.id
+        LEFT JOIN public.community_members cm ON c.id = cm.community_id
+        LEFT JOIN public.community_members user_cm ON c.id = user_cm.community_id AND user_cm.user_id = $2
+        WHERE c.slug = $1
+        GROUP BY c.id, u.display_name, user_cm.user_id, user_cm.role
+      `;
+      params = [slug, currentUserId];
+    } else {
+      query = `
+        SELECT 
+          c.id, c.name, c.slug, c.description, c.category, c.location, c.created_at, c.created_by,
+          c.vision, c.mission, c.target_members, c.benefits,
+          u.display_name as creator_name,
+          COUNT(DISTINCT cm.id) as members_count,
+          FALSE as is_member,
+          NULL as user_role
+        FROM public.communities c
+        LEFT JOIN public.users u ON c.created_by = u.id
+        LEFT JOIN public.community_members cm ON c.id = cm.community_id
+        WHERE c.slug = $1
+        GROUP BY c.id, u.display_name
+      `;
+      params = [slug];
+    }
+
+    const result = await pool.query(query, params);
 
     if (result.rows.length === 0) {
       notFoundResponse(res, 'Community not found');
       return;
     }
 
-    successResponse(res, { community: result.rows[0] });
+    const community = result.rows[0];
+    console.log(`[getCommunityBySlug] Result: is_member=${community.is_member}, user_role=${community.user_role}`);
+
+    successResponse(res, { community });
   } catch (error) {
     console.error('Get community error:', error);
     errorResponse(res, 'Server error');
@@ -221,6 +248,8 @@ export const joinCommunity = async (req: AuthRequest, res: Response): Promise<vo
 
     const slug = req.params.slug;
 
+    console.log(`[joinCommunity] User ${user.id} attempting to join ${slug}`);
+
     // Get community ID
     const communityResult = await pool.query(
       'SELECT id FROM public.communities WHERE slug = $1',
@@ -236,22 +265,27 @@ export const joinCommunity = async (req: AuthRequest, res: Response): Promise<vo
 
     // Check if already a member
     const existingMember = await pool.query(
-      'SELECT id FROM public.community_members WHERE community_id = $1 AND user_id = $2',
+      'SELECT id, role FROM public.community_members WHERE community_id = $1 AND user_id = $2',
       [communityId, user.id]
     );
 
+    console.log(`[joinCommunity] Existing membership check: ${existingMember.rows.length > 0 ? 'YES' : 'NO'}`);
+
     if (existingMember.rows.length > 0) {
-      errorResponse(res, 'You are already a member of this community', 400);
+      // Already a member - return success (idempotent)
+      console.log(`[joinCommunity] User is already a member with role: ${existingMember.rows[0].role}`);
+      successResponse(res, { already_member: true }, 'You are already a member of this community');
       return;
     }
 
     // Add as member
+    console.log(`[joinCommunity] Adding user as new member`);
     await pool.query(
       'INSERT INTO public.community_members (community_id, user_id, role) VALUES ($1, $2, $3)',
       [communityId, user.id, 'member']
     );
 
-    successResponse(res, null, 'Successfully joined community');
+    successResponse(res, { already_member: false }, 'Successfully joined community');
   } catch (error) {
     console.error('Join community error:', error);
     errorResponse(res, 'Server error');
@@ -298,7 +332,8 @@ export const leaveCommunity = async (req: AuthRequest, res: Response): Promise<v
     );
 
     if (membershipResult.rows.length === 0) {
-      errorResponse(res, 'You are not a member of this community', 400);
+      // Not a member - return success (idempotent)
+      successResponse(res, { already_left: true }, 'You are not a member of this community');
       return;
     }
 
@@ -308,7 +343,7 @@ export const leaveCommunity = async (req: AuthRequest, res: Response): Promise<v
       [communityId, user.id]
     );
 
-    successResponse(res, null, 'Successfully left community');
+    successResponse(res, { already_left: false }, 'Successfully left community');
   } catch (error) {
     console.error('Leave community error:', error);
     errorResponse(res, 'Server error');

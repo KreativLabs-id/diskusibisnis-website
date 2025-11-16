@@ -7,6 +7,8 @@ import { adminAPI } from '@/lib/api';
 import { Users, Ban, UserX, ArrowLeft, Search, Filter, MoreVertical, CheckCircle, XCircle } from 'lucide-react';
 import Link from 'next/link';
 import VerifiedBadge from '@/components/ui/VerifiedBadge';
+import AlertModal from '@/components/ui/AlertModal';
+import ConfirmModal from '@/components/ui/ConfirmModal';
 
 interface User {
   id: string;
@@ -27,6 +29,22 @@ export default function AdminUsers() {
   const [searchTerm, setSearchTerm] = useState('');
   const [filterRole, setFilterRole] = useState('all');
   const [filterStatus, setFilterStatus] = useState('all');
+  const [alertModal, setAlertModal] = useState<{
+    isOpen: boolean;
+    type: 'success' | 'error' | 'warning' | 'info';
+    title: string;
+    message: string;
+  }>({ isOpen: false, type: 'info', title: '', message: '' });
+  const [confirmModal, setConfirmModal] = useState<{
+    isOpen: boolean;
+    title: string;
+    message: string;
+    onConfirm: () => void;
+  }>({ isOpen: false, title: '', message: '', onConfirm: () => {} });
+
+  const showAlert = (type: 'success' | 'error' | 'warning' | 'info', title: string, message: string) => {
+    setAlertModal({ isOpen: true, type, title, message });
+  };
 
   useEffect(() => {
     if (!loading && (!user || user.role !== 'admin')) {
@@ -64,17 +82,22 @@ export default function AdminUsers() {
     }
   };
 
-  const handleDeleteUser = async (userId: string) => {
-    if (!confirm('Are you sure you want to delete this user? This action cannot be undone.')) {
-      return;
-    }
-
-    try {
-      await adminAPI.deleteUser(userId);
-      fetchUsers(); // Refresh the list
-    } catch (error) {
-      console.error('Error deleting user:', error);
-    }
+  const handleDeleteUser = (userId: string) => {
+    setConfirmModal({
+      isOpen: true,
+      title: 'Delete User',
+      message: 'Are you sure you want to delete this user? This action cannot be undone.',
+      onConfirm: async () => {
+        try {
+          await adminAPI.deleteUser(userId);
+          showAlert('success', 'Success', 'User has been deleted');
+          fetchUsers(); // Refresh the list
+        } catch (error) {
+          console.error('Error deleting user:', error);
+          showAlert('error', 'Error', 'Failed to delete user');
+        }
+      }
+    });
   };
 
   const handleVerifyUser = async (userId: string, isVerified: boolean) => {
@@ -285,6 +308,25 @@ export default function AdminUsers() {
       <div className="mt-6 text-sm text-slate-500">
         Showing {filteredUsers.length} of {users.length} users
       </div>
+
+      {/* Alert Modal */}
+      <AlertModal
+        isOpen={alertModal.isOpen}
+        onClose={() => setAlertModal({ ...alertModal, isOpen: false })}
+        type={alertModal.type}
+        title={alertModal.title}
+        message={alertModal.message}
+      />
+
+      {/* Confirm Modal */}
+      <ConfirmModal
+        isOpen={confirmModal.isOpen}
+        onClose={() => setConfirmModal({ ...confirmModal, isOpen: false })}
+        onConfirm={confirmModal.onConfirm}
+        title={confirmModal.title}
+        message={confirmModal.message}
+        type="danger"
+      />
     </div>
   );
 }

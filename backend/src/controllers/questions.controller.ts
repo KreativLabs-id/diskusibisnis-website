@@ -3,6 +3,7 @@ import pool from '../config/database';
 import { AuthRequest } from '../types';
 import { successResponse, errorResponse, notFoundResponse, forbiddenResponse } from '../utils/response.utils';
 import { generateUniqueSlug } from '../utils/slug.utils';
+import { createMentions } from './mentions.controller';
 
 /**
  * Get all questions with filters
@@ -248,6 +249,9 @@ export const createQuestion = async (req: AuthRequest, res: Response): Promise<v
       }
 
       await client.query('COMMIT');
+
+      // Create mentions after successful question creation
+      await createMentions(user.id, 'question', question.id, content);
 
       successResponse(res, { question }, 'Question created successfully', 201);
     } catch (error) {

@@ -49,12 +49,15 @@ const ImageGallery: React.FC<ImageGalleryProps> = ({ images, className = '' }) =
         {images.length === 1 && (
           <div className="relative aspect-video w-full max-w-2xl rounded-lg overflow-hidden border border-gray-200 cursor-pointer group bg-white"
                onClick={() => openLightbox(0)}>
-            <img
+            <Image
               src={images[0]}
               alt="Question image"
-              className="w-full h-full object-contain"
+              fill
+              className="object-contain"
+              sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+              loading="lazy"
             />
-            <div className="absolute inset-0 bg-transparent group-hover:bg-black/20 transition-all flex items-center justify-center">
+            <div className="absolute inset-0 bg-transparent group-hover:bg-black/20 transition-all flex items-center justify-center z-10">
               <ZoomIn className="w-8 h-8 text-white opacity-0 group-hover:opacity-100 transition-opacity" />
             </div>
           </div>
@@ -66,12 +69,15 @@ const ImageGallery: React.FC<ImageGalleryProps> = ({ images, className = '' }) =
               <div key={index}
                    className="relative aspect-video rounded-lg overflow-hidden border border-gray-200 cursor-pointer group bg-white"
                    onClick={() => openLightbox(index)}>
-                <img
+                <Image
                   src={image}
                   alt={`Question image ${index + 1}`}
-                  className="w-full h-full object-contain"
+                  fill
+                  className="object-contain"
+                  sizes="(max-width: 768px) 100vw, 50vw"
+                  loading="lazy"
                 />
-                <div className="absolute inset-0 bg-transparent group-hover:bg-black/20 transition-all flex items-center justify-center">
+                <div className="absolute inset-0 bg-transparent group-hover:bg-black/20 transition-all flex items-center justify-center z-10">
                   <ZoomIn className="w-6 h-6 text-white opacity-0 group-hover:opacity-100 transition-opacity" />
                 </div>
               </div>
@@ -83,12 +89,15 @@ const ImageGallery: React.FC<ImageGalleryProps> = ({ images, className = '' }) =
           <div className="grid grid-cols-2 gap-3">
             <div className="relative aspect-video col-span-2 rounded-lg overflow-hidden border border-gray-200 cursor-pointer group bg-white"
                  onClick={() => openLightbox(0)}>
-              <img
+              <Image
                 src={images[0]}
                 alt="Question image 1"
-                className="w-full h-full object-contain"
+                fill
+                className="object-contain"
+                sizes="(max-width: 768px) 100vw, 66vw"
+                loading="lazy"
               />
-              <div className="absolute inset-0 bg-transparent group-hover:bg-black/20 transition-all flex items-center justify-center">
+              <div className="absolute inset-0 bg-transparent group-hover:bg-black/20 transition-all flex items-center justify-center z-10">
                 <ZoomIn className="w-7 h-7 text-white opacity-0 group-hover:opacity-100 transition-opacity" />
               </div>
             </div>
@@ -96,12 +105,15 @@ const ImageGallery: React.FC<ImageGalleryProps> = ({ images, className = '' }) =
               <div key={index + 1}
                    className="relative aspect-video rounded-lg overflow-hidden border border-gray-200 cursor-pointer group bg-white"
                    onClick={() => openLightbox(index + 1)}>
-                <img
+                <Image
                   src={image}
                   alt={`Question image ${index + 2}`}
-                  className="w-full h-full object-contain"
+                  fill
+                  className="object-contain"
+                  sizes="(max-width: 768px) 100vw, 33vw"
+                  loading="lazy"
                 />
-                <div className="absolute inset-0 bg-transparent group-hover:bg-black/20 transition-all flex items-center justify-center">
+                <div className="absolute inset-0 bg-transparent group-hover:bg-black/20 transition-all flex items-center justify-center z-10">
                   <ZoomIn className="w-6 h-6 text-white opacity-0 group-hover:opacity-100 transition-opacity" />
                 </div>
               </div>
@@ -115,19 +127,22 @@ const ImageGallery: React.FC<ImageGalleryProps> = ({ images, className = '' }) =
               <div key={index}
                    className="relative aspect-video rounded-lg overflow-hidden border border-gray-200 cursor-pointer group bg-white"
                    onClick={() => openLightbox(index)}>
-                <img
+                <Image
                   src={image}
                   alt={`Question image ${index + 1}`}
-                  className="w-full h-full object-contain"
+                  fill
+                  className="object-contain"
+                  sizes="(max-width: 768px) 50vw, 33vw"
+                  loading="lazy"
                 />
                 {index === 3 && images.length > 4 && (
-                  <div className="absolute inset-0 bg-black/60 flex items-center justify-center">
+                  <div className="absolute inset-0 bg-black/60 flex items-center justify-center z-10">
                     <span className="text-white text-2xl font-bold">
                       +{images.length - 4}
                     </span>
                   </div>
                 )}
-                <div className="absolute inset-0 bg-transparent group-hover:bg-black/20 transition-all flex items-center justify-center">
+                <div className="absolute inset-0 bg-transparent group-hover:bg-black/20 transition-all flex items-center justify-center z-10">
                   <ZoomIn className="w-6 h-6 text-white opacity-0 group-hover:opacity-100 transition-opacity" />
                 </div>
               </div>
@@ -184,13 +199,17 @@ const ImageGallery: React.FC<ImageGalleryProps> = ({ images, className = '' }) =
 
           {/* Image */}
           <div 
-            className="relative max-w-7xl max-h-full"
+            className="relative max-w-7xl max-h-[90vh] w-full"
             onClick={(e) => e.stopPropagation()}
           >
-            <img
+            <Image
               src={images[selectedImageIndex]}
               alt={`Image ${selectedImageIndex + 1}`}
-              className="max-w-full max-h-[90vh] object-contain rounded-lg"
+              width={1920}
+              height={1080}
+              className="max-w-full max-h-[90vh] object-contain rounded-lg w-auto h-auto"
+              quality={90}
+              priority
             />
           </div>
         </div>

@@ -127,7 +127,7 @@ export default function Sidebar({ onItemClick }: SidebarProps) {
   ] : [];
 
   const profileItems = user ? [
-    { href: `/profile/${user.id}`, icon: User, label: 'Profil Saya' },
+    { href: `/profile/${user.username || user.displayName?.toLowerCase().replace(/[^a-z0-9]/g, '')}`, icon: User, label: 'Profil Saya' },
     { href: '/settings', icon: Settings, label: 'Pengaturan' },
   ] : [];
 

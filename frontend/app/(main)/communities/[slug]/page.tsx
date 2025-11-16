@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { useAuth } from '@/contexts/AuthContext';
@@ -21,6 +21,7 @@ import { formatDate } from '@/lib/utils';
 import VerifiedBadge from '@/components/ui/VerifiedBadge';
 import UserAvatar from '@/components/ui/UserAvatar';
 import AlertModal from '@/components/ui/AlertModal';
+import ConfirmModal from '@/components/ui/ConfirmModal';
 
 interface Community {
   id: string;
@@ -60,6 +61,7 @@ export default function CommunityDetailPage() {
   const [questions, setQuestions] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [joining, setJoining] = useState(false);
+  const joiningRef = useRef(false);
   const [activeTab, setActiveTab] = useState<'questions' | 'overview' | 'members'>('questions');
   const [alertModal, setAlertModal] = useState<{
     isOpen: boolean;
@@ -67,6 +69,13 @@ export default function CommunityDetailPage() {
     title: string;
     message: string;
   }>({ isOpen: false, type: 'info', title: '', message: '' });
+  const [confirmModal, setConfirmModal] = useState<{
+    isOpen: boolean;
+    title: string;
+    message: string;
+    onConfirm: () => void;
+    type?: 'danger' | 'warning' | 'info';
+  }>({ isOpen: false, title: '', message: '', onConfirm: () => {}, type: 'danger' });
 
   const showAlert = (type: 'success' | 'error' | 'warning' | 'info', title: string, message: string) => {
     setAlertModal({ isOpen: true, type, title, message });
@@ -74,16 +83,34 @@ export default function CommunityDetailPage() {
 
   useEffect(() => {
     if (params.slug) {
+      console.log('Fetching community data for slug:', params.slug, 'user:', user?.id);
       fetchCommunity();
       fetchMembers();
       fetchQuestions();
     }
-  }, [params.slug]);
+  }, [params.slug, user?.id]); // Re-fetch when user changes
+
+  // Force refresh when joining state changes (after operation completes)
+  useEffect(() => {
+    if (!joining && community && user) {
+      console.log('Joining completed, checking membership status');
+      // Small delay to ensure backend has processed
+      const timer = setTimeout(() => {
+        fetchCommunity();
+      }, 500);
+      return () => clearTimeout(timer);
+    }
+  }, [joining]);
 
   const fetchCommunity = async () => {
     try {
       const response = await api.get(`/communities/${params.slug}`);
-      setCommunity(response.data.data.community);
+      const communityData = response.data.data.community;
+      console.log('Community data fetched:', { 
+        is_member: communityData.is_member, 
+        user_role: communityData.user_role 
+      });
+      setCommunity(communityData);
     } catch (error) {
       console.error('Error fetching community:', error);
     } finally {
@@ -115,80 +142,128 @@ export default function CommunityDetailPage() {
       return;
     }
 
+    // Prevent if already member or already joining (using ref for immediate check)
+    if (community?.is_member || joining || joiningRef.current) {
+      console.log('Join prevented - already member or processing');
+      return;
+    }
+
+    console.log('Attempting to join community:', params.slug);
+    joiningRef.current = true;
     setJoining(true);
     try {
       const response = await api.post(`/communities/${params.slug}/join`);
+      console.log('Join response:', response.data);
       
       if (response.data.success) {
-        setCommunity(prev => prev ? {
-          ...prev,
-          is_member: true,
-          members_count: prev.members_count + 1
-        } : null);
-        fetchMembers(); // Refresh members list
+        // Update state only if not already member
+        const alreadyMember = response.data.data?.already_member;
+        console.log('Already member?', alreadyMember);
+        
+        // Force refresh community data from server to ensure sync
+        await fetchCommunity();
+        await fetchMembers();
+        
+        if (!alreadyMember) {
+          showAlert('success', 'Berhasil', 'Anda telah bergabung dengan komunitas');
+        }
       }
     } catch (error: any) {
       console.error('Error joining community:', error);
-      showAlert('error', 'Gagal Bergabung', error.response?.data?.message || 'Gagal bergabung dengan komunitas');
+      
+      // If error says already a member, just refresh the community data
+      const errorMessage = error.response?.data?.message || '';
+      if (error.response?.status === 400 && errorMessage.toLowerCase().includes('already')) {
+        // User is already a member, just refresh to update UI
+        await fetchCommunity();
+        await fetchMembers();
+      } else {
+        showAlert('error', 'Gagal Bergabung', errorMessage || 'Gagal bergabung dengan komunitas');
+      }
     } finally {
       setJoining(false);
+      joiningRef.current = false;
     }
   };
 
-  const handleLeaveCommunity = async () => {
+  const handleLeaveCommunity = () => {
     if (!user) return;
 
-    if (!window.confirm('Apakah Anda yakin ingin keluar dari komunitas ini?')) {
+    // Prevent if not member or already processing (using ref for immediate check)
+    if (!community?.is_member || joining || joiningRef.current) {
+      console.log('Leave prevented - not member or processing');
       return;
     }
 
-    setJoining(true);
-    try {
-      const response = await api.post(`/communities/${params.slug}/leave`);
-      
-      if (response.data.success) {
-        setCommunity(prev => prev ? {
-          ...prev,
-          is_member: false,
-          members_count: Math.max(0, prev.members_count - 1)
-        } : null);
-        fetchMembers();
-        showAlert('success', 'Berhasil', 'Anda telah keluar dari komunitas');
+    setConfirmModal({
+      isOpen: true,
+      title: 'Keluar dari Komunitas',
+      message: 'Apakah Anda yakin ingin keluar dari komunitas ini?',
+      type: 'warning',
+      onConfirm: async () => {
+        joiningRef.current = true;
+        setJoining(true);
+        try {
+          const response = await api.post(`/communities/${params.slug}/leave`);
+          
+          if (response.data.success) {
+            const alreadyLeft = response.data.data?.already_left;
+            setCommunity(prev => prev ? {
+              ...prev,
+              is_member: false,
+              members_count: alreadyLeft ? prev.members_count : Math.max(0, prev.members_count - 1)
+            } : null);
+            fetchMembers();
+            
+            if (!alreadyLeft) {
+              showAlert('success', 'Berhasil', 'Anda telah keluar dari komunitas');
+            }
+          }
+        } catch (error: any) {
+          console.error('Error leaving community:', error);
+          showAlert('error', 'Gagal Keluar', error.response?.data?.message || 'Gagal keluar dari komunitas');
+        } finally {
+          setJoining(false);
+          joiningRef.current = false;
+        }
       }
-    } catch (error: any) {
-      console.error('Error leaving community:', error);
-      showAlert('error', 'Gagal Keluar', error.response?.data?.message || 'Gagal keluar dari komunitas');
-    } finally {
-      setJoining(false);
-    }
+    });
   };
 
-  const handlePromoteMember = async (userId: string) => {
-    if (!window.confirm('Promosikan anggota ini menjadi admin?')) {
-      return;
-    }
-
-    try {
-      await api.post(`/communities/${params.slug}/members/${userId}/promote`);
-      showAlert('success', 'Berhasil', 'Anggota berhasil dipromosikan menjadi admin');
-      fetchMembers();
-    } catch (error: any) {
-      showAlert('error', 'Gagal', error.response?.data?.message || 'Gagal mempromosikan anggota');
-    }
+  const handlePromoteMember = (userId: string) => {
+    setConfirmModal({
+      isOpen: true,
+      title: 'Promosi Anggota',
+      message: 'Promosikan anggota ini menjadi admin?',
+      type: 'info',
+      onConfirm: async () => {
+        try {
+          await api.post(`/communities/${params.slug}/members/${userId}/promote`);
+          showAlert('success', 'Berhasil', 'Anggota berhasil dipromosikan menjadi admin');
+          fetchMembers();
+        } catch (error: any) {
+          showAlert('error', 'Gagal', error.response?.data?.message || 'Gagal mempromosikan anggota');
+        }
+      }
+    });
   };
 
-  const handleDemoteMember = async (userId: string) => {
-    if (!window.confirm('Turunkan admin ini menjadi anggota biasa?')) {
-      return;
-    }
-
-    try {
-      await api.post(`/communities/${params.slug}/members/${userId}/demote`);
-      showAlert('success', 'Berhasil', 'Admin berhasil diturunkan menjadi anggota');
-      fetchMembers();
-    } catch (error: any) {
-      showAlert('error', 'Gagal', error.response?.data?.message || 'Gagal menurunkan admin');
-    }
+  const handleDemoteMember = (userId: string) => {
+    setConfirmModal({
+      isOpen: true,
+      title: 'Turunkan Admin',
+      message: 'Turunkan admin ini menjadi anggota biasa?',
+      type: 'warning',
+      onConfirm: async () => {
+        try {
+          await api.post(`/communities/${params.slug}/members/${userId}/demote`);
+          showAlert('success', 'Berhasil', 'Admin berhasil diturunkan menjadi anggota');
+          fetchMembers();
+        } catch (error: any) {
+          showAlert('error', 'Gagal', error.response?.data?.message || 'Gagal menurunkan admin');
+        }
+      }
+    });
   };
 
   const getRoleIcon = (role: string) => {
@@ -469,7 +544,11 @@ export default function CommunityDetailPage() {
                           <div className="flex items-center gap-1">
                             <span className="text-emerald-600 font-medium">↑ {question.upvote_count}</span>
                           </div>
-                          <div className="flex items-center gap-2">
+                          <Link
+                            href={`/profile/${question.author_username || question.author_name?.toLowerCase().replace(/[^a-z0-9]/g, '') || 'unknown'}`}
+                            className="flex items-center gap-2 hover:text-emerald-600 transition-colors"
+                            onClick={(e) => e.stopPropagation()}
+                          >
                             <UserAvatar
                               src={question.author_avatar}
                               alt={question.author_name}
@@ -480,7 +559,7 @@ export default function CommunityDetailPage() {
                             {question.author_verified && (
                               <VerifiedBadge isVerified={true} size="sm" />
                             )}
-                          </div>
+                          </Link>
                         </div>
                         
                         {question.tags && question.tags.length > 0 && (
@@ -572,52 +651,59 @@ export default function CommunityDetailPage() {
                   </div>
                 ) : (
                   <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
-                    {members.map((member) => (
-                      <div key={member.id} className="flex flex-col gap-2 p-3 sm:p-4 bg-slate-50 rounded-lg">
-                        <div className="flex items-center gap-3">
-                          <UserAvatar
-                            src={member.avatar_url}
-                            alt={member.display_name}
-                            size="md"
-                            fallbackName={member.display_name}
-                          />
-                          <div className="flex-1 min-w-0">
-                            <div className="flex items-center gap-2">
-                              <p className="text-sm sm:text-base font-medium text-slate-900 truncate">
-                                {member.display_name}
+                    {members.map((member) => {
+                      const memberUsername = (member as any).username || member.display_name?.toLowerCase().replace(/[^a-z0-9]/g, '');
+                      
+                      return (
+                        <div key={member.id} className="flex flex-col gap-2 p-3 sm:p-4 bg-slate-50 rounded-lg">
+                          <Link 
+                            href={`/profile/${memberUsername}`}
+                            className="flex items-center gap-3 hover:opacity-80 transition-opacity"
+                          >
+                            <UserAvatar
+                              src={member.avatar_url}
+                              alt={member.display_name}
+                              size="md"
+                              fallbackName={member.display_name}
+                            />
+                            <div className="flex-1 min-w-0">
+                              <div className="flex items-center gap-2">
+                                <p className="text-sm sm:text-base font-medium text-slate-900 truncate">
+                                  {member.display_name}
+                                </p>
+                                <VerifiedBadge isVerified={member.is_verified || false} size="sm" />
+                                {getRoleIcon(member.role)}
+                              </div>
+                              <p className="text-xs sm:text-sm text-slate-500">
+                                {getRoleLabel(member.role)} • Bergabung {formatDate(member.joined_at)}
                               </p>
-                              <VerifiedBadge isVerified={member.is_verified || false} size="sm" />
-                              {getRoleIcon(member.role)}
                             </div>
-                            <p className="text-xs sm:text-sm text-slate-500">
-                              {getRoleLabel(member.role)} • Bergabung {formatDate(member.joined_at)}
-                            </p>
-                          </div>
+                          </Link>
+                          
+                          {/* Admin Actions */}
+                          {user && community.created_by === user.id && member.user_id !== user.id && (
+                            <div className="flex gap-2 mt-2">
+                              {member.role === 'member' && (
+                                <button
+                                  onClick={() => handlePromoteMember(member.user_id)}
+                                  className="flex-1 px-3 py-1.5 text-xs bg-emerald-500 text-white rounded hover:bg-emerald-600"
+                                >
+                                  Jadikan Admin
+                                </button>
+                              )}
+                              {member.role === 'admin' && (
+                                <button
+                                  onClick={() => handleDemoteMember(member.user_id)}
+                                  className="flex-1 px-3 py-1.5 text-xs bg-yellow-500 text-white rounded hover:bg-yellow-600"
+                                >
+                                  Turunkan ke Anggota
+                                </button>
+                              )}
+                            </div>
+                          )}
                         </div>
-                        
-                        {/* Admin Actions */}
-                        {user && community.created_by === user.id && member.user_id !== user.id && (
-                          <div className="flex gap-2 mt-2">
-                            {member.role === 'member' && (
-                              <button
-                                onClick={() => handlePromoteMember(member.user_id)}
-                                className="flex-1 px-3 py-1.5 text-xs bg-emerald-500 text-white rounded hover:bg-emerald-600"
-                              >
-                                Jadikan Admin
-                              </button>
-                            )}
-                            {member.role === 'admin' && (
-                              <button
-                                onClick={() => handleDemoteMember(member.user_id)}
-                                className="flex-1 px-3 py-1.5 text-xs bg-yellow-500 text-white rounded hover:bg-yellow-600"
-                              >
-                                Turunkan ke Anggota
-                              </button>
-                            )}
-                          </div>
-                        )}
-                      </div>
-                    ))}
+                      );
+                    })}
                   </div>
                 )}
               </div>
@@ -633,6 +719,16 @@ export default function CommunityDetailPage() {
         type={alertModal.type}
         title={alertModal.title}
         message={alertModal.message}
+      />
+
+      {/* Confirm Modal */}
+      <ConfirmModal
+        isOpen={confirmModal.isOpen}
+        onClose={() => setConfirmModal({ ...confirmModal, isOpen: false })}
+        onConfirm={confirmModal.onConfirm}
+        title={confirmModal.title}
+        message={confirmModal.message}
+        type={confirmModal.type}
       />
     </div>
   );

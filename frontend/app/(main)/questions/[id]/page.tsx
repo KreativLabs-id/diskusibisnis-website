@@ -21,9 +21,12 @@ import VerifiedBadge from '@/components/ui/VerifiedBadge';
 import UserAvatar from '@/components/ui/UserAvatar';
 import FloatingActionButton from '@/components/ui/FloatingActionButton';
 import AlertModal from '@/components/ui/AlertModal';
+import ConfirmModal from '@/components/ui/ConfirmModal';
 import VoteSection from '@/components/ui/VoteSection';
 import VoteButton from '@/components/ui/VoteButton';
 import ImageGallery from '@/components/ui/ImageGallery';
+import MentionInput from '@/components/ui/MentionInput';
+import RichTextParser from '@/components/ui/RichTextParser';
 
 interface QuestionData {
   id: string;
@@ -32,6 +35,7 @@ interface QuestionData {
   images?: string[];
   author_id: string;
   author_name: string;
+  author_username?: string;
   author_avatar?: string;
   author_reputation: number;
   author_is_verified: boolean;
@@ -47,6 +51,7 @@ interface QuestionData {
     content: string;
     author_id: string;
     author_name: string;
+    author_username?: string;
     author_avatar?: string;
     author_reputation: number;
     author_is_verified: boolean;
@@ -76,6 +81,12 @@ export default function QuestionDetailPage() {
     title: string;
     message: string;
   }>({ isOpen: false, type: 'info', title: '', message: '' });
+  const [confirmModal, setConfirmModal] = useState<{
+    isOpen: boolean;
+    title: string;
+    message: string;
+    onConfirm: () => void;
+  }>({ isOpen: false, title: '', message: '', onConfirm: () => {} });
 
   const showAlert = (type: 'success' | 'error' | 'warning' | 'info', title: string, message: string) => {
     setAlertModal({ isOpen: true, type, title, message });
@@ -276,29 +287,31 @@ export default function QuestionDetailPage() {
     }
   };
 
-  const handleDeleteQuestion = async () => {
-    if (!confirm('Apakah Anda yakin ingin menghapus pertanyaan ini?')) {
-      return;
-    }
-
-    try {
-      console.log('Deleting question:', params.id);
-      console.log('User:', user);
-      const response = await questionAPI.delete(params.id as string);
-      console.log('Delete response:', response);
-      showAlert('success', 'Berhasil', 'Pertanyaan berhasil dihapus');
-      setTimeout(() => router.push('/'), 1500);
-      return;
-    } catch (error: any) {
-      console.error('Error deleting question:', error);
-      if (error.response?.status === 401) {
-        showAlert('warning', 'Login Diperlukan', 'Anda harus login untuk menghapus pertanyaan');
-      } else if (error.response?.status === 403) {
-        showAlert('error', 'Akses Ditolak', 'Anda tidak memiliki izin untuk menghapus pertanyaan ini');
-      } else {
-        showAlert('error', 'Gagal Menghapus', error.response?.data?.message || error.message);
+  const handleDeleteQuestion = () => {
+    setConfirmModal({
+      isOpen: true,
+      title: 'Hapus Pertanyaan',
+      message: 'Apakah Anda yakin ingin menghapus pertanyaan ini? Tindakan ini tidak dapat dibatalkan.',
+      onConfirm: async () => {
+        try {
+          console.log('Deleting question:', params.id);
+          console.log('User:', user);
+          const response = await questionAPI.delete(params.id as string);
+          console.log('Delete response:', response);
+          showAlert('success', 'Berhasil', 'Pertanyaan berhasil dihapus');
+          setTimeout(() => router.push('/'), 1500);
+        } catch (error: any) {
+          console.error('Error deleting question:', error);
+          if (error.response?.status === 401) {
+            showAlert('warning', 'Login Diperlukan', 'Anda harus login untuk menghapus pertanyaan');
+          } else if (error.response?.status === 403) {
+            showAlert('error', 'Akses Ditolak', 'Anda tidak memiliki izin untuk menghapus pertanyaan ini');
+          } else {
+            showAlert('error', 'Gagal Menghapus', error.response?.data?.message || error.message);
+          }
+        }
       }
-    }
+    });
   };
 
   const handleEditQuestion = () => {
@@ -341,19 +354,22 @@ export default function QuestionDetailPage() {
     }
   };
 
-  const handleDeleteAnswer = async (answerId: string) => {
-    if (!confirm('Apakah Anda yakin ingin menghapus jawaban ini?')) {
-      return;
-    }
-
-    try {
-      await answerAPI.delete(answerId);
-      showAlert('success', 'Berhasil', 'Jawaban berhasil dihapus');
-      fetchQuestion();
-    } catch (error: any) {
-      console.error('Error deleting answer:', error);
-      showAlert('error', 'Gagal', error.response?.data?.message || 'Gagal menghapus jawaban');
-    }
+  const handleDeleteAnswer = (answerId: string) => {
+    setConfirmModal({
+      isOpen: true,
+      title: 'Hapus Jawaban',
+      message: 'Apakah Anda yakin ingin menghapus jawaban ini? Tindakan ini tidak dapat dibatalkan.',
+      onConfirm: async () => {
+        try {
+          await answerAPI.delete(answerId);
+          showAlert('success', 'Berhasil', 'Jawaban berhasil dihapus');
+          fetchQuestion();
+        } catch (error: any) {
+          console.error('Error deleting answer:', error);
+          showAlert('error', 'Gagal', error.response?.data?.message || 'Gagal menghapus jawaban');
+        }
+      }
+    });
   };
 
   const handleBookmark = async () => {
@@ -497,7 +513,10 @@ export default function QuestionDetailPage() {
             
               {/* Question Content */}
               <div className="prose max-w-none mb-4 sm:mb-6">
-                <p className="text-gray-700 text-sm sm:text-base leading-relaxed break-words">{question.content}</p>
+                <RichTextParser 
+                  content={question.content} 
+                  className="text-gray-700 text-sm sm:text-base leading-relaxed" 
+                />
               </div>
 
               {/* Question Images */}
@@ -552,19 +571,25 @@ export default function QuestionDetailPage() {
                       </button>
                     </div>
                   )}
-                  <UserAvatar
-                    src={question.author_avatar}
-                    alt={question.author_name}
-                    size="sm"
-                    fallbackName={question.author_name}
-                  />
-                  <div>
-                    <div className="flex items-center gap-1">
-                      <p className="font-medium text-slate-900 text-xs sm:text-sm">{question.author_name}</p>
-                      <VerifiedBadge isVerified={question.author_is_verified} size="sm" />
+                  <Link
+                    href={`/profile/${question.author_username || question.author_name?.toLowerCase().replace(/[^a-z0-9]/g, '')}`}
+                    className="flex items-center gap-2 hover:opacity-80 transition-opacity"
+                    onClick={(e) => e.stopPropagation()}
+                  >
+                    <UserAvatar
+                      src={question.author_avatar}
+                      alt={question.author_name}
+                      size="sm"
+                      fallbackName={question.author_name}
+                    />
+                    <div>
+                      <div className="flex items-center gap-1">
+                        <p className="font-medium text-slate-900 text-xs sm:text-sm">{question.author_name}</p>
+                        <VerifiedBadge isVerified={question.author_is_verified} size="sm" />
+                      </div>
+                      <p className="text-xs text-slate-500">{formatDate(question.created_at)}</p>
                     </div>
-                    <p className="text-xs text-slate-500">{formatDate(question.created_at)}</p>
-                  </div>
+                  </Link>
                 </div>
               </div>
             </div>
@@ -623,12 +648,13 @@ export default function QuestionDetailPage() {
 
                   {editingAnswerId === answer.id ? (
                     <div className="mb-3 sm:mb-4">
-                      <textarea
+                      <MentionInput
                         value={editAnswerContent}
-                        onChange={(e) => setEditAnswerContent(e.target.value)}
-                        rows={6}
-                        className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent outline-none text-sm"
-                        placeholder="Edit jawaban Anda..."
+                        onChange={setEditAnswerContent}
+                        placeholder="Edit jawaban Anda... Ketik @ untuk mention"
+                        className="text-sm"
+                        minRows={6}
+                        maxRows={15}
                       />
                       <div className="flex gap-2 mt-2">
                         <button
@@ -647,12 +673,19 @@ export default function QuestionDetailPage() {
                     </div>
                   ) : (
                     <div className="prose max-w-none mb-3 sm:mb-4">
-                      <p className="text-gray-700 text-sm sm:text-base leading-relaxed break-words">{answer.content}</p>
+                      <RichTextParser 
+                        content={answer.content} 
+                        className="text-gray-700 text-sm sm:text-base leading-relaxed" 
+                      />
                     </div>
                   )}
 
                   <div className="space-y-2 sm:space-y-0 sm:flex sm:items-center sm:justify-between pt-3 sm:pt-4 border-t border-slate-200">
-                    <div className="flex items-center gap-2">
+                    <Link
+                      href={`/profile/${answer.author_username || answer.author_name?.toLowerCase().replace(/[^a-z0-9]/g, '')}`}
+                      className="flex items-center gap-2 hover:opacity-80 transition-opacity"
+                      onClick={(e) => e.stopPropagation()}
+                    >
                       <UserAvatar
                         src={answer.author_avatar}
                         alt={answer.author_name}
@@ -668,7 +701,7 @@ export default function QuestionDetailPage() {
                           {answer.author_reputation || 0} reputasi · {formatDate(answer.created_at)}
                         </p>
                       </div>
-                    </div>
+                    </Link>
                     <div className="flex gap-2 mt-2 sm:mt-0">
                       {/* Edit & Delete Buttons for Answer Owner */}
                       {user?.id === answer.author_id && editingAnswerId !== answer.id && (
@@ -732,13 +765,15 @@ export default function QuestionDetailPage() {
           <div className="bg-white rounded-xl border border-slate-200 p-3 sm:p-4 lg:p-6">
             <h3 className="text-base sm:text-lg font-bold text-slate-900 mb-3">Jawaban Anda</h3>
             <form onSubmit={handleSubmitAnswer}>
-              <textarea
+              <MentionInput
                 value={answerContent}
-                onChange={(e) => setAnswerContent(e.target.value)}
-                rows={5}
-                className="w-full px-3 sm:px-4 py-2 sm:py-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent outline-none text-sm resize-none"
-                placeholder="Bagikan pengetahuan dan pengalaman Anda untuk membantu sesama pelaku UMKM..."
-                required
+                onChange={setAnswerContent}
+                onSubmit={handleSubmitAnswer}
+                placeholder="Bagikan pengetahuan dan pengalaman Anda... Ketik @ untuk mention user atau paste link"
+                className="text-sm"
+                minRows={5}
+                maxRows={15}
+                disabled={submitting}
               />
               <button
                 type="submit"
@@ -782,6 +817,16 @@ export default function QuestionDetailPage() {
         type={alertModal.type}
         title={alertModal.title}
         message={alertModal.message}
+      />
+
+      {/* Confirm Modal */}
+      <ConfirmModal
+        isOpen={confirmModal.isOpen}
+        onClose={() => setConfirmModal({ ...confirmModal, isOpen: false })}
+        onConfirm={confirmModal.onConfirm}
+        title={confirmModal.title}
+        message={confirmModal.message}
+        type="danger"
       />
     </div>
   );

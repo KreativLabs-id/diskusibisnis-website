@@ -113,6 +113,8 @@ export const userAPI = {
     api.get('/users', { params }),
   getProfile: (id: string) =>
     api.get(`/users/${id}`),
+  getProfileByUsername: (username: string) =>
+    api.get(`/users/username/${username}`),
   updateProfile: (id: string, data: { displayName: string; bio?: string; avatarUrl?: string }) =>
     api.put(`/users/${id}`, data),
   deleteAvatar: (id: string) =>

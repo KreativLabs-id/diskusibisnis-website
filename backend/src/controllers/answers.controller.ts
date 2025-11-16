@@ -3,6 +3,7 @@ import pool from '../config/database';
 import { AuthRequest } from '../types';
 import { successResponse, errorResponse, notFoundResponse, forbiddenResponse } from '../utils/response.utils';
 import { createAnswerNotification } from '../utils/notification.service';
+import { createMentions } from './mentions.controller';
 
 /**
  * Create new answer
@@ -89,6 +90,9 @@ export const createAnswer = async (req: AuthRequest, res: Response): Promise<voi
         console.error('Error creating answer notification:', notifError);
       }
     }
+
+    // Create mentions after successful answer creation
+    await createMentions(user.id, 'answer', answer.id, content);
 
     successResponse(res, { answer }, 'Answer created successfully', 201);
   } catch (error) {
