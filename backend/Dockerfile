@@ -7,7 +7,8 @@ FROM node:20-alpine@sha256:2d5e8a8a51bc341fd5f2eed6d91455c3a3d147e91a14298fc564b
 WORKDIR /app
 
 # Copy backend package files (Railway build context is repo root)
-COPY backend/package.json backend/package-lock.json ./
+COPY backend/package.json ./
+COPY backend/package-lock.json ./
 
 # Install all dependencies (including devDependencies for build)
 RUN npm ci
