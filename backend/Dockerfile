@@ -7,14 +7,13 @@ FROM node:20-alpine@sha256:2d5e8a8a51bc341fd5f2eed6d91455c3a3d147e91a14298fc564b
 WORKDIR /app
 
 # Copy backend package files (Railway build context is repo root)
-COPY backend/package.json ./
-COPY backend/package-lock.json ./
+COPY backend/package*.json ./
 
 # Install all dependencies (including devDependencies for build)
 RUN npm ci
 
 # Copy backend source code into /app
-COPY backend/. ./
+COPY backend ./
 
 # Build TypeScript
 RUN npm run build
@@ -25,7 +24,7 @@ FROM node:20-alpine@sha256:2d5e8a8a51bc341fd5f2eed6d91455c3a3d147e91a14298fc564b
 WORKDIR /app
 
 # Copy package files
-COPY --from=builder /app/package.json /app/package-lock.json ./
+COPY --from=builder /app/package*.json ./
 
 # Install only production dependencies
 RUN npm ci --omit=dev
