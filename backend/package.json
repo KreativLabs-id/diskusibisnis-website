@@ -8,6 +8,8 @@
     "build": "tsc",
     "start": "node dist/server.js",
     "start:prod": "NODE_ENV=production node dist/server.js",
+    "check-deploy": "node scripts/check-deployment.js",
+    "generate-secret": "node scripts/generate-jwt-secret.js",
     "lint": "eslint . --ext .ts",
     "test": "jest"
   },

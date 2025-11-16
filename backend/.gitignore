@@ -10,8 +10,9 @@ build/
 
 # Environment variables
 .env
-.env.local
-.env.production
+.env.*
+!.env.example
+!.env.railway.template
 
 # Logs
 logs/

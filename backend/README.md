@@ -213,6 +213,52 @@ backend/
 - SQL injection protection
 - XSS protection
 
+## Deployment
+
+### Railway Deployment
+
+Backend ini sudah dikonfigurasi untuk deployment ke Railway.
+
+📚 **Panduan Lengkap**: Lihat [RAILWAY-DEPLOYMENT.md](./RAILWAY-DEPLOYMENT.md)
+
+**Quick Start:**
+1. Push code ke GitHub
+2. Connect repository di Railway
+3. Set root directory ke `backend`
+4. Configure environment variables
+5. Deploy!
+
+**Alternative Methods:**
+- **Railway CLI**: Lihat [RAILWAY-CLI.md](./RAILWAY-CLI.md)
+- **Checklist**: Lihat [DEPLOYMENT-CHECKLIST.md](./DEPLOYMENT-CHECKLIST.md)
+
+### Required Files for Deployment
+- ✅ `Dockerfile` - Multi-stage build configuration
+- ✅ `railway.json` - Railway-specific config
+- ✅ `.dockerignore` - Optimize build size
+
+### Environment Variables
+Pastikan semua environment variables di-set di Railway dashboard:
+- `DATABASE_URL` - Supabase connection string
+- `JWT_SECRET` - Generate secure random key
+- `CORS_ORIGIN` - Frontend production URL
+- Dan lainnya (lihat `.env.example`)
+
+### Health Check
+Endpoint untuk monitoring:
+```
+GET /health
+```
+
+Response:
+```json
+{
+  "status": "OK",
+  "timestamp": "2024-01-01T00:00:00.000Z",
+  "uptime": 12345.67
+}
+```
+
 ## License
 
 ISC
