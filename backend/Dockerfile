@@ -1,7 +1,7 @@
 # Dockerfile for Diskusi Bisnis backend (Railway)
 # Multi-stage build for optimized production image
 
-FROM node:20-alpine AS builder
+FROM node:20-alpine@sha256:2d5e8a8a51bc341fd5f2eed6d91455c3a3d147e91a14298fc564b5dc519c1666 AS builder
 
 # Set working directory
 WORKDIR /app
@@ -19,7 +19,7 @@ COPY . .
 RUN npm run build
 
 # Production stage
-FROM node:20-alpine
+FROM node:20-alpine@sha256:2d5e8a8a51bc341fd5f2eed6d91455c3a3d147e91a14298fc564b5dc519c1666
 
 WORKDIR /app
 
