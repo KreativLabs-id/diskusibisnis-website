@@ -6,6 +6,11 @@
       "use": "@vercel/next"
     }
   ],
+  "build": {
+    "env": {
+      "NEXT_TELEMETRY_DISABLED": "1"
+    }
+  },
   "routes": [
     {
       "src": "/_next/static/(.*)",
@@ -17,7 +22,7 @@
     },
     {
       "src": "/(.*)",
-      "dest": "/index.html"
+      "dest": "/"
     }
   ]
 }
