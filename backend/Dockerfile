@@ -6,13 +6,13 @@ FROM node:20-alpine@sha256:2d5e8a8a51bc341fd5f2eed6d91455c3a3d147e91a14298fc564b
 # Set working directory
 WORKDIR /app
 
-# Copy package files (build context is now /backend folder)
+# Copy package files
 COPY package.json package-lock.json ./
 
 # Install all dependencies (including devDependencies for build)
 RUN npm ci
 
-# Copy source code
+# Copy source code (exclude node_modules via .dockerignore)
 COPY . ./
 
 # Build TypeScript
