@@ -7,7 +7,7 @@ FROM node:20-alpine@sha256:2d5e8a8a51bc341fd5f2eed6d91455c3a3d147e91a14298fc564b
 WORKDIR /app
 
 # Copy package files
-COPY package*.json ./
+COPY package.json package-lock.json ./
 
 # Install all dependencies (including devDependencies for build)
 RUN npm ci
@@ -24,13 +24,14 @@ FROM node:20-alpine@sha256:2d5e8a8a51bc341fd5f2eed6d91455c3a3d147e91a14298fc564b
 WORKDIR /app
 
 # Copy package files
-COPY package*.json ./
+COPY --from=builder /app/package.json /app/package-lock.json ./
 
 # Install only production dependencies
 RUN npm ci --omit=dev
 
 # Copy built files from builder stage
 COPY --from=builder /app/dist ./dist
+COPY --from=builder /app/node_modules ./node_modules
 
 # Create non-root user for security
 RUN addgroup -g 1001 -S nodejs && \
