@@ -115,6 +115,8 @@ export const userAPI = {
     api.get(`/users/${id}`),
   updateProfile: (id: string, data: { displayName: string; bio?: string; avatarUrl?: string }) =>
     api.put(`/users/${id}`, data),
+  deleteAvatar: (id: string) =>
+    api.delete(`/users/${id}/avatar`),
   getQuestions: (id: string) =>
     api.get(`/users/${id}/questions`),
   getAnswers: (id: string) =>

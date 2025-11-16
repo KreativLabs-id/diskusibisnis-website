@@ -167,6 +167,89 @@ export const deleteMultipleImages = async (filePaths: string[]): Promise<boolean
 };
 
 /**
+ * Upload avatar to Supabase Storage
+ * Avatars are stored in a separate 'avatars' folder
+ */
+export const uploadAvatar = async (
+  file: File,
+  userId: string
+): Promise<UploadResult> => {
+  try {
+    // Validate file
+    const validation = validateImageFile(file);
+    if (!validation.valid) {
+      throw new Error(validation.error);
+    }
+
+    // Compress avatar
+    const compressedFile = await compressImage(file, 400, 400, 0.85);
+
+    // Generate unique filename
+    const fileName = generateFileName(file.name);
+    const filePath = `avatars/${userId}/${fileName}`;
+
+    // Upload to Supabase Storage
+    const { data, error } = await supabase.storage
+      .from(BUCKET_NAME)
+      .upload(filePath, compressedFile, {
+        cacheControl: '3600',
+        upsert: false
+      });
+
+    if (error) {
+      console.error('Upload avatar error:', error);
+      throw new Error(error.message || 'Gagal upload avatar');
+    }
+
+    // Get public URL
+    const { data: urlData } = supabase.storage
+      .from(BUCKET_NAME)
+      .getPublicUrl(filePath);
+
+    return {
+      url: urlData.publicUrl,
+      path: filePath,
+      publicUrl: urlData.publicUrl
+    };
+  } catch (error: any) {
+    console.error('Error uploading avatar:', error);
+    throw error;
+  }
+};
+
+/**
+ * Delete avatar from Supabase Storage
+ */
+export const deleteAvatar = async (avatarUrl: string): Promise<boolean> => {
+  try {
+    // Extract path from URL
+    const url = new URL(avatarUrl);
+    const pathMatch = url.pathname.match(/\/object\/public\/[^/]+\/(.+)/);
+    
+    if (!pathMatch) {
+      console.error('Invalid avatar URL format');
+      return false;
+    }
+
+    const filePath = pathMatch[1];
+
+    const { error } = await supabase.storage
+      .from(BUCKET_NAME)
+      .remove([filePath]);
+
+    if (error) {
+      console.error('Delete avatar error:', error);
+      return false;
+    }
+
+    return true;
+  } catch (error: any) {
+    console.error('Error deleting avatar:', error);
+    return false;
+  }
+};
+
+/**
  * Get image URL from path
  */
 export const getImageUrl = (filePath: string): string => {

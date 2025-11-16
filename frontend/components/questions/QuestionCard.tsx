@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import { formatDate, formatNumber } from '@/lib/utils';
 import { Eye, MessageCircle, ThumbsUp, Clock, User, Award } from 'lucide-react';
 import VerifiedBadge from '@/components/ui/VerifiedBadge';
+import UserAvatar from '@/components/ui/UserAvatar';
 
 interface Question {
   id: string;
@@ -114,17 +115,12 @@ export default function QuestionCard({ question }: { question: Question }) {
 
           {/* Author Info */}
           <div className="flex items-center gap-2">
-            {question.author_avatar ? (
-              <img
-                src={question.author_avatar}
-                alt={question.author_name}
-                className="w-6 h-6 rounded-full object-cover"
-              />
-            ) : (
-              <div className="w-6 h-6 rounded-full bg-gradient-to-br from-emerald-500 to-emerald-600 text-white flex items-center justify-center font-semibold text-xs">
-                {(question.author_name || 'U').charAt(0).toUpperCase()}
-              </div>
-            )}
+            <UserAvatar
+              src={question.author_avatar}
+              alt={question.author_name}
+              size="xs"
+              fallbackName={question.author_name}
+            />
             <Link
               href={`/profile/${question.id}`}
               onClick={(e) => e.stopPropagation()}

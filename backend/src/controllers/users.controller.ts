@@ -327,3 +327,117 @@ export const getUserRank = async (req: AuthRequest, res: Response): Promise<void
     errorResponse(res, 'Server error');
   }
 };
+
+/**
+ * Update user profile
+ * PUT /api/users/:id
+ */
+export const updateUserProfile = async (req: AuthRequest, res: Response): Promise<void> => {
+  try {
+    const userId = req.params.id;
+    const { displayName, bio, avatarUrl } = req.body;
+
+    // Check if user is updating their own profile or is admin
+    if (req.user?.id !== userId && req.user?.role !== 'admin') {
+      res.status(403).json({
+        success: false,
+        message: 'Forbidden: You can only update your own profile'
+      });
+      return;
+    }
+
+    // Validate required fields
+    if (!displayName || displayName.trim().length === 0) {
+      res.status(400).json({
+        success: false,
+        message: 'Display name is required'
+      });
+      return;
+    }
+
+    // Build update query dynamically
+    const updates: string[] = [];
+    const values: any[] = [];
+    let paramIndex = 1;
+
+    updates.push(`display_name = $${paramIndex}`);
+    values.push(displayName.trim());
+    paramIndex++;
+
+    if (bio !== undefined) {
+      updates.push(`bio = $${paramIndex}`);
+      values.push(bio ? bio.trim() : null);
+      paramIndex++;
+    }
+
+    if (avatarUrl !== undefined) {
+      updates.push(`avatar_url = $${paramIndex}`);
+      values.push(avatarUrl || null);
+      paramIndex++;
+    }
+
+    updates.push(`updated_at = CURRENT_TIMESTAMP`);
+    values.push(userId);
+
+    const query = `
+      UPDATE public.users
+      SET ${updates.join(', ')}
+      WHERE id = $${paramIndex}
+      RETURNING id, email, display_name, avatar_url, bio, reputation_points, role, is_verified, created_at, updated_at
+    `;
+
+    const result = await pool.query(query, values);
+
+    if (result.rows.length === 0) {
+      notFoundResponse(res, 'User not found');
+      return;
+    }
+
+    successResponse(res, { 
+      user: result.rows[0],
+      message: 'Profile updated successfully' 
+    });
+  } catch (error) {
+    console.error('Update user profile error:', error);
+    errorResponse(res, 'Server error');
+  }
+};
+
+/**
+ * Delete user avatar
+ * DELETE /api/users/:id/avatar
+ */
+export const deleteUserAvatar = async (req: AuthRequest, res: Response): Promise<void> => {
+  try {
+    const userId = req.params.id;
+
+    // Check if user is deleting their own avatar or is admin
+    if (req.user?.id !== userId && req.user?.role !== 'admin') {
+      res.status(403).json({
+        success: false,
+        message: 'Forbidden: You can only delete your own avatar'
+      });
+      return;
+    }
+
+    const result = await pool.query(`
+      UPDATE public.users
+      SET avatar_url = NULL, updated_at = CURRENT_TIMESTAMP
+      WHERE id = $1
+      RETURNING id, email, display_name, avatar_url, bio, reputation_points, role, is_verified
+    `, [userId]);
+
+    if (result.rows.length === 0) {
+      notFoundResponse(res, 'User not found');
+      return;
+    }
+
+    successResponse(res, { 
+      user: result.rows[0],
+      message: 'Avatar deleted successfully' 
+    });
+  } catch (error) {
+    console.error('Delete user avatar error:', error);
+    errorResponse(res, 'Server error');
+  }
+};

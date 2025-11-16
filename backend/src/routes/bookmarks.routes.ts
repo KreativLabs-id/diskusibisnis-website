@@ -24,14 +24,10 @@ router.post(
   createBookmark
 );
 
-// Delete bookmark
+// Delete bookmark (accepts questionId from query params)
 router.delete(
   '/',
   requireAuth,
-  [
-    body('questionId').notEmpty().withMessage('Question ID is required'),
-    validate
-  ],
   deleteBookmark
 );
 

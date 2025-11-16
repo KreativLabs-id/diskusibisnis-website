@@ -20,6 +20,8 @@ interface SavedQuestion {
   id: string;
   title: string;
   content: string;
+  images?: string[] | null;
+  author_id?: string;
   author_name: string;
   author_avatar: string;
   author_reputation: number;
@@ -31,6 +33,7 @@ interface SavedQuestion {
   tags: Array<{ id: string; name: string; slug: string }>;
   created_at: string;
   saved_at: string;
+  is_bookmarked?: boolean;
 }
 
 export default function SavedPage() {
@@ -51,29 +54,36 @@ export default function SavedPage() {
     try {
       setLoading(true);
       const response = await bookmarkAPI.getAll();
-      const bookmarks = response.data.data.bookmarks || [];
+      console.log('Bookmarks response:', response.data);
+      
+      const bookmarks = response.data.data?.bookmarks || response.data.bookmarks || [];
       
       // Map bookmarks to SavedQuestion format
       const mappedQuestions = bookmarks.map((bookmark: any) => ({
         id: bookmark.id,
         title: bookmark.title,
         content: bookmark.content,
+        images: bookmark.images || null,
+        author_id: bookmark.author_id,
         author_name: bookmark.author_name,
         author_avatar: bookmark.author_avatar,
         author_reputation: bookmark.author_reputation || 0,
         author_is_verified: bookmark.author_is_verified || false,
-        upvotes_count: bookmark.upvotes_count || 0,
-        views_count: bookmark.views_count || 0,
-        answers_count: bookmark.answers_count || 0,
-        has_accepted_answer: false,
+        upvotes_count: parseInt(bookmark.upvotes_count) || 0,
+        views_count: parseInt(bookmark.views_count) || 0,
+        answers_count: parseInt(bookmark.answers_count) || 0,
+        has_accepted_answer: bookmark.has_accepted_answer || false,
         tags: bookmark.tags || [],
         created_at: bookmark.created_at,
-        saved_at: bookmark.bookmarked_at
+        saved_at: bookmark.bookmarked_at,
+        is_bookmarked: true // Always true for saved page
       }));
       
+      console.log('Mapped saved questions:', mappedQuestions);
       setSavedQuestions(mappedQuestions);
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error fetching saved questions:', error);
+      console.error('Error details:', error.response?.data);
       setSavedQuestions([]);
     } finally {
       setLoading(false);

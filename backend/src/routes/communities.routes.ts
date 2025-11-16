@@ -7,7 +7,10 @@ import {
   joinCommunity,
   leaveCommunity,
   getCommunityQuestions,
-  getCommunityMembers
+  getCommunityMembers,
+  promoteMemberToAdmin,
+  demoteAdminToMember,
+  updateCommunityAbout
 } from '../controllers/communities.controller';
 import { validate } from '../utils/validator.utils';
 import { requireAuth, optionalAuth } from '../middlewares/auth.middleware';
@@ -44,5 +47,14 @@ router.get('/:slug/questions', getCommunityQuestions);
 
 // Get community members
 router.get('/:slug/members', getCommunityMembers);
+
+// Promote member to admin
+router.post('/:slug/members/:userId/promote', requireAuth, promoteMemberToAdmin);
+
+// Demote admin to member
+router.post('/:slug/members/:userId/demote', requireAuth, demoteAdminToMember);
+
+// Update community about information
+router.put('/:slug/about', requireAuth, updateCommunityAbout);
 
 export default router;

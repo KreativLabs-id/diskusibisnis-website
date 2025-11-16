@@ -23,6 +23,7 @@ export default function AskPage() {
   const searchParams = useSearchParams();
   const { user, loading: authLoading } = useAuth();
   const [selectedTags, setSelectedTags] = useState<string[]>([]);
+  const [customTag, setCustomTag] = useState('');
   const [title, setTitle] = useState('');
   const [content, setContent] = useState('');
   const [communitySlug, setCommunitySlug] = useState('');
@@ -73,6 +74,43 @@ export default function AskPage() {
     );
   };
 
+  const addCustomTag = () => {
+    const trimmedTag = customTag.trim().toLowerCase();
+    
+    if (!trimmedTag) {
+      setError('Tag tidak boleh kosong');
+      return;
+    }
+
+    if (trimmedTag.length < 2) {
+      setError('Tag minimal 2 karakter');
+      return;
+    }
+
+    if (trimmedTag.length > 20) {
+      setError('Tag maksimal 20 karakter');
+      return;
+    }
+
+    if (selectedTags.includes(trimmedTag)) {
+      setError('Tag sudah ada dalam daftar');
+      return;
+    }
+
+    if (selectedTags.length >= 5) {
+      setError('Maksimal 5 tag');
+      return;
+    }
+
+    setSelectedTags((prev) => [...prev, trimmedTag]);
+    setCustomTag('');
+    setError('');
+  };
+
+  const removeTag = (tagToRemove: string) => {
+    setSelectedTags((prev) => prev.filter((tag) => tag !== tagToRemove));
+  };
+
   const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     
@@ -81,13 +119,21 @@ export default function AskPage() {
       return;
     }
 
-    if (selectedTags.length === 0) {
-      setError('Pilih minimal 1 tag');
+    // Validasi title
+    if (!title || title.trim().length < 10) {
+      setError('Judul pertanyaan minimal 10 karakter');
       return;
     }
 
-    if (selectedTags.length > 3) {
-      setError('Maksimal 3 tag yang dapat dipilih');
+    // Validasi content
+    if (!content || content.trim().length < 20) {
+      setError('Isi pertanyaan minimal 20 karakter');
+      return;
+    }
+
+    // Tag is optional now, but if provided must be valid
+    if (selectedTags.length > 5) {
+      setError('Maksimal 5 tag');
       return;
     }
 
@@ -206,9 +252,14 @@ export default function AskPage() {
           </div>
 
           <div>
-            <label htmlFor="title" className="block text-sm font-medium text-slate-700 mb-2">
-              Judul Pertanyaan <span className="text-red-500">*</span>
-            </label>
+            <div className="flex items-center justify-between mb-2">
+              <label htmlFor="title" className="block text-sm font-medium text-slate-700">
+                Judul Pertanyaan <span className="text-red-500">*</span>
+              </label>
+              <span className={`text-xs ${title.length < 10 ? 'text-red-500' : 'text-slate-500'}`}>
+                {title.length}/10 karakter
+              </span>
+            </div>
             <input
               id="title"
               name="title"
@@ -222,9 +273,14 @@ export default function AskPage() {
           </div>
 
           <div>
-            <label htmlFor="content" className="block text-sm font-medium text-slate-700 mb-2">
-              Detail Pertanyaan <span className="text-red-500">*</span>
-            </label>
+            <div className="flex items-center justify-between mb-2">
+              <label htmlFor="content" className="block text-sm font-medium text-slate-700">
+                Detail Pertanyaan <span className="text-red-500">*</span>
+              </label>
+              <span className={`text-xs ${content.length < 20 ? 'text-red-500' : 'text-slate-500'}`}>
+                {content.length}/20 karakter
+              </span>
+            </div>
             <textarea
               id="content"
               name="content"
@@ -258,31 +314,91 @@ export default function AskPage() {
           <div>
             <div className="flex items-center justify-between mb-3">
               <label className="text-sm font-medium text-slate-700">
-                Pilih Tag Relevan <span className="text-red-500">*</span>
+                Tag (Opsional)
               </label>
               <p className="text-xs text-slate-500">
-                {selectedTags.length}/3 tag dipilih
+                {selectedTags.length}/5 tag
               </p>
             </div>
-            <div className="flex flex-wrap gap-2">
-              {suggestedTags.map((tag) => (
+            
+            {/* Selected Tags Display */}
+            {selectedTags.length > 0 && (
+              <div className="flex flex-wrap gap-2 mb-3 p-3 bg-slate-50 rounded-xl border border-slate-200">
+                {selectedTags.map((tag) => (
+                  <span
+                    key={tag}
+                    className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-emerald-600 text-white text-sm font-medium"
+                  >
+                    <Tag className="w-3.5 h-3.5" />
+                    {tag}
+                    <button
+                      type="button"
+                      onClick={() => removeTag(tag)}
+                      className="ml-1 hover:bg-emerald-700 rounded-full p-0.5 transition-colors"
+                    >
+                      <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                      </svg>
+                    </button>
+                  </span>
+                ))}
+              </div>
+            )}
+
+            {/* Custom Tag Input */}
+            <div className="mb-3">
+              <div className="flex flex-col sm:flex-row gap-2">
+                <input
+                  type="text"
+                  value={customTag}
+                  onChange={(e) => setCustomTag(e.target.value)}
+                  onKeyPress={(e) => {
+                    if (e.key === 'Enter') {
+                      e.preventDefault();
+                      addCustomTag();
+                    }
+                  }}
+                  placeholder="Ketik tag custom (contoh: startup, fintech)"
+                  className="flex-1 px-4 py-2 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-500 text-sm"
+                  disabled={selectedTags.length >= 5}
+                />
                 <button
-                  key={tag}
                   type="button"
-                  onClick={() => toggleTag(tag)}
-                  disabled={!selectedTags.includes(tag) && selectedTags.length >= 3}
-                  className={`inline-flex items-center gap-2 px-4 py-2 rounded-full border text-sm font-medium transition-colors ${
-                    selectedTags.includes(tag)
-                      ? 'bg-emerald-600 text-white border-emerald-600'
-                      : !selectedTags.includes(tag) && selectedTags.length >= 3
-                      ? 'bg-slate-100 text-slate-400 border-slate-200 cursor-not-allowed'
-                      : 'bg-slate-50 text-slate-600 border-slate-200 hover:border-emerald-400'
-                  }`}
+                  onClick={addCustomTag}
+                  disabled={selectedTags.length >= 5 || !customTag.trim()}
+                  className="w-full sm:w-auto px-4 py-2 bg-emerald-600 text-white rounded-xl hover:bg-emerald-700 disabled:bg-slate-300 disabled:cursor-not-allowed text-sm font-medium transition-colors whitespace-nowrap"
                 >
-                  <Tag className="w-4 h-4" />
-                  {tag}
+                  Tambah
                 </button>
-              ))}
+              </div>
+              <p className="text-xs text-slate-500 mt-1">
+                Tekan Enter atau klik Tambah untuk menambahkan tag custom
+              </p>
+            </div>
+
+            {/* Suggested Tags */}
+            <div>
+              <p className="text-xs font-medium text-slate-600 mb-2">Tag yang disarankan:</p>
+              <div className="flex flex-wrap gap-2">
+                {suggestedTags.map((tag) => (
+                  <button
+                    key={tag}
+                    type="button"
+                    onClick={() => toggleTag(tag)}
+                    disabled={!selectedTags.includes(tag) && selectedTags.length >= 5}
+                    className={`inline-flex items-center gap-2 px-3 py-1.5 rounded-full border text-sm font-medium transition-colors ${
+                      selectedTags.includes(tag)
+                        ? 'bg-emerald-600 text-white border-emerald-600'
+                        : !selectedTags.includes(tag) && selectedTags.length >= 5
+                        ? 'bg-slate-100 text-slate-400 border-slate-200 cursor-not-allowed'
+                        : 'bg-white text-slate-600 border-slate-200 hover:border-emerald-400 hover:text-emerald-600'
+                    }`}
+                  >
+                    <Tag className="w-3.5 h-3.5" />
+                    {tag}
+                  </button>
+                ))}
+              </div>
             </div>
           </div>
 

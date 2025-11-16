@@ -179,6 +179,7 @@ export const getCommunityBySlug = async (req: AuthRequest, res: Response): Promi
     const result = await pool.query(`
       SELECT 
         c.id, c.name, c.slug, c.description, c.category, c.location, c.created_at, c.created_by,
+        c.vision, c.mission, c.target_members, c.benefits,
         u.display_name as creator_name,
         COUNT(DISTINCT cm.id) as members_count,
         CASE WHEN $2::uuid IS NOT NULL THEN 
@@ -271,9 +272,9 @@ export const leaveCommunity = async (req: AuthRequest, res: Response): Promise<v
 
     const slug = req.params.slug;
 
-    // Get community ID
+    // Get community and check creator
     const communityResult = await pool.query(
-      'SELECT id FROM public.communities WHERE slug = $1',
+      'SELECT id, created_by FROM public.communities WHERE slug = $1',
       [slug]
     );
 
@@ -282,18 +283,30 @@ export const leaveCommunity = async (req: AuthRequest, res: Response): Promise<v
       return;
     }
 
-    const communityId = communityResult.rows[0].id;
+    const { id: communityId, created_by } = communityResult.rows[0];
 
-    // Remove membership
-    const result = await pool.query(
-      'DELETE FROM public.community_members WHERE community_id = $1 AND user_id = $2',
+    // Prevent creator from leaving their own community
+    if (created_by === user.id) {
+      errorResponse(res, 'Pembuat komunitas tidak bisa keluar dari komunitasnya. Hapus komunitas atau transfer kepemilikan terlebih dahulu.', 403);
+      return;
+    }
+
+    // Check if user is a member
+    const membershipResult = await pool.query(
+      'SELECT role FROM public.community_members WHERE community_id = $1 AND user_id = $2',
       [communityId, user.id]
     );
 
-    if (result.rowCount === 0) {
+    if (membershipResult.rows.length === 0) {
       errorResponse(res, 'You are not a member of this community', 400);
       return;
     }
+
+    // Remove membership
+    await pool.query(
+      'DELETE FROM public.community_members WHERE community_id = $1 AND user_id = $2',
+      [communityId, user.id]
+    );
 
     successResponse(res, null, 'Successfully left community');
   } catch (error) {
@@ -417,6 +430,190 @@ export const getCommunityMembers = async (req: AuthRequest, res: Response): Prom
     });
   } catch (error) {
     console.error('Get community members error:', error);
+    errorResponse(res, 'Server error');
+  }
+};
+
+/**
+ * Promote member to admin
+ * POST /api/communities/:slug/members/:userId/promote
+ */
+export const promoteMemberToAdmin = async (req: AuthRequest, res: Response): Promise<void> => {
+  try {
+    const user = req.user;
+    if (!user) {
+      forbiddenResponse(res, 'Authentication required');
+      return;
+    }
+
+    const { slug, userId } = req.params;
+
+    // Get community and check if requester is admin
+    const communityResult = await pool.query(`
+      SELECT c.id, c.created_by, cm.role
+      FROM public.communities c
+      LEFT JOIN public.community_members cm ON c.id = cm.community_id AND cm.user_id = $1
+      WHERE c.slug = $2
+    `, [user.id, slug]);
+
+    if (communityResult.rows.length === 0) {
+      notFoundResponse(res, 'Community not found');
+      return;
+    }
+
+    const { id: communityId, created_by, role } = communityResult.rows[0];
+
+    // Only creator or admin can promote members
+    if (created_by !== user.id && role !== 'admin') {
+      forbiddenResponse(res, 'Only admins can promote members');
+      return;
+    }
+
+    // Check if target user is a member
+    const targetMemberResult = await pool.query(
+      'SELECT role FROM public.community_members WHERE community_id = $1 AND user_id = $2',
+      [communityId, userId]
+    );
+
+    if (targetMemberResult.rows.length === 0) {
+      errorResponse(res, 'User is not a member of this community', 400);
+      return;
+    }
+
+    if (targetMemberResult.rows[0].role === 'admin') {
+      errorResponse(res, 'User is already an admin', 400);
+      return;
+    }
+
+    // Promote to admin
+    await pool.query(
+      'UPDATE public.community_members SET role = $1 WHERE community_id = $2 AND user_id = $3',
+      ['admin', communityId, userId]
+    );
+
+    successResponse(res, null, 'Member successfully promoted to admin');
+  } catch (error) {
+    console.error('Promote member error:', error);
+    errorResponse(res, 'Server error');
+  }
+};
+
+/**
+ * Demote admin to member
+ * POST /api/communities/:slug/members/:userId/demote
+ */
+export const demoteAdminToMember = async (req: AuthRequest, res: Response): Promise<void> => {
+  try {
+    const user = req.user;
+    if (!user) {
+      forbiddenResponse(res, 'Authentication required');
+      return;
+    }
+
+    const { slug, userId } = req.params;
+
+    // Get community and check if requester is creator
+    const communityResult = await pool.query(`
+      SELECT c.id, c.created_by
+      FROM public.communities c
+      WHERE c.slug = $1
+    `, [slug]);
+
+    if (communityResult.rows.length === 0) {
+      notFoundResponse(res, 'Community not found');
+      return;
+    }
+
+    const { id: communityId, created_by } = communityResult.rows[0];
+
+    // Only creator can demote admins
+    if (created_by !== user.id) {
+      forbiddenResponse(res, 'Only the community creator can demote admins');
+      return;
+    }
+
+    // Cannot demote yourself
+    if (userId === user.id.toString()) {
+      errorResponse(res, 'You cannot demote yourself', 400);
+      return;
+    }
+
+    // Check if target user is an admin
+    const targetMemberResult = await pool.query(
+      'SELECT role FROM public.community_members WHERE community_id = $1 AND user_id = $2',
+      [communityId, userId]
+    );
+
+    if (targetMemberResult.rows.length === 0) {
+      errorResponse(res, 'User is not a member of this community', 400);
+      return;
+    }
+
+    if (targetMemberResult.rows[0].role !== 'admin') {
+      errorResponse(res, 'User is not an admin', 400);
+      return;
+    }
+
+    // Demote to member
+    await pool.query(
+      'UPDATE public.community_members SET role = $1 WHERE community_id = $2 AND user_id = $3',
+      ['member', communityId, userId]
+    );
+
+    successResponse(res, null, 'Admin successfully demoted to member');
+  } catch (error) {
+    console.error('Demote admin error:', error);
+    errorResponse(res, 'Server error');
+  }
+};
+
+/**
+ * Update community about information
+ * PUT /api/communities/:slug/about
+ */
+export const updateCommunityAbout = async (req: AuthRequest, res: Response): Promise<void> => {
+  try {
+    const user = req.user;
+    if (!user) {
+      forbiddenResponse(res, 'Authentication required');
+      return;
+    }
+
+    const { slug } = req.params;
+    const { vision, mission, target_members, benefits } = req.body;
+
+    // Get community and check if requester is admin
+    const communityResult = await pool.query(`
+      SELECT c.id, c.created_by, cm.role
+      FROM public.communities c
+      LEFT JOIN public.community_members cm ON c.id = cm.community_id AND cm.user_id = $1
+      WHERE c.slug = $2
+    `, [user.id, slug]);
+
+    if (communityResult.rows.length === 0) {
+      notFoundResponse(res, 'Community not found');
+      return;
+    }
+
+    const { id: communityId, created_by, role } = communityResult.rows[0];
+
+    // Only creator or admin can update about info
+    if (created_by !== user.id && role !== 'admin') {
+      forbiddenResponse(res, 'Only admins can update community information');
+      return;
+    }
+
+    // Update community about fields
+    const updateResult = await pool.query(`
+      UPDATE public.communities 
+      SET vision = $1, mission = $2, target_members = $3, benefits = $4
+      WHERE id = $5
+      RETURNING vision, mission, target_members, benefits
+    `, [vision, mission, target_members, benefits, communityId]);
+
+    successResponse(res, updateResult.rows[0], 'Community about information updated successfully');
+  } catch (error) {
+    console.error('Update community about error:', error);
     errorResponse(res, 'Server error');
   }
 };

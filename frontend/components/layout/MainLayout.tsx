@@ -52,9 +52,12 @@ export default function MainLayout({ children }: MainLayoutProps) {
             <p className="text-sm text-slate-600">
               © 2025 DiskusiBisnis. Platform Q&A untuk UMKM Indonesia.
             </p>
-            <div className="flex justify-center gap-4 mt-2">
+            <div className="flex flex-wrap justify-center gap-3 sm:gap-4 mt-3">
               <a href="/about" className="text-xs text-slate-500 hover:text-emerald-600 transition-colors">
                 Tentang
+              </a>
+              <a href="/about-community" className="text-xs text-slate-500 hover:text-emerald-600 transition-colors">
+                Tentang Komunitas
               </a>
               <a href="/privacy" className="text-xs text-slate-500 hover:text-emerald-600 transition-colors">
                 Privasi

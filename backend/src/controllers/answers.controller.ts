@@ -222,10 +222,12 @@ export const deleteAnswer = async (req: AuthRequest, res: Response): Promise<voi
 };
 
 /**
- * Accept answer
+ * Accept answer (or unaccept if already accepted)
  * POST /api/answers/:id/accept
  */
 export const acceptAnswer = async (req: AuthRequest, res: Response): Promise<void> => {
+  let client;
+  
   try {
     const user = req.user;
     if (!user) {
@@ -234,10 +236,19 @@ export const acceptAnswer = async (req: AuthRequest, res: Response): Promise<voi
     }
 
     const answerId = req.params.id;
+    console.log('Accept answer request:', { answerId, userId: user.id });
+
+    // Validate answerId format (should be UUID)
+    if (!answerId || !answerId.match(/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i)) {
+      errorResponse(res, 'Invalid answer ID format', 400);
+      return;
+    }
+
+    client = await pool.connect();
 
     // Get answer and question details
-    const answerResult = await pool.query(`
-      SELECT a.id, a.question_id, q.author_id as question_author_id
+    const answerResult = await client.query(`
+      SELECT a.id, a.question_id, a.is_accepted, q.author_id as question_author_id
       FROM public.answers a
       JOIN public.questions q ON a.question_id = q.id
       WHERE a.id = $1
@@ -249,6 +260,7 @@ export const acceptAnswer = async (req: AuthRequest, res: Response): Promise<voi
     }
 
     const answer = answerResult.rows[0];
+    console.log('Answer found:', { answerId: answer.id, questionId: answer.question_id, isAccepted: answer.is_accepted, questionAuthorId: answer.question_author_id });
 
     // Only question author can accept answers
     if (answer.question_author_id !== user.id) {
@@ -256,34 +268,52 @@ export const acceptAnswer = async (req: AuthRequest, res: Response): Promise<voi
       return;
     }
 
-    const client = await pool.connect();
+    await client.query('BEGIN');
+
+    let action = 'accepted';
 
     try {
-      await client.query('BEGIN');
+      // If answer is already accepted, unaccept it
+      if (answer.is_accepted) {
+        console.log('Unaccepting answer:', answerId);
+        await client.query(
+          'UPDATE public.answers SET is_accepted = false WHERE id = $1',
+          [answerId]
+        );
+        action = 'unaccepted';
+      } else {
+        console.log('Accepting answer:', answerId);
+        // Unaccept all other answers for this question first
+        await client.query(
+          'UPDATE public.answers SET is_accepted = false WHERE question_id = $1',
+          [answer.question_id]
+        );
 
-      // Unaccept all other answers for this question
-      await client.query(
-        'UPDATE public.answers SET is_accepted = false WHERE question_id = $1',
-        [answer.question_id]
-      );
-
-      // Accept this answer
-      await client.query(
-        'UPDATE public.answers SET is_accepted = true WHERE id = $1',
-        [answerId]
-      );
+        // Accept this answer
+        await client.query(
+          'UPDATE public.answers SET is_accepted = true WHERE id = $1',
+          [answerId]
+        );
+        action = 'accepted';
+      }
 
       await client.query('COMMIT');
+      console.log('Accept answer success:', { action });
 
-      successResponse(res, null, 'Answer accepted successfully');
-    } catch (error) {
+      successResponse(res, { action }, action === 'accepted' ? 'Answer accepted successfully' : 'Answer unaccepted successfully');
+    } catch (transactionError) {
+      console.error('Transaction error:', transactionError);
       await client.query('ROLLBACK');
-      throw error;
-    } finally {
-      client.release();
+      throw transactionError;
     }
   } catch (error) {
     console.error('Accept answer error:', error);
-    errorResponse(res, 'Server error');
+    const errorMessage = error instanceof Error ? error.message : 'Server error';
+    console.error('Error details:', { message: errorMessage, stack: error instanceof Error ? error.stack : undefined });
+    errorResponse(res, 'Failed to accept answer. Please try again.');
+  } finally {
+    if (client) {
+      client.release();
+    }
   }
 };

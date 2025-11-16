@@ -19,6 +19,7 @@ import {
 import api from '@/lib/api';
 import { formatDate } from '@/lib/utils';
 import VerifiedBadge from '@/components/ui/VerifiedBadge';
+import UserAvatar from '@/components/ui/UserAvatar';
 import AlertModal from '@/components/ui/AlertModal';
 
 interface Community {
@@ -34,6 +35,10 @@ interface Community {
   members_count: number;
   is_member: boolean;
   user_role?: string;
+  vision?: string;
+  mission?: string;
+  target_members?: string;
+  benefits?: string;
 }
 
 interface Member {
@@ -127,6 +132,62 @@ export default function CommunityDetailPage() {
       showAlert('error', 'Gagal Bergabung', error.response?.data?.message || 'Gagal bergabung dengan komunitas');
     } finally {
       setJoining(false);
+    }
+  };
+
+  const handleLeaveCommunity = async () => {
+    if (!user) return;
+
+    if (!window.confirm('Apakah Anda yakin ingin keluar dari komunitas ini?')) {
+      return;
+    }
+
+    setJoining(true);
+    try {
+      const response = await api.post(`/communities/${params.slug}/leave`);
+      
+      if (response.data.success) {
+        setCommunity(prev => prev ? {
+          ...prev,
+          is_member: false,
+          members_count: Math.max(0, prev.members_count - 1)
+        } : null);
+        fetchMembers();
+        showAlert('success', 'Berhasil', 'Anda telah keluar dari komunitas');
+      }
+    } catch (error: any) {
+      console.error('Error leaving community:', error);
+      showAlert('error', 'Gagal Keluar', error.response?.data?.message || 'Gagal keluar dari komunitas');
+    } finally {
+      setJoining(false);
+    }
+  };
+
+  const handlePromoteMember = async (userId: string) => {
+    if (!window.confirm('Promosikan anggota ini menjadi admin?')) {
+      return;
+    }
+
+    try {
+      await api.post(`/communities/${params.slug}/members/${userId}/promote`);
+      showAlert('success', 'Berhasil', 'Anggota berhasil dipromosikan menjadi admin');
+      fetchMembers();
+    } catch (error: any) {
+      showAlert('error', 'Gagal', error.response?.data?.message || 'Gagal mempromosikan anggota');
+    }
+  };
+
+  const handleDemoteMember = async (userId: string) => {
+    if (!window.confirm('Turunkan admin ini menjadi anggota biasa?')) {
+      return;
+    }
+
+    try {
+      await api.post(`/communities/${params.slug}/members/${userId}/demote`);
+      showAlert('success', 'Berhasil', 'Admin berhasil diturunkan menjadi anggota');
+      fetchMembers();
+    } catch (error: any) {
+      showAlert('error', 'Gagal', error.response?.data?.message || 'Gagal menurunkan admin');
     }
   };
 
@@ -253,7 +314,7 @@ export default function CommunityDetailPage() {
                 </div>
               </div>
 
-              {/* Join Button - Mobile optimized */}
+              {/* Join/Leave Buttons - Mobile optimized */}
               <div className="flex flex-col gap-3 w-full sm:w-auto">
                 {user && !community.is_member && (
                   <button
@@ -276,10 +337,22 @@ export default function CommunityDetailPage() {
                 )}
               
                 {community.is_member && (
-                  <div className="flex items-center justify-center gap-2 w-full sm:w-auto px-4 sm:px-6 py-3 bg-emerald-50 text-emerald-700 rounded-lg border border-emerald-200 text-sm sm:text-base">
-                    <Users className="w-4 h-4" />
-                    <span className="font-medium">Sudah Bergabung</span>
-                  </div>
+                  <>
+                    <div className="flex items-center justify-center gap-2 w-full sm:w-auto px-4 sm:px-6 py-3 bg-emerald-50 text-emerald-700 rounded-lg border border-emerald-200 text-sm sm:text-base">
+                      <Users className="w-4 h-4" />
+                      <span className="font-medium">Sudah Bergabung</span>
+                      {community.user_role === 'admin' && (
+                        <Crown className="w-4 h-4 text-yellow-600 ml-1" />
+                      )}
+                    </div>
+                    <button
+                      onClick={handleLeaveCommunity}
+                      disabled={joining}
+                      className="flex items-center justify-center gap-2 w-full sm:w-auto px-4 py-2 text-red-600 hover:bg-red-50 rounded-lg border border-red-200 transition-colors text-sm disabled:opacity-50"
+                    >
+                      Keluar dari Komunitas
+                    </button>
+                  </>
                 )}
               
                 {!user && (
@@ -323,7 +396,7 @@ export default function CommunityDetailPage() {
               >
                 <div className="flex items-center justify-center gap-1 sm:gap-2">
                   <Tag className="w-3 h-3 sm:w-4 sm:h-4" />
-                  <span>Info</span>
+                  <span>Tentang</span>
                 </div>
               </button>
               <button
@@ -397,19 +470,12 @@ export default function CommunityDetailPage() {
                             <span className="text-emerald-600 font-medium">↑ {question.upvote_count}</span>
                           </div>
                           <div className="flex items-center gap-2">
-                            {question.author_avatar ? (
-                              <img
-                                src={question.author_avatar}
-                                alt={question.author_name}
-                                className="w-4 h-4 rounded-full"
-                              />
-                            ) : (
-                              <div className="w-4 h-4 rounded-full bg-emerald-600 flex items-center justify-center">
-                                <span className="text-white text-[8px] font-medium">
-                                  {question.author_name.charAt(0).toUpperCase()}
-                                </span>
-                              </div>
-                            )}
+                            <UserAvatar
+                              src={question.author_avatar}
+                              alt={question.author_name}
+                              size="xs"
+                              fallbackName={question.author_name}
+                            />
                             <span className="truncate">{question.author_name}</span>
                             {question.author_verified && (
                               <VerifiedBadge isVerified={true} size="sm" />
@@ -438,12 +504,19 @@ export default function CommunityDetailPage() {
             
             {activeTab === 'overview' && (
               <div className="space-y-4 sm:space-y-6">
-                <div>
-                  <h3 className="text-base sm:text-lg font-semibold text-slate-900 mb-3">Tentang Komunitas</h3>
-                  <p className="text-sm sm:text-base text-slate-700 leading-relaxed">
-                    {community.description}
-                  </p>
+                <div className="flex items-center justify-between mb-4">
+                  <h3 className="text-base sm:text-lg font-semibold text-slate-900">Tentang Komunitas</h3>
+                  <Link
+                    href={`/communities/${community.slug}/about`}
+                    className="text-sm text-emerald-600 hover:text-emerald-700 font-medium"
+                  >
+                    Lihat Detail →
+                  </Link>
                 </div>
+                
+                <p className="text-sm sm:text-base text-slate-700 leading-relaxed mb-4">
+                  {community.description}
+                </p>
                 
                 <div>
                   <h3 className="text-base sm:text-lg font-semibold text-slate-900 mb-3">Informasi</h3>
@@ -500,32 +573,49 @@ export default function CommunityDetailPage() {
                 ) : (
                   <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
                     {members.map((member) => (
-                      <div key={member.id} className="flex items-center gap-3 p-3 sm:p-4 bg-slate-50 rounded-lg">
-                        {member.avatar_url ? (
-                          <img
+                      <div key={member.id} className="flex flex-col gap-2 p-3 sm:p-4 bg-slate-50 rounded-lg">
+                        <div className="flex items-center gap-3">
+                          <UserAvatar
                             src={member.avatar_url}
                             alt={member.display_name}
-                            className="w-8 h-8 sm:w-10 sm:h-10 rounded-full"
+                            size="md"
+                            fallbackName={member.display_name}
                           />
-                        ) : (
-                          <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-emerald-600 flex items-center justify-center">
-                            <span className="text-white text-xs sm:text-sm font-medium">
-                              {member.display_name.charAt(0).toUpperCase()}
-                            </span>
+                          <div className="flex-1 min-w-0">
+                            <div className="flex items-center gap-2">
+                              <p className="text-sm sm:text-base font-medium text-slate-900 truncate">
+                                {member.display_name}
+                              </p>
+                              <VerifiedBadge isVerified={member.is_verified || false} size="sm" />
+                              {getRoleIcon(member.role)}
+                            </div>
+                            <p className="text-xs sm:text-sm text-slate-500">
+                              {getRoleLabel(member.role)} • Bergabung {formatDate(member.joined_at)}
+                            </p>
+                          </div>
+                        </div>
+                        
+                        {/* Admin Actions */}
+                        {user && community.created_by === user.id && member.user_id !== user.id && (
+                          <div className="flex gap-2 mt-2">
+                            {member.role === 'member' && (
+                              <button
+                                onClick={() => handlePromoteMember(member.user_id)}
+                                className="flex-1 px-3 py-1.5 text-xs bg-emerald-500 text-white rounded hover:bg-emerald-600"
+                              >
+                                Jadikan Admin
+                              </button>
+                            )}
+                            {member.role === 'admin' && (
+                              <button
+                                onClick={() => handleDemoteMember(member.user_id)}
+                                className="flex-1 px-3 py-1.5 text-xs bg-yellow-500 text-white rounded hover:bg-yellow-600"
+                              >
+                                Turunkan ke Anggota
+                              </button>
+                            )}
                           </div>
                         )}
-                        <div className="flex-1 min-w-0">
-                          <div className="flex items-center gap-2">
-                            <p className="text-sm sm:text-base font-medium text-slate-900 truncate">
-                              {member.display_name}
-                            </p>
-                            <VerifiedBadge isVerified={member.is_verified || false} size="sm" />
-                            {getRoleIcon(member.role)}
-                          </div>
-                          <p className="text-xs sm:text-sm text-slate-500">
-                            {getRoleLabel(member.role)} • Bergabung {formatDate(member.joined_at)}
-                          </p>
-                        </div>
                       </div>
                     ))}
                   </div>

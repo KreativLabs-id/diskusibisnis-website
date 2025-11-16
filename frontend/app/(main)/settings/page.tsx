@@ -1,20 +1,25 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/contexts/AuthContext';
-import { User, Mail, Lock, Save, AlertCircle, Upload, Camera } from 'lucide-react';
+import { User, Mail, Lock, Save, AlertCircle, Upload, Camera, Trash2, X } from 'lucide-react';
 import { userAPI } from '@/lib/api';
+import { uploadAvatar, deleteAvatar } from '@/lib/image-upload';
 import AlertModal from '@/components/ui/AlertModal';
 
 export default function SettingsPage() {
   const router = useRouter();
   const { user, updateUser, loading: authLoading } = useAuth();
+  const fileInputRef = useRef<HTMLInputElement>(null);
   const [formData, setFormData] = useState({
     displayName: '',
     bio: '',
     avatarUrl: '',
   });
+  const [avatarFile, setAvatarFile] = useState<File | null>(null);
+  const [avatarPreview, setAvatarPreview] = useState<string>('');
+  const [uploadingAvatar, setUploadingAvatar] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
@@ -41,8 +46,62 @@ export default function SettingsPage() {
         bio: '',
         avatarUrl: user.avatarUrl || '',
       });
+      setAvatarPreview(user.avatarUrl || '');
     }
   }, [user, authLoading, router]);
+
+  const handleAvatarChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    // Validate file type
+    const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp'];
+    if (!allowedTypes.includes(file.type)) {
+      showAlert('error', 'Format Tidak Valid', 'Gunakan format JPG, PNG, GIF, atau WebP');
+      return;
+    }
+
+    // Validate file size (5MB)
+    if (file.size > 5 * 1024 * 1024) {
+      showAlert('error', 'File Terlalu Besar', 'Ukuran maksimal adalah 5MB');
+      return;
+    }
+
+    setAvatarFile(file);
+    const previewUrl = URL.createObjectURL(file);
+    setAvatarPreview(previewUrl);
+  };
+
+  const handleRemoveAvatar = async () => {
+    if (!user) return;
+
+    try {
+      setUploadingAvatar(true);
+
+      // Delete from Supabase if there's an existing avatar
+      if (formData.avatarUrl) {
+        await deleteAvatar(formData.avatarUrl);
+      }
+
+      // Update backend
+      await userAPI.deleteAvatar(user.id);
+
+      // Update local state
+      setFormData({ ...formData, avatarUrl: '' });
+      setAvatarPreview('');
+      setAvatarFile(null);
+
+      // Update context
+      updateUser({ ...user, avatarUrl: '' });
+
+      showAlert('success', 'Berhasil', 'Foto profil berhasil dihapus');
+    } catch (err: any) {
+      console.error('Delete avatar error:', err);
+      showAlert('error', 'Gagal', 'Gagal menghapus foto profil');
+    } finally {
+      setUploadingAvatar(false);
+    }
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -54,14 +113,47 @@ export default function SettingsPage() {
     setSuccess('');
 
     try {
-      const response = await userAPI.updateProfile(user.id, formData);
+      let avatarUrl = formData.avatarUrl;
+
+      // Upload avatar if new file is selected
+      if (avatarFile) {
+        setUploadingAvatar(true);
+        try {
+          // Delete old avatar from Supabase if exists
+          if (formData.avatarUrl) {
+            await deleteAvatar(formData.avatarUrl);
+          }
+
+          // Upload new avatar
+          const uploadResult = await uploadAvatar(avatarFile, user.id);
+          avatarUrl = uploadResult.url;
+        } catch (uploadErr: any) {
+          console.error('Avatar upload error:', uploadErr);
+          showAlert('error', 'Gagal Upload', uploadErr.message || 'Gagal upload foto profil');
+          setUploadingAvatar(false);
+          setLoading(false);
+          return;
+        } finally {
+          setUploadingAvatar(false);
+        }
+      }
+
+      // Update profile data
+      const updateData = {
+        displayName: formData.displayName,
+        bio: formData.bio || undefined,
+        avatarUrl: avatarUrl || undefined
+      };
+
+      const response = await userAPI.updateProfile(user.id, updateData);
       
       // Update user in context
       if (response.data.success) {
+        const updatedUserData = response.data.data.user || response.data.data;
         updateUser({
           ...user,
-          displayName: response.data.data.displayName || formData.displayName,
-          avatarUrl: response.data.data.avatarUrl || formData.avatarUrl,
+          displayName: updatedUserData.displayName || updatedUserData.display_name || formData.displayName,
+          avatarUrl: updatedUserData.avatarUrl || updatedUserData.avatar_url || avatarUrl,
         });
 
         setSuccess('Profil berhasil diperbarui!');
@@ -179,59 +271,69 @@ export default function SettingsPage() {
               </p>
             </div>
 
-            <div className="space-y-1">
+            <div className="space-y-3">
               <label className="block text-sm font-semibold text-slate-900">
                 Foto Profil
               </label>
+              
+              {/* Avatar Preview */}
               <div className="flex items-center gap-4">
-                <div className="flex-1">
+                {avatarPreview ? (
+                  <div className="relative">
+                    <img
+                      src={avatarPreview}
+                      alt="Avatar preview"
+                      className="w-24 h-24 rounded-full object-cover border-4 border-emerald-100"
+                    />
+                    {uploadingAvatar && (
+                      <div className="absolute inset-0 bg-black/50 rounded-full flex items-center justify-center">
+                        <div className="animate-spin rounded-full h-8 w-8 border-2 border-white border-t-transparent"></div>
+                      </div>
+                    )}
+                  </div>
+                ) : (
+                  <div className="w-24 h-24 rounded-full bg-emerald-100 flex items-center justify-center border-4 border-emerald-50">
+                    <User className="w-12 h-12 text-emerald-600" />
+                  </div>
+                )}
+
+                <div className="flex-1 flex flex-wrap gap-2">
                   <input
+                    ref={fileInputRef}
                     type="file"
-                    accept="image/*"
+                    accept="image/jpeg,image/jpg,image/png,image/gif,image/webp"
                     className="hidden"
-                    id="photo-upload"
-                    onChange={(e) => {
-                      const file = e.target.files?.[0];
-                      if (file) {
-                        // Create a preview URL
-                        const url = URL.createObjectURL(file);
-                        setFormData({ ...formData, avatarUrl: url });
-                        // TODO: Implement actual file upload to server
-                        showAlert('info', 'Segera Hadir', 'Fitur upload foto akan segera tersedia');
-                      }
-                    }}
+                    onChange={handleAvatarChange}
+                    disabled={uploadingAvatar || loading}
                   />
                   <button
                     type="button"
-                    onClick={() => document.getElementById('photo-upload')?.click()}
-                    className="inline-flex items-center gap-2 px-4 py-3 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 transition-colors text-sm font-medium"
+                    onClick={() => fileInputRef.current?.click()}
+                    disabled={uploadingAvatar || loading}
+                    className="inline-flex items-center gap-2 px-4 py-2 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 transition-colors text-sm font-medium disabled:opacity-50 disabled:cursor-not-allowed"
                   >
                     <Camera className="w-4 h-4" />
-                    Pilih Foto
+                    {avatarPreview ? 'Ganti Foto' : 'Pilih Foto'}
                   </button>
+                  
+                  {avatarPreview && (
+                    <button
+                      type="button"
+                      onClick={handleRemoveAvatar}
+                      disabled={uploadingAvatar || loading}
+                      className="inline-flex items-center gap-2 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors text-sm font-medium disabled:opacity-50 disabled:cursor-not-allowed"
+                    >
+                      <Trash2 className="w-4 h-4" />
+                      Hapus Foto
+                    </button>
+                  )}
                 </div>
               </div>
+              
               <p className="text-xs text-slate-500">
-                Pilih foto dari galeri atau kamera Anda
+                Format: JPG, PNG, GIF, atau WebP. Maksimal 5MB.
               </p>
             </div>
-
-            {formData.avatarUrl && (
-              <div>
-                <p className="text-sm font-medium text-slate-700 mb-2">Preview Avatar</p>
-                <div className="w-20 h-20 rounded-full overflow-hidden border-2 border-slate-200">
-                  <img
-                    src={formData.avatarUrl}
-                    alt="Avatar preview"
-                    className="w-full h-full object-cover"
-                    onError={(e) => {
-                      e.currentTarget.src = '';
-                      e.currentTarget.style.display = 'none';
-                    }}
-                  />
-                </div>
-              </div>
-            )}
 
             <div className="flex items-center justify-between pt-4 border-t border-slate-200">
               <button

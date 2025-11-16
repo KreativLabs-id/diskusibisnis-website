@@ -171,9 +171,9 @@ export default function NotificationDropdown() {
         )}
       </button>
 
-      {/* Dropdown Menu - Full Mobile Width */}
+      {/* Dropdown Menu - Responsive with Max Height */}
       {isOpen && (
-                <div className="fixed inset-x-0 top-14 sm:absolute sm:right-0 sm:left-auto sm:inset-x-auto mt-0 sm:mt-2 w-full sm:w-80 lg:w-96 bg-white sm:rounded-xl shadow-2xl border-t sm:border border-slate-200 flex flex-col sm:max-h-128 z-50">
+        <div className="fixed sm:absolute right-0 top-14 sm:top-auto sm:mt-2 w-full sm:w-96 max-h-[70vh] sm:max-h-[600px] bg-white rounded-b-xl sm:rounded-xl shadow-2xl border-t sm:border border-slate-200 flex flex-col z-50 overflow-hidden">
           {/* Header - Clean & Minimal */}
           <div className="px-4 py-3 border-b border-slate-200 bg-white shrink-0">
             <div className="flex items-center justify-between">

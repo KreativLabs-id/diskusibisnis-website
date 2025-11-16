@@ -5,8 +5,11 @@ import {
   getUserQuestions,
   getUserAnswers,
   getUserActivities,
-  getUserRank
+  getUserRank,
+  updateUserProfile,
+  deleteUserAvatar
 } from '../controllers/users.controller';
+import { authenticateToken } from '../middlewares/auth.middleware';
 
 const router = Router();
 
@@ -24,6 +27,12 @@ router.get('/:id/questions', getUserQuestions);
 
 // Get user answers (must come before /:id)
 router.get('/:id/answers', getUserAnswers);
+
+// Delete user avatar (must come before /:id)
+router.delete('/:id/avatar', authenticateToken, deleteUserAvatar);
+
+// Update user profile (must come before /:id)
+router.put('/:id', authenticateToken, updateUserProfile);
 
 // Get user by ID (must come last among /:id routes)
 router.get('/:id', getUserById);

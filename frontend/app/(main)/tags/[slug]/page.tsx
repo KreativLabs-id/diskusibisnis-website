@@ -6,6 +6,7 @@ import Link from 'next/link';
 import { Tag, ArrowLeft, MessageSquare, ThumbsUp, User, Calendar, Search } from 'lucide-react';
 import { tagAPI, questionAPI } from '@/lib/api';
 import VerifiedBadge from '@/components/ui/VerifiedBadge';
+import UserAvatar from '@/components/ui/UserAvatar';
 
 interface TagData {
   id: string;
@@ -351,19 +352,12 @@ export default function TagDetailPage() {
                           className="flex items-center gap-1.5 sm:gap-2 hover:text-emerald-600 transition-colors"
                           onClick={(e) => e.stopPropagation()}
                         >
-                          {question.author_avatar ? (
-                            <img
-                              src={question.author_avatar}
-                              alt={question.author_name}
-                              className="w-5 h-5 sm:w-6 sm:h-6 rounded-full"
-                            />
-                          ) : (
-                            <div className="w-5 h-5 sm:w-6 sm:h-6 rounded-full bg-emerald-600 flex items-center justify-center">
-                              <span className="text-white text-[10px] sm:text-xs font-medium">
-                                {question.author_name.charAt(0).toUpperCase()}
-                              </span>
-                            </div>
-                          )}
+                          <UserAvatar
+                            src={question.author_avatar}
+                            alt={question.author_name}
+                            size="xs"
+                            fallbackName={question.author_name}
+                          />
                           <span className="truncate max-w-[120px] sm:max-w-none">{question.author_name}</span>
                           <VerifiedBadge isVerified={question.author_is_verified || false} size="sm" />
                         </Link>

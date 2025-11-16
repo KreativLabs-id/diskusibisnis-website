@@ -18,6 +18,7 @@ import {
 import { questionAPI, answerAPI, voteAPI, bookmarkAPI } from '@/lib/api';
 import { useAuth } from '@/contexts/AuthContext';
 import VerifiedBadge from '@/components/ui/VerifiedBadge';
+import UserAvatar from '@/components/ui/UserAvatar';
 import FloatingActionButton from '@/components/ui/FloatingActionButton';
 import AlertModal from '@/components/ui/AlertModal';
 import VoteSection from '@/components/ui/VoteSection';
@@ -31,6 +32,7 @@ interface QuestionData {
   images?: string[];
   author_id: string;
   author_name: string;
+  author_avatar?: string;
   author_reputation: number;
   author_is_verified: boolean;
   created_at: string;
@@ -45,6 +47,7 @@ interface QuestionData {
     content: string;
     author_id: string;
     author_name: string;
+    author_avatar?: string;
     author_reputation: number;
     author_is_verified: boolean;
     created_at: string;
@@ -359,16 +362,26 @@ export default function QuestionDetailPage() {
       return;
     }
 
+    if (!question) {
+      showAlert('error', 'Error', 'Pertanyaan tidak ditemukan');
+      return;
+    }
+
     try {
-      if (question?.is_bookmarked) {
+      if (question.is_bookmarked) {
         await bookmarkAPI.remove(question.id);
-      } else if (question) {
+        showAlert('success', 'Berhasil', 'Pertanyaan dihapus dari saved');
+      } else {
         await bookmarkAPI.add(question.id);
+        showAlert('success', 'Berhasil', 'Pertanyaan disimpan ke saved');
       }
-      fetchQuestion(); // Refresh to update bookmark status
-    } catch (error) {
+      await fetchQuestion(); // Refresh to update bookmark status
+    } catch (error: any) {
       console.error('Error toggling bookmark:', error);
-      showAlert('error', 'Bookmark Gagal', 'Gagal menyimpan pertanyaan');
+      const errorMessage = error.response?.data?.message || 
+                          error.response?.data?.error || 
+                          'Gagal menyimpan pertanyaan';
+      showAlert('error', 'Bookmark Gagal', errorMessage);
     }
   };
 
@@ -539,11 +552,12 @@ export default function QuestionDetailPage() {
                       </button>
                     </div>
                   )}
-                  <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-gradient-to-br from-emerald-500 to-emerald-600 flex items-center justify-center">
-                    <span className="text-white text-xs sm:text-sm font-medium">
-                      {question.author_name?.charAt(0).toUpperCase()}
-                    </span>
-                  </div>
+                  <UserAvatar
+                    src={question.author_avatar}
+                    alt={question.author_name}
+                    size="sm"
+                    fallbackName={question.author_name}
+                  />
                   <div>
                     <div className="flex items-center gap-1">
                       <p className="font-medium text-slate-900 text-xs sm:text-sm">{question.author_name}</p>
@@ -639,11 +653,12 @@ export default function QuestionDetailPage() {
 
                   <div className="space-y-2 sm:space-y-0 sm:flex sm:items-center sm:justify-between pt-3 sm:pt-4 border-t border-slate-200">
                     <div className="flex items-center gap-2">
-                      <div className="w-6 h-6 sm:w-8 sm:h-8 rounded-full bg-gradient-to-br from-emerald-500 to-emerald-600 flex items-center justify-center">
-                        <span className="text-white text-xs sm:text-sm font-medium">
-                          {answer.author_name?.charAt(0).toUpperCase()}
-                        </span>
-                      </div>
+                      <UserAvatar
+                        src={answer.author_avatar}
+                        alt={answer.author_name}
+                        size="sm"
+                        fallbackName={answer.author_name}
+                      />
                       <div>
                         <div className="flex items-center gap-1">
                           <p className="font-medium text-slate-900 text-xs sm:text-sm">{answer.author_name}</p>

@@ -45,16 +45,26 @@ export const createOrUpdateVote = async (req: AuthRequest, res: Response): Promi
     try {
       await client.query('BEGIN');
 
-      // Check existing vote
+      // Lock the target row to prevent race conditions
+      await client.query(
+        `SELECT id FROM public.${targetTable} WHERE id = $1 FOR UPDATE`,
+        [targetId]
+      );
+
+      // Check existing vote with row-level lock
       let existingVoteResult;
       if (targetType === 'question') {
         existingVoteResult = await client.query(
-          `SELECT id, vote_type FROM public.votes WHERE user_id = $1 AND question_id = $2`,
+          `SELECT id, vote_type FROM public.votes 
+           WHERE user_id = $1 AND question_id = $2 
+           FOR UPDATE`,
           [user.id, targetId]
         );
       } else {
         existingVoteResult = await client.query(
-          `SELECT id, vote_type FROM public.votes WHERE user_id = $1 AND answer_id = $2`,
+          `SELECT id, vote_type FROM public.votes 
+           WHERE user_id = $1 AND answer_id = $2 
+           FOR UPDATE`,
           [user.id, targetId]
         );
       }

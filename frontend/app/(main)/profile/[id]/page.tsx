@@ -8,6 +8,7 @@ import { userAPI } from '@/lib/api';
 import { formatDate } from '@/lib/utils';
 import Link from 'next/link';
 import VerifiedBadge from '@/components/ui/VerifiedBadge';
+import UserAvatar from '@/components/ui/UserAvatar';
 
 interface UserProfile {
   id: string;
@@ -215,19 +216,13 @@ export default function ProfilePage() {
           <div className="flex flex-col sm:flex-row gap-4 sm:gap-6">
             {/* Avatar */}
             <div className="shrink-0">
-              {profile.avatarUrl ? (
-                <img
-                  src={profile.avatarUrl}
-                  alt={profile.displayName || 'User'}
-                  className="w-20 h-20 sm:w-24 sm:h-24 rounded-full object-cover ring-4 ring-emerald-100"
-                />
-              ) : (
-                <div className="w-20 h-20 sm:w-24 sm:h-24 rounded-full bg-emerald-600 flex items-center justify-center ring-4 ring-emerald-100">
-                  <span className="text-white text-2xl sm:text-3xl font-bold">
-                    {profile.displayName?.charAt(0)?.toUpperCase() || 'U'}
-                  </span>
-                </div>
-              )}
+              <UserAvatar
+                src={profile.avatarUrl}
+                alt={profile.displayName || 'User'}
+                size="xl"
+                fallbackName={profile.displayName}
+                className="ring-4 ring-emerald-100"
+              />
             </div>
 
             {/* Profile Info */}

@@ -14,6 +14,7 @@ import {
 } from 'lucide-react';
 import { userAPI } from '@/lib/api';
 import VerifiedBadge from '@/components/ui/VerifiedBadge';
+import UserAvatar from '@/components/ui/UserAvatar';
 
 interface User {
   id: string;
@@ -236,19 +237,13 @@ export default function UsersPage() {
                 className="bg-white rounded-xl border border-slate-200 p-4 sm:p-6 hover:shadow-lg hover:border-emerald-300 transition-all group"
               >
                 <div className="flex items-center gap-3 mb-3">
-                  {user.avatarUrl ? (
-                    <img
-                      src={user.avatarUrl}
-                      alt={user.displayName}
-                      className="w-12 h-12 rounded-full object-cover ring-2 ring-slate-200"
-                    />
-                  ) : (
-                    <div className="w-12 h-12 rounded-full bg-emerald-600 flex items-center justify-center">
-                      <span className="text-white text-lg font-bold">
-                        {(user.displayName || 'A').charAt(0).toUpperCase()}
-                      </span>
-                    </div>
-                  )}
+                  <UserAvatar
+                    src={user.avatarUrl}
+                    alt={user.displayName}
+                    size="lg"
+                    fallbackName={user.displayName}
+                    className="ring-2 ring-slate-200"
+                  />
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-1.5 mb-1">
                       <h3 className="font-semibold text-slate-900 group-hover:text-emerald-600 transition-colors truncate">
