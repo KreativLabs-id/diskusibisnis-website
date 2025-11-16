@@ -4,7 +4,7 @@ nixPkgs = ["nodejs_20"]
 [phases.install]
 cmds = [
   "cd backend",
-  "npm ci --prefer-offline --no-audit --omit=dev"
+  "npm install --omit=dev --no-audit"
 ]
 
 [phases.build]
