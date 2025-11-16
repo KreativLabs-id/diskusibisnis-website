@@ -1,7 +1,7 @@
-# Dockerfile for Diskusi Bisnis backend (Railway)
+# Dockerfile for Diskusi Bisnis backend (Fly.io)
 # Multi-stage build for optimized production image
 
-FROM node:20-alpine@sha256:2d5e8a8a51bc341fd5f2eed6d91455c3a3d147e91a14298fc564b5dc519c1666 AS builder
+FROM node:20-alpine AS builder
 
 # Set working directory
 WORKDIR /app
@@ -19,7 +19,7 @@ COPY . ./
 RUN npm run build
 
 # Production stage
-FROM node:20-alpine@sha256:2d5e8a8a51bc341fd5f2eed6d91455c3a3d147e91a14298fc564b5dc519c1666
+FROM node:20-alpine
 
 WORKDIR /app
 
@@ -45,9 +45,10 @@ USER nodejs
 
 # Environment
 ENV NODE_ENV=production
+ENV PORT=8080
 
-# Expose port (Railway will assign PORT dynamically)
-EXPOSE 5000
+# Expose port (Fly.io will use internal_port from fly.toml)
+EXPOSE 8080
 
 # Health check
 HEALTHCHECK --interval=30s --timeout=3s --start-period=40s --retries=3 \
