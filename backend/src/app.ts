@@ -13,9 +13,23 @@ const app: Application = express();
 // Security middleware
 app.use(helmet());
 
-// CORS configuration
+// CORS configuration - Handle multiple origins
 app.use(cors({
-  origin: config.cors.origin,
+  origin: (origin, callback) => {
+    const allowedOrigins = config.cors.origin;
+    // Allow requests with no origin (like mobile apps or curl requests)
+    if (!origin) return callback(null, true);
+    
+    if (Array.isArray(allowedOrigins)) {
+      if (allowedOrigins.includes(origin)) {
+        callback(null, true);
+      } else {
+        callback(new Error('Not allowed by CORS'));
+      }
+    } else {
+      callback(null, origin === allowedOrigins);
+    }
+  },
   credentials: true,
 }));
 
