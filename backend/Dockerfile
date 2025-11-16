@@ -6,15 +6,15 @@ FROM node:20-alpine AS builder
 # Set working directory
 WORKDIR /app
 
-# Copy package files
-COPY package.json ./
-COPY package-lock.json* ./
+# Copy package files from backend folder
+COPY backend/package.json ./
+COPY backend/package-lock.json* ./
 
 # Install all dependencies (including devDependencies for build)
-RUN npm ci --only=production=false || npm install
+RUN if [ -f package-lock.json ]; then npm ci --only=production=false; else npm install; fi
 
-# Copy source code (exclude node_modules via .dockerignore)
-COPY . ./
+# Copy source code from backend folder
+COPY backend/ ./
 
 # Build TypeScript
 RUN npm run build
@@ -28,7 +28,7 @@ WORKDIR /app
 COPY --from=builder /app/package*.json ./
 
 # Install only production dependencies
-RUN npm ci --only=production || npm install --only=production
+RUN if [ -f package-lock.json ]; then npm ci --only=production; else npm install --only=production; fi
 
 # Copy built files from builder stage
 COPY --from=builder /app/dist ./dist
