@@ -6,14 +6,14 @@ FROM node:20-alpine@sha256:2d5e8a8a51bc341fd5f2eed6d91455c3a3d147e91a14298fc564b
 # Set working directory
 WORKDIR /app
 
-# Copy backend package files (Railway build context is repo root)
-COPY backend/package*.json ./
+# Copy package files (build context is now /backend folder)
+COPY package.json package-lock.json ./
 
 # Install all dependencies (including devDependencies for build)
 RUN npm ci
 
-# Copy backend source code into /app
-COPY backend ./
+# Copy source code
+COPY . ./
 
 # Build TypeScript
 RUN npm run build
