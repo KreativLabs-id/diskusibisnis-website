@@ -1,0 +1,422 @@
+import { Response } from 'express';
+import pool from '../config/database';
+import { AuthRequest } from '../types';
+import { successResponse, errorResponse, notFoundResponse, forbiddenResponse } from '../utils/response.utils';
+import { generateUniqueSlug } from '../utils/slug.utils';
+
+/**
+ * Get all communities
+ * GET /api/communities
+ */
+export const getCommunities = async (req: AuthRequest, res: Response): Promise<void> => {
+  try {
+    const page = parseInt(req.query.page as string) || 1;
+    const limit = parseInt(req.query.limit as string) || 20;
+    const search = (req.query.search as string) || '';
+    const category = (req.query.category as string) || '';
+    const memberOnly = req.query.member === 'true';
+
+    let currentUserId = null;
+    if (memberOnly) {
+      if (!req.user) {
+        forbiddenResponse(res, 'Authentication required for member filter');
+        return;
+      }
+      currentUserId = req.user.id;
+    }
+
+    const offset = (page - 1) * limit;
+    const queryParams: any[] = [];
+    let paramIndex = 1;
+
+    let query = `
+      SELECT 
+        c.id, c.name, c.slug, c.description, c.category, c.location,
+        c.avatar_url, c.is_popular, c.created_at,
+        COUNT(DISTINCT cm.user_id) as member_count,
+        COUNT(DISTINCT q.id) as question_count
+      FROM public.communities c
+      LEFT JOIN public.community_members cm ON c.id = cm.community_id
+      LEFT JOIN public.questions q ON c.id = q.community_id
+      WHERE 1=1
+    `;
+
+    if (memberOnly && currentUserId) {
+      query += ` AND EXISTS (
+        SELECT 1 FROM public.community_members 
+        WHERE community_id = c.id AND user_id = $${paramIndex}
+      )`;
+      queryParams.push(currentUserId);
+      paramIndex++;
+    }
+
+    if (search) {
+      query += ` AND (c.name ILIKE $${paramIndex} OR c.description ILIKE $${paramIndex})`;
+      queryParams.push(`%${search}%`);
+      paramIndex++;
+    }
+
+    if (category && category !== 'all') {
+      query += ` AND c.category = $${paramIndex}`;
+      queryParams.push(category);
+      paramIndex++;
+    }
+
+    query += ` GROUP BY c.id ORDER BY c.is_popular DESC, member_count DESC`;
+    query += ` LIMIT $${paramIndex} OFFSET $${paramIndex + 1}`;
+    queryParams.push(limit, offset);
+
+    const result = await pool.query(query, queryParams);
+
+    // Get total count
+    let countQuery = `
+      SELECT COUNT(*) as total
+      FROM public.communities c
+      WHERE 1=1
+    `;
+
+    const countParams: any[] = [];
+    let countParamIndex = 1;
+
+    if (memberOnly && currentUserId) {
+      countQuery += ` AND EXISTS (
+        SELECT 1 FROM public.community_members 
+        WHERE community_id = c.id AND user_id = $${countParamIndex}
+      )`;
+      countParams.push(currentUserId);
+      countParamIndex++;
+    }
+
+    if (search) {
+      countQuery += ` AND (c.name ILIKE $${countParamIndex} OR c.description ILIKE $${countParamIndex})`;
+      countParams.push(`%${search}%`);
+      countParamIndex++;
+    }
+
+    if (category && category !== 'all') {
+      countQuery += ` AND c.category = $${countParamIndex}`;
+      countParams.push(category);
+    }
+
+    const countResult = await pool.query(countQuery, countParams);
+    const total = parseInt(countResult.rows[0].total);
+
+    successResponse(res, {
+      communities: result.rows,
+      pagination: {
+        page,
+        limit,
+        total,
+        totalPages: Math.ceil(total / limit)
+      }
+    });
+  } catch (error) {
+    console.error('Get communities error:', error);
+    errorResponse(res, 'Server error');
+  }
+};
+
+/**
+ * Create new community
+ * POST /api/communities
+ */
+export const createCommunity = async (req: AuthRequest, res: Response): Promise<void> => {
+  try {
+    const user = req.user;
+    if (!user) {
+      forbiddenResponse(res, 'Authentication required');
+      return;
+    }
+
+    const { name, description, category, location } = req.body;
+
+    // Check if community name already exists
+    const existingCommunity = await pool.query(
+      'SELECT id FROM public.communities WHERE name = $1',
+      [name]
+    );
+
+    if (existingCommunity.rows.length > 0) {
+      errorResponse(res, 'Community name already exists', 400);
+      return;
+    }
+
+    // Generate unique slug
+    const slug = await generateUniqueSlug(name, 'communities');
+
+    // Create community
+    const result = await pool.query(
+      `INSERT INTO public.communities (name, slug, description, category, location, created_by) 
+       VALUES ($1, $2, $3, $4, $5, $6) 
+       RETURNING id, name, slug, description, category, location, created_at`,
+      [name, slug, description, category, location, user.id]
+    );
+
+    const community = result.rows[0];
+
+    // Add creator as first member (admin)
+    await pool.query(
+      'INSERT INTO public.community_members (community_id, user_id, role) VALUES ($1, $2, $3)',
+      [community.id, user.id, 'admin']
+    );
+
+    successResponse(res, { community }, 'Community created successfully', 201);
+  } catch (error) {
+    console.error('Create community error:', error);
+    errorResponse(res, 'Server error');
+  }
+};
+
+/**
+ * Get community by slug
+ * GET /api/communities/:slug
+ */
+export const getCommunityBySlug = async (req: AuthRequest, res: Response): Promise<void> => {
+  try {
+    const slug = req.params.slug;
+    const currentUserId = req.user?.id || null;
+
+    const result = await pool.query(`
+      SELECT 
+        c.id, c.name, c.slug, c.description, c.category, c.location, c.created_at, c.created_by,
+        u.display_name as creator_name,
+        COUNT(DISTINCT cm.id) as members_count,
+        CASE WHEN $2::uuid IS NOT NULL THEN 
+          EXISTS(SELECT 1 FROM community_members WHERE community_id = c.id AND user_id = $2::uuid)
+        ELSE FALSE END as is_member,
+        CASE WHEN $2::uuid IS NOT NULL THEN 
+          (SELECT role FROM community_members WHERE community_id = c.id AND user_id = $2::uuid)
+        ELSE NULL END as user_role
+      FROM public.communities c
+      LEFT JOIN public.users u ON c.created_by = u.id
+      LEFT JOIN public.community_members cm ON c.id = cm.community_id
+      WHERE c.slug = $1
+      GROUP BY c.id, u.display_name
+    `, [slug, currentUserId]);
+
+    if (result.rows.length === 0) {
+      notFoundResponse(res, 'Community not found');
+      return;
+    }
+
+    successResponse(res, { community: result.rows[0] });
+  } catch (error) {
+    console.error('Get community error:', error);
+    errorResponse(res, 'Server error');
+  }
+};
+
+/**
+ * Join community
+ * POST /api/communities/:slug/join
+ */
+export const joinCommunity = async (req: AuthRequest, res: Response): Promise<void> => {
+  try {
+    const user = req.user;
+    if (!user) {
+      forbiddenResponse(res, 'Authentication required');
+      return;
+    }
+
+    const slug = req.params.slug;
+
+    // Get community ID
+    const communityResult = await pool.query(
+      'SELECT id FROM public.communities WHERE slug = $1',
+      [slug]
+    );
+
+    if (communityResult.rows.length === 0) {
+      notFoundResponse(res, 'Community not found');
+      return;
+    }
+
+    const communityId = communityResult.rows[0].id;
+
+    // Check if already a member
+    const existingMember = await pool.query(
+      'SELECT id FROM public.community_members WHERE community_id = $1 AND user_id = $2',
+      [communityId, user.id]
+    );
+
+    if (existingMember.rows.length > 0) {
+      errorResponse(res, 'You are already a member of this community', 400);
+      return;
+    }
+
+    // Add as member
+    await pool.query(
+      'INSERT INTO public.community_members (community_id, user_id, role) VALUES ($1, $2, $3)',
+      [communityId, user.id, 'member']
+    );
+
+    successResponse(res, null, 'Successfully joined community');
+  } catch (error) {
+    console.error('Join community error:', error);
+    errorResponse(res, 'Server error');
+  }
+};
+
+/**
+ * Leave community
+ * POST /api/communities/:slug/leave
+ */
+export const leaveCommunity = async (req: AuthRequest, res: Response): Promise<void> => {
+  try {
+    const user = req.user;
+    if (!user) {
+      forbiddenResponse(res, 'Authentication required');
+      return;
+    }
+
+    const slug = req.params.slug;
+
+    // Get community ID
+    const communityResult = await pool.query(
+      'SELECT id FROM public.communities WHERE slug = $1',
+      [slug]
+    );
+
+    if (communityResult.rows.length === 0) {
+      notFoundResponse(res, 'Community not found');
+      return;
+    }
+
+    const communityId = communityResult.rows[0].id;
+
+    // Remove membership
+    const result = await pool.query(
+      'DELETE FROM public.community_members WHERE community_id = $1 AND user_id = $2',
+      [communityId, user.id]
+    );
+
+    if (result.rowCount === 0) {
+      errorResponse(res, 'You are not a member of this community', 400);
+      return;
+    }
+
+    successResponse(res, null, 'Successfully left community');
+  } catch (error) {
+    console.error('Leave community error:', error);
+    errorResponse(res, 'Server error');
+  }
+};
+
+/**
+ * Get community questions
+ * GET /api/communities/:slug/questions
+ */
+export const getCommunityQuestions = async (req: AuthRequest, res: Response): Promise<void> => {
+  try {
+    const slug = req.params.slug;
+    const page = parseInt(req.query.page as string) || 1;
+    const limit = parseInt(req.query.limit as string) || 10;
+    const offset = (page - 1) * limit;
+
+    // Get community ID
+    const communityResult = await pool.query(
+      'SELECT id FROM public.communities WHERE slug = $1',
+      [slug]
+    );
+
+    if (communityResult.rows.length === 0) {
+      notFoundResponse(res, 'Community not found');
+      return;
+    }
+
+    const communityId = communityResult.rows[0].id;
+
+    const result = await pool.query(`
+      SELECT 
+        q.id, q.title, q.content, q.views_count, q.is_closed, q.created_at,
+        u.id as author_id, u.display_name as author_name, u.avatar_url as author_avatar,
+        COUNT(DISTINCT a.id) as answers_count,
+        COUNT(DISTINCT CASE WHEN v.vote_type = 'upvote' THEN v.id END) as upvotes_count
+      FROM public.questions q
+      LEFT JOIN public.users u ON q.author_id = u.id
+      LEFT JOIN public.answers a ON q.id = a.question_id
+      LEFT JOIN public.votes v ON v.question_id = q.id
+      WHERE q.community_id = $1
+      GROUP BY q.id, u.id
+      ORDER BY q.created_at DESC
+      LIMIT $2 OFFSET $3
+    `, [communityId, limit, offset]);
+
+    const countResult = await pool.query(
+      'SELECT COUNT(*) as total FROM public.questions WHERE community_id = $1',
+      [communityId]
+    );
+
+    const total = parseInt(countResult.rows[0].total);
+
+    successResponse(res, {
+      questions: result.rows,
+      pagination: {
+        page,
+        limit,
+        total,
+        totalPages: Math.ceil(total / limit)
+      }
+    });
+  } catch (error) {
+    console.error('Get community questions error:', error);
+    errorResponse(res, 'Server error');
+  }
+};
+
+/**
+ * Get community members
+ * GET /api/communities/:slug/members
+ */
+export const getCommunityMembers = async (req: AuthRequest, res: Response): Promise<void> => {
+  try {
+    const slug = req.params.slug;
+    const page = parseInt(req.query.page as string) || 1;
+    const limit = parseInt(req.query.limit as string) || 20;
+    const offset = (page - 1) * limit;
+
+    // Get community ID
+    const communityResult = await pool.query(
+      'SELECT id FROM public.communities WHERE slug = $1',
+      [slug]
+    );
+
+    if (communityResult.rows.length === 0) {
+      notFoundResponse(res, 'Community not found');
+      return;
+    }
+
+    const communityId = communityResult.rows[0].id;
+
+    const result = await pool.query(`
+      SELECT 
+        u.id, u.display_name, u.avatar_url, u.reputation_points,
+        cm.role, cm.joined_at
+      FROM public.community_members cm
+      JOIN public.users u ON cm.user_id = u.id
+      WHERE cm.community_id = $1
+      ORDER BY cm.joined_at ASC
+      LIMIT $2 OFFSET $3
+    `, [communityId, limit, offset]);
+
+    const countResult = await pool.query(
+      'SELECT COUNT(*) as total FROM public.community_members WHERE community_id = $1',
+      [communityId]
+    );
+
+    const total = parseInt(countResult.rows[0].total);
+
+    successResponse(res, {
+      members: result.rows,
+      pagination: {
+        page,
+        limit,
+        total,
+        totalPages: Math.ceil(total / limit)
+      }
+    });
+  } catch (error) {
+    console.error('Get community members error:', error);
+    errorResponse(res, 'Server error');
+  }
+};
