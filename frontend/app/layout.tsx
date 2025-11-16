@@ -1,8 +1,6 @@
 import type { Metadata, Viewport } from "next";
 import { Poppins } from "next/font/google";
 import "./globals.css";
-// import "../styles/mobile-fixes.css";
-// import "../styles/pwa-mobile.css";
 import ClientProviders from "./components/ClientProviders";
 
 // Force dynamic rendering for error pages
