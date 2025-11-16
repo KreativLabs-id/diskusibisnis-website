@@ -14,4 +14,3 @@ dist
 coverage
 .nyc_output
 *.log
-!package-lock.json
