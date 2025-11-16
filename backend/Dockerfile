@@ -7,10 +7,11 @@ FROM node:20-alpine AS builder
 WORKDIR /app
 
 # Copy package files
-COPY package.json package-lock.json ./
+COPY package.json ./
+COPY package-lock.json* ./
 
 # Install all dependencies (including devDependencies for build)
-RUN npm ci
+RUN npm ci --only=production=false || npm install
 
 # Copy source code (exclude node_modules via .dockerignore)
 COPY . ./
@@ -27,7 +28,7 @@ WORKDIR /app
 COPY --from=builder /app/package*.json ./
 
 # Install only production dependencies
-RUN npm ci --omit=dev
+RUN npm ci --only=production || npm install --only=production
 
 # Copy built files from builder stage
 COPY --from=builder /app/dist ./dist
