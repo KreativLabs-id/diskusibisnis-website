@@ -1,6 +1,7 @@
 'use client';
 
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { formatDate, formatNumber } from '@/lib/utils';
 import { Eye, MessageCircle, ThumbsUp, Clock, User, Award } from 'lucide-react';
 import VerifiedBadge from '@/components/ui/VerifiedBadge';
@@ -23,17 +24,23 @@ interface Question {
 }
 
 export default function QuestionCard({ question }: { question: Question }) {
+  const router = useRouter();
   const plainContent = (question.content || '').replace(/<[^>]*>/g, '').trim();
   const preview =
     plainContent.length > 150 ? `${plainContent.substring(0, 150)}...` : plainContent;
 
-
   return (
-    <div className="bg-white rounded-2xl border border-slate-200 p-4 sm:p-6 hover:border-emerald-300 hover:shadow-md transition-all duration-200 group">
+    <div
+      className="bg-white rounded-2xl border border-slate-200 p-4 sm:p-6 hover:border-emerald-300 hover:shadow-md transition-all duration-200 group cursor-pointer"
+      onClick={() => router.push(`/questions/${question.id}`)}
+    >
       {/* Content Section - Full Width */}
       <div className="space-y-3">
           {/* Title */}
-          <Link href={`/questions/${question.id}`}>
+          <Link
+            href={`/questions/${question.id}`}
+            onClick={(e) => e.stopPropagation()}
+          >
             <h3 className="text-lg font-bold text-slate-900 hover:text-emerald-600 transition-colors line-clamp-2 leading-tight">
               {question.title}
             </h3>
@@ -47,11 +54,15 @@ export default function QuestionCard({ question }: { question: Question }) {
           {/* Question Image Thumbnail */}
           {question.images && question.images.length > 0 && (
             <div className="mt-2">
-              <div className="relative aspect-video max-w-xl rounded-lg overflow-hidden border border-slate-200 bg-white">
+              <div className="relative aspect-video max-w-xl rounded-lg overflow-hidden border border-slate-200 bg-slate-50">
                 <img
                   src={question.images[0]}
                   alt={question.title}
-                  className="w-full h-full object-contain"
+                  className="w-full h-full object-cover"
+                  onError={(e) => {
+                    const target = e.target as HTMLImageElement;
+                    target.style.display = 'none';
+                  }}
                 />
               </div>
             </div>
@@ -63,6 +74,7 @@ export default function QuestionCard({ question }: { question: Question }) {
               <Link
                 key={tag.id}
                 href={`/tags/${tag.slug}`}
+                onClick={(e) => e.stopPropagation()}
                 className="px-2.5 py-1 rounded-full bg-emerald-50 text-emerald-700 text-xs font-medium hover:bg-emerald-100 transition-colors"
               >
                 {tag.name}
@@ -113,7 +125,11 @@ export default function QuestionCard({ question }: { question: Question }) {
                 {(question.author_name || 'U').charAt(0).toUpperCase()}
               </div>
             )}
-            <div>
+            <Link
+              href={`/profile/${question.id}`}
+              onClick={(e) => e.stopPropagation()}
+              className="flex flex-col"
+            >
               <div className="flex items-center gap-1.5">
                 <p className="text-sm font-medium text-slate-700">{question.author_name || 'Unknown'}</p>
                 <VerifiedBadge isVerified={question.author_is_verified} size="sm" />
@@ -126,7 +142,7 @@ export default function QuestionCard({ question }: { question: Question }) {
               {question.author_reputation < 100 && question.author_reputation > 0 && (
                 <p className="text-xs text-slate-500">{question.author_reputation} poin</p>
               )}
-            </div>
+            </Link>
           </div>
       </div>
     </div>

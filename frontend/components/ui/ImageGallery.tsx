@@ -54,7 +54,7 @@ const ImageGallery: React.FC<ImageGalleryProps> = ({ images, className = '' }) =
               alt="Question image"
               className="w-full h-full object-contain"
             />
-            <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-20 transition-all flex items-center justify-center">
+            <div className="absolute inset-0 bg-transparent group-hover:bg-black/20 transition-all flex items-center justify-center">
               <ZoomIn className="w-8 h-8 text-white opacity-0 group-hover:opacity-100 transition-opacity" />
             </div>
           </div>
@@ -71,7 +71,7 @@ const ImageGallery: React.FC<ImageGalleryProps> = ({ images, className = '' }) =
                   alt={`Question image ${index + 1}`}
                   className="w-full h-full object-contain"
                 />
-                <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-20 transition-all flex items-center justify-center">
+                <div className="absolute inset-0 bg-transparent group-hover:bg-black/20 transition-all flex items-center justify-center">
                   <ZoomIn className="w-6 h-6 text-white opacity-0 group-hover:opacity-100 transition-opacity" />
                 </div>
               </div>
@@ -88,7 +88,7 @@ const ImageGallery: React.FC<ImageGalleryProps> = ({ images, className = '' }) =
                 alt="Question image 1"
                 className="w-full h-full object-contain"
               />
-              <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-20 transition-all flex items-center justify-center">
+              <div className="absolute inset-0 bg-transparent group-hover:bg-black/20 transition-all flex items-center justify-center">
                 <ZoomIn className="w-7 h-7 text-white opacity-0 group-hover:opacity-100 transition-opacity" />
               </div>
             </div>
@@ -101,7 +101,7 @@ const ImageGallery: React.FC<ImageGalleryProps> = ({ images, className = '' }) =
                   alt={`Question image ${index + 2}`}
                   className="w-full h-full object-contain"
                 />
-                <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-20 transition-all flex items-center justify-center">
+                <div className="absolute inset-0 bg-transparent group-hover:bg-black/20 transition-all flex items-center justify-center">
                   <ZoomIn className="w-6 h-6 text-white opacity-0 group-hover:opacity-100 transition-opacity" />
                 </div>
               </div>
@@ -121,13 +121,13 @@ const ImageGallery: React.FC<ImageGalleryProps> = ({ images, className = '' }) =
                   className="w-full h-full object-contain"
                 />
                 {index === 3 && images.length > 4 && (
-                  <div className="absolute inset-0 bg-black bg-opacity-60 flex items-center justify-center">
+                  <div className="absolute inset-0 bg-black/60 flex items-center justify-center">
                     <span className="text-white text-2xl font-bold">
                       +{images.length - 4}
                     </span>
                   </div>
                 )}
-                <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-20 transition-all flex items-center justify-center">
+                <div className="absolute inset-0 bg-transparent group-hover:bg-black/20 transition-all flex items-center justify-center">
                   <ZoomIn className="w-6 h-6 text-white opacity-0 group-hover:opacity-100 transition-opacity" />
                 </div>
               </div>

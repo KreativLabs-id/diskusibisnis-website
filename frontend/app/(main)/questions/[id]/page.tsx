@@ -107,7 +107,25 @@ export default function QuestionDetailPage() {
     try {
       setLoading(true);
       const response = await questionAPI.getById(params.id as string);
-      setQuestion(response.data.data);
+      const rawQuestion: any = response.data.data;
+
+      const normalizedQuestion: QuestionData = {
+        ...rawQuestion,
+        images: Array.isArray(rawQuestion.images)
+          ? rawQuestion.images
+          : typeof rawQuestion.images === 'string'
+            ? (() => {
+                try {
+                  const parsed = JSON.parse(rawQuestion.images);
+                  return Array.isArray(parsed) ? parsed : [];
+                } catch {
+                  return [];
+                }
+              })()
+            : [],
+      };
+
+      setQuestion(normalizedQuestion);
     } catch (error) {
       console.error('Error fetching question:', error);
     } finally {

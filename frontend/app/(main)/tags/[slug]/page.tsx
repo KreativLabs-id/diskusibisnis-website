@@ -78,7 +78,7 @@ export default function TagDetailPage() {
         name: tagData.name,
         slug: tagData.slug,
         description: tagData.description,
-        questionCount: tagData.question_count || tagData.usage_count || 0,
+        questionCount: tagData.usage_count ?? tagData.question_count ?? 0,
         createdAt: tagData.created_at
       };
       
@@ -134,7 +134,10 @@ export default function TagDetailPage() {
   };
 
   const formatTimeAgo = (dateString: string) => {
+    if (!dateString) return '';
+
     const date = new Date(dateString);
+    if (isNaN(date.getTime())) return '';
     const now = new Date();
     const diffInSeconds = Math.floor((now.getTime() - date.getTime()) / 1000);
 
@@ -198,6 +201,8 @@ export default function TagDetailPage() {
     );
   }
 
+  const displayedQuestionCount = tag.questionCount ?? questions.length;
+
   return (
     <div className="min-h-screen bg-slate-50">
       <div className="max-w-6xl mx-auto px-3 sm:px-4 py-4 sm:py-8">
@@ -222,7 +227,12 @@ export default function TagDetailPage() {
                   {tag.description || `Pertanyaan terkait ${tag.name}`}
                 </p>
                 <div className="text-xs sm:text-sm text-slate-500">
-                  <span className="font-medium text-emerald-600">{tag.questionCount}</span> pertanyaan tersedia • Dibuat {formatTimeAgo(tag.createdAt)}
+                  <span className="font-medium text-emerald-600">{displayedQuestionCount}</span> pertanyaan tersedia
+                  {formatTimeAgo(tag.createdAt) && (
+                    <>
+                      {' '}Dibuat {formatTimeAgo(tag.createdAt)}
+                    </>
+                  )}
                 </div>
               </div>
             </div>
@@ -236,7 +246,7 @@ export default function TagDetailPage() {
               Pertanyaan dengan Tag <span className="text-emerald-600">#{tag.name}</span>
             </h2>
             <p className="text-xs sm:text-sm text-slate-500 mt-1">
-              {questions.length} pertanyaan ditemukan
+              {displayedQuestionCount} pertanyaan ditemukan
             </p>
           </div>
 
@@ -264,7 +274,11 @@ export default function TagDetailPage() {
               </div>
             ) : (
               questions.map((question) => (
-                <div key={question.id} className="p-4 sm:p-6 hover:bg-slate-50 transition-colors">
+                <div
+                  key={question.id}
+                  className="p-4 sm:p-6 hover:bg-slate-50 transition-colors cursor-pointer"
+                  onClick={() => router.push(`/questions/${question.id}`)}
+                >
                   <div className="flex gap-3 sm:gap-4">
                     {/* Stats - Hidden on mobile, shown as inline on desktop */}
                     <div className="hidden sm:flex flex-col items-center gap-2 text-sm text-slate-500 min-w-[70px]">
@@ -287,6 +301,7 @@ export default function TagDetailPage() {
                       <Link
                         href={`/questions/${question.id}`}
                         className="block group"
+                        onClick={(e) => e.stopPropagation()}
                       >
                         <h3 className="text-base sm:text-lg font-semibold text-slate-900 group-hover:text-emerald-600 transition-colors mb-2 line-clamp-2">
                           {question.title}
@@ -307,6 +322,7 @@ export default function TagDetailPage() {
                                 ? 'bg-emerald-100 text-emerald-700 border-emerald-200 font-medium'
                                 : 'bg-slate-100 text-slate-700 border-slate-200 hover:bg-slate-200'
                             }`}
+                            onClick={(e) => e.stopPropagation()}
                           >
                             {questionTag.name}
                           </Link>
@@ -333,6 +349,7 @@ export default function TagDetailPage() {
                         <Link
                           href={`/profile/${question.author_id || 'unknown'}`}
                           className="flex items-center gap-1.5 sm:gap-2 hover:text-emerald-600 transition-colors"
+                          onClick={(e) => e.stopPropagation()}
                         >
                           {question.author_avatar ? (
                             <img

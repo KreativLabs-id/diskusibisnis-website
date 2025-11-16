@@ -312,6 +312,17 @@ export const getQuestionById = async (req: AuthRequest, res: Response): Promise<
 
     const question = result.rows[0];
 
+    if (typeof question.images === 'string') {
+      try {
+        question.images = JSON.parse(question.images);
+      } catch (error) {
+        console.error('Failed to parse question images JSON:', error);
+        question.images = [];
+      }
+    } else if (!question.images) {
+      question.images = [];
+    }
+
     // Get tags
     const tagsResult = await pool.query(`
       SELECT t.id, t.name, t.slug

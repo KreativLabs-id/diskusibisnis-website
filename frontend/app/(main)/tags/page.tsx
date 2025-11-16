@@ -57,7 +57,8 @@ export default function TagsPage() {
         name: tag.name,
         slug: tag.slug,
         description: tag.description,
-        questionCount: tag.question_count || 0,
+        // Backend mengirim jumlah pertanyaan per tag di field usage_count / question_count
+        questionCount: tag.usage_count ?? tag.question_count ?? 0,
         createdAt: tag.created_at
       }));
       
