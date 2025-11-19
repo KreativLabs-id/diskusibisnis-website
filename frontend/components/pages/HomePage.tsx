@@ -276,7 +276,7 @@ export default function HomePage() {
           : questions.length === 0
             ? renderEmptyState
             : (
-              <div className="space-y-4">
+              <div className="space-y-0 -mx-3 sm:-mx-4 lg:-mx-6">
                 {questions.map((question) => (
                   <QuestionCard key={question.id} question={question} />
                 ))}

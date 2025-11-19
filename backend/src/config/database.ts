@@ -1,17 +1,28 @@
 import { Pool } from 'pg';
 import config from './environment';
 
+// Log the database URL (masked) for debugging
+const dbUrl = config.database.url;
+const maskedUrl = dbUrl ? dbUrl.replace(/:[^:@]*@/, ':****@') : 'undefined';
+console.log(`Attempting to connect to database: ${maskedUrl}`);
+
 // Check if DATABASE_URL is from a cloud provider that requires SSL
-const isCloudDatabase = config.database.url?.includes('supabase') || 
-                        config.database.url?.includes('neon') ||
-                        config.database.url?.includes('railway') ||
-                        config.database.url?.includes('render');
+const isCloudDatabase = dbUrl?.includes('supabase') ||
+  dbUrl?.includes('neon') ||
+  dbUrl?.includes('railway') ||
+  dbUrl?.includes('render');
+
+const forceSsl = process.env.DB_SSL === 'true';
+const useSsl = isCloudDatabase || forceSsl;
+
+console.log(`Cloud database detected: ${isCloudDatabase}, Force SSL: ${forceSsl}`);
 
 const pool = new Pool({
   connectionString: config.database.url,
-  ssl: isCloudDatabase ? {
+  ssl: useSsl ? {
     rejectUnauthorized: false
-  } : false
+  } : false,
+  connectionTimeoutMillis: 10000, // 10 seconds timeout
 });
 
 pool.on('connect', () => {

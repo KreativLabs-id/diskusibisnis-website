@@ -29,124 +29,124 @@ interface Question {
 export default function QuestionCard({ question }: { question: Question }) {
   const router = useRouter();
   const plainContent = (question.content || '').replace(/<[^>]*>/g, '').trim();
-  
+
   // Generate username from author_name if author_username is not available
-  const authorUsername = question.author_username || 
+  const authorUsername = question.author_username ||
     question.author_name.toLowerCase().replace(/[^a-z0-9]/g, '');
-  
+
   const preview =
     plainContent.length > 150 ? `${plainContent.substring(0, 150)}...` : plainContent;
 
   return (
     <div
-      className="bg-white rounded-2xl border border-slate-200 p-4 sm:p-6 hover:border-emerald-300 hover:shadow-md transition-all duration-200 group cursor-pointer"
+      className="py-6 border-b border-slate-300 last:border-b-0 hover:bg-slate-50 transition-colors duration-200 group cursor-pointer"
       onClick={() => router.push(`/questions/${question.id}`)}
     >
       {/* Content Section - Full Width */}
-      <div className="space-y-3">
-          {/* Title */}
-          <Link
-            href={`/questions/${question.id}`}
-            onClick={(e) => e.stopPropagation()}
-          >
-            <h3 className="text-lg font-bold text-slate-900 hover:text-emerald-600 transition-colors line-clamp-2 leading-tight">
-              {question.title}
-            </h3>
-          </Link>
+      <div className="space-y-3 px-3 sm:px-4 lg:px-6">
+        {/* Title */}
+        <Link
+          href={`/questions/${question.id}`}
+          onClick={(e) => e.stopPropagation()}
+        >
+          <h3 className="text-lg font-bold text-slate-900 hover:text-emerald-600 transition-colors line-clamp-2 leading-tight mt-2">
+            {question.title}
+          </h3>
+        </Link>
 
-          {/* Preview Content */}
-          {preview && (
-            <p className="text-sm text-slate-600 leading-relaxed line-clamp-2">{preview}</p>
-          )}
+        {/* Preview Content */}
+        {preview && (
+          <p className="text-sm text-slate-600 leading-relaxed line-clamp-2">{preview}</p>
+        )}
 
-          {/* Question Image Thumbnail */}
-          {question.images && question.images.length > 0 && (
-            <div className="mt-2">
-              <div className="relative aspect-video max-w-xl rounded-lg overflow-hidden border border-slate-200 bg-slate-50">
-                <img
-                  src={question.images[0]}
-                  alt={question.title}
-                  className="w-full h-full object-cover"
-                  onError={(e) => {
-                    const target = e.target as HTMLImageElement;
-                    target.style.display = 'none';
-                  }}
-                />
-              </div>
-            </div>
-          )}
-
-          {/* Tags */}
-          <div className="flex flex-wrap gap-1.5">
-            {question.tags && question.tags.slice(0, 4).map((tag) => (
-              <Link
-                key={tag.id}
-                href={`/tags/${tag.slug}`}
-                onClick={(e) => e.stopPropagation()}
-                className="px-2.5 py-1 rounded-full bg-emerald-50 text-emerald-700 text-xs font-medium hover:bg-emerald-100 transition-colors"
-              >
-                {tag.name}
-              </Link>
-            ))}
-            {question.tags && question.tags.length > 4 && (
-              <span className="px-2.5 py-1 rounded-full bg-slate-100 text-slate-600 text-xs font-medium">
-                +{question.tags.length - 4}
-              </span>
-            )}
-          </div>
-
-          {/* Stats Row - Responsive */}
-          <div className="flex flex-wrap items-center gap-3 sm:gap-4 text-xs text-slate-500 py-2 border-t border-slate-100">
-            <div className="flex items-center gap-1.5">
-              <ThumbsUp className="w-4 h-4 text-emerald-600" />
-              <span className="font-semibold text-slate-900">{question.upvotes_count || 0}</span>
-              <span className="hidden sm:inline">vote</span>
-            </div>
-            <div className="flex items-center gap-1.5">
-              <MessageCircle className={`w-4 h-4 ${question.has_accepted_answer ? 'text-green-600' : question.answers_count > 0 ? 'text-emerald-600' : 'text-slate-400'}`} />
-              <span className={`font-semibold ${question.has_accepted_answer ? 'text-green-600' : question.answers_count > 0 ? 'text-emerald-600' : 'text-slate-900'}`}>
-                {question.answers_count || 0}
-              </span>
-              <span className="hidden sm:inline">jawaban</span>
-            </div>
-            <div className="flex items-center gap-1.5">
-              <Eye className="w-4 h-4 text-slate-400" />
-              <span className="font-medium text-slate-700">{formatNumber(question.views_count)}</span>
-              <span className="hidden sm:inline">views</span>
-            </div>
-            <div className="flex items-center gap-1.5 ml-auto">
-              <Clock className="w-3.5 h-3.5" />
-              <span className="text-slate-600">{formatDate(question.created_at)}</span>
+        {/* Question Image Thumbnail */}
+        {question.images && question.images.length > 0 && (
+          <div className="mt-2">
+            <div className="relative aspect-video max-w-xl rounded-lg overflow-hidden border border-slate-200 bg-slate-50">
+              <img
+                src={question.images[0]}
+                alt={question.title}
+                className="w-full h-full object-cover"
+                onError={(e) => {
+                  const target = e.target as HTMLImageElement;
+                  target.style.display = 'none';
+                }}
+              />
             </div>
           </div>
+        )}
 
-          {/* Author Info */}
-          <div className="flex items-center gap-2">
-            <UserAvatar
-              src={question.author_avatar}
-              alt={question.author_name}
-              size="xs"
-              fallbackName={question.author_name}
-            />
+        {/* Tags */}
+        <div className="flex flex-wrap gap-1.5">
+          {question.tags && question.tags.slice(0, 4).map((tag) => (
             <Link
-              href={`/profile/${authorUsername}`}
+              key={tag.id}
+              href={`/tags/${tag.slug}`}
               onClick={(e) => e.stopPropagation()}
-              className="flex flex-col"
+              className="px-2.5 py-1 rounded-full bg-emerald-50 text-emerald-700 text-xs font-medium hover:bg-emerald-100 transition-colors"
             >
-              <div className="flex items-center gap-1.5">
-                <p className="text-sm font-medium text-slate-700">{question.author_name || 'Unknown'}</p>
-                <VerifiedBadge isVerified={question.author_is_verified} size="sm" />
-                {question.author_reputation >= 100 && (
-                  <span className="px-1.5 py-0.5 rounded bg-amber-100 text-amber-700 text-xs font-semibold">
-                    {formatNumber(question.author_reputation)}
-                  </span>
-                )}
-              </div>
-              {question.author_reputation < 100 && question.author_reputation > 0 && (
-                <p className="text-xs text-slate-500">{question.author_reputation} poin</p>
-              )}
+              {tag.name}
             </Link>
+          ))}
+          {question.tags && question.tags.length > 4 && (
+            <span className="px-2.5 py-1 rounded-full bg-slate-100 text-slate-600 text-xs font-medium">
+              +{question.tags.length - 4}
+            </span>
+          )}
+        </div>
+
+        {/* Stats Row - Responsive */}
+        <div className="flex flex-wrap items-center gap-3 sm:gap-4 text-xs text-slate-500 py-2 border-t border-slate-100">
+          <div className="flex items-center gap-1.5">
+            <ThumbsUp className="w-4 h-4 text-emerald-600" />
+            <span className="font-semibold text-slate-900">{question.upvotes_count || 0}</span>
+            <span className="hidden sm:inline">vote</span>
           </div>
+          <div className="flex items-center gap-1.5">
+            <MessageCircle className={`w-4 h-4 ${question.has_accepted_answer ? 'text-green-600' : question.answers_count > 0 ? 'text-emerald-600' : 'text-slate-400'}`} />
+            <span className={`font-semibold ${question.has_accepted_answer ? 'text-green-600' : question.answers_count > 0 ? 'text-emerald-600' : 'text-slate-900'}`}>
+              {question.answers_count || 0}
+            </span>
+            <span className="hidden sm:inline">jawaban</span>
+          </div>
+          <div className="flex items-center gap-1.5">
+            <Eye className="w-4 h-4 text-slate-400" />
+            <span className="font-medium text-slate-700">{formatNumber(question.views_count)}</span>
+            <span className="hidden sm:inline">views</span>
+          </div>
+          <div className="flex items-center gap-1.5 ml-auto">
+            <Clock className="w-3.5 h-3.5" />
+            <span className="text-slate-600">{formatDate(question.created_at)}</span>
+          </div>
+        </div>
+
+        {/* Author Info */}
+        <div className="flex items-center gap-2">
+          <UserAvatar
+            src={question.author_avatar}
+            alt={question.author_name}
+            size="xs"
+            fallbackName={question.author_name}
+          />
+          <Link
+            href={`/profile/${authorUsername}`}
+            onClick={(e) => e.stopPropagation()}
+            className="flex flex-col"
+          >
+            <div className="flex items-center gap-1.5">
+              <p className="text-sm font-medium text-slate-700">{question.author_name || 'Unknown'}</p>
+              <VerifiedBadge isVerified={question.author_is_verified} size="sm" />
+              {question.author_reputation >= 100 && (
+                <span className="px-1.5 py-0.5 rounded bg-amber-100 text-amber-700 text-xs font-semibold">
+                  {formatNumber(question.author_reputation)}
+                </span>
+              )}
+            </div>
+            {question.author_reputation < 100 && question.author_reputation > 0 && (
+              <p className="text-xs text-slate-500">{question.author_reputation} poin</p>
+            )}
+          </Link>
+        </div>
       </div>
     </div>
   );

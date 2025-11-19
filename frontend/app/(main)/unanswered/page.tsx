@@ -225,7 +225,7 @@ export default function UnansweredPage() {
       </div>
 
       {/* Questions List - Mobile Optimized */}
-      <div className="space-y-3 sm:space-y-4">
+      <div className="space-y-0 -mx-3 sm:-mx-4 lg:-mx-6">
         {loading
           ? renderSkeleton
           : questions.length === 0

@@ -471,7 +471,7 @@ export default function QuestionDetailPage() {
         </button>
 
         {/* Question Card - Mobile Responsive */}
-        <div className="bg-white rounded-xl border border-gray-200 p-4 sm:p-6 mb-6 shadow-sm">
+        <div className="border-b-2 border-slate-300 pb-6 mb-12 p-4 sm:p-6">
           <div className="flex flex-col sm:flex-row gap-4 sm:gap-6">
             {/* Vote Section with Animations */}
             <div className="flex items-center justify-center gap-4 order-2 sm:order-1">
@@ -606,15 +606,11 @@ export default function QuestionDetailPage() {
           </div>
         </div>
 
-        <div className="space-y-4 sm:space-y-6 mb-6 sm:mb-8">
+        <div className="space-y-0 mb-6 sm:mb-8">
           {question.answers?.map((answer) => (
             <div
               key={answer.id}
-              className={`rounded-xl border p-3 sm:p-4 lg:p-6 ${
-                answer.is_accepted 
-                  ? 'bg-emerald-50 border-emerald-300 shadow-sm' 
-                  : 'bg-white border-slate-200'
-              }`}
+              className="border-b-2 border-slate-300 pb-6 mb-12 p-3 sm:p-4 lg:p-6 last:border-b-0 last:pb-0 last:mb-0"
             >
               <div className="flex flex-col sm:flex-row gap-3 sm:gap-6">
                 {/* Vote Section with Animations */}

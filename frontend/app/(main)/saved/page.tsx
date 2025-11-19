@@ -20,7 +20,7 @@ interface SavedQuestion {
   id: string;
   title: string;
   content: string;
-  images?: string[] | null;
+  images?: string[];
   author_id?: string;
   author_name: string;
   author_avatar: string;
@@ -63,7 +63,7 @@ export default function SavedPage() {
         id: bookmark.id,
         title: bookmark.title,
         content: bookmark.content,
-        images: bookmark.images || null,
+        images: bookmark.images || undefined,
         author_id: bookmark.author_id,
         author_name: bookmark.author_name,
         author_avatar: bookmark.author_avatar,
@@ -212,18 +212,22 @@ export default function SavedPage() {
       )}
 
       {/* Questions List */}
-      <div className="space-y-4">
+      <div className="space-y-0 -mx-3 sm:-mx-4 lg:-mx-6">
         {loading
           ? renderSkeleton
           : filteredQuestions.length === 0
             ? renderEmptyState
             : filteredQuestions.map((question) => (
                 <div key={question.id} className="relative">
-                  <QuestionCard question={question} />
-                  <div className="absolute top-4 right-4">
-                    <div className="flex items-center gap-2 text-xs text-slate-500 bg-white px-2 py-1 rounded-full border border-slate-200">
-                      <Heart className="w-3 h-3 text-red-500" />
-                      <span>Disimpan {formatTimeAgo(question.saved_at)}</span>
+                  <div className="flex items-start justify-between gap-4 px-3 sm:px-4 lg:px-6 pt-6">
+                    <div className="flex-1">
+                      <QuestionCard question={question} />
+                    </div>
+                    <div className="flex-shrink-0 pt-6">
+                      <div className="flex items-center gap-2 text-xs text-slate-500 bg-white px-2 py-1 rounded-full border border-slate-200 whitespace-nowrap">
+                        <Heart className="w-3 h-3 text-red-500" />
+                        <span>Disimpan {formatTimeAgo(question.saved_at)}</span>
+                      </div>
                     </div>
                   </div>
                 </div>
