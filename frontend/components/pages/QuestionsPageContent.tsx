@@ -136,53 +136,88 @@ export default function QuestionsPageContent() {
   );
 
   return (
-    <div className="w-full max-w-6xl mx-auto">
-      {/* Compact Header with Search */}
-      <div className="mb-4">
-        <div className="flex items-center justify-between mb-3">
-          <h1 className="text-xl sm:text-2xl font-bold text-slate-900">Semua Pertanyaan</h1>
-          <span className="text-xs text-slate-500">
-            {questions ? questions.length : 0} pertanyaan
-          </span>
-        </div>
+    <div className="w-full max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 pb-12">
+      {/* Modern Header with Gradient Background */}
+      <div className="relative mb-6 px-6 sm:px-8 lg:px-10 py-8 sm:py-10 bg-gradient-to-br from-emerald-600 via-emerald-500 to-teal-600 rounded-3xl shadow-xl overflow-hidden">
+        {/* Decorative Elements */}
+        <div className="absolute top-0 right-0 w-64 h-64 bg-white/10 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2"></div>
+        <div className="absolute bottom-0 left-0 w-48 h-48 bg-teal-400/20 rounded-full blur-2xl translate-y-1/2 -translate-x-1/2"></div>
 
-        {/* Search Bar - Compact */}
-        <div className="relative mb-3">
-          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400 w-4 h-4" />
+        <div className="relative z-10">
+          {/* Title Section */}
+          <div className="flex flex-col sm:flex-row sm:items-center gap-4 mb-4">
+            <div className="p-3 bg-white/20 backdrop-blur-sm rounded-2xl w-fit">
+              <MessageCircleQuestion className="w-8 h-8 text-white" />
+            </div>
+            <div>
+              <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-white mb-1">
+                Semua Pertanyaan
+              </h1>
+              <p className="text-emerald-50 text-sm sm:text-base max-w-xl">
+                Temukan jawaban, bagikan pengalaman, dan diskusikan tantangan bisnis Anda bersama komunitas UMKM Indonesia.
+              </p>
+            </div>
+          </div>
+
+          {/* Stats Badge */}
+          <div className="inline-flex items-center gap-2 mt-2 px-4 py-1.5 bg-white/10 backdrop-blur-md rounded-full border border-white/20">
+            <div className="w-2 h-2 bg-emerald-300 rounded-full animate-pulse shadow-[0_0_8px_rgba(110,231,183,0.8)]"></div>
+            <span className="text-white/90 font-medium text-sm">
+              {questions ? questions.length : 0} diskusi aktif
+            </span>
+          </div>
+        </div>
+      </div>
+
+      {/* Search Bar - Modern Design */}
+      <div className="mb-8">
+        <div className="relative group">
+          <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+            <Search className="h-5 w-5 text-slate-400 group-focus-within:text-emerald-500 transition-colors" />
+          </div>
           <input
             type="text"
-            placeholder="Cari pertanyaan..."
+            placeholder="Cari pertanyaan berdasarkan judul, konten, atau tag..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-full pl-9 pr-4 py-2 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent bg-white text-sm"
+            className="block w-full pl-11 pr-4 py-4 border-2 border-slate-100 rounded-2xl leading-5 bg-white placeholder-slate-400 focus:outline-none focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/10 transition-all duration-200 shadow-sm hover:shadow-md"
           />
         </div>
       </div>
 
-      {/* Sort Options - Icon-based for Mobile */}
-      <div className="flex items-center gap-2 mb-4 overflow-x-auto pb-1">
-        {sortOptions.map((option) => {
-          const Icon = option.icon;
-          const isActive = sortBy === option.value;
-          return (
-            <button
-              key={option.value}
-              onClick={() => setSortBy(option.value as 'newest' | 'popular' | 'unanswered')}
-              className={`inline-flex items-center gap-1.5 px-3 py-2 rounded-full text-xs font-medium whitespace-nowrap transition-all flex-shrink-0 ${isActive
-                ? 'bg-emerald-600 text-white shadow-sm'
-                : 'bg-slate-100 text-slate-700 hover:bg-slate-200'
-                }`}
-              title={option.label}
-            >
-              <Icon className="w-3.5 h-3.5" />
-              <span className="hidden sm:inline">{option.label}</span>
-            </button>
-          );
-        })}
+      {/* Filter & Sort Section - Clean & Contained */}
+      <div className="bg-white rounded-2xl shadow-sm border border-slate-200 p-2 mb-8">
+        <div className="flex items-center justify-between gap-4 overflow-x-auto scrollbar-hide">
+          <div className="flex items-center gap-2 p-1">
+            {sortOptions.map((option) => {
+              const Icon = option.icon;
+              const isActive = sortBy === option.value;
+              return (
+                <button
+                  key={option.value}
+                  onClick={() => setSortBy(option.value as 'newest' | 'popular' | 'unanswered')}
+                  className={`inline-flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-semibold whitespace-nowrap transition-all duration-200 ${isActive
+                      ? 'bg-emerald-50 text-emerald-600 ring-1 ring-emerald-500/20 shadow-sm'
+                      : 'text-slate-600 hover:text-slate-900 hover:bg-slate-50'
+                    }`}
+                  title={option.label}
+                >
+                  <Icon className={`w-4 h-4 ${isActive ? 'text-emerald-500' : 'text-slate-400'}`} />
+                  <span>{option.label}</span>
+                </button>
+              );
+            })}
+          </div>
+
+          <div className="hidden sm:flex items-center gap-2 px-4 py-2 text-xs font-medium text-slate-400 border-l border-slate-100">
+            <Filter className="w-3.5 h-3.5" />
+            <span>Filter Diskusi</span>
+          </div>
+        </div>
       </div>
 
-      {/* Questions List - Full Width */}
-      <div className="-mx-3 sm:-mx-4 lg:-mx-6">
+      {/* Questions List */}
+      <div className="space-y-4">
         {loading
           ? renderSkeleton
           : !questions || questions.length === 0

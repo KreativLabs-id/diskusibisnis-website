@@ -22,7 +22,10 @@ const pool = new Pool({
   ssl: useSsl ? {
     rejectUnauthorized: false
   } : false,
-  connectionTimeoutMillis: 10000, // 10 seconds timeout
+  connectionTimeoutMillis: 30000, // 30 seconds timeout for initial connection
+  idleTimeoutMillis: 30000, // Close idle clients after 30 seconds
+  max: 10, // Maximum number of clients in the pool
+  allowExitOnIdle: false, // Don't exit when all clients are idle
 });
 
 pool.on('connect', () => {
@@ -30,8 +33,8 @@ pool.on('connect', () => {
 });
 
 pool.on('error', (err: Error) => {
-  console.error('❌ Unexpected error on idle client', err);
-  process.exit(-1);
+  console.error('❌ Database pool error:', err.message);
+  // Don't exit the process, let the application handle reconnection
 });
 
 export default pool;

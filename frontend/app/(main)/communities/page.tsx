@@ -2,10 +2,10 @@
 
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { 
-  Globe, 
-  Users, 
-  MessageSquare, 
+import {
+  Globe,
+  Users,
+  MessageSquare,
   TrendingUp,
   Search,
   Star,
@@ -47,7 +47,7 @@ export default function CommunitiesPage() {
       const params: any = {};
       if (selectedCategory !== 'all') params.category = selectedCategory;
       if (searchQuery) params.search = searchQuery;
-      
+
       const response = await communityAPI.getAll(params);
       setCommunities(response.data.data.communities || []);
     } catch (error) {
@@ -76,7 +76,7 @@ export default function CommunitiesPage() {
 
   const filteredCommunities = communities.filter(community => {
     const matchesSearch = community.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                         community.description.toLowerCase().includes(searchQuery.toLowerCase());
+      community.description.toLowerCase().includes(searchQuery.toLowerCase());
     const matchesCategory = selectedCategory === 'all' || community.category === selectedCategory;
     return matchesSearch && matchesCategory;
   });
@@ -131,242 +131,262 @@ export default function CommunitiesPage() {
   );
 
   return (
-    <div className="max-w-6xl mx-auto">
-      {/* Compact Header */}
-      <div className="mb-4">
-        <div className="flex items-center justify-between mb-2">
-          <div className="flex items-center gap-2">
-            <div className="w-8 h-8 bg-emerald-100 rounded-lg flex items-center justify-center">
-              <Globe className="w-4 h-4 text-emerald-600" />
+    <div className="min-h-screen bg-slate-50 pb-20">
+      {/* Mobile Header - Sticky */}
+      <div className="sticky top-0 z-30 bg-white border-b border-slate-200 px-4 py-3 sm:hidden flex items-center justify-between shadow-sm">
+        <div className="flex items-center gap-2">
+          <div className="w-8 h-8 bg-emerald-100 rounded-lg flex items-center justify-center">
+            <Globe className="w-4 h-4 text-emerald-600" />
+          </div>
+          <h1 className="text-lg font-bold text-slate-900">Komunitas</h1>
+        </div>
+        <Link
+          href="/communities/create"
+          className="w-8 h-8 bg-emerald-600 text-white rounded-full flex items-center justify-center shadow-md hover:bg-emerald-700 transition-colors"
+        >
+          <Plus className="w-5 h-5" />
+        </Link>
+      </div>
+
+      <div className="max-w-6xl mx-auto px-4 py-6 sm:py-10">
+        {/* Desktop Header */}
+        <div className="hidden sm:flex items-center justify-between mb-8">
+          <div>
+            <div className="flex items-center gap-3 mb-2">
+              <div className="w-12 h-12 bg-emerald-100 rounded-2xl flex items-center justify-center shadow-sm transform -rotate-3">
+                <Globe className="w-6 h-6 text-emerald-600" />
+              </div>
+              <h1 className="text-3xl font-bold text-slate-900">Jelajahi Komunitas</h1>
             </div>
-            <h1 className="text-xl sm:text-2xl font-bold text-slate-900">Jelajahi Komunitas</h1>
+            <p className="text-slate-600 text-lg max-w-2xl">
+              Temukan dan bergabung dengan komunitas UMKM yang sesuai dengan minat Anda.
+            </p>
           </div>
           <Link
             href="/communities/create"
-            className="flex items-center gap-2 px-4 py-2 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 transition-colors text-sm font-medium"
+            className="inline-flex items-center gap-2 px-6 py-3 bg-emerald-600 text-white rounded-xl hover:bg-emerald-700 transition-all shadow-lg hover:shadow-emerald-600/20 hover:-translate-y-0.5 font-semibold"
           >
-            <Plus className="w-4 h-4" />
-            <span className="hidden sm:inline">Buat Komunitas</span>
+            <Plus className="w-5 h-5" />
+            <span>Buat Komunitas</span>
           </Link>
         </div>
-        <p className="text-slate-600 text-sm">
-          Temukan komunitas UMKM yang sesuai
-        </p>
-      </div>
 
-      {/* Search and Filter */}
-      <div className="bg-white rounded-xl border border-slate-200 p-4 sm:p-6 mb-6">
-        <div className="flex flex-col sm:flex-row gap-4">
-          <div className="flex-1 relative">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400 w-4 h-4 sm:w-5 sm:h-5" />
-            <input
-              type="text"
-              placeholder="Cari komunitas..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full pl-9 sm:pl-10 pr-4 py-2.5 sm:py-3 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500 text-sm"
-            />
-          </div>
-          <div className="flex gap-2 flex-wrap overflow-x-auto">
-            {categories.map((category) => (
-              <button
-                key={category.value}
-                onClick={() => setSelectedCategory(category.value)}
-                className={`px-3 sm:px-4 py-2 sm:py-2.5 rounded-lg text-xs sm:text-sm font-medium transition-colors whitespace-nowrap flex-shrink-0 ${
-                  selectedCategory === category.value
-                    ? 'bg-emerald-600 text-white'
-                    : 'bg-slate-100 text-slate-700 hover:bg-slate-200'
-                }`}
-              >
-                {category.label}
-              </button>
-            ))}
-          </div>
-        </div>
-      </div>
-
-      {/* Content */}
-      {loading ? (
-        renderSkeleton
-      ) : (
-        <>
-          {/* Popular Communities */}
-          {selectedCategory === 'all' && (
-            <div className="mb-8">
-              <h2 className="text-xl font-semibold text-slate-900 mb-4 flex items-center gap-2">
-                <Star className="w-5 h-5 text-yellow-500" />
-                Komunitas Populer
-              </h2>
-              <div className="space-y-4 sm:space-y-0 sm:grid sm:grid-cols-1 md:grid-cols-2 sm:gap-4 md:gap-6">
-                {communities.filter(c => c.is_popular).map((community) => (
-              <Link key={community.id} href={`/communities/${community.slug}`} className="bg-white rounded-xl border border-slate-200 p-4 sm:p-6 hover:shadow-lg transition-all group block">
-                {/* Header dengan ikon dan nama */}
-                <div className="flex items-start gap-3 mb-4">
-                  <div className="w-12 h-12 sm:w-14 sm:h-14 bg-gradient-to-br from-emerald-500 to-emerald-600 rounded-xl flex items-center justify-center shrink-0">
-                    <span className="text-white font-bold text-base sm:text-lg">
-                      {community.name.charAt(0)}
-                    </span>
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-start gap-2 mb-2">
-                      <h3 className="font-semibold text-slate-900 group-hover:text-emerald-600 transition-colors text-base sm:text-lg leading-tight break-words">
-                        {community.name}
-                      </h3>
-                      <span className="px-2 py-1 bg-yellow-100 text-yellow-800 text-xs rounded-full font-medium shrink-0">
-                        Populer
-                      </span>
-                    </div>
-                    <p className="text-sm text-slate-600 mb-3 line-clamp-2 leading-relaxed">
-                      {community.description}
-                    </p>
-                  </div>
-                </div>
-                
-                {/* Stats section */}
-                <div className="flex flex-wrap items-center gap-3 sm:gap-4 text-xs text-slate-500 mb-4">
-                  <span className="flex items-center gap-1.5">
-                    <Users className="w-3.5 h-3.5" />
-                    <span>{formatMemberCount(community.member_count)} anggota</span>
-                  </span>
-                  <span className="flex items-center gap-1.5">
-                    <MessageSquare className="w-3.5 h-3.5" />
-                    <span>{community.question_count} pertanyaan</span>
-                  </span>
-                  {community.location && (
-                    <span className="flex items-center gap-1.5">
-                      <MapPin className="w-3.5 h-3.5" />
-                      <span>{community.location}</span>
-                    </span>
-                  )}
-                </div>
-                
-                {/* Footer dengan kategori dan link */}
-                <div className="flex items-center justify-between pt-3 border-t border-slate-100">
-                  <span className="px-3 py-1.5 bg-emerald-50 text-emerald-700 text-xs rounded-full font-medium border border-emerald-200">
-                    {community.category}
-                  </span>
-                  <span className="inline-flex items-center gap-1.5 text-emerald-600 hover:text-emerald-700 text-sm font-medium transition-colors">
-                    <span>Lihat Detail</span>
-                    <ArrowRight className="w-3.5 h-3.5" />
-                  </span>
-                </div>
-              </Link>
-            ))}
+        {/* Search and Filter - Sticky on Mobile */}
+        <div className="sticky sm:static top-[60px] z-20 bg-slate-50 pt-2 pb-4 sm:py-0 mb-6 sm:mb-8">
+          <div className="bg-white p-2 rounded-2xl shadow-sm border border-slate-200">
+            <div className="flex flex-col sm:flex-row gap-2">
+              <div className="relative flex-1">
+                <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 text-slate-400 w-5 h-5" />
+                <input
+                  type="text"
+                  placeholder="Cari komunitas..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className="w-full pl-11 pr-4 py-3 rounded-xl border-none focus:ring-0 text-slate-900 placeholder-slate-400 bg-transparent"
+                />
+              </div>
+              <div className="h-px sm:h-auto sm:w-px bg-slate-200 mx-2"></div>
+              <div className="flex gap-2 overflow-x-auto pb-2 sm:pb-0 px-2 sm:px-0 scrollbar-hide">
+                {categories.map((category) => (
+                  <button
+                    key={category.value}
+                    onClick={() => setSelectedCategory(category.value)}
+                    className={`px-4 py-2.5 rounded-xl text-sm font-medium transition-all whitespace-nowrap flex-shrink-0 ${selectedCategory === category.value
+                        ? 'bg-emerald-600 text-white shadow-md shadow-emerald-600/20'
+                        : 'bg-slate-50 text-slate-600 hover:bg-slate-100'
+                      }`}
+                  >
+                    {category.label}
+                  </button>
+                ))}
+              </div>
+            </div>
           </div>
         </div>
-      )}
 
-          {/* All Communities */}
-          <div>
-        <div className="flex items-center justify-between mb-6">
-          <h2 className="text-xl font-semibold text-slate-900">
-            {selectedCategory === 'all' ? 'Semua Komunitas' : `Komunitas ${selectedCategory}`}
-          </h2>
-          <span className="text-sm text-slate-600">
-            {filteredCommunities.length} komunitas ditemukan
-          </span>
-        </div>
-
-        {filteredCommunities.length === 0 ? (
-          <div className="bg-white rounded-xl border border-dashed border-slate-300 p-12 text-center">
-            <Globe className="w-16 h-16 text-slate-300 mx-auto mb-4" />
-            <h3 className="text-xl font-semibold text-slate-900 mb-2">
-              {searchQuery ? 'Komunitas tidak ditemukan' : 'Belum ada komunitas'}
-            </h3>
-            <p className="text-slate-500 mb-6">
-              {searchQuery
-                ? 'Coba kata kunci pencarian yang berbeda atau jelajahi kategori lain.'
-                : 'Jadilah yang pertama membuat komunitas untuk kategori ini!'
-              }
-            </p>
-            <Link
-              href="/communities/create"
-              className="inline-flex items-center px-6 py-3 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 transition-colors font-medium"
-            >
-              Buat Komunitas Baru
-            </Link>
-          </div>
+        {/* Content */}
+        {loading ? (
+          renderSkeleton
         ) : (
-          <div className="space-y-4 sm:space-y-0 sm:grid sm:grid-cols-1 lg:grid-cols-2 sm:gap-4 lg:gap-6">
-            {filteredCommunities.map((community) => (
-              <Link key={community.id} href={`/communities/${community.slug}`} className="bg-white rounded-xl border border-slate-200 p-4 sm:p-6 hover:shadow-lg transition-all group block">
-                {/* Header dengan ikon dan nama */}
-                <div className="flex items-start gap-3 mb-4">
-                  <div className="w-12 h-12 sm:w-14 sm:h-14 bg-gradient-to-br from-emerald-500 to-emerald-600 rounded-xl flex items-center justify-center shrink-0">
-                    <span className="text-white font-bold text-base sm:text-lg">
-                      {community.name.charAt(0)}
-                    </span>
+          <>
+            {/* Popular Communities */}
+            {selectedCategory === 'all' && (
+              <div className="mb-10">
+                <div className="flex items-center gap-2 mb-6">
+                  <div className="p-1.5 bg-yellow-100 rounded-lg">
+                    <Star className="w-5 h-5 text-yellow-600 fill-yellow-600" />
                   </div>
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-start gap-2 mb-2">
-                      <h3 className="font-semibold text-slate-900 group-hover:text-emerald-600 transition-colors text-base sm:text-lg leading-tight break-words">
-                        {community.name}
-                      </h3>
-                      {community.is_popular && (
-                        <Star className="w-4 h-4 text-yellow-500 shrink-0 mt-0.5" />
-                      )}
-                    </div>
-                    <p className="text-sm text-slate-600 mb-3 line-clamp-2 leading-relaxed">
-                      {community.description}
-                    </p>
-                  </div>
+                  <h2 className="text-xl font-bold text-slate-900">Komunitas Populer</h2>
                 </div>
-                
-                {/* Stats section */}
-                <div className="flex flex-wrap items-center gap-3 sm:gap-4 text-xs text-slate-500 mb-4">
-                  <span className="flex items-center gap-1.5">
-                    <Users className="w-3.5 h-3.5" />
-                    <span>{formatMemberCount(community.member_count)} anggota</span>
-                  </span>
-                  <span className="flex items-center gap-1.5">
-                    <MessageSquare className="w-3.5 h-3.5" />
-                    <span>{community.question_count} pertanyaan</span>
-                  </span>
-                  {community.location && (
-                    <span className="flex items-center gap-1.5">
-                      <MapPin className="w-3.5 h-3.5" />
-                      <span>{community.location}</span>
-                    </span>
-                  )}
-                </div>
-                
-                {/* Footer dengan kategori dan link */}
-                <div className="flex items-center justify-between pt-3 border-t border-slate-100">
-                  <span className="px-3 py-1.5 bg-emerald-50 text-emerald-700 text-xs rounded-full font-medium border border-emerald-200">
-                    {community.category}
-                  </span>
-                  <span className="inline-flex items-center gap-1.5 text-emerald-600 hover:text-emerald-700 text-sm font-medium transition-colors">
-                    <span>Lihat Detail</span>
-                    <ArrowRight className="w-3.5 h-3.5" />
-                  </span>
-                </div>
-              </Link>
-            ))}
-          </div>
-        )}
-          </div>
 
-          {/* Compact Create Community CTA */}
-          <div className="mt-6 bg-emerald-50 border border-emerald-200 rounded-xl p-4 sm:p-6 text-center">
-        <div className="flex items-center justify-center gap-3 mb-3">
-          <Globe className="w-6 h-6 text-emerald-600" />
-          <h3 className="text-lg font-semibold text-slate-900">
-            Tidak menemukan komunitas yang sesuai?
-          </h3>
-        </div>
-        <p className="text-slate-600 text-sm mb-4">
-          Buat komunitas baru untuk sesama pemilik UMKM
-        </p>
-        <Link
-          href="/communities/create"
-          className="inline-flex items-center gap-2 px-4 py-2 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 transition-colors font-medium text-sm"
-        >
-          <Plus className="w-4 h-4" />
-          Buat Komunitas Baru
-        </Link>
-          </div>
-        </>
-      )}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
+                  {communities.filter(c => c.is_popular).map((community) => (
+                    <Link
+                      key={community.id}
+                      href={`/communities/${community.slug}`}
+                      className="group bg-white rounded-2xl border border-slate-200 p-5 hover:border-emerald-500/50 hover:shadow-xl hover:shadow-emerald-500/5 transition-all duration-300 relative overflow-hidden"
+                    >
+                      <div className="absolute top-0 right-0 p-4 opacity-5 group-hover:opacity-10 transition-opacity transform group-hover:scale-110 duration-500">
+                        <Globe className="w-32 h-32 text-emerald-600 -rotate-12" />
+                      </div>
+
+                      <div className="relative z-10 flex items-start gap-4">
+                        <div className="w-16 h-16 bg-gradient-to-br from-emerald-500 to-emerald-600 rounded-2xl flex items-center justify-center shrink-0 shadow-lg shadow-emerald-500/20 group-hover:scale-105 transition-transform duration-300">
+                          <span className="text-white font-bold text-2xl">
+                            {community.name.charAt(0)}
+                          </span>
+                        </div>
+
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-start justify-between gap-2 mb-1">
+                            <h3 className="font-bold text-lg text-slate-900 group-hover:text-emerald-600 transition-colors truncate pr-2">
+                              {community.name}
+                            </h3>
+                            <span className="px-2 py-0.5 bg-yellow-50 text-yellow-700 text-[10px] font-bold uppercase tracking-wider rounded-full border border-yellow-100 shrink-0">
+                              Populer
+                            </span>
+                          </div>
+
+                          <p className="text-sm text-slate-500 mb-4 line-clamp-2 h-10 leading-relaxed">
+                            {community.description}
+                          </p>
+
+                          <div className="flex items-center gap-4 text-xs font-medium text-slate-500">
+                            <span className="flex items-center gap-1.5 bg-slate-50 px-2 py-1 rounded-md">
+                              <Users className="w-3.5 h-3.5 text-slate-400" />
+                              {formatMemberCount(community.member_count)}
+                            </span>
+                            <span className="flex items-center gap-1.5 bg-slate-50 px-2 py-1 rounded-md">
+                              <MessageSquare className="w-3.5 h-3.5 text-slate-400" />
+                              {community.question_count}
+                            </span>
+                          </div>
+                        </div>
+                      </div>
+                    </Link>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* All Communities */}
+            <div>
+              <div className="flex items-center justify-between mb-6">
+                <h2 className="text-xl font-bold text-slate-900">
+                  {selectedCategory === 'all' ? 'Semua Komunitas' : `Komunitas ${selectedCategory}`}
+                </h2>
+                <span className="text-sm font-medium text-slate-500 bg-white px-3 py-1 rounded-full border border-slate-200 shadow-sm">
+                  {filteredCommunities.length} ditemukan
+                </span>
+              </div>
+
+              {filteredCommunities.length === 0 ? (
+                <div className="bg-white rounded-2xl border-2 border-dashed border-slate-200 p-12 text-center">
+                  <div className="w-16 h-16 bg-slate-50 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <Search className="w-8 h-8 text-slate-300" />
+                  </div>
+                  <h3 className="text-lg font-bold text-slate-900 mb-2">
+                    Komunitas tidak ditemukan
+                  </h3>
+                  <p className="text-slate-500 mb-6 max-w-md mx-auto">
+                    {searchQuery
+                      ? `Tidak ada komunitas yang cocok dengan "${searchQuery}". Coba kata kunci lain.`
+                      : 'Belum ada komunitas di kategori ini. Jadilah yang pertama membuatnya!'
+                    }
+                  </p>
+                  <Link
+                    href="/communities/create"
+                    className="inline-flex items-center gap-2 px-6 py-3 bg-emerald-600 text-white rounded-xl hover:bg-emerald-700 transition-all font-semibold shadow-lg shadow-emerald-600/20"
+                  >
+                    <Plus className="w-5 h-5" />
+                    Buat Komunitas Baru
+                  </Link>
+                </div>
+              ) : (
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
+                  {filteredCommunities.map((community) => (
+                    <Link
+                      key={community.id}
+                      href={`/communities/${community.slug}`}
+                      className="group bg-white rounded-2xl border border-slate-200 p-5 hover:border-emerald-500/50 hover:shadow-xl hover:shadow-emerald-500/5 transition-all duration-300 flex flex-col h-full"
+                    >
+                      <div className="flex items-start gap-4 mb-4">
+                        <div className="w-12 h-12 bg-slate-100 rounded-xl flex items-center justify-center shrink-0 group-hover:bg-emerald-50 group-hover:text-emerald-600 transition-colors font-bold text-lg text-slate-500">
+                          {community.name.charAt(0)}
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-start justify-between gap-2">
+                            <h3 className="font-bold text-slate-900 group-hover:text-emerald-600 transition-colors line-clamp-1">
+                              {community.name}
+                            </h3>
+                            {community.is_popular && (
+                              <Star className="w-4 h-4 text-yellow-500 fill-yellow-500 shrink-0" />
+                            )}
+                          </div>
+                          <div className="flex items-center gap-2 mt-1">
+                            <span className="text-xs font-medium px-2 py-0.5 rounded-md bg-slate-100 text-slate-600 border border-slate-200">
+                              {community.category}
+                            </span>
+                            {community.location && (
+                              <span className="flex items-center gap-1 text-xs text-slate-500 truncate">
+                                <MapPin className="w-3 h-3" />
+                                {community.location}
+                              </span>
+                            )}
+                          </div>
+                        </div>
+                      </div>
+
+                      <p className="text-sm text-slate-600 mb-4 line-clamp-2 flex-1">
+                        {community.description}
+                      </p>
+
+                      <div className="flex items-center justify-between pt-4 border-t border-slate-100 mt-auto">
+                        <div className="flex items-center gap-3 text-xs text-slate-500 font-medium">
+                          <span className="flex items-center gap-1">
+                            <Users className="w-3.5 h-3.5" />
+                            {formatMemberCount(community.member_count)}
+                          </span>
+                          <span className="flex items-center gap-1">
+                            <MessageSquare className="w-3.5 h-3.5" />
+                            {community.question_count}
+                          </span>
+                        </div>
+                        <span className="text-xs font-bold text-emerald-600 group-hover:translate-x-1 transition-transform flex items-center gap-1">
+                          Detail
+                          <ArrowRight className="w-3 h-3" />
+                        </span>
+                      </div>
+                    </Link>
+                  ))}
+                </div>
+              )}
+            </div>
+
+            {/* Bottom CTA */}
+            {filteredCommunities.length > 0 && (
+              <div className="mt-12 bg-gradient-to-br from-emerald-900 to-emerald-950 rounded-2xl p-8 text-center relative overflow-hidden">
+                <div className="absolute top-0 left-0 w-full h-full bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] opacity-10"></div>
+                <div className="relative z-10">
+                  <h3 className="text-xl font-bold text-white mb-2">
+                    Tidak menemukan komunitas yang dicari?
+                  </h3>
+                  <p className="text-emerald-100 mb-6 max-w-lg mx-auto">
+                    Jadilah inisiator! Buat komunitas baru dan kumpulkan rekan bisnis dengan minat yang sama.
+                  </p>
+                  <Link
+                    href="/communities/create"
+                    className="inline-flex items-center gap-2 px-5 py-2.5 bg-emerald-500 text-white rounded-xl hover:bg-emerald-400 transition-colors font-bold shadow-lg shadow-emerald-500/25 text-sm"
+                  >
+                    <Plus className="w-4 h-4" />
+                    Buat Komunitas Sekarang
+                  </Link>
+                </div>
+              </div>
+            )}
+          </>
+        )}
+      </div>
     </div>
   );
 }

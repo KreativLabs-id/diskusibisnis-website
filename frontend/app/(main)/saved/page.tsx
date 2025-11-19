@@ -2,10 +2,10 @@
 
 import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
-import { 
-  Bookmark, 
-  MessageSquare, 
-  ThumbsUp, 
+import {
+  Bookmark,
+  MessageSquare,
+  ThumbsUp,
   Calendar,
   Search,
   BookmarkX,
@@ -55,9 +55,9 @@ export default function SavedPage() {
       setLoading(true);
       const response = await bookmarkAPI.getAll();
       console.log('Bookmarks response:', response.data);
-      
+
       const bookmarks = response.data.data?.bookmarks || response.data.bookmarks || [];
-      
+
       // Map bookmarks to SavedQuestion format
       const mappedQuestions = bookmarks.map((bookmark: any) => ({
         id: bookmark.id,
@@ -78,7 +78,7 @@ export default function SavedPage() {
         saved_at: bookmark.bookmarked_at,
         is_bookmarked: true // Always true for saved page
       }));
-      
+
       console.log('Mapped saved questions:', mappedQuestions);
       setSavedQuestions(mappedQuestions);
     } catch (error: any) {
@@ -104,11 +104,11 @@ export default function SavedPage() {
     if (diffInSeconds < 3600) return `${Math.floor(diffInSeconds / 60)} menit lalu`;
     if (diffInSeconds < 86400) return `${Math.floor(diffInSeconds / 3600)} jam lalu`;
     if (diffInSeconds < 604800) return `${Math.floor(diffInSeconds / 86400)} hari lalu`;
-    
-    return date.toLocaleDateString('id-ID', { 
-      day: 'numeric', 
-      month: 'short', 
-      year: 'numeric' 
+
+    return date.toLocaleDateString('id-ID', {
+      day: 'numeric',
+      month: 'short',
+      year: 'numeric'
     });
   };
 
@@ -181,91 +181,112 @@ export default function SavedPage() {
   );
 
   return (
-    <div className="max-w-6xl mx-auto">
-      {/* Header */}
-      <div className="mb-6">
-        <div className="flex items-center gap-3 mb-4">
-          <div className="w-10 h-10 sm:w-12 sm:h-12 bg-emerald-100 rounded-xl flex items-center justify-center">
-            <Bookmark className="w-5 h-5 sm:w-6 sm:h-6 text-emerald-600" />
+
+    <div className="min-h-screen bg-slate-50 pb-20">
+      {/* Mobile Header - Sticky */}
+      <div className="sticky top-0 z-30 bg-white border-b border-slate-200 px-4 py-3 sm:hidden flex items-center justify-between shadow-sm">
+        <div className="flex items-center gap-2">
+          <div className="w-8 h-8 bg-emerald-100 rounded-lg flex items-center justify-center">
+            <Bookmark className="w-4 h-4 text-emerald-600" />
           </div>
-          <div>
-            <h1 className="text-2xl sm:text-3xl font-bold text-slate-900">Pertanyaan Tersimpan</h1>
-            <p className="text-slate-600 text-sm sm:text-base">
-              {savedQuestions.length} pertanyaan tersimpan
-            </p>
-          </div>
+          <h1 className="text-lg font-bold text-slate-900">Tersimpan</h1>
         </div>
+        <span className="text-xs font-medium text-slate-500 bg-slate-100 px-2 py-1 rounded-full">
+          {savedQuestions.length}
+        </span>
       </div>
 
-      {/* Search */}
-      {savedQuestions.length > 0 && (
-        <div className="relative mb-6">
-          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400 w-4 h-4 sm:w-5 sm:h-5" />
-          <input
-            type="text"
-            placeholder="Cari pertanyaan tersimpan Anda..."
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-full pl-9 sm:pl-10 pr-4 py-2.5 sm:py-3 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500 text-sm bg-white"
-          />
+      <div className="max-w-6xl mx-auto px-4 py-6 sm:py-10">
+        {/* Desktop Header */}
+        <div className="hidden sm:block mb-8">
+          <div className="flex items-center gap-3 mb-2">
+            <div className="w-10 h-10 bg-emerald-100 rounded-xl flex items-center justify-center">
+              <Bookmark className="w-5 h-5 text-emerald-600" />
+            </div>
+            <h1 className="text-3xl font-bold text-slate-900">Pertanyaan Tersimpan</h1>
+          </div>
+          <p className="text-slate-600 text-lg">
+            Koleksi {savedQuestions.length} pertanyaan yang Anda simpan
+          </p>
         </div>
-      )}
 
-      {/* Questions List */}
-      <div className="space-y-0 -mx-3 sm:-mx-4 lg:-mx-6">
-        {loading
-          ? renderSkeleton
-          : filteredQuestions.length === 0
-            ? renderEmptyState
-            : filteredQuestions.map((question) => (
-                <div key={question.id} className="relative">
-                  <div className="flex items-start justify-between gap-4 px-3 sm:px-4 lg:px-6 pt-6">
-                    <div className="flex-1">
-                      <QuestionCard question={question} />
+        {/* Search - Sticky on Mobile */}
+        {savedQuestions.length > 0 && (
+          <div className="sticky sm:static top-[60px] z-20 bg-slate-50 pt-2 pb-4 sm:py-0 mb-4 sm:mb-8">
+            <div className="relative">
+              <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 text-slate-400 w-5 h-5" />
+              <input
+                type="text"
+                placeholder="Cari pertanyaan tersimpan Anda..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="w-full pl-11 pr-4 py-3.5 border-2 border-slate-200 rounded-xl focus:outline-none focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/10 text-sm sm:text-base bg-white shadow-sm transition-all"
+              />
+            </div>
+          </div>
+        )}
+
+        {/* Questions List */}
+        <div className="space-y-4">
+          {loading
+            ? renderSkeleton
+            : filteredQuestions.length === 0
+              ? renderEmptyState
+              : filteredQuestions.map((question) => (
+                <div key={question.id} className="relative group">
+                  {/* Saved Time Badge - Absolute positioned for desktop, relative for mobile */}
+                  <div className="sm:absolute sm:top-6 sm:right-6 z-10 mb-2 sm:mb-0 flex justify-end px-2 sm:px-0">
+                    <div className="inline-flex items-center gap-1.5 text-xs font-medium text-slate-500 bg-white/80 backdrop-blur-sm px-3 py-1.5 rounded-full border border-slate-200 shadow-sm">
+                      <Calendar className="w-3.5 h-3.5 text-emerald-500" />
+                      <span>Disimpan {formatTimeAgo(question.saved_at)}</span>
                     </div>
-                    <div className="flex-shrink-0 pt-6">
-                      <div className="flex items-center gap-2 text-xs text-slate-500 bg-white px-2 py-1 rounded-full border border-slate-200 whitespace-nowrap">
-                        <Heart className="w-3 h-3 text-red-500" />
-                        <span>Disimpan {formatTimeAgo(question.saved_at)}</span>
-                      </div>
-                    </div>
+                  </div>
+
+                  <div className="bg-white rounded-2xl border border-slate-200 overflow-hidden hover:border-emerald-500/30 hover:shadow-lg transition-all duration-300">
+                    <QuestionCard question={question} />
                   </div>
                 </div>
               ))
-        }
-      </div>
+          }
+        </div>
 
-      {/* Tips */}
-      {savedQuestions.length === 0 && !loading && (
-        <div className="mt-12 bg-gradient-to-r from-emerald-50 to-emerald-100 border border-emerald-200 rounded-xl p-6">
-          <div className="flex items-start gap-4">
-            <div className="w-10 h-10 bg-emerald-600 rounded-xl flex items-center justify-center shrink-0">
-              <Bookmark className="w-5 h-5 text-white" />
-            </div>
-            <div>
-              <h3 className="text-lg font-semibold text-slate-900 mb-2">
-                Cara menyimpan pertanyaan
-              </h3>
-              <ul className="text-sm text-slate-700 space-y-2">
-                <li className="flex items-start gap-2">
-                  <span className="text-emerald-600 font-bold">•</span>
-                  <span>
-                    Klik ikon bookmark pada pertanyaan untuk menyimpannya ke koleksi pribadi Anda
-                  </span>
-                </li>
-                <li className="flex items-start gap-2">
-                  <span className="text-emerald-600 font-bold">•</span>
-                  <span>Pertanyaan tersimpan bersifat pribadi dan hanya terlihat oleh Anda</span>
-                </li>
-                <li className="flex items-start gap-2">
-                  <span className="text-emerald-600 font-bold">•</span>
-                  <span>Gunakan halaman ini untuk mengakses pertanyaan yang ingin Anda referensikan nanti</span>
-                </li>
-              </ul>
+        {/* Tips */}
+        {savedQuestions.length === 0 && !loading && (
+          <div className="mt-8 sm:mt-12 bg-gradient-to-br from-emerald-900 to-teal-900 rounded-2xl p-6 sm:p-8 text-white relative overflow-hidden">
+            <div className="absolute top-0 right-0 w-64 h-64 bg-white/5 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2"></div>
+            <div className="relative z-10 flex flex-col sm:flex-row items-start gap-6">
+              <div className="w-12 h-12 bg-white/10 backdrop-blur-md rounded-2xl flex items-center justify-center shrink-0 border border-white/20">
+                <Bookmark className="w-6 h-6 text-emerald-300" />
+              </div>
+              <div>
+                <h3 className="text-xl font-bold text-white mb-3">
+                  Tips Menyimpan Pertanyaan
+                </h3>
+                <div className="grid sm:grid-cols-3 gap-4 sm:gap-8">
+                  <div className="space-y-1">
+                    <h4 className="font-semibold text-emerald-300 text-sm">Koleksi Pribadi</h4>
+                    <p className="text-sm text-emerald-100/80 leading-relaxed">
+                      Simpan diskusi menarik untuk dibaca kembali nanti. Hanya Anda yang bisa melihatnya.
+                    </p>
+                  </div>
+                  <div className="space-y-1">
+                    <h4 className="font-semibold text-emerald-300 text-sm">Referensi Cepat</h4>
+                    <p className="text-sm text-emerald-100/80 leading-relaxed">
+                      Tandai jawaban solusi yang mungkin berguna untuk masalah bisnis Anda di masa depan.
+                    </p>
+                  </div>
+                  <div className="space-y-1">
+                    <h4 className="font-semibold text-emerald-300 text-sm">Mudah Diakses</h4>
+                    <p className="text-sm text-emerald-100/80 leading-relaxed">
+                      Temukan kembali semua yang Anda simpan dengan cepat melalui halaman ini.
+                    </p>
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
-        </div>
-      )}
+        )}
+      </div>
     </div>
   );
 }
