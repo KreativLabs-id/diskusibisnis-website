@@ -207,7 +207,7 @@ export default function ProfilePage() {
           </div>
 
           <div className="px-6 sm:px-10 pb-8">
-            <div className="flex flex-col sm:flex-row gap-6 -mt-12 sm:-mt-16 relative z-10">
+            <div className="flex flex-col sm:flex-row gap-6 -mt-12 sm:-mt-20 relative z-10">
               {/* Avatar */}
               <div className="shrink-0 flex flex-col items-center sm:items-start">
                 <div className="p-1.5 bg-white rounded-2xl shadow-lg">
@@ -216,13 +216,13 @@ export default function ProfilePage() {
                     alt={profile.displayName || 'User'}
                     size="xl"
                     fallbackName={profile.displayName}
-                    className="rounded-xl"
+                    className="rounded-xl w-24 h-24 sm:w-32 sm:h-32 text-2xl sm:text-4xl"
                   />
                 </div>
               </div>
 
               {/* Info */}
-              <div className="flex-1 pt-2 sm:pt-16 text-center sm:text-left">
+              <div className="flex-1 pt-4 sm:pt-24 text-center sm:text-left">
                 <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4 mb-4">
                   <div>
                     <div className="flex items-center justify-center sm:justify-start gap-2 mb-1">
@@ -338,20 +338,20 @@ export default function ProfilePage() {
                   href={`/questions/${question.id}`}
                   className="block bg-white p-5 rounded-2xl border border-slate-200 hover:border-emerald-500/50 hover:shadow-md transition-all group"
                 >
-                  <h3 className="text-lg font-bold text-slate-900 mb-2 group-hover:text-emerald-600 transition-colors">
+                  <h3 className="text-base sm:text-lg font-bold text-slate-900 mb-3 group-hover:text-emerald-600 transition-colors break-words line-clamp-2">
                     {question.title}
                   </h3>
-                  <div className="flex items-center gap-4 text-sm text-slate-500">
-                    <span className="flex items-center gap-1.5">
-                      <TrendingUp className="w-4 h-4" />
+                  <div className="flex items-center flex-wrap gap-3 text-xs sm:text-sm text-slate-500">
+                    <span className="flex items-center gap-1.5 whitespace-nowrap">
+                      <TrendingUp className="w-4 h-4 flex-shrink-0" />
                       {question.upvotesCount} upvotes
                     </span>
-                    <span className="flex items-center gap-1.5">
-                      <MessageSquare className="w-4 h-4" />
+                    <span className="flex items-center gap-1.5 whitespace-nowrap">
+                      <MessageSquare className="w-4 h-4 flex-shrink-0" />
                       {question.answersCount} jawaban
                     </span>
-                    <span className="text-slate-400">•</span>
-                    <span>{new Date(question.createdAt).toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' })}</span>
+                    <span className="text-slate-400 hidden sm:inline">•</span>
+                    <span className="text-xs">{new Date(question.createdAt).toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' })}</span>
                   </div>
                 </Link>
               ))
@@ -370,25 +370,25 @@ export default function ProfilePage() {
                   key={answer.id}
                   className="bg-white p-5 rounded-2xl border border-slate-200 hover:border-emerald-500/30 transition-all"
                 >
-                  <div className="flex items-center gap-2 mb-2 text-sm text-slate-500">
-                    <span>Menjawab di</span>
-                    <Link href={`/questions/${answer.questionId}`} className="font-medium text-emerald-600 hover:underline truncate max-w-[300px]">
+                  <div className="flex items-start gap-2 mb-3 text-xs sm:text-sm text-slate-500 flex-wrap">
+                    <span className="whitespace-nowrap">Menjawab di</span>
+                    <Link href={`/questions/${answer.questionId}`} className="font-medium text-emerald-600 hover:underline break-words line-clamp-1 flex-1 min-w-0">
                       {answer.questionTitle}
                     </Link>
                   </div>
-                  <p className="text-slate-700 mb-3 line-clamp-2 leading-relaxed">{answer.content}</p>
-                  <div className="flex items-center gap-4 text-sm text-slate-500">
-                    <span className="flex items-center gap-1.5 font-medium text-slate-700">
-                      <TrendingUp className="w-4 h-4 text-emerald-500" />
+                  <p className="text-slate-700 text-sm mb-3 line-clamp-3 leading-relaxed break-words">{answer.content}</p>
+                  <div className="flex items-center flex-wrap gap-3 text-xs sm:text-sm text-slate-500">
+                    <span className="flex items-center gap-1.5 font-medium text-slate-700 whitespace-nowrap">
+                      <TrendingUp className="w-4 h-4 text-emerald-500 flex-shrink-0" />
                       {answer.upvotesCount} upvotes
                     </span>
                     {answer.isAccepted && (
-                      <span className="flex items-center gap-1.5 text-emerald-600 font-bold bg-emerald-50 px-2 py-0.5 rounded-full text-xs">
-                        <CheckCircle className="w-3.5 h-3.5" />
+                      <span className="flex items-center gap-1.5 text-emerald-600 font-bold bg-emerald-50 px-2 py-0.5 rounded-full text-xs whitespace-nowrap">
+                        <CheckCircle className="w-3.5 h-3.5 flex-shrink-0" />
                         Diterima
                       </span>
                     )}
-                    <span className="ml-auto text-xs">{new Date(answer.createdAt).toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' })}</span>
+                    <span className="text-xs ml-auto">{new Date(answer.createdAt).toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' })}</span>
                   </div>
                 </div>
               ))

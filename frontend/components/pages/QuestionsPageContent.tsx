@@ -66,6 +66,21 @@ export default function QuestionsPageContent() {
     fetchQuestions();
   }, [fetchQuestions]);
 
+  // Filter questions based on search query
+  const filteredQuestions = questions.filter((question) => {
+    if (!searchQuery.trim()) return true;
+    
+    const query = searchQuery.toLowerCase();
+    const titleMatch = question.title.toLowerCase().includes(query);
+    const contentMatch = question.content.toLowerCase().includes(query);
+    const tagMatch = question.tags.some(tag => 
+      tag.name.toLowerCase().includes(query) || 
+      tag.slug.toLowerCase().includes(query)
+    );
+    
+    return titleMatch || contentMatch || tagMatch;
+  });
+
   const sortOptions = [
     { value: 'newest', label: 'Terbaru', icon: Clock },
     { value: 'popular', label: 'Populer', icon: TrendingUp },
@@ -163,7 +178,7 @@ export default function QuestionsPageContent() {
           <div className="inline-flex items-center gap-2 mt-2 px-4 py-1.5 bg-white/10 backdrop-blur-md rounded-full border border-white/20">
             <div className="w-2 h-2 bg-emerald-300 rounded-full animate-pulse shadow-[0_0_8px_rgba(110,231,183,0.8)]"></div>
             <span className="text-white/90 font-medium text-sm">
-              {questions ? questions.length : 0} diskusi aktif
+              {filteredQuestions.length} diskusi {searchQuery ? 'ditemukan' : 'aktif'}
             </span>
           </div>
         </div>
@@ -220,9 +235,32 @@ export default function QuestionsPageContent() {
       <div className="space-y-4">
         {loading
           ? renderSkeleton
-          : !questions || questions.length === 0
-            ? renderEmptyState
-            : questions.map((question) => (
+          : !filteredQuestions || filteredQuestions.length === 0
+            ? searchQuery ? (
+              <div className="text-center py-16">
+                <Search className="w-16 h-16 text-slate-300 mx-auto mb-4" />
+                <h3 className="text-xl font-semibold text-slate-900 mb-2">
+                  Tidak ada hasil untuk "{searchQuery}"
+                </h3>
+                <p className="text-slate-600 mb-6">
+                  Coba gunakan kata kunci yang berbeda atau buat pertanyaan baru.
+                </p>
+                <button
+                  onClick={() => setSearchQuery('')}
+                  className="inline-flex items-center gap-2 px-6 py-3 bg-slate-100 text-slate-700 rounded-lg hover:bg-slate-200 transition-colors font-medium mr-3"
+                >
+                  Hapus Pencarian
+                </button>
+                <Link
+                  href="/ask"
+                  className="inline-flex items-center gap-2 px-6 py-3 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 transition-colors font-medium"
+                >
+                  <Plus className="w-4 h-4" />
+                  Tanya Pertanyaan
+                </Link>
+              </div>
+            ) : renderEmptyState
+            : filteredQuestions.map((question) => (
               <QuestionCard key={question.id} question={question} />
             ))
         }
