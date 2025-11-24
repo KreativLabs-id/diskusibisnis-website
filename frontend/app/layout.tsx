@@ -17,12 +17,13 @@ export const metadata: Metadata = {
     default: "DiskusiBisnis - Forum Q&A UMKM Indonesia",
     template: "%s | DiskusiBisnis"
   },
-  description: "Platform diskusi untuk pemilik UMKM Indonesia. Bertanya, menjawab, dan temukan solusi praktis untuk masalah bisnis Anda.",
-  keywords: ["forum", "umkm", "bisnis", "indonesia", "tanya jawab", "q&a"],
+  description: "Platform diskusi dan forum tanya jawab untuk pemilik UMKM Indonesia. Bertanya, berbagi pengalaman, dan temukan solusi praktis untuk mengembangkan bisnis Anda bersama komunitas.",
+  keywords: ["forum umkm", "diskusi bisnis", "tanya jawab bisnis", "komunitas umkm", "usaha kecil", "menengah", "indonesia", "forum entrepreneur", "bisnis online", "strategi marketing"],
   authors: [{ name: "DiskusiBisnis Team" }],
   creator: "DiskusiBisnis",
   publisher: "DiskusiBisnis",
   manifest: "/manifest.json",
+  metadataBase: new URL(process.env.NEXT_PUBLIC_FRONTEND_URL || "http://localhost:3000"),
   icons: {
     icon: [
       { url: '/favicon.ico', sizes: 'any' },
@@ -52,6 +53,13 @@ export const metadata: Metadata = {
   robots: {
     index: true,
     follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+      'max-video-preview': -1,
+      'max-image-preview': 'large',
+      'max-snippet': -1,
+    },
   },
   openGraph: {
     type: "website",
@@ -59,21 +67,37 @@ export const metadata: Metadata = {
     url: process.env.NEXT_PUBLIC_FRONTEND_URL || "http://localhost:3000",
     siteName: "DiskusiBisnis",
     title: "DiskusiBisnis - Forum Q&A UMKM Indonesia",
-    description: "Platform diskusi untuk pemilik UMKM Indonesia. Bertanya, menjawab, dan temukan solusi praktis untuk masalah bisnis Anda.",
+    description: "Platform diskusi dan forum tanya jawab untuk pemilik UMKM Indonesia. Bertanya, berbagi pengalaman, dan temukan solusi praktis untuk mengembangkan bisnis Anda bersama komunitas.",
     images: [
+      {
+        url: '/icons/og-image.png',
+        width: 1200,
+        height: 630,
+        alt: 'DiskusiBisnis - Forum Q&A UMKM Indonesia',
+        type: 'image/png',
+      },
       {
         url: '/icons/icon-512x512.png',
         width: 512,
         height: 512,
         alt: 'DiskusiBisnis Logo',
+        type: 'image/png',
       },
     ],
   },
   twitter: {
     card: "summary_large_image",
+    site: "@diskusibisnis",
+    creator: "@diskusibisnis",
     title: "DiskusiBisnis - Forum Q&A UMKM Indonesia",
-    description: "Platform diskusi untuk pemilik UMKM Indonesia. Bertanya, menjawab, dan temukan solusi praktis untuk masalah bisnis Anda.",
-    images: ['/icons/icon-512x512.png'],
+    description: "Platform diskusi dan forum tanya jawab untuk pemilik UMKM Indonesia. Bertanya, berbagi pengalaman, dan temukan solusi praktis untuk mengembangkan bisnis Anda.",
+    images: ['/icons/og-image.png'],
+  },
+  alternates: {
+    canonical: process.env.NEXT_PUBLIC_FRONTEND_URL || "http://localhost:3000",
+  },
+  verification: {
+    google: "your-google-site-verification-code", // TODO: Add actual verification code
   },
 };
 
@@ -93,6 +117,30 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const jsonLd = {
+    '@context': 'https://schema.org',
+    '@type': 'WebSite',
+    name: 'DiskusiBisnis',
+    description: 'Platform diskusi dan forum tanya jawab untuk pemilik UMKM Indonesia',
+    url: process.env.NEXT_PUBLIC_FRONTEND_URL || 'http://localhost:3000',
+    potentialAction: {
+      '@type': 'SearchAction',
+      target: {
+        '@type': 'EntryPoint',
+        urlTemplate: `${process.env.NEXT_PUBLIC_FRONTEND_URL || 'http://localhost:3000'}/questions?search={search_term_string}`,
+      },
+      'query-input': 'required name=search_term_string',
+    },
+    publisher: {
+      '@type': 'Organization',
+      name: 'DiskusiBisnis',
+      logo: {
+        '@type': 'ImageObject',
+        url: `${process.env.NEXT_PUBLIC_FRONTEND_URL || 'http://localhost:3000'}/icons/icon-512x512.png`,
+      },
+    },
+  };
+
   return (
         <html lang="id" suppressHydrationWarning className={inter.variable}>
       <head>
@@ -109,6 +157,11 @@ export default function RootLayout({
         <meta name="msapplication-starturl" content="/" />
         <meta name="msapplication-TileColor" content="#10b981" />
         <meta name="msapplication-TileImage" content="/icons/icon-144x144.png" />
+        {/* Structured Data */}
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+        />
       </head>
       <body className={`${inter.variable} font-sans antialiased bg-slate-50 h-full`}>
         <ClientProviders>

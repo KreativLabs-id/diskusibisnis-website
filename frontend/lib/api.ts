@@ -1,7 +1,24 @@
 import axios from 'axios';
 
 // Use Backend Express API
-const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api';
+// Ensure the URL is properly formatted
+let API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api';
+
+// Fix double URL issue - check if API_URL already has full domain
+if (!API_URL.startsWith('http://') && !API_URL.startsWith('https://')) {
+  // If it's a relative path, make it absolute
+  API_URL = `${typeof window !== 'undefined' ? window.location.origin : ''}${API_URL}`;
+}
+
+// Remove trailing slash if exists
+API_URL = API_URL.replace(/\/$/, '');
+
+// Ensure /api is only added once
+if (!API_URL.endsWith('/api')) {
+  API_URL = `${API_URL}/api`;
+}
+
+console.log('API Base URL:', API_URL);
 
 const api = axios.create({
   baseURL: API_URL,
