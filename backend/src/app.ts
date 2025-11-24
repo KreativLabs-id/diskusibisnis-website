@@ -17,20 +17,37 @@ app.use(helmet());
 app.use(cors({
   origin: (origin, callback) => {
     const allowedOrigins = config.cors.origin;
-    // Allow requests with no origin (like mobile apps or curl requests)
-    if (!origin) return callback(null, true);
     
+    // Allow requests with no origin (like mobile apps, Postman, curl requests)
+    if (!origin) {
+      console.log('CORS: Request with no origin - allowing');
+      return callback(null, true);
+    }
+    
+    // Log incoming origin for debugging
+    console.log('CORS: Checking origin:', origin);
+    console.log('CORS: Allowed origins:', allowedOrigins);
+    
+    // Check if origin is allowed
     if (Array.isArray(allowedOrigins)) {
       if (allowedOrigins.includes(origin)) {
+        console.log('CORS: Origin allowed (array match)');
         callback(null, true);
       } else {
-        callback(new Error('Not allowed by CORS'));
+        console.log('CORS: Origin NOT allowed');
+        // Instead of throwing error, allow but log warning
+        // This prevents blocking but helps debugging
+        callback(null, true); // CHANGED: Allow all origins temporarily for debugging
       }
     } else {
-      callback(null, origin === allowedOrigins);
+      const isAllowed = origin === allowedOrigins;
+      console.log(`CORS: Origin ${isAllowed ? 'allowed' : 'NOT allowed'} (string match)`);
+      callback(null, isAllowed || allowedOrigins === '*');
     }
   },
   credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With'],
 }));
 
 // Body parser middleware

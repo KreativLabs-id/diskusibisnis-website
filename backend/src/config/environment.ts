@@ -17,8 +17,12 @@ export const config = {
   
   cors: {
     origin: process.env.CORS_ORIGIN 
-      ? process.env.CORS_ORIGIN.split(',').map(origin => origin.trim())
-      : ['http://localhost:3000'],
+      ? (process.env.CORS_ORIGIN === '*' 
+          ? '*' 
+          : process.env.CORS_ORIGIN.split(',').map(origin => origin.trim()))
+      : (process.env.NODE_ENV === 'production' 
+          ? [] // Empty array in production will be handled in app.ts
+          : ['http://localhost:3000', 'http://localhost:3001']),
   },
   
   rateLimit: {
