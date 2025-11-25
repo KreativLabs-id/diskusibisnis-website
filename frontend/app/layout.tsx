@@ -98,7 +98,7 @@ export const metadata: Metadata = {
     canonical: process.env.NEXT_PUBLIC_FRONTEND_URL || "http://localhost:3000",
   },
   verification: {
-    google: "your-google-site-verification-code", // TODO: Add actual verification code
+    google: "ZryRGwvZbq2yhczBDMW9QLpHMBseYB72XJgJBF46x_I",
   },
 };
 
