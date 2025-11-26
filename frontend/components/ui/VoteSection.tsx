@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import VoteButton from './VoteButton';
 
 interface VoteSectionProps {
@@ -24,25 +24,59 @@ export default function VoteSection({
 }: VoteSectionProps) {
   const [displayCount, setDisplayCount] = useState(voteCount);
   const [isCountAnimating, setIsCountAnimating] = useState(false);
+  const [isVoting, setIsVoting] = useState(false);
+  const prevVoteCountRef = useRef(voteCount);
+  const lastVoteTimeRef = useRef(0);
+  const VOTE_COOLDOWN = 500; // 500ms cooldown between votes
 
-  // Smooth number animation when vote count changes
+  // Debounced vote handler to prevent spam
+  const handleVoteWithDebounce = useCallback((voteAction: () => void) => {
+    const now = Date.now();
+    if (now - lastVoteTimeRef.current < VOTE_COOLDOWN || isVoting) {
+      return; // Ignore if within cooldown or already voting
+    }
+    
+    lastVoteTimeRef.current = now;
+    setIsVoting(true);
+    
+    // Execute vote action
+    voteAction();
+    
+    // Reset voting state after a short delay
+    setTimeout(() => {
+      setIsVoting(false);
+    }, VOTE_COOLDOWN);
+  }, [isVoting]);
+
+  const handleUpvote = useCallback(() => {
+    handleVoteWithDebounce(onUpvote);
+  }, [handleVoteWithDebounce, onUpvote]);
+
+  const handleDownvote = useCallback(() => {
+    handleVoteWithDebounce(onDownvote);
+  }, [handleVoteWithDebounce, onDownvote]);
+
+  // Sync displayCount when voteCount changes from parent (e.g., after API response)
   useEffect(() => {
-    if (voteCount !== displayCount) {
+    const prevCount = prevVoteCountRef.current;
+    
+    // Only animate if the change is small (typical vote change is -2 to +2)
+    const difference = Math.abs(voteCount - prevCount);
+    
+    if (difference <= 2 && voteCount !== displayCount) {
+      // Small change - animate smoothly
       setIsCountAnimating(true);
       
-      const duration = 500;
-      const steps = 15;
-      const difference = voteCount - displayCount;
-      const increment = difference / steps;
+      const duration = 300;
+      const steps = 10;
+      const startCount = displayCount;
+      const increment = (voteCount - startCount) / steps;
       let currentStep = 0;
 
       const timer = setInterval(() => {
         currentStep++;
-        if (currentStep <= steps) {
-          setDisplayCount(prev => {
-            const next = prev + increment;
-            return Math.round(next);
-          });
+        if (currentStep < steps) {
+          setDisplayCount(Math.round(startCount + (increment * currentStep)));
         } else {
           setDisplayCount(voteCount);
           setIsCountAnimating(false);
@@ -50,7 +84,12 @@ export default function VoteSection({
         }
       }, duration / steps);
 
+      prevVoteCountRef.current = voteCount;
       return () => clearInterval(timer);
+    } else if (voteCount !== displayCount) {
+      // Large change or initial load - set immediately without animation
+      setDisplayCount(voteCount);
+      prevVoteCountRef.current = voteCount;
     }
   }, [voteCount, displayCount]);
 
