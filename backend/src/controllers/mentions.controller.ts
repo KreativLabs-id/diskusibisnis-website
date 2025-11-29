@@ -1,6 +1,7 @@
 import { Request, Response } from 'express';
 import pool from '../config/database';
 import { AuthRequest } from '../types';
+import { createMentionNotification } from '../utils/notification.service';
 
 // Search users by username (for autocomplete)
 export const searchUsers = async (req: Request, res: Response) => {
@@ -50,6 +51,56 @@ export const createMentions = async (
       return { success: true, mentionsCreated: 0 };
     }
 
+    // Get mentioner name
+    const mentionerResult = await pool.query(
+      `SELECT display_name FROM users WHERE id = $1`,
+      [mentionerId]
+    );
+    const mentionerName = mentionerResult.rows[0]?.display_name || 'Seseorang';
+
+    // Get question ID based on content type for proper notification link
+    let questionId: string | null = null;
+    let contentTitle: string = '';
+
+    if (contentType === 'question') {
+      const questionResult = await pool.query(
+        `SELECT id, title FROM questions WHERE id = $1`,
+        [contentId]
+      );
+      if (questionResult.rows.length > 0) {
+        questionId = questionResult.rows[0].id;
+        contentTitle = questionResult.rows[0].title;
+      }
+    } else if (contentType === 'answer') {
+      const answerResult = await pool.query(
+        `SELECT a.question_id, q.title FROM answers a 
+         JOIN questions q ON a.question_id = q.id 
+         WHERE a.id = $1`,
+        [contentId]
+      );
+      if (answerResult.rows.length > 0) {
+        questionId = answerResult.rows[0].question_id;
+        contentTitle = answerResult.rows[0].title;
+      }
+    } else if (contentType === 'comment') {
+      // Comments can be on questions or answers
+      const commentResult = await pool.query(
+        `SELECT c.commentable_type, c.commentable_id,
+                COALESCE(q.id, q2.id) as question_id,
+                COALESCE(q.title, q2.title) as title
+         FROM comments c
+         LEFT JOIN questions q ON c.commentable_type = 'question' AND c.commentable_id = q.id
+         LEFT JOIN answers a ON c.commentable_type = 'answer' AND c.commentable_id = a.id
+         LEFT JOIN questions q2 ON a.question_id = q2.id
+         WHERE c.id = $1`,
+        [contentId]
+      );
+      if (commentResult.rows.length > 0) {
+        questionId = commentResult.rows[0].question_id;
+        contentTitle = commentResult.rows[0].title;
+      }
+    }
+
     // Get user IDs for mentioned display names (case insensitive)
     const usersResult = await pool.query(
       `SELECT id, display_name FROM users WHERE LOWER(display_name) = ANY($1::text[])`,
@@ -58,7 +109,7 @@ export const createMentions = async (
 
     const mentionedUsers = usersResult.rows;
 
-    // Insert mentions (avoid self-mentions)
+    // Insert mentions and create notifications (avoid self-mentions)
     let mentionsCreated = 0;
     for (const user of mentionedUsers) {
       if (user.id !== mentionerId) {
@@ -69,6 +120,20 @@ export const createMentions = async (
           [mentionerId, user.id, contentType, contentId]
         );
         mentionsCreated++;
+
+        // Create notification for the mentioned user
+        if (questionId && contentTitle) {
+          try {
+            await createMentionNotification(
+              user.id,
+              mentionerName,
+              contentTitle,
+              questionId
+            );
+          } catch (notifError) {
+            console.error('Error creating mention notification:', notifError);
+          }
+        }
       }
     }
 

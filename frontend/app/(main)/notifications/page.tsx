@@ -53,13 +53,25 @@ const formatTimeAgo = (dateString: string) => {
   const diffInSeconds = Math.floor((now.getTime() - date.getTime()) / 1000);
 
   if (diffInSeconds < 60) return 'Baru saja';
-  if (diffInSeconds < 3600) return `${Math.floor(diffInSeconds / 60)}m lalu`;
-  if (diffInSeconds < 86400) return `${Math.floor(diffInSeconds / 3600)}j lalu`;
-  if (diffInSeconds < 604800) return `${Math.floor(diffInSeconds / 86400)}h lalu`;
+  if (diffInSeconds < 3600) return `${Math.floor(diffInSeconds / 60)} menit lalu`;
+  if (diffInSeconds < 86400) return `${Math.floor(diffInSeconds / 3600)} jam lalu`;
+  if (diffInSeconds < 604800) return `${Math.floor(diffInSeconds / 86400)} hari lalu`;
 
   return date.toLocaleDateString('id-ID', {
     day: 'numeric',
-    month: 'short'
+    month: 'short',
+    year: 'numeric'
+  });
+};
+
+// Parse bold text patterns like **name** or **title**
+const formatMessage = (text: string) => {
+  const parts = text.split(/(\*\*.*?\*\*)/g);
+  return parts.map((part, i) => {
+    if (part.startsWith('**') && part.endsWith('**')) {
+      return <strong key={i} className="font-semibold text-slate-900">{part.slice(2, -2)}</strong>;
+    }
+    return <span key={i}>{part}</span>;
   });
 };
 
@@ -104,7 +116,7 @@ const NotificationItem: React.FC<NotificationItemProps> = ({ notification, onMar
           {notification.message && (
             <p className={`text-sm leading-relaxed line-clamp-2 ${notification.is_read ? 'text-slate-500' : 'text-slate-600'
               }`}>
-              {notification.message}
+              {formatMessage(notification.message)}
             </p>
           )}
         </div>

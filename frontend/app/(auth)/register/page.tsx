@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { useAuth } from '@/contexts/AuthContext';
 import { Mail, Lock, User, AlertCircle, ArrowRight, Check, Eye, EyeOff } from 'lucide-react';
+import GoogleLoginButton from '@/components/ui/GoogleLoginButton';
 
 export default function RegisterPage() {
   const [formData, setFormData] = useState({
@@ -15,7 +16,7 @@ export default function RegisterPage() {
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
-  const { register, user, loading: authLoading } = useAuth();
+  const { register, googleLogin, user, loading: authLoading } = useAuth();
   const router = useRouter();
 
   // Redirect if already logged in
@@ -33,9 +34,42 @@ export default function RegisterPage() {
     try {
       await register(formData.email, formData.password, formData.displayName);
       router.push('/');
-    } catch (err) {
-      const error = err as { response?: { data?: { message?: string } } };
-      setError(error.response?.data?.message || 'Gagal membuat akun');
+    } catch (err: any) {
+      // Handle different error scenarios
+      if (err.response) {
+        // Server responded with error
+        const message = err.response.data?.message || err.response.data?.error;
+        if (err.response.status === 400) {
+          setError(message || 'Data yang dimasukkan tidak valid');
+        } else if (message?.toLowerCase().includes('email')) {
+          setError('Email sudah terdaftar. Silakan gunakan email lain.');
+        } else {
+          setError(message || 'Gagal membuat akun');
+        }
+      } else if (err.request) {
+        // Network error
+        setError('Tidak dapat terhubung ke server. Periksa koneksi internet Anda.');
+      } else {
+        setError('Terjadi kesalahan. Silakan coba lagi.');
+      }
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleGoogleSuccess = async (credential: string) => {
+    setError('');
+    setLoading(true);
+    try {
+      await googleLogin(credential);
+      router.push('/');
+    } catch (err: any) {
+      if (err.response) {
+        const message = err.response.data?.message || err.response.data?.error;
+        setError(message || 'Gagal daftar dengan Google');
+      } else {
+        setError('Tidak dapat terhubung ke server');
+      }
     } finally {
       setLoading(false);
     }
@@ -200,6 +234,27 @@ export default function RegisterPage() {
               </button>
             </div>
           </form>
+
+          {/* Google Login */}
+          <div className="mt-6">
+            <div className="relative">
+              <div className="absolute inset-0 flex items-center">
+                <div className="w-full border-t border-slate-200" />
+              </div>
+              <div className="relative flex justify-center text-sm">
+                <span className="px-4 bg-white text-slate-500">atau</span>
+              </div>
+            </div>
+
+            <div className="mt-6">
+              <GoogleLoginButton 
+                onSuccess={handleGoogleSuccess}
+                onError={() => setError('Gagal daftar dengan Google')}
+                text="Daftar dengan Google"
+                disabled={loading}
+              />
+            </div>
+          </div>
 
           <div className="mt-8">
             <div className="relative">

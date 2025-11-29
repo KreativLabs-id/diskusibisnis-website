@@ -45,7 +45,14 @@ api.interceptors.request.use(
 api.interceptors.response.use(
   (response) => response,
   (error) => {
-    if (error.response?.status === 401) {
+    // Don't redirect on 401 if we're on auth pages (login, register, etc.)
+    const isAuthPage = typeof window !== 'undefined' && 
+      (window.location.pathname.includes('/login') || 
+       window.location.pathname.includes('/register') ||
+       window.location.pathname.includes('/forgot-password') ||
+       window.location.pathname.includes('/reset-password'));
+    
+    if (error.response?.status === 401 && !isAuthPage) {
       localStorage.removeItem('token');
       localStorage.removeItem('user');
       window.location.href = '/login';
@@ -64,6 +71,8 @@ export const authAPI = {
     api.post('/auth/register', data),
   login: (data: { email: string; password: string }) =>
     api.post('/auth/login', data),
+  googleLogin: (credential: string) =>
+    api.post('/auth/google', { credential }),
   forgotPassword: (email: string) =>
     api.post('/auth/forgot-password', { email }),
   resetPassword: (data: { token: string; newPassword: string }) =>

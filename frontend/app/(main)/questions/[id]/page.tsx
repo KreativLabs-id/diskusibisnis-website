@@ -357,9 +357,9 @@ export default function QuestionDetailPage() {
   }
 
   return (
-    <div className="min-h-screen bg-slate-50 pb-20">
+    <div className="min-h-screen bg-white pb-20">
       {/* Mobile Header - Sticky */}
-      <div className="sticky top-0 z-30 bg-white border-b border-slate-200 px-4 py-3 sm:hidden flex items-center justify-between shadow-sm">
+      <div className="sticky top-0 z-30 bg-white border-b border-slate-200 px-4 py-3 sm:hidden flex items-center justify-between">
         <div className="flex items-center gap-3">
           <button
             onClick={() => router.back()}
@@ -367,31 +367,33 @@ export default function QuestionDetailPage() {
           >
             <ArrowLeft className="w-5 h-5" />
           </button>
-          <h1 className="text-lg font-bold text-slate-900 truncate">Detail Pertanyaan</h1>
+          <h1 className="text-base font-semibold text-slate-900 truncate">Pertanyaan</h1>
         </div>
         <button
           onClick={handleBookmark}
-          className={`p-2 rounded-full ${question.is_bookmarked ? 'text-emerald-600 bg-emerald-50' : 'text-slate-400 hover:bg-slate-100'}`}
+          className={`p-2 rounded-lg ${question.is_bookmarked ? 'text-emerald-600 bg-emerald-50' : 'text-slate-400 hover:bg-slate-50'}`}
         >
           {question.is_bookmarked ? <BookmarkCheck className="w-5 h-5" /> : <Bookmark className="w-5 h-5" />}
         </button>
       </div>
 
-      <div className="max-w-4xl mx-auto px-4 py-6 sm:py-8">
-        {/* Desktop Header */}
-        <div className="hidden sm:flex items-center justify-between mb-6">
+      {/* Desktop Back Button */}
+      <div className="hidden sm:block border-b border-slate-200">
+        <div className="max-w-5xl mx-auto px-6 py-3">
           <button
             onClick={() => router.back()}
-            className="flex items-center gap-2 text-slate-500 hover:text-emerald-600 transition-colors group"
+            className="flex items-center gap-2 text-slate-600 hover:text-emerald-600 transition-colors group text-sm"
           >
             <ArrowLeft className="w-4 h-4 group-hover:-translate-x-1 transition-transform" />
             <span className="font-medium">Kembali</span>
           </button>
         </div>
+      </div>
 
-        {/* Question Card */}
-        <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden mb-8">
-          <div className="p-6 sm:p-8">
+      {/* Question Card */}
+      <div className="border-b border-slate-200">
+        <div className="max-w-5xl mx-auto">
+          <div className="p-4 sm:p-6">
             <div className="flex gap-6">
               {/* Desktop Vote (Left Side) */}
               <div className="hidden sm:flex flex-col items-center gap-2 shrink-0">
@@ -533,23 +535,21 @@ export default function QuestionDetailPage() {
         </div>
 
         {/* Answers Section */}
-        <div className="mb-8">
-          <div className="flex items-center justify-between mb-6">
-            <h2 className="text-xl font-bold text-slate-900 flex items-center gap-2">
-              <MessageCircle className="w-5 h-5 text-emerald-600" />
+        <div className="border-t-4 border-slate-200 bg-slate-50">
+          <div className="max-w-5xl mx-auto px-4 sm:px-6 py-4">
+            <h2 className="text-lg font-bold text-slate-900">
               {question.answers_count} Jawaban
             </h2>
           </div>
+        </div>
 
-          <div className="space-y-6">
-            {question.answers?.map((answer) => (
-              <div
-                key={answer.id}
-                className={`bg-white rounded-2xl border p-6 sm:p-8 transition-all ${answer.is_accepted
-                  ? 'border-emerald-200 shadow-md shadow-emerald-500/5 ring-1 ring-emerald-100'
-                  : 'border-slate-200 shadow-sm'
-                  }`}
-              >
+        <div>
+          {question.answers?.map((answer) => (
+            <div
+              key={answer.id}
+              className={`border-b border-slate-200 ${answer.is_accepted ? 'bg-emerald-50/20' : 'bg-white'}`}
+            >
+              <div className="max-w-5xl mx-auto p-4 sm:p-6">
                 <div className="flex gap-6">
                   {/* Desktop Vote (Left Side) */}
                   <div className="hidden sm:flex flex-col items-center gap-2 shrink-0">
@@ -691,48 +691,49 @@ export default function QuestionDetailPage() {
                   </div>
                 </div>
               </div>
-            ))}
-          </div>
+            </div>
+          ))}
         </div>
 
         {/* Answer Input */}
-        <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-6 sm:p-8">
-          <h3 className="text-lg font-bold text-slate-900 mb-4 flex items-center gap-2">
-            <CornerDownRight className="w-5 h-5 text-slate-400" />
-            Tulis Jawaban Anda
-          </h3>
+        <div className="border-t border-slate-200 bg-white">
+          <div className="max-w-5xl mx-auto p-4 sm:p-6">
+            <h3 className="text-base font-bold text-slate-900 mb-4">
+              Tulis Jawaban Anda
+            </h3>
 
-          {user ? (
-            <form onSubmit={handleSubmitAnswer}>
-              <MentionInput
-                value={answerContent}
-                onChange={setAnswerContent}
-                onSubmit={handleSubmitAnswer}
-                placeholder="Bagikan pengetahuan Anda... Ketik @ untuk mention user"
-                className="min-h-[150px] text-base"
-                disabled={submitting}
-              />
-              <div className="mt-4 flex justify-end">
-                <button
-                  type="submit"
-                  disabled={submitting || !answerContent.trim()}
-                  className="px-6 py-2.5 bg-emerald-600 text-white rounded-xl font-semibold hover:bg-emerald-700 transition-all shadow-lg shadow-emerald-600/20 disabled:opacity-50 disabled:shadow-none"
+            {user ? (
+              <form onSubmit={handleSubmitAnswer}>
+                <MentionInput
+                  value={answerContent}
+                  onChange={setAnswerContent}
+                  onSubmit={handleSubmitAnswer}
+                  placeholder="Bagikan pengetahuan Anda... Ketik @ untuk mention user"
+                  className="min-h-[150px] text-[15px]"
+                  disabled={submitting}
+                />
+                <div className="mt-3 flex justify-end">
+                  <button
+                    type="submit"
+                    disabled={submitting || !answerContent.trim()}
+                    className="px-5 py-2 bg-emerald-600 text-white rounded-lg font-medium hover:bg-emerald-700 transition-colors disabled:opacity-50"
+                  >
+                    {submitting ? 'Mengirim...' : 'Kirim Jawaban'}
+                  </button>
+                </div>
+              </form>
+            ) : (
+              <div className="bg-slate-50 rounded-lg p-6 text-center border border-slate-200">
+                <p className="text-slate-600 text-sm mb-3">Anda perlu login untuk menjawab pertanyaan ini.</p>
+                <Link
+                  href="/login"
+                  className="inline-flex items-center px-5 py-2 bg-emerald-600 text-white rounded-lg font-medium hover:bg-emerald-700 transition-colors"
                 >
-                  {submitting ? 'Mengirim...' : 'Kirim Jawaban'}
-                </button>
+                  Login Sekarang
+                </Link>
               </div>
-            </form>
-          ) : (
-            <div className="bg-slate-50 rounded-xl p-6 text-center border border-slate-200 border-dashed">
-              <p className="text-slate-600 mb-4">Anda perlu login untuk menjawab pertanyaan ini.</p>
-              <Link
-                href="/login"
-                className="inline-flex items-center px-6 py-2.5 bg-emerald-600 text-white rounded-xl font-semibold hover:bg-emerald-700 transition-colors"
-              >
-                Login Sekarang
-              </Link>
-            </div>
-          )}
+            )}
+          </div>
         </div>
       </div>
 

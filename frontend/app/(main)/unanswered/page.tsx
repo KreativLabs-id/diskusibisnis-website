@@ -130,25 +130,25 @@ export default function UnansweredPage() {
   return (
     <div className="max-w-6xl mx-auto px-4 py-6 sm:py-8">
       {/* Header Section */}
-      <div className="relative rounded-3xl bg-gradient-to-br from-slate-900 to-slate-800 p-6 sm:p-10 mb-8 overflow-hidden shadow-xl">
+      <div className="relative rounded-3xl bg-gradient-to-br from-emerald-600 via-emerald-500 to-teal-600 p-6 sm:p-10 mb-8 overflow-hidden shadow-xl">
         {/* Background Accents */}
-        <div className="absolute top-0 right-0 w-96 h-96 bg-emerald-500/10 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2"></div>
-        <div className="absolute bottom-0 left-0 w-64 h-64 bg-blue-500/10 rounded-full blur-3xl translate-y-1/2 -translate-x-1/2"></div>
+        <div className="absolute top-0 right-0 w-96 h-96 bg-white/10 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2"></div>
+        <div className="absolute bottom-0 left-0 w-64 h-64 bg-teal-400/20 rounded-full blur-3xl translate-y-1/2 -translate-x-1/2"></div>
 
         <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-6">
           <div>
             <div className="flex items-center gap-3 mb-3">
-              <div className="px-3 py-1 rounded-full bg-emerald-500/20 border border-emerald-500/30 text-emerald-300 text-xs font-semibold uppercase tracking-wider">
+              <div className="px-3 py-1 rounded-full bg-white/20 border border-white/30 text-white text-xs font-semibold uppercase tracking-wider">
                 Komunitas
               </div>
-              <div className="px-3 py-1 rounded-full bg-white/10 border border-white/10 text-slate-300 text-xs font-semibold">
+              <div className="px-3 py-1 rounded-full bg-white/10 border border-white/20 text-emerald-50 text-xs font-semibold">
                 {questions.length} Pertanyaan
               </div>
             </div>
             <h1 className="text-2xl sm:text-4xl font-bold text-white mb-2 leading-tight">
               Bantu Jawab Pertanyaan
             </h1>
-            <p className="text-slate-300 text-sm sm:text-base max-w-xl leading-relaxed">
+            <p className="text-emerald-50 text-sm sm:text-base max-w-xl leading-relaxed">
               Temukan pertanyaan yang belum terjawab dan bagikan pengetahuan Anda.
               Setiap jawaban membantu komunitas tumbuh bersama.
             </p>
@@ -156,7 +156,7 @@ export default function UnansweredPage() {
 
           <Link
             href="/ask"
-            className="inline-flex items-center justify-center gap-2 px-6 py-3 bg-emerald-500 text-white rounded-xl hover:bg-emerald-400 transition-all font-semibold shadow-lg shadow-emerald-500/20 hover:-translate-y-1 group whitespace-nowrap"
+            className="inline-flex items-center justify-center gap-2 px-6 py-3 bg-white text-emerald-600 rounded-xl hover:bg-emerald-50 transition-all font-semibold shadow-lg hover:shadow-xl group whitespace-nowrap"
           >
             <Plus className="w-5 h-5 group-hover:rotate-90 transition-transform" />
             Tanya Sesuatu
@@ -191,18 +191,15 @@ export default function UnansweredPage() {
           renderEmptyState
         ) : (
           questions.map((question) => (
-            <div key={question.id} className="group relative">
-              <div className="absolute -inset-0.5 bg-gradient-to-r from-emerald-500 to-teal-500 rounded-2xl opacity-0 group-hover:opacity-100 transition duration-300 blur-sm"></div>
-              <div className="relative">
-                <QuestionCard question={question} />
+            <div key={question.id} className="relative">
+              <QuestionCard question={question} />
 
-                {/* Floating Badge */}
-                <div className="absolute top-4 right-4 pointer-events-none">
-                  <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-50 text-emerald-700 text-xs font-bold border border-emerald-100 shadow-sm">
-                    <HelpCircle className="w-3.5 h-3.5" />
-                    Butuh Jawaban
-                  </span>
-                </div>
+              {/* Floating Badge */}
+              <div className="absolute top-4 right-4 pointer-events-none">
+                <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-50 text-emerald-700 text-xs font-bold border border-emerald-100 shadow-sm">
+                  <HelpCircle className="w-3.5 h-3.5" />
+                  Butuh Jawaban
+                </span>
               </div>
             </div>
           ))

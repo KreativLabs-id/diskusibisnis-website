@@ -60,13 +60,26 @@ export const createVoteNotification = async (
   contentType: 'question' | 'answer'
 ): Promise<void> => {
   if (voteType === 'upvote') {
-    await createNotification({
-      userId: targetUserId,
-      type: 'vote',
-      title: 'Vote positif',
-      message: `**${voterName}** menyukai ${contentType === 'question' ? 'pertanyaan' : 'jawaban'} Anda: **${contentTitle}**`,
-      link: `/questions/${contentId}`
-    });
+    // Check if notification already exists for this vote (prevent spam)
+    const link = `/questions/${contentId}`;
+    const message = `**${voterName}** menyukai ${contentType === 'question' ? 'pertanyaan' : 'jawaban'} Anda: **${contentTitle}**`;
+    
+    const existingNotif = await pool.query(
+      `SELECT id FROM public.notifications 
+       WHERE user_id = $1 AND type = 'vote' AND message = $2 AND link = $3`,
+      [targetUserId, message, link]
+    );
+
+    // Only create notification if it doesn't exist
+    if (existingNotif.rows.length === 0) {
+      await createNotification({
+        userId: targetUserId,
+        type: 'vote',
+        title: 'Vote positif',
+        message,
+        link
+      });
+    }
   }
 };
 
@@ -74,15 +87,28 @@ export const createMentionNotification = async (
   mentionedUserId: string,
   mentionerName: string,
   contentTitle: string,
-  contentId: string
+  questionId: string
 ): Promise<void> => {
-  await createNotification({
-    userId: mentionedUserId,
-    type: 'mention',
-    title: 'Mention',
-    message: `**${mentionerName}** menyebut Anda dalam diskusi: **${contentTitle}**`,
-    link: `/questions/${contentId}`
-  });
+  const link = `/questions/${questionId}`;
+  const message = `**${mentionerName}** menyebut Anda di pertanyaan: **${contentTitle}**`;
+  
+  // Check if notification already exists (prevent duplicate)
+  const existingNotif = await pool.query(
+    `SELECT id FROM public.notifications 
+     WHERE user_id = $1 AND type = 'mention' AND message = $2 AND link = $3`,
+    [mentionedUserId, message, link]
+  );
+
+  // Only create notification if it doesn't exist
+  if (existingNotif.rows.length === 0) {
+    await createNotification({
+      userId: mentionedUserId,
+      type: 'mention',
+      title: 'Seseorang menyebut Anda',
+      message,
+      link
+    });
+  }
 };
 
 export const createSystemNotification = async (

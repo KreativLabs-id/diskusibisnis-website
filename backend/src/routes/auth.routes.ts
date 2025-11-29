@@ -1,6 +1,6 @@
 import { Router } from 'express';
 import { body } from 'express-validator';
-import { register, login, forgotPassword, resetPassword, changePassword } from '../controllers/auth.controller';
+import { register, login, googleLogin, forgotPassword, resetPassword, changePassword } from '../controllers/auth.controller';
 import { validate } from '../utils/validator.utils';
 import { requireAuth } from '../middlewares/auth.middleware';
 
@@ -27,6 +27,16 @@ router.post(
     validate
   ],
   login
+);
+
+// Google Login
+router.post(
+  '/google',
+  [
+    body('credential').notEmpty().withMessage('Google credential is required'),
+    validate
+  ],
+  googleLogin
 );
 
 // Forgot password

@@ -2,10 +2,14 @@ import { Response } from 'express';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import crypto from 'crypto';
+import { OAuth2Client } from 'google-auth-library';
 import pool from '../config/database';
 import config from '../config/environment';
 import { AuthRequest } from '../types';
 import { successResponse, errorResponse, unauthorizedResponse } from '../utils/response.utils';
+import { sendPasswordResetEmail } from '../utils/email.service';
+
+const googleClient = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
 
 /**
  * Register new user
@@ -130,6 +134,90 @@ export const login = async (req: AuthRequest, res: Response): Promise<void> => {
 };
 
 /**
+ * Google Login
+ * POST /api/auth/google
+ */
+export const googleLogin = async (req: AuthRequest, res: Response): Promise<void> => {
+  try {
+    const { credential } = req.body;
+
+    // Verify Google token
+    const ticket = await googleClient.verifyIdToken({
+      idToken: credential,
+      audience: process.env.GOOGLE_CLIENT_ID,
+    });
+
+    const payload = ticket.getPayload();
+    if (!payload || !payload.email) {
+      errorResponse(res, 'Invalid Google token', 400);
+      return;
+    }
+
+    const { email, name, picture, sub: googleId } = payload;
+
+    // Check if user exists
+    let userResult = await pool.query(
+      'SELECT * FROM public.users WHERE email = $1 OR google_id = $2',
+      [email, googleId]
+    );
+
+    let user;
+    let isNewUser = false;
+
+    if (userResult.rows.length === 0) {
+      // Create new user
+      const result = await pool.query(
+        `INSERT INTO public.users (email, display_name, avatar_url, google_id, role, is_verified) 
+         VALUES ($1, $2, $3, $4, 'member', false) 
+         RETURNING id, email, display_name, avatar_url, role, reputation_points, is_verified`,
+        [email, name || email?.split('@')[0], picture, googleId]
+      );
+      user = result.rows[0];
+      isNewUser = true;
+    } else {
+      user = userResult.rows[0];
+      
+      // Update google_id if not set
+      if (!user.google_id) {
+        await pool.query(
+          'UPDATE public.users SET google_id = $1, avatar_url = COALESCE(avatar_url, $2) WHERE id = $3',
+          [googleId, picture, user.id]
+        );
+      }
+
+      // Check if user is banned
+      if (user.is_banned) {
+        errorResponse(res, 'Your account has been banned', 403);
+        return;
+      }
+    }
+
+    // Generate JWT token
+    const token = jwt.sign(
+      { id: user.id, email: user.email, role: user.role },
+      config.jwt.secret,
+      { expiresIn: config.jwt.expiresIn } as jwt.SignOptions
+    );
+
+    successResponse(res, {
+      user: {
+        id: user.id,
+        email: user.email,
+        displayName: user.display_name,
+        avatarUrl: user.avatar_url || picture,
+        role: user.role,
+        reputationPoints: user.reputation_points || 0,
+      },
+      token,
+      isNewUser,
+    }, isNewUser ? 'Account created successfully' : 'Login successful');
+  } catch (error) {
+    console.error('Google login error:', error);
+    errorResponse(res, 'Failed to authenticate with Google');
+  }
+};
+
+/**
  * Request password reset
  * POST /api/auth/forgot-password
  */
@@ -139,7 +227,7 @@ export const forgotPassword = async (req: AuthRequest, res: Response): Promise<v
 
     // Check if user exists
     const userResult = await pool.query(
-      'SELECT id, email FROM public.users WHERE email = $1',
+      'SELECT id, email, display_name FROM public.users WHERE email = $1',
       [email]
     );
 
@@ -164,8 +252,16 @@ export const forgotPassword = async (req: AuthRequest, res: Response): Promise<v
       [resetTokenHash, resetTokenExpiry, user.id]
     );
 
-    // TODO: Send email with reset link
-    console.log(`Reset token for ${email}: ${resetToken}`);
+    // Send email with reset link
+    const emailSent = await sendPasswordResetEmail(
+      user.email,
+      resetToken,
+      user.display_name || 'User'
+    );
+
+    if (!emailSent) {
+      console.error(`Failed to send reset email to ${email}`);
+    }
 
     successResponse(
       res,

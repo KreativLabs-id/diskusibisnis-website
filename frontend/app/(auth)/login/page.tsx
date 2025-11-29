@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { useAuth } from '@/contexts/AuthContext';
 import { Mail, Lock, AlertCircle, ArrowRight, Eye, EyeOff } from 'lucide-react';
+import GoogleLoginButton from '@/components/ui/GoogleLoginButton';
 
 export default function LoginPage() {
   const [formData, setFormData] = useState({
@@ -14,7 +15,7 @@ export default function LoginPage() {
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
-  const { login, user, loading: authLoading } = useAuth();
+  const { login, googleLogin, user, loading: authLoading } = useAuth();
   const router = useRouter();
 
   // Redirect if already logged in
@@ -32,9 +33,42 @@ export default function LoginPage() {
     try {
       await login(formData.email, formData.password);
       router.push('/');
-    } catch (err) {
-      const error = err as { response?: { data?: { message?: string } } };
-      setError(error.response?.data?.message || 'Email atau password salah');
+    } catch (err: any) {
+      // Handle different error scenarios
+      if (err.response) {
+        // Server responded with error
+        const message = err.response.data?.message || err.response.data?.error;
+        if (err.response.status === 401) {
+          setError('Email atau password salah');
+        } else if (err.response.status === 403) {
+          setError(message || 'Akun Anda telah diblokir');
+        } else {
+          setError(message || 'Terjadi kesalahan saat login');
+        }
+      } else if (err.request) {
+        // Network error
+        setError('Tidak dapat terhubung ke server. Periksa koneksi internet Anda.');
+      } else {
+        setError('Terjadi kesalahan. Silakan coba lagi.');
+      }
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleGoogleSuccess = async (credential: string) => {
+    setError('');
+    setLoading(true);
+    try {
+      await googleLogin(credential);
+      router.push('/');
+    } catch (err: any) {
+      if (err.response) {
+        const message = err.response.data?.message || err.response.data?.error;
+        setError(message || 'Gagal login dengan Google');
+      } else {
+        setError('Tidak dapat terhubung ke server');
+      }
     } finally {
       setLoading(false);
     }
@@ -194,6 +228,27 @@ export default function LoginPage() {
               </button>
             </div>
           </form>
+
+          {/* Google Login */}
+          <div className="mt-6">
+            <div className="relative">
+              <div className="absolute inset-0 flex items-center">
+                <div className="w-full border-t border-slate-200" />
+              </div>
+              <div className="relative flex justify-center text-sm">
+                <span className="px-4 bg-white text-slate-500">atau</span>
+              </div>
+            </div>
+
+            <div className="mt-6">
+              <GoogleLoginButton 
+                onSuccess={handleGoogleSuccess}
+                onError={() => setError('Gagal login dengan Google')}
+                text="Masuk dengan Google"
+                disabled={loading}
+              />
+            </div>
+          </div>
 
           <div className="mt-8">
             <div className="relative">
