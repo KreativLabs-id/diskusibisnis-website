@@ -14,7 +14,7 @@ interface Question {
   title: string;
   content: string;
   created_at: string;
-  updated_at: string;
+  updated_at: string | null;
   views: number;
   author_name: string;
   author_email: string;
@@ -22,6 +22,18 @@ interface Question {
   upvotes: number;
   downvotes: number;
 }
+
+// Helper function untuk format tanggal dalam bahasa Indonesia
+const formatDate = (dateString: string | null | undefined): string => {
+  if (!dateString) return '';
+  const date = new Date(dateString);
+  if (isNaN(date.getTime())) return '';
+  return date.toLocaleDateString('id-ID', {
+    day: 'numeric',
+    month: 'long',
+    year: 'numeric'
+  });
+};
 
 export default function AdminQuestions() {
   const { user, loading } = useAuth();
@@ -72,16 +84,16 @@ export default function AdminQuestions() {
   const handleDeleteQuestion = (questionId: string, title: string) => {
     setConfirmModal({
       isOpen: true,
-      title: 'Delete Question',
-      message: `Are you sure you want to delete the question "${title}"? This action cannot be undone and will also delete all answers and votes.`,
+      title: 'Hapus Pertanyaan',
+      message: `Apakah Anda yakin ingin menghapus pertanyaan "${title}"? Tindakan ini tidak dapat dibatalkan dan akan menghapus semua jawaban dan vote.`,
       onConfirm: async () => {
         try {
           await adminAPI.deleteQuestion(questionId);
-          showAlert('success', 'Success', 'Question has been deleted');
+          showAlert('success', 'Berhasil', 'Pertanyaan telah dihapus');
           fetchQuestions(); // Refresh the list
         } catch (error) {
           console.error('Error deleting question:', error);
-          showAlert('error', 'Error', 'Failed to delete question');
+          showAlert('error', 'Gagal', 'Gagal menghapus pertanyaan');
         }
       }
     });
@@ -125,10 +137,10 @@ export default function AdminQuestions() {
             <div className="p-2 bg-green-100 rounded-lg">
               <MessageSquare className="w-6 h-6 text-green-600" />
             </div>
-            <h1 className="text-3xl font-bold text-slate-900">Question Management</h1>
+            <h1 className="text-3xl font-bold text-slate-900">Kelola Pertanyaan</h1>
           </div>
         </div>
-        <p className="text-slate-600">Review and moderate questions posted by users</p>
+        <p className="text-slate-600">Tinjau dan moderasi pertanyaan yang diposting oleh pengguna</p>
       </div>
 
       {/* Search */}
@@ -137,7 +149,7 @@ export default function AdminQuestions() {
           <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400 w-4 h-4" />
           <input
             type="text"
-            placeholder="Search questions by title, content, or author..."
+            placeholder="Cari pertanyaan berdasarkan judul, konten, atau penulis..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
             className="w-full pl-10 pr-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
@@ -153,7 +165,7 @@ export default function AdminQuestions() {
           </div>
         ) : filteredQuestions.length === 0 ? (
           <div className="text-center py-8 text-slate-500">
-            No questions found
+            Tidak ada pertanyaan ditemukan
           </div>
         ) : (
           filteredQuestions.map((question) => (
@@ -175,11 +187,11 @@ export default function AdminQuestions() {
                   <div className="flex items-center gap-6 text-sm text-slate-500 mb-4">
                     <div className="flex items-center gap-1">
                       <Eye className="w-4 h-4" />
-                      <span>{question.views} views</span>
+                      <span>{question.views} dilihat</span>
                     </div>
                     <div className="flex items-center gap-1">
                       <MessageCircle className="w-4 h-4" />
-                      <span>{question.answer_count} answers</span>
+                      <span>{question.answer_count} jawaban</span>
                     </div>
                     <div className="flex items-center gap-1">
                       <ThumbsUp className="w-4 h-4 text-green-600" />
@@ -195,11 +207,11 @@ export default function AdminQuestions() {
                     <div className="text-sm text-slate-500">
                       <span className="font-medium">{question.author_name}</span>
                       <span className="mx-2">•</span>
-                      <span>{new Date(question.created_at).toLocaleDateString()}</span>
-                      {question.updated_at !== question.created_at && (
+                      <span>{formatDate(question.created_at)}</span>
+                      {question.updated_at && question.updated_at !== question.created_at && formatDate(question.updated_at) && (
                         <>
                           <span className="mx-2">•</span>
-                          <span>Updated {new Date(question.updated_at).toLocaleDateString()}</span>
+                          <span>Diperbarui {formatDate(question.updated_at)}</span>
                         </>
                       )}
                     </div>
@@ -211,14 +223,14 @@ export default function AdminQuestions() {
                     href={`/questions/${question.id}`}
                     target="_blank"
                     className="p-2 hover:bg-blue-100 text-blue-600 rounded-lg transition-colors"
-                    title="View question"
+                    title="Lihat pertanyaan"
                   >
                     <Eye className="w-4 h-4" />
                   </Link>
                   <button
                     onClick={() => handleDeleteQuestion(question.id, question.title)}
                     className="p-2 hover:bg-red-100 text-red-600 rounded-lg transition-colors"
-                    title="Delete question"
+                    title="Hapus pertanyaan"
                   >
                     <Trash2 className="w-4 h-4" />
                   </button>
@@ -231,7 +243,7 @@ export default function AdminQuestions() {
 
       {/* Summary */}
       <div className="mt-6 text-sm text-slate-500">
-        Showing {filteredQuestions.length} of {questions.length} questions
+        Menampilkan {filteredQuestions.length} dari {questions.length} pertanyaan
       </div>
 
       {/* Alert Modal */}

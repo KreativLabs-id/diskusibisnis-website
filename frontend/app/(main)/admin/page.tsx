@@ -52,15 +52,15 @@ export default function AdminDashboard() {
         <div className="p-4 bg-red-100 rounded-full w-16 h-16 mx-auto mb-4 flex items-center justify-center">
           <Shield className="w-8 h-8 text-red-600" />
         </div>
-        <h1 className="text-2xl font-bold text-slate-900 mb-2">Access Denied</h1>
+        <h1 className="text-2xl font-bold text-slate-900 mb-2">Akses Ditolak</h1>
         <p className="text-slate-600 mb-6">
-          You need admin privileges to access this page.
+          Anda memerlukan hak akses admin untuk mengakses halaman ini.
         </p>
         <Link
           href="/"
           className="inline-flex items-center px-6 py-3 bg-green-600 text-white rounded-lg font-medium hover:bg-green-700 transition-colors"
         >
-          🏠 Back to Home
+          🏠 Kembali ke Beranda
         </Link>
       </div>
     );
@@ -84,7 +84,7 @@ export default function AdminDashboard() {
         <div className="bg-white rounded-xl border border-slate-200 p-6">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm font-medium text-slate-600">Total Users</p>
+              <p className="text-sm font-medium text-slate-600">Total Pengguna</p>
               <p className="text-2xl font-bold text-slate-900">
                 {statsLoading ? '...' : stats?.users || 0}
               </p>
@@ -98,7 +98,7 @@ export default function AdminDashboard() {
         <div className="bg-white rounded-xl border border-slate-200 p-6">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm font-medium text-slate-600">Total Questions</p>
+              <p className="text-sm font-medium text-slate-600">Total Pertanyaan</p>
               <p className="text-2xl font-bold text-slate-900">
                 {statsLoading ? '...' : stats?.questions || 0}
               </p>
@@ -112,7 +112,7 @@ export default function AdminDashboard() {
         <div className="bg-white rounded-xl border border-slate-200 p-6">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm font-medium text-slate-600">Total Answers</p>
+              <p className="text-sm font-medium text-slate-600">Total Jawaban</p>
               <p className="text-2xl font-bold text-slate-900">
                 {statsLoading ? '...' : stats?.answers || 0}
               </p>
@@ -126,7 +126,7 @@ export default function AdminDashboard() {
         <div className="bg-white rounded-xl border border-slate-200 p-6">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm font-medium text-slate-600">Total Tags</p>
+              <p className="text-sm font-medium text-slate-600">Total Tag</p>
               <p className="text-2xl font-bold text-slate-900">
                 {statsLoading ? '...' : stats?.tags || 0}
               </p>
@@ -149,8 +149,8 @@ export default function AdminDashboard() {
               <Users className="w-6 h-6 text-blue-600" />
             </div>
             <div>
-              <h3 className="font-semibold text-slate-900">Manage Users</h3>
-              <p className="text-sm text-slate-600">View, ban, and manage user accounts</p>
+              <h3 className="font-semibold text-slate-900">Kelola Pengguna</h3>
+              <p className="text-sm text-slate-600">Lihat, blokir, dan kelola akun pengguna</p>
             </div>
           </div>
         </Link>
@@ -164,8 +164,8 @@ export default function AdminDashboard() {
               <MessageSquare className="w-6 h-6 text-green-600" />
             </div>
             <div>
-              <h3 className="font-semibold text-slate-900">Manage Questions</h3>
-              <p className="text-sm text-slate-600">Review and moderate questions</p>
+              <h3 className="font-semibold text-slate-900">Kelola Pertanyaan</h3>
+              <p className="text-sm text-slate-600">Tinjau dan moderasi pertanyaan</p>
             </div>
           </div>
         </Link>
@@ -179,8 +179,8 @@ export default function AdminDashboard() {
               <Users className="w-6 h-6 text-purple-600" />
             </div>
             <div>
-              <h3 className="font-semibold text-slate-900">Manage Communities</h3>
-              <p className="text-sm text-slate-600">Ban/unban communities and monitor activity</p>
+              <h3 className="font-semibold text-slate-900">Kelola Komunitas</h3>
+              <p className="text-sm text-slate-600">Blokir/buka blokir komunitas dan pantau aktivitas</p>
             </div>
           </div>
         </Link>
@@ -194,8 +194,8 @@ export default function AdminDashboard() {
               <AlertTriangle className="w-6 h-6 text-red-600" />
             </div>
             <div>
-              <h3 className="font-semibold text-slate-900">Reports</h3>
-              <p className="text-sm text-slate-600">Handle user reports and violations</p>
+              <h3 className="font-semibold text-slate-900">Laporan</h3>
+              <p className="text-sm text-slate-600">Tangani laporan pengguna dan pelanggaran</p>
             </div>
           </div>
         </Link>
