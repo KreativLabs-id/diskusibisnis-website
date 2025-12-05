@@ -261,29 +261,29 @@ export default function ProfilePage() {
                 )}
 
                 {/* Stats Grid */}
-                <div className="grid grid-cols-3 gap-4 max-w-lg mx-auto sm:mx-0">
-                  <div className="bg-emerald-50/50 border border-emerald-100 rounded-xl p-3 sm:p-4 text-center sm:text-left">
-                    <div className="flex items-center justify-center sm:justify-start gap-2 mb-1 text-emerald-600">
+                <div className="grid grid-cols-3 gap-2 sm:gap-4 max-w-lg mx-auto sm:mx-0">
+                  <div className="bg-emerald-50/50 border border-emerald-100 rounded-xl p-2 sm:p-4 text-center">
+                    <div className="flex flex-col items-center gap-1 mb-1 text-emerald-600">
                       <Award className="w-4 h-4 sm:w-5 sm:h-5" />
-                      <span className="text-xs font-bold uppercase tracking-wider">Reputasi</span>
+                      <span className="text-[10px] sm:text-xs font-bold uppercase tracking-wider">Reputasi</span>
                     </div>
-                    <p className="text-xl sm:text-2xl font-bold text-emerald-700">{profile.reputationPoints}</p>
+                    <p className="text-lg sm:text-2xl font-bold text-emerald-700">{profile.reputationPoints}</p>
                   </div>
 
-                  <div className="bg-blue-50/50 border border-blue-100 rounded-xl p-3 sm:p-4 text-center sm:text-left">
-                    <div className="flex items-center justify-center sm:justify-start gap-2 mb-1 text-blue-600">
+                  <div className="bg-blue-50/50 border border-blue-100 rounded-xl p-2 sm:p-4 text-center">
+                    <div className="flex flex-col items-center gap-1 mb-1 text-blue-600">
                       <MessageSquare className="w-4 h-4 sm:w-5 sm:h-5" />
-                      <span className="text-xs font-bold uppercase tracking-wider">Pertanyaan</span>
+                      <span className="text-[10px] sm:text-xs font-bold uppercase tracking-wider">Tanya</span>
                     </div>
-                    <p className="text-xl sm:text-2xl font-bold text-blue-700">{questions.length}</p>
+                    <p className="text-lg sm:text-2xl font-bold text-blue-700">{questions.length}</p>
                   </div>
 
-                  <div className="bg-purple-50/50 border border-purple-100 rounded-xl p-3 sm:p-4 text-center sm:text-left">
-                    <div className="flex items-center justify-center sm:justify-start gap-2 mb-1 text-purple-600">
+                  <div className="bg-purple-50/50 border border-purple-100 rounded-xl p-2 sm:p-4 text-center">
+                    <div className="flex flex-col items-center gap-1 mb-1 text-purple-600">
                       <CheckCircle className="w-4 h-4 sm:w-5 sm:h-5" />
-                      <span className="text-xs font-bold uppercase tracking-wider">Jawaban</span>
+                      <span className="text-[10px] sm:text-xs font-bold uppercase tracking-wider">Jawab</span>
                     </div>
-                    <p className="text-xl sm:text-2xl font-bold text-purple-700">{answers.length}</p>
+                    <p className="text-lg sm:text-2xl font-bold text-purple-700">{answers.length}</p>
                   </div>
                 </div>
               </div>
