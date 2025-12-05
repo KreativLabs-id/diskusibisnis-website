@@ -177,67 +177,25 @@ export default function CommunityAboutPage() {
           </p>
         </div>
 
-        {/* Value Proposition Banner */}
+        {/* Info Komunitas */}
         {!editing && (
-          <div className="bg-gradient-to-br from-emerald-600 to-emerald-800 rounded-3xl p-6 sm:p-8 text-white mb-8 shadow-lg shadow-emerald-900/10 relative overflow-hidden">
-            <div className="absolute top-0 right-0 w-64 h-64 bg-white/10 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2"></div>
-            <div className="absolute bottom-0 left-0 w-48 h-48 bg-black/10 rounded-full blur-3xl translate-y-1/2 -translate-x-1/2"></div>
-
-            <div className="relative z-10">
-              <h2 className="text-xl sm:text-2xl font-bold mb-2 flex items-center gap-2">
-                <span className="text-2xl">🚀</span> Kenapa Harus Bergabung?
-              </h2>
-              <p className="text-emerald-50 text-lg mb-6 font-medium">Di komunitas ini kamu bisa:</p>
-
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
-                <div className="flex items-start gap-4 bg-white/10 backdrop-blur-sm p-4 rounded-2xl border border-white/10 hover:bg-white/20 transition-colors">
-                  <div className="w-10 h-10 bg-white/20 rounded-xl flex items-center justify-center shrink-0">
-                    <UsersIcon className="w-5 h-5 text-white" />
-                  </div>
-                  <div>
-                    <h3 className="font-bold text-white mb-1">Networking</h3>
-                    <p className="text-sm text-emerald-50 leading-relaxed">Bangun koneksi dengan pengusaha lainnya</p>
-                  </div>
-                </div>
-
-                <div className="flex items-start gap-4 bg-white/10 backdrop-blur-sm p-4 rounded-2xl border border-white/10 hover:bg-white/20 transition-colors">
-                  <div className="w-10 h-10 bg-white/20 rounded-xl flex items-center justify-center shrink-0">
-                    <Lightbulb className="w-5 h-5 text-white" />
-                  </div>
-                  <div>
-                    <h3 className="font-bold text-white mb-1">Belajar Strategi</h3>
-                    <p className="text-sm text-emerald-50 leading-relaxed">Dapatkan insight bisnis dari para ahli</p>
-                  </div>
-                </div>
-
-                <div className="flex items-start gap-4 bg-white/10 backdrop-blur-sm p-4 rounded-2xl border border-white/10 hover:bg-white/20 transition-colors">
-                  <div className="w-10 h-10 bg-white/20 rounded-xl flex items-center justify-center shrink-0">
-                    <Target className="w-5 h-5 text-white" />
-                  </div>
-                  <div>
-                    <h3 className="font-bold text-white mb-1">Dapat Partner</h3>
-                    <p className="text-sm text-emerald-50 leading-relaxed">Temukan partner bisnis yang tepat</p>
-                  </div>
-                </div>
-
-                <div className="flex items-start gap-4 bg-white/10 backdrop-blur-sm p-4 rounded-2xl border border-white/10 hover:bg-white/20 transition-colors">
-                  <div className="w-10 h-10 bg-white/20 rounded-xl flex items-center justify-center shrink-0">
-                    <Gift className="w-5 h-5 text-white" />
-                  </div>
-                  <div>
-                    <h3 className="font-bold text-white mb-1">Mentorship & Investor</h3>
-                    <p className="text-sm text-emerald-50 leading-relaxed">Akses ke mentor dan peluang investasi</p>
-                  </div>
-                </div>
+          <div className="bg-white rounded-2xl p-6 mb-8 border border-slate-200">
+            <div className="flex items-center gap-3 mb-4">
+              <div className="w-10 h-10 bg-emerald-100 rounded-xl flex items-center justify-center">
+                <UsersIcon className="w-5 h-5 text-emerald-600" />
               </div>
-
-              {community.members_count && (
-                <div className="mt-6 pt-6 border-t border-white/10 flex items-center gap-2 text-sm font-medium text-emerald-50">
-                  <CheckCircle className="w-4 h-4 text-emerald-300" />
-                  <span>Sudah <strong className="text-white">{community.members_count} anggota</strong> yang bergabung dan berkembang bersama!</span>
-                </div>
-              )}
+              <div>
+                <h2 className="text-lg font-bold text-slate-900">Info Komunitas</h2>
+                <p className="text-sm text-slate-500">Kategori: {community.category || 'Umum'}</p>
+              </div>
             </div>
+
+            {community.members_count && community.members_count > 0 && (
+              <div className="flex items-center gap-2 text-sm text-slate-600 bg-slate-50 px-4 py-3 rounded-xl">
+                <CheckCircle className="w-4 h-4 text-emerald-500" />
+                <span><strong>{community.members_count}</strong> anggota sudah bergabung</span>
+              </div>
+            )}
           </div>
         )}
 
