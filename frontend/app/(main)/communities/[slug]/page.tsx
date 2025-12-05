@@ -16,7 +16,9 @@ import {
   Crown,
   User,
   TrendingUp,
-  Target
+  Target,
+  Edit,
+  X
 } from 'lucide-react';
 import api from '@/lib/api';
 import { formatDate } from '@/lib/utils';
@@ -79,8 +81,51 @@ export default function CommunityDetailPage() {
     type?: 'danger' | 'warning' | 'info';
   }>({ isOpen: false, title: '', message: '', onConfirm: () => { }, type: 'danger' });
 
+  // Edit community state
+  const [editModalOpen, setEditModalOpen] = useState(false);
+  const [editForm, setEditForm] = useState({
+    name: '',
+    description: '',
+    category: '',
+    location: ''
+  });
+  const [savingEdit, setSavingEdit] = useState(false);
+
   const showAlert = (type: 'success' | 'error' | 'warning' | 'info', title: string, message: string) => {
     setAlertModal({ isOpen: true, type, title, message });
+  };
+
+  // Check if user can edit community
+  const canEditCommunity = user && community && (
+    community.created_by === user.id || community.user_role === 'admin'
+  );
+
+  const openEditModal = () => {
+    if (community) {
+      setEditForm({
+        name: community.name,
+        description: community.description,
+        category: community.category,
+        location: community.location || ''
+      });
+      setEditModalOpen(true);
+    }
+  };
+
+  const handleSaveEdit = async () => {
+    if (!community) return;
+    
+    setSavingEdit(true);
+    try {
+      await api.put(`/communities/${community.slug}`, editForm);
+      await fetchCommunity();
+      setEditModalOpen(false);
+      showAlert('success', 'Berhasil', 'Informasi komunitas berhasil diperbarui');
+    } catch (error: any) {
+      showAlert('error', 'Gagal', error.response?.data?.message || 'Gagal menyimpan perubahan');
+    } finally {
+      setSavingEdit(false);
+    }
   };
 
   useEffect(() => {
@@ -463,6 +508,16 @@ export default function CommunityDetailPage() {
                         <span>Login untuk Gabung</span>
                       </Link>
                     )}
+
+                    {canEditCommunity && (
+                      <button
+                        onClick={openEditModal}
+                        className="flex items-center justify-center gap-2 w-full px-4 py-2 bg-slate-100 text-slate-700 rounded-xl hover:bg-slate-200 transition-all font-medium text-sm"
+                      >
+                        <Edit className="w-4 h-4" />
+                        <span>Edit Info</span>
+                      </button>
+                    )}
                   </div>
                 </div>
               </div>
@@ -738,6 +793,103 @@ export default function CommunityDetailPage() {
         message={confirmModal.message}
         type={confirmModal.type}
       />
+
+      {/* Edit Community Modal */}
+      {editModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50">
+          <div className="bg-white rounded-2xl w-full max-w-lg max-h-[90vh] overflow-y-auto">
+            <div className="flex items-center justify-between p-4 border-b border-slate-200">
+              <h2 className="text-lg font-bold text-slate-900">Edit Komunitas</h2>
+              <button
+                onClick={() => setEditModalOpen(false)}
+                className="p-2 hover:bg-slate-100 rounded-lg text-slate-500"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+            
+            <div className="p-4 space-y-4">
+              <div>
+                <label className="block text-sm font-medium text-slate-700 mb-1">
+                  Nama Komunitas
+                </label>
+                <input
+                  type="text"
+                  value={editForm.name}
+                  onChange={(e) => setEditForm({ ...editForm, name: e.target.value })}
+                  className="w-full px-4 py-2.5 border border-slate-300 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
+                  placeholder="Nama komunitas"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-slate-700 mb-1">
+                  Deskripsi
+                </label>
+                <textarea
+                  value={editForm.description}
+                  onChange={(e) => setEditForm({ ...editForm, description: e.target.value })}
+                  rows={4}
+                  className="w-full px-4 py-2.5 border border-slate-300 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:border-transparent resize-none"
+                  placeholder="Deskripsi komunitas"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-slate-700 mb-1">
+                  Kategori
+                </label>
+                <select
+                  value={editForm.category}
+                  onChange={(e) => setEditForm({ ...editForm, category: e.target.value })}
+                  className="w-full px-4 py-2.5 border border-slate-300 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
+                >
+                  <option value="Umum">Umum</option>
+                  <option value="Teknologi">Teknologi</option>
+                  <option value="Bisnis">Bisnis</option>
+                  <option value="Keuangan">Keuangan</option>
+                  <option value="Marketing">Marketing</option>
+                  <option value="Kuliner">Kuliner</option>
+                  <option value="Fashion">Fashion</option>
+                  <option value="Kesehatan">Kesehatan</option>
+                  <option value="Pendidikan">Pendidikan</option>
+                  <option value="Lainnya">Lainnya</option>
+                </select>
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-slate-700 mb-1">
+                  Lokasi (opsional)
+                </label>
+                <input
+                  type="text"
+                  value={editForm.location}
+                  onChange={(e) => setEditForm({ ...editForm, location: e.target.value })}
+                  className="w-full px-4 py-2.5 border border-slate-300 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
+                  placeholder="Contoh: Jakarta, Indonesia"
+                />
+              </div>
+            </div>
+
+            <div className="flex items-center justify-end gap-3 p-4 border-t border-slate-200">
+              <button
+                onClick={() => setEditModalOpen(false)}
+                disabled={savingEdit}
+                className="px-4 py-2 text-slate-600 hover:bg-slate-100 rounded-xl font-medium"
+              >
+                Batal
+              </button>
+              <button
+                onClick={handleSaveEdit}
+                disabled={savingEdit || !editForm.name.trim() || !editForm.description.trim()}
+                className="px-6 py-2 bg-emerald-600 text-white rounded-xl hover:bg-emerald-700 font-medium disabled:opacity-50"
+              >
+                {savingEdit ? 'Menyimpan...' : 'Simpan'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

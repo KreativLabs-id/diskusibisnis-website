@@ -10,6 +10,7 @@ import {
   getCommunityMembers,
   promoteMemberToAdmin,
   demoteAdminToMember,
+  updateCommunity,
   updateCommunityAbout
 } from '../controllers/communities.controller';
 import { validate } from '../utils/validator.utils';
@@ -35,6 +36,9 @@ router.post(
 
 // Get community by slug (optionalAuth to check membership status)
 router.get('/:slug', optionalAuth, getCommunityBySlug);
+
+// Update community basic info
+router.put('/:slug', requireAuth, updateCommunity);
 
 // Join community
 router.post('/:slug/join', requireAuth, joinCommunity);

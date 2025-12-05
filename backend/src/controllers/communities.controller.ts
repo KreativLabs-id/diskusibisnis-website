@@ -603,6 +603,68 @@ export const demoteAdminToMember = async (req: AuthRequest, res: Response): Prom
 };
 
 /**
+ * Update community basic information
+ * PUT /api/communities/:slug
+ */
+export const updateCommunity = async (req: AuthRequest, res: Response): Promise<void> => {
+  try {
+    const user = req.user;
+    if (!user) {
+      forbiddenResponse(res, 'Authentication required');
+      return;
+    }
+
+    const { slug } = req.params;
+    const { name, description, category, location } = req.body;
+
+    // Get community and check if requester is admin
+    const communityResult = await pool.query(`
+      SELECT c.id, c.created_by, cm.role
+      FROM public.communities c
+      LEFT JOIN public.community_members cm ON c.id = cm.community_id AND cm.user_id = $1
+      WHERE c.slug = $2
+    `, [user.id, slug]);
+
+    if (communityResult.rows.length === 0) {
+      notFoundResponse(res, 'Community not found');
+      return;
+    }
+
+    const { id: communityId, created_by, role } = communityResult.rows[0];
+
+    // Only creator or admin can update community info
+    if (created_by !== user.id && role !== 'admin') {
+      forbiddenResponse(res, 'Only admins can update community information');
+      return;
+    }
+
+    // Validate required fields
+    if (!name || name.trim().length < 3) {
+      errorResponse(res, 'Nama komunitas minimal 3 karakter', 400);
+      return;
+    }
+
+    if (!description || description.trim().length < 10) {
+      errorResponse(res, 'Deskripsi minimal 10 karakter', 400);
+      return;
+    }
+
+    // Update community
+    const updateResult = await pool.query(`
+      UPDATE public.communities 
+      SET name = $1, description = $2, category = $3, location = $4
+      WHERE id = $5
+      RETURNING id, name, slug, description, category, location
+    `, [name.trim(), description.trim(), category, location || null, communityId]);
+
+    successResponse(res, updateResult.rows[0], 'Community updated successfully');
+  } catch (error) {
+    console.error('Update community error:', error);
+    errorResponse(res, 'Server error');
+  }
+};
+
+/**
  * Update community about information
  * PUT /api/communities/:slug/about
  */

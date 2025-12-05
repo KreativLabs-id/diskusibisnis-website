@@ -55,12 +55,13 @@ export default function CommunityAboutPage() {
   const loadCommunity = async () => {
     try {
       const response = await api.get(`/communities/${params.slug}`);
-      setCommunity(response.data);
+      const communityData = response.data.data?.community || response.data;
+      setCommunity(communityData);
       setFormData({
-        vision: response.data.vision || '',
-        mission: response.data.mission || '',
-        target_members: response.data.target_members || '',
-        benefits: response.data.benefits || ''
+        vision: communityData.vision || '',
+        mission: communityData.mission || '',
+        target_members: communityData.target_members || '',
+        benefits: communityData.benefits || ''
       });
     } catch (error: any) {
       console.error('Failed to load community:', error);
