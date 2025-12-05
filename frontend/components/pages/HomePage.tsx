@@ -199,22 +199,22 @@ export default function HomePage() {
   );
   return (
     <div className="min-h-screen bg-slate-50">
-      {/* Hero Section - Modern & Attractive */}
-      <div className="relative bg-gradient-to-br from-emerald-600 via-emerald-500 to-teal-600 pb-24 pt-8 sm:pt-12 overflow-hidden rounded-b-[3rem] shadow-2xl z-10">
-        {/* Decorative Elements */}
-        <div className="absolute top-0 right-0 w-96 h-96 bg-white/10 rounded-full blur-3xl -translate-y-1/2 translate-x-1/3"></div>
-        <div className="absolute bottom-0 left-0 w-64 h-64 bg-teal-400/20 rounded-full blur-2xl translate-y-1/2 -translate-x-1/4"></div>
+      {/* Hero Section - Optimized for Mobile Performance */}
+      <div className="relative bg-gradient-to-br from-emerald-600 via-emerald-500 to-teal-600 pb-24 pt-8 sm:pt-12 overflow-hidden rounded-b-[2rem] sm:rounded-b-[3rem] shadow-lg sm:shadow-2xl z-10">
+        {/* Decorative Elements - Hidden on mobile for performance */}
+        <div className="hidden sm:block absolute top-0 right-0 w-96 h-96 bg-white/10 rounded-full blur-3xl -translate-y-1/2 translate-x-1/3"></div>
+        <div className="hidden sm:block absolute bottom-0 left-0 w-64 h-64 bg-teal-400/20 rounded-full blur-2xl translate-y-1/2 -translate-x-1/4"></div>
 
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
           <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
             <div className="flex-1">
               {currentTag ? (
-                <div className="inline-flex items-center gap-2 px-3 py-1 bg-white/20 backdrop-blur-md rounded-full border border-white/30 text-white text-xs sm:text-sm font-medium mb-4">
+                <div className="inline-flex items-center gap-2 px-3 py-1 bg-white/20 sm:backdrop-blur-md rounded-full border border-white/30 text-white text-xs sm:text-sm font-medium mb-4">
                   <Tag className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
                   <span>Filter Tag</span>
                 </div>
               ) : (
-                <div className="inline-flex items-center gap-2 px-3 py-1 bg-white/20 backdrop-blur-md rounded-full border border-white/30 text-white text-xs sm:text-sm font-medium mb-4">
+                <div className="inline-flex items-center gap-2 px-3 py-1 bg-white/20 sm:backdrop-blur-md rounded-full border border-white/30 text-white text-xs sm:text-sm font-medium mb-4">
                   <Sparkles className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-yellow-300" />
                   <span>Komunitas UMKM Terpercaya</span>
                 </div>
@@ -255,12 +255,12 @@ export default function HomePage() {
               </div>
             </div>
 
-            {/* Hero Illustration / Icon */}
+            {/* Hero Illustration / Icon - Desktop only */}
             <div className="hidden md:block relative">
-              <div className="w-32 h-32 lg:w-40 lg:h-40 bg-white/10 backdrop-blur-md rounded-3xl rotate-12 flex items-center justify-center border border-white/20 shadow-2xl">
-                <MessageCircleQuestion className="w-16 h-16 lg:w-20 lg:h-20 text-white drop-shadow-lg" />
+              <div className="w-32 h-32 lg:w-40 lg:h-40 bg-white/10 rounded-3xl rotate-12 flex items-center justify-center border border-white/20 shadow-xl">
+                <MessageCircleQuestion className="w-16 h-16 lg:w-20 lg:h-20 text-white" />
               </div>
-              <div className="absolute -bottom-4 -left-4 w-24 h-24 bg-emerald-400/20 backdrop-blur-sm rounded-2xl -rotate-6 border border-white/10 -z-10"></div>
+              <div className="absolute -bottom-4 -left-4 w-24 h-24 bg-emerald-400/20 rounded-2xl -rotate-6 border border-white/10 -z-10"></div>
             </div>
           </div>
         </div>
@@ -292,7 +292,7 @@ export default function HomePage() {
         )}
 
         {/* Filter & Sort Section - Clean & Minimal */}
-        <div className="bg-white/90 backdrop-blur-xl rounded-2xl shadow-xl shadow-slate-200/60 border border-white/50 p-2 mb-8 flex flex-col sm:flex-row items-center justify-between gap-4">
+        <div className="bg-white rounded-2xl shadow-md sm:shadow-xl border border-slate-100 p-2 mb-8 flex flex-col sm:flex-row items-center justify-between gap-4">
           <div className="flex items-center gap-1 p-1 bg-slate-100/50 rounded-xl w-full sm:w-auto overflow-x-auto no-scrollbar">
             {sortOptions.map((option) => {
               const Icon = option.icon;
@@ -337,10 +337,10 @@ export default function HomePage() {
       {/* Floating Action Button - Mobile */}
       <Link
         href="/ask"
-        className="fixed bottom-6 right-6 z-50 md:hidden w-12 h-12 bg-gradient-to-r from-emerald-600 to-emerald-700 text-white rounded-full shadow-lg hover:shadow-xl hover:from-emerald-700 hover:to-emerald-800 transition-all duration-200 flex items-center justify-center group"
+        className="fixed bottom-6 right-6 z-50 md:hidden w-12 h-12 bg-emerald-600 text-white rounded-full shadow-lg flex items-center justify-center"
         title="Ajukan Pertanyaan"
       >
-        <Plus className="w-6 h-6 group-hover:scale-110 transition-transform" />
+        <Plus className="w-6 h-6" />
       </Link>
     </div>
   );
