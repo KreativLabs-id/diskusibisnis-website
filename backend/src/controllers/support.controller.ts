@@ -3,22 +3,59 @@ import pool from '../config/database';
 import { sendSupportEmail } from '../utils/email.service';
 import { AuthRequest } from '../types';
 
+// Helper: Create notification for admins
+const notifyAdmins = async (title: string, message: string, link: string) => {
+  try {
+    // Get all admin users
+    const admins = await pool.query(`SELECT id FROM users WHERE role = 'admin'`);
+    
+    for (const admin of admins.rows) {
+      await pool.query(
+        `INSERT INTO notifications (user_id, type, title, message, link, is_read, created_at)
+         VALUES ($1, 'support_ticket', $2, $3, $4, false, NOW())`,
+        [admin.id, title, message, link]
+      );
+    }
+  } catch (error) {
+    console.error('Error notifying admins:', error);
+  }
+};
+
+// Helper: Create notification for user (if they have account)
+const notifyUser = async (email: string, title: string, message: string, link: string) => {
+  try {
+    // Find user by email
+    const userResult = await pool.query(`SELECT id FROM users WHERE email = $1`, [email]);
+    
+    if (userResult.rows.length > 0) {
+      await pool.query(
+        `INSERT INTO notifications (user_id, type, title, message, link, is_read, created_at)
+         VALUES ($1, 'support_reply', $2, $3, $4, false, NOW())`,
+        [userResult.rows[0].id, title, message, link]
+      );
+    }
+  } catch (error) {
+    console.error('Error notifying user:', error);
+  }
+};
+
 // Create support ticket (public - no auth required)
-export const createTicket = async (req: Request, res: Response) => {
+export const createTicket = async (req: Request, res: Response): Promise<void> => {
   try {
     const { name, email, subject, message, category } = req.body;
 
     if (!name || !email || !subject || !message) {
-      return res.status(400).json({
+      res.status(400).json({
         success: false,
         message: 'Nama, email, subjek, dan pesan wajib diisi'
       });
+      return;
     }
 
     // Generate ticket number
     const ticketNumber = `TKT-${Date.now().toString(36).toUpperCase()}`;
 
-    const result = await pool.query(
+    await pool.query(
       `INSERT INTO support_tickets (ticket_number, name, email, subject, message, category, status, created_at)
        VALUES ($1, $2, $3, $4, $5, $6, 'open', NOW())
        RETURNING *`,
@@ -27,6 +64,13 @@ export const createTicket = async (req: Request, res: Response) => {
 
     // Send confirmation email to user
     await sendTicketConfirmationEmail(email, name, ticketNumber, subject);
+
+    // Notify admins about new ticket
+    await notifyAdmins(
+      'Tiket Support Baru',
+      `${name} mengirim tiket: ${subject}`,
+      '/admin/support'
+    );
 
     res.status(201).json({
       success: true,
@@ -43,15 +87,16 @@ export const createTicket = async (req: Request, res: Response) => {
 };
 
 // Get user's tickets by email (public)
-export const getMyTickets = async (req: Request, res: Response) => {
+export const getMyTickets = async (req: Request, res: Response): Promise<void> => {
   try {
     const { email } = req.query;
 
     if (!email) {
-      return res.status(400).json({
+      res.status(400).json({
         success: false,
         message: 'Email wajib diisi'
       });
+      return;
     }
 
     const result = await pool.query(
@@ -76,16 +121,17 @@ export const getMyTickets = async (req: Request, res: Response) => {
 };
 
 // Get single ticket by ticket number (public - for user to view their ticket)
-export const getTicketByNumber = async (req: Request, res: Response) => {
+export const getTicketByNumber = async (req: Request, res: Response): Promise<void> => {
   try {
     const { ticketNumber } = req.params;
     const { email } = req.query;
 
     if (!email) {
-      return res.status(400).json({
+      res.status(400).json({
         success: false,
         message: 'Email wajib diisi untuk verifikasi'
       });
+      return;
     }
 
     const ticketResult = await pool.query(
@@ -94,10 +140,11 @@ export const getTicketByNumber = async (req: Request, res: Response) => {
     );
 
     if (ticketResult.rows.length === 0) {
-      return res.status(404).json({
+      res.status(404).json({
         success: false,
         message: 'Tiket tidak ditemukan atau email tidak cocok'
       });
+      return;
     }
 
     const ticket = ticketResult.rows[0];
@@ -122,16 +169,17 @@ export const getTicketByNumber = async (req: Request, res: Response) => {
 };
 
 // User reply to ticket (public - verified by email)
-export const userReplyToTicket = async (req: Request, res: Response) => {
+export const userReplyToTicket = async (req: Request, res: Response): Promise<void> => {
   try {
     const { ticketNumber } = req.params;
     const { email, message, name } = req.body;
 
     if (!email || !message) {
-      return res.status(400).json({
+      res.status(400).json({
         success: false,
         message: 'Email dan pesan wajib diisi'
       });
+      return;
     }
 
     // Verify ticket belongs to this email
@@ -141,20 +189,22 @@ export const userReplyToTicket = async (req: Request, res: Response) => {
     );
 
     if (ticketResult.rows.length === 0) {
-      return res.status(404).json({
+      res.status(404).json({
         success: false,
         message: 'Tiket tidak ditemukan atau email tidak cocok'
       });
+      return;
     }
 
     const ticket = ticketResult.rows[0];
 
     // Check if ticket is closed
     if (ticket.status === 'closed') {
-      return res.status(400).json({
+      res.status(400).json({
         success: false,
         message: 'Tiket sudah ditutup, tidak bisa membalas'
       });
+      return;
     }
 
     // Insert user reply (using name from ticket or provided name)
@@ -175,6 +225,13 @@ export const userReplyToTicket = async (req: Request, res: Response) => {
 
     // Send notification email to admin
     await sendUserReplyNotificationEmail(ticket.ticket_number, ticket.subject, userName, message);
+
+    // Notify admins about user reply
+    await notifyAdmins(
+      'Balasan Tiket Support',
+      `${userName} membalas tiket ${ticket.ticket_number}`,
+      '/admin/support'
+    );
 
     res.json({
       success: true,
@@ -256,7 +313,7 @@ export const getAllTickets = async (req: Request, res: Response) => {
 
 
 // Get single ticket with replies
-export const getTicketById = async (req: Request, res: Response) => {
+export const getTicketById = async (req: Request, res: Response): Promise<void> => {
   try {
     const { id } = req.params;
 
@@ -266,10 +323,11 @@ export const getTicketById = async (req: Request, res: Response) => {
     );
 
     if (ticketResult.rows.length === 0) {
-      return res.status(404).json({
+      res.status(404).json({
         success: false,
         message: 'Tiket tidak ditemukan'
       });
+      return;
     }
 
     const ticket = ticketResult.rows[0];
@@ -294,7 +352,7 @@ export const getTicketById = async (req: Request, res: Response) => {
 };
 
 // Reply to ticket (admin only)
-export const replyToTicket = async (req: AuthRequest, res: Response) => {
+export const replyToTicket = async (req: AuthRequest, res: Response): Promise<void> => {
   try {
     const { id } = req.params;
     const { message } = req.body;
@@ -310,10 +368,11 @@ export const replyToTicket = async (req: AuthRequest, res: Response) => {
     }
 
     if (!message) {
-      return res.status(400).json({
+      res.status(400).json({
         success: false,
         message: 'Pesan balasan wajib diisi'
       });
+      return;
     }
 
     // Get ticket
@@ -323,10 +382,11 @@ export const replyToTicket = async (req: AuthRequest, res: Response) => {
     );
 
     if (ticketResult.rows.length === 0) {
-      return res.status(404).json({
+      res.status(404).json({
         success: false,
         message: 'Tiket tidak ditemukan'
       });
+      return;
     }
 
     const ticket = ticketResult.rows[0];
@@ -354,6 +414,14 @@ export const replyToTicket = async (req: AuthRequest, res: Response) => {
       message
     );
 
+    // Notify user about admin reply (if they have account)
+    await notifyUser(
+      ticket.email,
+      'Balasan Tiket Support',
+      `Admin membalas tiket ${ticket.ticket_number}: "${message.substring(0, 50)}${message.length > 50 ? '...' : ''}"`,
+      '/contact/my-tickets'
+    );
+
     res.json({
       success: true,
       message: 'Balasan berhasil dikirim',
@@ -369,17 +437,18 @@ export const replyToTicket = async (req: AuthRequest, res: Response) => {
 };
 
 // Update ticket status
-export const updateTicketStatus = async (req: Request, res: Response) => {
+export const updateTicketStatus = async (req: Request, res: Response): Promise<void> => {
   try {
     const { id } = req.params;
     const { status } = req.body;
 
     const validStatuses = ['open', 'replied', 'in_progress', 'resolved', 'closed'];
     if (!validStatuses.includes(status)) {
-      return res.status(400).json({
+      res.status(400).json({
         success: false,
         message: 'Status tidak valid'
       });
+      return;
     }
 
     const result = await pool.query(
@@ -388,10 +457,11 @@ export const updateTicketStatus = async (req: Request, res: Response) => {
     );
 
     if (result.rows.length === 0) {
-      return res.status(404).json({
+      res.status(404).json({
         success: false,
         message: 'Tiket tidak ditemukan'
       });
+      return;
     }
 
     res.json({
@@ -410,7 +480,7 @@ export const updateTicketStatus = async (req: Request, res: Response) => {
 
 
 // Delete ticket
-export const deleteTicket = async (req: Request, res: Response) => {
+export const deleteTicket = async (req: Request, res: Response): Promise<void> => {
   try {
     const { id } = req.params;
 
@@ -424,10 +494,11 @@ export const deleteTicket = async (req: Request, res: Response) => {
     );
 
     if (result.rows.length === 0) {
-      return res.status(404).json({
+      res.status(404).json({
         success: false,
         message: 'Tiket tidak ditemukan'
       });
+      return;
     }
 
     res.json({
