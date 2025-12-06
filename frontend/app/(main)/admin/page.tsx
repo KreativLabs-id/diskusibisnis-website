@@ -199,6 +199,21 @@ export default function AdminDashboard() {
             </div>
           </div>
         </Link>
+
+        <Link
+          href="/admin/support"
+          className="bg-white rounded-xl border border-slate-200 p-6 hover:border-emerald-300 hover:shadow-md transition-all duration-200 group"
+        >
+          <div className="flex items-center gap-4">
+            <div className="p-3 bg-emerald-100 rounded-lg group-hover:bg-emerald-200 transition-colors">
+              <MessageSquare className="w-6 h-6 text-emerald-600" />
+            </div>
+            <div>
+              <h3 className="font-semibold text-slate-900">Support Tickets</h3>
+              <p className="text-sm text-slate-600">Kelola tiket bantuan dari pengguna</p>
+            </div>
+          </div>
+        </Link>
       </div>
     </div>
   );

@@ -326,6 +326,40 @@ export default function QuestionDetailPage() {
     }
   };
 
+  const handleShare = async () => {
+    if (!question) return;
+    
+    const shareUrl = window.location.href;
+    const shareData = {
+      title: question.title,
+      text: `Lihat pertanyaan ini: ${question.title}`,
+      url: shareUrl,
+    };
+
+    try {
+      // Coba gunakan Web Share API jika tersedia (mobile/modern browsers)
+      if (navigator.share && navigator.canShare && navigator.canShare(shareData)) {
+        await navigator.share(shareData);
+        showAlert('success', 'Berhasil', 'Pertanyaan berhasil dibagikan!');
+      } else {
+        // Fallback: salin URL ke clipboard
+        await navigator.clipboard.writeText(shareUrl);
+        showAlert('success', 'Link Disalin', 'Link pertanyaan telah disalin ke clipboard!');
+      }
+    } catch (error: any) {
+      // Jika user membatalkan share, jangan tampilkan error
+      if (error.name !== 'AbortError') {
+        // Fallback jika clipboard juga gagal
+        try {
+          await navigator.clipboard.writeText(shareUrl);
+          showAlert('success', 'Link Disalin', 'Link pertanyaan telah disalin ke clipboard!');
+        } catch {
+          showAlert('error', 'Gagal', 'Tidak dapat membagikan pertanyaan');
+        }
+      }
+    }
+  };
+
   if (loading) {
     return (
       <div className="min-h-screen bg-slate-50 pb-20">
@@ -524,7 +558,10 @@ export default function QuestionDetailPage() {
                       {question.answers_count} jawaban
                     </span>
                   </div>
-                  <button className="flex items-center gap-2 text-sm text-slate-500 hover:text-emerald-600 transition-colors">
+                  <button 
+                    onClick={handleShare}
+                    className="flex items-center gap-2 text-sm text-slate-500 hover:text-emerald-600 transition-colors"
+                  >
                     <Share2 className="w-4 h-4" />
                     Bagikan
                   </button>

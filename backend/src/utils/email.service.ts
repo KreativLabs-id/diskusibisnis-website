@@ -4,18 +4,20 @@ import { Resend } from 'resend';
 const resend = new Resend(process.env.RESEND_API_KEY);
 
 const FROM_EMAIL = process.env.FROM_EMAIL || 'DiskusiBisnis <noreply@diskusibisnis.my.id>';
+const SUPPORT_EMAIL = process.env.SUPPORT_EMAIL || 'DiskusiBisnis Support <support@diskusibisnis.my.id>';
 
 interface SendEmailOptions {
   to: string;
   subject: string;
   html: string;
   text?: string;
+  from?: string;
 }
 
 export const sendEmail = async (options: SendEmailOptions): Promise<boolean> => {
   try {
     const { data, error } = await resend.emails.send({
-      from: FROM_EMAIL,
+      from: options.from || FROM_EMAIL,
       to: options.to,
       subject: options.subject,
       html: options.html,
@@ -33,6 +35,11 @@ export const sendEmail = async (options: SendEmailOptions): Promise<boolean> => 
     console.error('Error sending email:', error);
     return false;
   }
+};
+
+// Send email from support address
+export const sendSupportEmail = async (options: Omit<SendEmailOptions, 'from'>): Promise<boolean> => {
+  return sendEmail({ ...options, from: SUPPORT_EMAIL });
 };
 
 /**

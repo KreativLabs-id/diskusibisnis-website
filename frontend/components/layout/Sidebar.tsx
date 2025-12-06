@@ -17,7 +17,9 @@ import {
   User,
   Settings,
   LogOut,
-  Download
+  Download,
+  Mail,
+  Inbox
 } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import LoadingSpinner from '@/components/ui/LoadingSpinner';
@@ -268,6 +270,31 @@ export default function Sidebar({ onItemClick }: SidebarProps) {
                 icon={Users2}
                 label="Jelajahi Komunitas"
                 isActive={pathname === '/communities'}
+                onClick={onItemClick}
+              />
+            </nav>
+          </div>
+        </div>
+
+        {/* Help/Support Section */}
+        <div>
+          <div className="pt-2">
+            <h3 className="text-xs font-semibold text-slate-500 mb-3 px-4">
+              Bantuan
+            </h3>
+            <nav className="space-y-1">
+              <SidebarItem
+                href="/contact"
+                icon={Mail}
+                label="Hubungi Kami"
+                isActive={pathname === '/contact'}
+                onClick={onItemClick}
+              />
+              <SidebarItem
+                href="/contact/my-tickets"
+                icon={Inbox}
+                label="Tiket Saya"
+                isActive={pathname === '/contact/my-tickets'}
                 onClick={onItemClick}
               />
             </nav>

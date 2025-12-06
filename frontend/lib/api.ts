@@ -230,3 +230,37 @@ export const communityAPI = {
   getMembers: (id: string) =>
     api.get(`/communities/${id}/members`),
 };
+
+// Support Ticket API
+export const supportAPI = {
+  // Public - create ticket
+  createTicket: (data: { name: string; email: string; subject: string; message: string; category?: string }) =>
+    api.post('/support', data),
+  // Public - get user's tickets by email
+  getMyTickets: (email: string) =>
+    api.get('/support/my-tickets', { params: { email } }),
+  // Public - get ticket by number (requires email verification)
+  getTicketByNumber: (ticketNumber: string, email: string) =>
+    api.get(`/support/ticket/${ticketNumber}`, { params: { email } }),
+  // Public - user reply to ticket
+  userReply: (ticketNumber: string, data: { email: string; message: string; name?: string }) =>
+    api.post(`/support/ticket/${ticketNumber}/reply`, data),
+  // Admin - get all tickets
+  getTickets: (params?: { status?: string; category?: string; page?: number; limit?: number }) =>
+    api.get('/support', { params }),
+  // Admin - get ticket stats
+  getStats: () =>
+    api.get('/support/stats'),
+  // Admin - get single ticket
+  getTicketById: (id: string) =>
+    api.get(`/support/${id}`),
+  // Admin - reply to ticket
+  replyToTicket: (id: string, message: string) =>
+    api.post(`/support/${id}/reply`, { message }),
+  // Admin - update ticket status
+  updateStatus: (id: string, status: string) =>
+    api.patch(`/support/${id}/status`, { status }),
+  // Admin - delete ticket
+  deleteTicket: (id: string) =>
+    api.delete(`/support/${id}`),
+};
