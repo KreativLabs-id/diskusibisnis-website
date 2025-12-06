@@ -1,12 +1,45 @@
 import { Router } from 'express';
 import { body } from 'express-validator';
-import { register, login, googleLogin, forgotPassword, resetPassword, changePassword } from '../controllers/auth.controller';
+import { 
+  register, 
+  login, 
+  googleLogin, 
+  forgotPassword, 
+  resetPassword, 
+  changePassword,
+  requestRegisterOTP,
+  verifyRegisterOTP,
+  requestChangePasswordOTP
+} from '../controllers/auth.controller';
 import { validate } from '../utils/validator.utils';
 import { requireAuth } from '../middlewares/auth.middleware';
 
 const router = Router();
 
-// Register
+// Request OTP for registration
+router.post(
+  '/register/request-otp',
+  [
+    body('email').isEmail().withMessage('Email tidak valid'),
+    body('password').isLength({ min: 6 }).withMessage('Password minimal 6 karakter'),
+    body('displayName').notEmpty().withMessage('Nama wajib diisi'),
+    validate
+  ],
+  requestRegisterOTP
+);
+
+// Verify OTP and complete registration
+router.post(
+  '/register/verify-otp',
+  [
+    body('email').isEmail().withMessage('Email tidak valid'),
+    body('otp').isLength({ min: 6, max: 6 }).withMessage('OTP harus 6 digit'),
+    validate
+  ],
+  verifyRegisterOTP
+);
+
+// Register (legacy - without OTP)
 router.post(
   '/register',
   [
@@ -58,6 +91,13 @@ router.post(
     validate
   ],
   resetPassword
+);
+
+// Request OTP for password change
+router.post(
+  '/change-password/request-otp',
+  requireAuth,
+  requestChangePasswordOTP
 );
 
 // Change password (authenticated)

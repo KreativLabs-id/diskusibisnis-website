@@ -7,12 +7,167 @@ import pool from '../config/database';
 import config from '../config/environment';
 import { AuthRequest } from '../types';
 import { successResponse, errorResponse, unauthorizedResponse } from '../utils/response.utils';
-import { sendPasswordResetEmail } from '../utils/email.service';
+import { sendPasswordResetEmail, sendOTPEmail, sendPasswordChangeOTPEmail } from '../utils/email.service';
 
 const googleClient = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
 
+// Generate 6-digit OTP
+const generateOTP = (): string => {
+  return Math.floor(100000 + Math.random() * 900000).toString();
+};
+
+// In-memory OTP storage (for production, use Redis)
+const otpStore = new Map<string, { otp: string; data: any; expiresAt: Date }>();
+
+// Clean expired OTPs periodically
+setInterval(() => {
+  const now = new Date();
+  for (const [key, value] of otpStore.entries()) {
+    if (value.expiresAt < now) {
+      otpStore.delete(key);
+    }
+  }
+}, 60000); // Clean every minute
+
 /**
- * Register new user
+ * Request OTP for registration
+ * POST /api/auth/register/request-otp
+ */
+export const requestRegisterOTP = async (req: AuthRequest, res: Response): Promise<void> => {
+  try {
+    const { email, password, displayName } = req.body;
+
+    // Validate input
+    if (!email || !password || !displayName) {
+      errorResponse(res, 'Email, password, dan nama wajib diisi', 400);
+      return;
+    }
+
+    if (password.length < 6) {
+      errorResponse(res, 'Password minimal 6 karakter', 400);
+      return;
+    }
+
+    // Check if user exists
+    const existingUser = await pool.query(
+      'SELECT id FROM public.users WHERE email = $1',
+      [email]
+    );
+
+    if (existingUser.rows.length > 0) {
+      errorResponse(res, 'Email sudah terdaftar', 400);
+      return;
+    }
+
+    // Generate OTP
+    const otp = generateOTP();
+    const expiresAt = new Date(Date.now() + 10 * 60 * 1000); // 10 minutes
+
+    // Store OTP with registration data
+    otpStore.set(`register:${email}`, {
+      otp,
+      data: { email, password, displayName },
+      expiresAt
+    });
+
+    // Send OTP email
+    const emailSent = await sendOTPEmail(email, otp, displayName);
+
+    if (!emailSent) {
+      errorResponse(res, 'Gagal mengirim email OTP. Coba lagi.', 500);
+      return;
+    }
+
+    successResponse(res, { email }, 'Kode OTP telah dikirim ke email Anda');
+  } catch (error) {
+    console.error('Request register OTP error:', error);
+    errorResponse(res, 'Server error');
+  }
+};
+
+/**
+ * Verify OTP and complete registration
+ * POST /api/auth/register/verify-otp
+ */
+export const verifyRegisterOTP = async (req: AuthRequest, res: Response): Promise<void> => {
+  try {
+    const { email, otp } = req.body;
+
+    if (!email || !otp) {
+      errorResponse(res, 'Email dan OTP wajib diisi', 400);
+      return;
+    }
+
+    // Get stored OTP
+    const stored = otpStore.get(`register:${email}`);
+
+    if (!stored) {
+      errorResponse(res, 'OTP tidak ditemukan atau sudah kadaluarsa. Silakan minta OTP baru.', 400);
+      return;
+    }
+
+    if (stored.expiresAt < new Date()) {
+      otpStore.delete(`register:${email}`);
+      errorResponse(res, 'OTP sudah kadaluarsa. Silakan minta OTP baru.', 400);
+      return;
+    }
+
+    if (stored.otp !== otp) {
+      errorResponse(res, 'Kode OTP salah', 400);
+      return;
+    }
+
+    // OTP valid, create user
+    const { password, displayName } = stored.data;
+
+    // Hash password
+    const salt = await bcrypt.genSalt(10);
+    const passwordHash = await bcrypt.hash(password, salt);
+
+    // Create user with verified email
+    const result = await pool.query(
+      `INSERT INTO public.users (email, password_hash, display_name, role, is_verified) 
+       VALUES ($1, $2, $3, 'member', true) 
+       RETURNING id, email, display_name, role, reputation_points, created_at, is_verified`,
+      [email, passwordHash, displayName]
+    );
+
+    const user = result.rows[0];
+
+    // Clear OTP
+    otpStore.delete(`register:${email}`);
+
+    // Generate JWT token
+    const token = jwt.sign(
+      { id: user.id, email: user.email, role: user.role },
+      config.jwt.secret,
+      { expiresIn: config.jwt.expiresIn } as jwt.SignOptions
+    );
+
+    successResponse(
+      res,
+      {
+        user: {
+          id: user.id,
+          email: user.email,
+          displayName: user.display_name,
+          role: user.role,
+          reputationPoints: user.reputation_points,
+          isVerified: user.is_verified,
+        },
+        token,
+      },
+      'Registrasi berhasil! Email Anda telah terverifikasi.',
+      201
+    );
+  } catch (error) {
+    console.error('Verify register OTP error:', error);
+    errorResponse(res, 'Server error during registration');
+  }
+};
+
+/**
+ * Register new user (legacy - direct registration without OTP)
  * POST /api/auth/register
  */
 export const register = async (req: AuthRequest, res: Response): Promise<void> => {
@@ -327,12 +482,64 @@ export const resetPassword = async (req: AuthRequest, res: Response): Promise<vo
 };
 
 /**
- * Change user password (authenticated)
+ * Request OTP for password change
+ * POST /api/auth/change-password/request-otp
+ */
+export const requestChangePasswordOTP = async (req: AuthRequest, res: Response): Promise<void> => {
+  try {
+    const userId = req.user?.id;
+
+    if (!userId) {
+      unauthorizedResponse(res);
+      return;
+    }
+
+    // Get user
+    const userResult = await pool.query(
+      'SELECT id, email, display_name FROM public.users WHERE id = $1',
+      [userId]
+    );
+
+    if (userResult.rows.length === 0) {
+      errorResponse(res, 'User tidak ditemukan', 404);
+      return;
+    }
+
+    const user = userResult.rows[0];
+
+    // Generate OTP
+    const otp = generateOTP();
+    const expiresAt = new Date(Date.now() + 10 * 60 * 1000); // 10 minutes
+
+    // Store OTP
+    otpStore.set(`change-password:${userId}`, {
+      otp,
+      data: { userId },
+      expiresAt
+    });
+
+    // Send OTP email
+    const emailSent = await sendPasswordChangeOTPEmail(user.email, otp, user.display_name || 'User');
+
+    if (!emailSent) {
+      errorResponse(res, 'Gagal mengirim email OTP. Coba lagi.', 500);
+      return;
+    }
+
+    successResponse(res, { email: user.email }, 'Kode OTP telah dikirim ke email Anda');
+  } catch (error) {
+    console.error('Request change password OTP error:', error);
+    errorResponse(res, 'Server error');
+  }
+};
+
+/**
+ * Change user password with OTP verification
  * POST /api/auth/change-password
  */
 export const changePassword = async (req: AuthRequest, res: Response): Promise<void> => {
   try {
-    const { currentPassword, newPassword } = req.body;
+    const { currentPassword, newPassword, otp } = req.body;
     const userId = req.user?.id;
 
     if (!userId) {
@@ -343,6 +550,27 @@ export const changePassword = async (req: AuthRequest, res: Response): Promise<v
     if (newPassword.length < 6) {
       errorResponse(res, 'Password minimal 6 karakter', 400);
       return;
+    }
+
+    // Verify OTP if provided
+    if (otp) {
+      const stored = otpStore.get(`change-password:${userId}`);
+
+      if (!stored) {
+        errorResponse(res, 'OTP tidak ditemukan atau sudah kadaluarsa', 400);
+        return;
+      }
+
+      if (stored.expiresAt < new Date()) {
+        otpStore.delete(`change-password:${userId}`);
+        errorResponse(res, 'OTP sudah kadaluarsa. Silakan minta OTP baru.', 400);
+        return;
+      }
+
+      if (stored.otp !== otp) {
+        errorResponse(res, 'Kode OTP salah', 400);
+        return;
+      }
     }
 
     // Get user
@@ -374,6 +602,9 @@ export const changePassword = async (req: AuthRequest, res: Response): Promise<v
       'UPDATE public.users SET password_hash = $1, updated_at = CURRENT_TIMESTAMP WHERE id = $2',
       [hashedPassword, userId]
     );
+
+    // Clear OTP
+    otpStore.delete(`change-password:${userId}`);
 
     successResponse(res, null, 'Password berhasil diubah');
   } catch (error) {

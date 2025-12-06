@@ -1,23 +1,28 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { useAuth } from '@/contexts/AuthContext';
-import { Mail, Lock, User, AlertCircle, ArrowRight, Check, Eye, EyeOff } from 'lucide-react';
+import { Mail, Lock, User, AlertCircle, ArrowRight, Eye, EyeOff, ArrowLeft, CheckCircle } from 'lucide-react';
 import GoogleLoginButton from '@/components/ui/GoogleLoginButton';
+import api from '@/lib/api';
 
 export default function RegisterPage() {
+  const [step, setStep] = useState<'form' | 'otp'>('form');
   const [formData, setFormData] = useState({
     email: '',
     password: '',
     displayName: '',
   });
+  const [otp, setOtp] = useState(['', '', '', '', '', '']);
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
-  const { register, googleLogin, user, loading: authLoading } = useAuth();
+  const [resendCooldown, setResendCooldown] = useState(0);
+  const { googleLogin, user, loading: authLoading, updateUser } = useAuth();
   const router = useRouter();
+  const otpRefs = useRef<(HTMLInputElement | null)[]>([]);
 
   // Redirect if already logged in
   useEffect(() => {
@@ -26,34 +31,103 @@ export default function RegisterPage() {
     }
   }, [user, authLoading, router]);
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  // Resend cooldown timer
+  useEffect(() => {
+    if (resendCooldown > 0) {
+      const timer = setTimeout(() => setResendCooldown(resendCooldown - 1), 1000);
+      return () => clearTimeout(timer);
+    }
+  }, [resendCooldown]);
+
+  const handleRequestOTP = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
     setLoading(true);
 
     try {
-      await register(formData.email, formData.password, formData.displayName);
-      router.push('/');
+      await api.post('/auth/register/request-otp', formData);
+      setStep('otp');
+      setResendCooldown(60);
     } catch (err: any) {
-      // Handle different error scenarios
-      if (err.response) {
-        // Server responded with error
-        const message = err.response.data?.message || err.response.data?.error;
-        if (err.response.status === 400) {
-          setError(message || 'Data yang dimasukkan tidak valid');
-        } else if (message?.toLowerCase().includes('email')) {
-          setError('Email sudah terdaftar. Silakan gunakan email lain.');
-        } else {
-          setError(message || 'Gagal membuat akun');
-        }
-      } else if (err.request) {
-        // Network error
-        setError('Tidak dapat terhubung ke server. Periksa koneksi internet Anda.');
-      } else {
-        setError('Terjadi kesalahan. Silakan coba lagi.');
-      }
+      const message = err.response?.data?.message || 'Gagal mengirim OTP';
+      setError(message);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleVerifyOTP = async () => {
+    const otpCode = otp.join('');
+    if (otpCode.length !== 6) {
+      setError('Masukkan 6 digit kode OTP');
+      return;
+    }
+
+    setError('');
+    setLoading(true);
+
+    try {
+      const response = await api.post('/auth/register/verify-otp', {
+        email: formData.email,
+        otp: otpCode
+      });
+
+      // Set user and token from response
+      const { user: userData, token } = response.data.data;
+      localStorage.setItem('token', token);
+      localStorage.setItem('user', JSON.stringify(userData));
+      updateUser(userData);
+      
+      router.push('/');
+    } catch (err: any) {
+      const message = err.response?.data?.message || 'Kode OTP salah';
+      setError(message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleResendOTP = async () => {
+    if (resendCooldown > 0) return;
+    
+    setError('');
+    setLoading(true);
+
+    try {
+      await api.post('/auth/register/request-otp', formData);
+      setResendCooldown(60);
+      setOtp(['', '', '', '', '', '']);
+    } catch (err: any) {
+      setError(err.response?.data?.message || 'Gagal mengirim ulang OTP');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleOtpChange = (index: number, value: string) => {
+    if (value.length > 1) {
+      // Handle paste
+      const digits = value.replace(/\D/g, '').slice(0, 6).split('');
+      const newOtp = [...otp];
+      digits.forEach((digit, i) => {
+        if (index + i < 6) newOtp[index + i] = digit;
+      });
+      setOtp(newOtp);
+      const nextIndex = Math.min(index + digits.length, 5);
+      otpRefs.current[nextIndex]?.focus();
+    } else {
+      const newOtp = [...otp];
+      newOtp[index] = value.replace(/\D/g, '');
+      setOtp(newOtp);
+      if (value && index < 5) {
+        otpRefs.current[index + 1]?.focus();
+      }
+    }
+  };
+
+  const handleOtpKeyDown = (index: number, e: React.KeyboardEvent) => {
+    if (e.key === 'Backspace' && !otp[index] && index > 0) {
+      otpRefs.current[index - 1]?.focus();
     }
   };
 
@@ -64,178 +138,213 @@ export default function RegisterPage() {
       await googleLogin(credential);
       router.push('/');
     } catch (err: any) {
-      if (err.response) {
-        const message = err.response.data?.message || err.response.data?.error;
-        setError(message || 'Gagal daftar dengan Google');
-      } else {
-        setError('Tidak dapat terhubung ke server');
-      }
+      setError(err.response?.data?.message || 'Gagal daftar dengan Google');
     } finally {
       setLoading(false);
     }
   };
 
-  // Show loading state while checking auth
   if (authLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-slate-50">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-emerald-600 mx-auto"></div>
-          <p className="mt-4 text-slate-600 font-medium">Memuat...</p>
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-emerald-600"></div>
+      </div>
+    );
+  }
+
+  if (user) return null;
+
+  // OTP Verification Step
+  if (step === 'otp') {
+    return (
+      <div className="min-h-screen flex flex-col justify-center py-8 px-4 bg-slate-50">
+        <div className="sm:mx-auto sm:w-full sm:max-w-md">
+          <div className="bg-white py-8 px-6 shadow-xl rounded-2xl border border-slate-100">
+            <button
+              onClick={() => setStep('form')}
+              className="flex items-center gap-2 text-slate-500 hover:text-slate-700 mb-6"
+            >
+              <ArrowLeft className="w-4 h-4" />
+              <span className="text-sm font-medium">Kembali</span>
+            </button>
+
+            <div className="text-center mb-8">
+              <div className="w-16 h-16 bg-emerald-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                <Mail className="w-8 h-8 text-emerald-600" />
+              </div>
+              <h2 className="text-2xl font-bold text-slate-900">Verifikasi Email</h2>
+              <p className="mt-2 text-sm text-slate-600">
+                Masukkan kode 6 digit yang dikirim ke
+              </p>
+              <p className="font-medium text-slate-900">{formData.email}</p>
+            </div>
+
+            {error && (
+              <div className="mb-6 p-4 bg-red-50 border border-red-100 rounded-xl flex items-start gap-3">
+                <AlertCircle className="w-5 h-5 text-red-600 flex-shrink-0" />
+                <p className="text-sm text-red-600">{error}</p>
+              </div>
+            )}
+
+            {/* OTP Input */}
+            <div className="flex justify-center gap-2 mb-6">
+              {otp.map((digit, index) => (
+                <input
+                  key={index}
+                  ref={(el) => { otpRefs.current[index] = el; }}
+                  type="text"
+                  inputMode="numeric"
+                  maxLength={6}
+                  value={digit}
+                  onChange={(e) => handleOtpChange(index, e.target.value)}
+                  onKeyDown={(e) => handleOtpKeyDown(index, e)}
+                  className="w-12 h-14 text-center text-xl font-bold border-2 border-slate-200 rounded-xl focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 outline-none transition-all"
+                />
+              ))}
+            </div>
+
+            <button
+              onClick={handleVerifyOTP}
+              disabled={loading || otp.join('').length !== 6}
+              className="w-full py-3 px-4 bg-emerald-600 text-white rounded-xl font-semibold hover:bg-emerald-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all flex items-center justify-center gap-2"
+            >
+              {loading ? (
+                <>
+                  <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                  <span>Memverifikasi...</span>
+                </>
+              ) : (
+                <>
+                  <CheckCircle className="w-5 h-5" />
+                  <span>Verifikasi</span>
+                </>
+              )}
+            </button>
+
+            <div className="mt-6 text-center">
+              <p className="text-sm text-slate-500">
+                Tidak menerima kode?{' '}
+                {resendCooldown > 0 ? (
+                  <span className="text-slate-400">Kirim ulang dalam {resendCooldown}s</span>
+                ) : (
+                  <button
+                    onClick={handleResendOTP}
+                    disabled={loading}
+                    className="text-emerald-600 font-medium hover:underline"
+                  >
+                    Kirim Ulang
+                  </button>
+                )}
+              </p>
+            </div>
+          </div>
         </div>
       </div>
     );
   }
 
-  // Don't render if user is logged in (will redirect)
-  if (user) {
-    return null;
-  }
-
+  // Registration Form Step
   return (
-    <div className="min-h-screen flex flex-col justify-center py-8 sm:py-12 px-4 sm:px-6 lg:px-8 bg-slate-50 relative overflow-hidden">
-      {/* Decorative Background Elements */}
+    <div className="min-h-screen flex flex-col justify-center py-8 px-4 bg-slate-50 relative overflow-hidden">
       <div className="absolute top-0 left-0 w-full h-full overflow-hidden pointer-events-none">
         <div className="absolute -top-24 -right-24 w-96 h-96 bg-emerald-500/10 rounded-full blur-3xl"></div>
-        <div className="absolute top-1/2 left-0 w-64 h-64 bg-blue-500/10 rounded-full blur-3xl"></div>
         <div className="absolute bottom-0 right-1/3 w-80 h-80 bg-teal-500/10 rounded-full blur-3xl"></div>
       </div>
 
       <div className="sm:mx-auto sm:w-full sm:max-w-md relative z-10">
         <div className="text-center">
-          <Link href="/" className="inline-block group">
-            <div className="w-16 h-16 sm:w-20 sm:h-20 mx-auto mb-4 sm:mb-6 bg-white rounded-2xl shadow-lg p-3 sm:p-4 flex items-center justify-center group-hover:scale-105 transition-transform duration-300">
-              <img
-                src="/logodiskusibisnisaja.png"
-                alt="DiskusiBisnis Logo"
-                className="w-full h-full object-contain"
-              />
+          <Link href="/" className="inline-block">
+            <div className="w-16 h-16 mx-auto mb-4 bg-white rounded-2xl shadow-lg p-3 flex items-center justify-center">
+              <img src="/logodiskusibisnisaja.png" alt="Logo" className="w-full h-full object-contain" />
             </div>
           </Link>
-          <h2 className="text-2xl sm:text-3xl font-bold tracking-tight text-slate-900">
-            Gabung Komunitas
-          </h2>
-          <p className="mt-2 text-sm text-slate-600">
-            Mulai perjalanan bisnis Anda bersama ribuan pengusaha lainnya
-          </p>
+          <h2 className="text-2xl font-bold text-slate-900">Gabung Komunitas</h2>
+          <p className="mt-2 text-sm text-slate-600">Mulai perjalanan bisnis Anda</p>
         </div>
       </div>
 
-      <div className="mt-6 sm:mt-8 sm:mx-auto sm:w-full sm:max-w-md relative z-10">
-        <div className="bg-white py-6 sm:py-8 px-4 shadow-xl shadow-slate-200/50 rounded-2xl sm:px-10 border border-slate-100">
+      <div className="mt-6 sm:mx-auto sm:w-full sm:max-w-md relative z-10">
+        <div className="bg-white py-6 px-4 shadow-xl rounded-2xl sm:px-8 border border-slate-100">
           {error && (
-            <div className="mb-6 p-4 bg-red-50 border border-red-100 rounded-xl flex items-start gap-3 animate-in fade-in slide-in-from-top-2">
-              <AlertCircle className="w-5 h-5 text-red-600 flex-shrink-0 mt-0.5" />
-              <div className="flex-1">
-                <h3 className="text-sm font-medium text-red-800">Gagal Mendaftar</h3>
-                <p className="text-sm text-red-600 mt-1">{error}</p>
-              </div>
+            <div className="mb-6 p-4 bg-red-50 border border-red-100 rounded-xl flex items-start gap-3">
+              <AlertCircle className="w-5 h-5 text-red-600 flex-shrink-0" />
+              <p className="text-sm text-red-600">{error}</p>
             </div>
           )}
 
-          <form className="space-y-5 sm:space-y-6" onSubmit={handleSubmit}>
+          <form className="space-y-5" onSubmit={handleRequestOTP}>
             <div>
-              <label htmlFor="displayName" className="block text-sm font-semibold text-slate-700 mb-2">
-                Nama Lengkap
-              </label>
-              <div className="relative group">
-                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                  <User className="h-5 w-5 text-slate-400 group-focus-within:text-emerald-500 transition-colors" />
-                </div>
+              <label className="block text-sm font-semibold text-slate-700 mb-2">Nama Lengkap</label>
+              <div className="relative">
+                <User className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" />
                 <input
-                  id="displayName"
-                  name="displayName"
                   type="text"
                   required
                   value={formData.displayName}
                   onChange={(e) => setFormData({ ...formData, displayName: e.target.value })}
-                  className="block w-full pl-10 pr-3 py-3 border border-slate-200 rounded-xl leading-5 bg-slate-50 placeholder-slate-400 focus:outline-none focus:bg-white focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition-all duration-200 sm:text-sm"
+                  className="w-full pl-10 pr-4 py-3 border border-slate-200 rounded-xl bg-slate-50 focus:bg-white focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
                   placeholder="John Doe"
                 />
               </div>
             </div>
 
             <div>
-              <label htmlFor="email" className="block text-sm font-semibold text-slate-700 mb-2">
-                Email Address
-              </label>
-              <div className="relative group">
-                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                  <Mail className="h-5 w-5 text-slate-400 group-focus-within:text-emerald-500 transition-colors" />
-                </div>
+              <label className="block text-sm font-semibold text-slate-700 mb-2">Email</label>
+              <div className="relative">
+                <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" />
                 <input
-                  id="email"
-                  name="email"
                   type="email"
-                  autoComplete="email"
                   required
                   value={formData.email}
                   onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                  className="block w-full pl-10 pr-3 py-3 border border-slate-200 rounded-xl leading-5 bg-slate-50 placeholder-slate-400 focus:outline-none focus:bg-white focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition-all duration-200 sm:text-sm"
+                  className="w-full pl-10 pr-4 py-3 border border-slate-200 rounded-xl bg-slate-50 focus:bg-white focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
                   placeholder="nama@email.com"
                 />
               </div>
             </div>
 
             <div>
-              <label htmlFor="password" className="block text-sm font-semibold text-slate-700 mb-2">
-                Password
-              </label>
-              <div className="relative group">
-                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                  <Lock className="h-5 w-5 text-slate-400 group-focus-within:text-emerald-500 transition-colors" />
-                </div>
+              <label className="block text-sm font-semibold text-slate-700 mb-2">Password</label>
+              <div className="relative">
+                <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" />
                 <input
-                  id="password"
-                  name="password"
                   type={showPassword ? 'text' : 'password'}
-                  autoComplete="new-password"
                   required
-                  minLength={8}
+                  minLength={6}
                   value={formData.password}
                   onChange={(e) => setFormData({ ...formData, password: e.target.value })}
-                  className="block w-full pl-10 pr-10 py-3 border border-slate-200 rounded-xl leading-5 bg-slate-50 placeholder-slate-400 focus:outline-none focus:bg-white focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition-all duration-200 sm:text-sm"
-                  placeholder="Minimal 8 karakter"
+                  className="w-full pl-10 pr-10 py-3 border border-slate-200 rounded-xl bg-slate-50 focus:bg-white focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
+                  placeholder="Minimal 6 karakter"
                 />
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
-                  className="absolute inset-y-0 right-0 pr-3 flex items-center text-slate-400 hover:text-slate-600 focus:outline-none"
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600"
                 >
-                  {showPassword ? (
-                    <EyeOff className="h-5 w-5" />
-                  ) : (
-                    <Eye className="h-5 w-5" />
-                  )}
+                  {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
                 </button>
               </div>
-              <p className="mt-2 text-xs text-slate-500">
-                Password harus memiliki minimal 8 karakter.
-              </p>
             </div>
 
-            <div>
-              <button
-                type="submit"
-                disabled={loading}
-                className="w-full flex justify-center items-center gap-2 py-3 px-4 border border-transparent rounded-xl shadow-lg shadow-emerald-600/20 text-sm font-semibold text-white bg-emerald-600 hover:bg-emerald-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 hover:-translate-y-0.5"
-              >
-                {loading ? (
-                  <>
-                    <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                    <span>Mendaftar...</span>
-                  </>
-                ) : (
-                  <>
-                    Daftar Sekarang
-                    <ArrowRight className="w-4 h-4" />
-                  </>
-                )}
-              </button>
-            </div>
+            <button
+              type="submit"
+              disabled={loading}
+              className="w-full py-3 px-4 bg-emerald-600 text-white rounded-xl font-semibold hover:bg-emerald-700 disabled:opacity-50 transition-all flex items-center justify-center gap-2"
+            >
+              {loading ? (
+                <>
+                  <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                  <span>Mengirim OTP...</span>
+                </>
+              ) : (
+                <>
+                  <span>Daftar</span>
+                  <ArrowRight className="w-4 h-4" />
+                </>
+              )}
+            </button>
           </form>
 
-          {/* Google Login */}
           <div className="mt-6">
             <div className="relative">
               <div className="absolute inset-0 flex items-center">
@@ -256,34 +365,20 @@ export default function RegisterPage() {
             </div>
           </div>
 
-          <div className="mt-8">
-            <div className="relative">
-              <div className="absolute inset-0 flex items-center">
-                <div className="w-full border-t border-slate-200" />
-              </div>
-              <div className="relative flex justify-center text-sm">
-                <span className="px-4 bg-white text-slate-500">Sudah punya akun?</span>
-              </div>
-            </div>
-
-            <div className="mt-6">
-              <Link
-                href="/login"
-                className="w-full flex justify-center items-center gap-2 py-3 px-4 border border-slate-200 rounded-xl shadow-sm text-sm font-semibold text-slate-700 bg-white hover:bg-slate-50 hover:text-emerald-600 hover:border-emerald-200 transition-all duration-200"
-              >
-                Masuk ke Akun Anda
+          <div className="mt-6 text-center">
+            <p className="text-sm text-slate-500">
+              Sudah punya akun?{' '}
+              <Link href="/login" className="text-emerald-600 font-medium hover:underline">
+                Masuk
               </Link>
-            </div>
+            </p>
           </div>
         </div>
 
-        {/* Footer Links */}
-        <div className="mt-8 text-center text-xs text-slate-500">
+        <div className="mt-6 text-center text-xs text-slate-500">
           <p>
             Dengan mendaftar, Anda menyetujui{' '}
-            <Link href="/terms" className="text-emerald-600 hover:underline font-medium">Syarat & Ketentuan</Link>
-            {' '}dan{' '}
-            <Link href="/privacy" className="text-emerald-600 hover:underline font-medium">Kebijakan Privasi</Link>
+            <Link href="/terms" className="text-emerald-600 hover:underline">Syarat & Ketentuan</Link>
             {' '}kami.
           </p>
         </div>
