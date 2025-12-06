@@ -51,7 +51,9 @@ export default function ProfilePage() {
 
   const idOrUsername = params.id as string;
   const isUUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(idOrUsername);
-  const isOwnProfile = currentUser?.id === idOrUsername;
+  
+  // Check if own profile - compare with loaded profile ID
+  const isOwnProfile = currentUser && profile ? currentUser.id === profile.id : false;
 
   const fetchProfile = async () => {
     try {
