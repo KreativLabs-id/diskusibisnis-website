@@ -14,6 +14,11 @@ import {
   ChevronRight,
   Send,
   XCircle,
+  User,
+  ShieldCheck,
+  CheckCircle2,
+  AlertCircle,
+  Loader2
 } from 'lucide-react';
 
 interface Ticket {
@@ -40,11 +45,11 @@ interface TicketDetail extends Ticket {
 }
 
 const statusColors: Record<string, string> = {
-  open: 'bg-yellow-100 text-yellow-700',
-  replied: 'bg-blue-100 text-blue-700',
-  in_progress: 'bg-purple-100 text-purple-700',
-  resolved: 'bg-green-100 text-green-700',
-  closed: 'bg-slate-100 text-slate-700',
+  open: 'bg-amber-50 text-amber-700 border-amber-200',
+  replied: 'bg-blue-50 text-blue-700 border-blue-200',
+  in_progress: 'bg-purple-50 text-purple-700 border-purple-200',
+  resolved: 'bg-emerald-50 text-emerald-700 border-emerald-200',
+  closed: 'bg-slate-100 text-slate-600 border-slate-200',
 };
 
 const statusLabels: Record<string, string> = {
@@ -81,7 +86,7 @@ export default function MyTicketsPage() {
       setSelectedTicket(null);
       setShowDetail(false);
     } catch {
-      setError('Gagal mengambil data tiket');
+      setError('Gagal mengambil data tiket. Pastikan email benar.');
     } finally {
       setLoading(false);
     }
@@ -137,263 +142,277 @@ export default function MyTicketsPage() {
     });
   };
 
-
-  // Mobile: Show detail view
+  // Detail View
   if (showDetail && selectedTicket) {
     return (
-      <div className="max-w-4xl mx-auto px-4 py-6">
-        {/* Back Button */}
-        <button
-          onClick={() => setShowDetail(false)}
-          className="inline-flex items-center gap-2 text-slate-600 hover:text-emerald-600 mb-4"
-        >
-          <ArrowLeft className="w-4 h-4" />
-          Kembali ke Daftar Tiket
-        </button>
+      <div className="min-h-screen py-8 px-4">
+        <div className="max-w-3xl mx-auto">
+          {/* Navigation */}
+          <button
+            onClick={() => setShowDetail(false)}
+            className="inline-flex items-center gap-2 text-slate-500 hover:text-emerald-600 mb-8 transition-colors text-sm font-medium"
+          >
+            <ArrowLeft className="w-4 h-4" />
+            Kembali ke Daftar Tiket
+          </button>
 
-        {/* Ticket Detail Card */}
-        <div className="bg-white rounded-xl border border-slate-200 overflow-hidden">
-          {/* Header */}
-          <div className="p-4 border-b bg-slate-50">
-            <div className="flex items-center justify-between mb-2">
-              <span className="text-xs font-mono text-slate-500 bg-white px-2 py-1 rounded">
-                {selectedTicket.ticket_number}
-              </span>
-              <span
-                className={`text-xs px-2.5 py-1 rounded-full font-medium ${statusColors[selectedTicket.status]}`}
-              >
-                {statusLabels[selectedTicket.status]}
-              </span>
-            </div>
-            <h2 className="text-lg font-bold text-slate-900">{selectedTicket.subject}</h2>
-            <p className="text-xs text-slate-500 mt-1 flex items-center gap-1">
-              <Clock className="w-3 h-3" />
-              {formatDate(selectedTicket.created_at)}
-            </p>
-          </div>
+          <div className="space-y-8">
+            {/* Ticket Header */}
+            <div className="border-b border-slate-200 pb-6">
+              <div className="flex items-start justify-between mb-4">
+                <div>
+                  <h1 className="text-2xl font-bold text-slate-900 mb-2">{selectedTicket.subject}</h1>
+                  <div className="flex items-center gap-3 text-sm text-slate-500">
+                    <span className="font-mono bg-white px-2 py-0.5 rounded border border-slate-200">#{selectedTicket.ticket_number}</span>
+                    <span>•</span>
+                    <span>{formatDate(selectedTicket.created_at)}</span>
+                    <span>•</span>
+                    <span className="capitalize">{selectedTicket.category}</span>
+                  </div>
+                </div>
+                <div className={`px-3 py-1 rounded-full text-xs font-medium border ${statusColors[selectedTicket.status]}`}>
+                  {statusLabels[selectedTicket.status]}
+                </div>
+              </div>
 
-          {/* Messages */}
-          <div className="p-4 space-y-4 max-h-[60vh] overflow-y-auto">
-            {/* Original Message */}
-            <div className="bg-slate-100 rounded-xl p-4">
-              <div className="flex items-center gap-2 mb-2">
-                <div className="w-8 h-8 bg-slate-400 rounded-full flex items-center justify-center text-white text-sm font-bold">
+              <div className="flex items-start gap-4 mt-6">
+                <div className="w-10 h-10 bg-slate-100 rounded-full flex items-center justify-center text-slate-600 font-bold text-sm shrink-0">
                   {selectedTicket.name?.charAt(0).toUpperCase()}
                 </div>
                 <div>
-                  <p className="text-sm font-medium text-slate-900">{selectedTicket.name}</p>
-                  <p className="text-xs text-slate-500">Pesan Anda</p>
+                  <p className="text-sm font-semibold text-slate-900">{selectedTicket.name}</p>
+                  <p className="text-slate-700 mt-2 whitespace-pre-wrap leading-relaxed">
+                    {selectedTicket.message}
+                  </p>
                 </div>
               </div>
-              <p className="text-slate-700 text-sm whitespace-pre-wrap">{selectedTicket.message}</p>
             </div>
 
-            {/* Replies */}
-            {selectedTicket.replies?.length > 0 ? (
-              selectedTicket.replies.map((reply) => {
-                const isAdmin = reply.is_admin;
-                const senderName = reply.sender_name || 'User';
-                return (
-                  <div
-                    key={reply.id}
-                    className={`rounded-xl p-4 border ${
-                      isAdmin
-                        ? 'bg-emerald-50 border-emerald-100'
-                        : 'bg-blue-50 border-blue-100'
-                    }`}
-                  >
-                    <div className="flex items-center gap-2 mb-2">
-                      <div
-                        className={`w-8 h-8 rounded-full flex items-center justify-center ${
-                          isAdmin ? 'bg-emerald-500' : 'bg-blue-500'
-                        }`}
-                      >
-                        <MessageSquare className="w-4 h-4 text-white" />
+            {/* Replies Thread */}
+            <div className="space-y-8">
+              <h3 className="text-sm font-bold text-slate-900 uppercase tracking-wider">Riwayat Percakapan</h3>
+
+              {selectedTicket.replies?.length > 0 ? (
+                selectedTicket.replies.map((reply) => {
+                  const isAdmin = reply.is_admin;
+                  return (
+                    <div
+                      key={reply.id}
+                      className={`flex gap-4 ${isAdmin ? 'flex-row-reverse' : ''}`}
+                    >
+                      <div className="shrink-0">
+                        {isAdmin ? (
+                          <div className="w-8 h-8 bg-emerald-100 rounded-full flex items-center justify-center">
+                            <ShieldCheck className="w-4 h-4 text-emerald-600" />
+                          </div>
+                        ) : (
+                          <div className="w-8 h-8 bg-slate-100 rounded-full flex items-center justify-center">
+                            <User className="w-4 h-4 text-slate-500" />
+                          </div>
+                        )}
                       </div>
-                      <div>
-                        <p
-                          className={`text-sm font-medium ${
-                            isAdmin ? 'text-emerald-700' : 'text-blue-700'
-                          }`}
-                        >
-                          {isAdmin ? `${senderName} (Admin)` : senderName}
-                        </p>
-                        <p
-                          className={`text-xs ${isAdmin ? 'text-emerald-600' : 'text-blue-600'}`}
-                        >
-                          {formatDate(reply.created_at)}
-                        </p>
+
+                      <div className={`flex-1 ${isAdmin ? 'text-right' : ''}`}>
+                        <div className={`flex items-center gap-2 mb-1 ${isAdmin ? 'justify-end' : ''}`}>
+                          <span className={`text-sm font-semibold ${isAdmin ? 'text-emerald-700' : 'text-slate-900'}`}>
+                            {reply.sender_name || (isAdmin ? 'Admin Support' : 'User')}
+                          </span>
+                          <span className="text-xs text-slate-400">{formatDate(reply.created_at)}</span>
+                        </div>
+                        <div className={`text-slate-700 leading-relaxed whitespace-pre-wrap ${isAdmin ? 'bg-emerald-50/50 p-4 rounded-2xl rounded-tr-none' : 'bg-white border border-slate-200 p-4 rounded-2xl rounded-tl-none'}`}>
+                          {reply.message}
+                        </div>
                       </div>
                     </div>
-                    <p className="text-slate-700 text-sm whitespace-pre-wrap">{reply.message}</p>
+                  );
+                })
+              ) : (
+                <div className="text-center py-8 border-y border-slate-200 border-dashed">
+                  <p className="text-slate-500">Belum ada balasan.</p>
+                </div>
+              )}
+            </div>
+
+            {/* Reply Box */}
+            {selectedTicket.status !== 'closed' ? (
+              <div className="pt-6 border-t border-slate-200">
+                {successMessage && (
+                  <div className="mb-4 p-3 bg-emerald-50 text-emerald-700 text-sm rounded-lg flex items-center gap-2 border border-emerald-100">
+                    <CheckCircle2 className="w-4 h-4" /> {successMessage}
                   </div>
-                );
-              })
+                )}
+                {error && (
+                  <div className="mb-4 p-3 bg-red-50 text-red-700 text-sm rounded-lg flex items-center gap-2 border border-red-100">
+                    <AlertCircle className="w-4 h-4" /> {error}
+                  </div>
+                )}
+
+                <label className="block text-sm font-semibold text-slate-900 mb-3">Kirim Balasan</label>
+                <textarea
+                  value={replyMessage}
+                  onChange={(e) => setReplyMessage(e.target.value)}
+                  placeholder="Tulis pesan balasan..."
+                  className="w-full bg-white border border-slate-200 rounded-xl p-4 text-sm focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none transition-all resize-none mb-4"
+                  rows={4}
+                />
+                <div className="flex justify-end">
+                  <button
+                    onClick={handleReply}
+                    disabled={!replyMessage.trim() || sending}
+                    className="flex items-center gap-2 px-6 py-2.5 bg-emerald-600 text-white rounded-xl text-sm font-medium hover:bg-emerald-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                  >
+                    {sending ? <Loader2 className="w-4 h-4 animate-spin" /> : <Send className="w-4 h-4" />}
+                    Kirim Balasan
+                  </button>
+                </div>
+              </div>
             ) : (
-              <div className="text-center py-8 text-slate-500">
-                <Clock className="w-10 h-10 mx-auto mb-3 opacity-40" />
-                <p className="font-medium">Belum ada balasan</p>
-                <p className="text-xs mt-1">Tim support akan segera membalas tiket Anda</p>
+              <div className="bg-slate-50 rounded-xl p-4 text-center border border-slate-200">
+                <p className="text-slate-500 flex items-center justify-center gap-2">
+                  <XCircle className="w-4 h-4" />
+                  Tiket ini sudah ditutup.
+                </p>
               </div>
             )}
           </div>
-
-          {/* Reply Form - Only show if ticket is not closed */}
-          {selectedTicket.status !== 'closed' ? (
-            <div className="p-4 border-t bg-white">
-              {successMessage && (
-                <div className="mb-3 p-3 bg-emerald-50 border border-emerald-200 rounded-lg text-emerald-700 text-sm">
-                  {successMessage}
-                </div>
-              )}
-              {error && (
-                <div className="mb-3 p-3 bg-red-50 border border-red-200 rounded-lg text-red-700 text-sm">
-                  {error}
-                </div>
-              )}
-              <p className="text-sm font-medium text-slate-700 mb-2">Balas Tiket</p>
-              <textarea
-                value={replyMessage}
-                onChange={(e) => setReplyMessage(e.target.value)}
-                placeholder="Tulis balasan Anda..."
-                className="w-full border border-slate-300 rounded-lg p-3 text-sm resize-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500"
-                rows={3}
-              />
-              <div className="flex justify-end mt-2">
-                <button
-                  onClick={handleReply}
-                  disabled={!replyMessage.trim() || sending}
-                  className="flex items-center gap-2 px-4 py-2 bg-emerald-600 text-white rounded-lg text-sm font-medium hover:bg-emerald-700 disabled:opacity-50 disabled:cursor-not-allowed"
-                >
-                  <Send className="w-4 h-4" />
-                  {sending ? 'Mengirim...' : 'Kirim Balasan'}
-                </button>
-              </div>
-            </div>
-          ) : (
-            <div className="p-4 border-t bg-slate-50 text-center">
-              <div className="flex items-center justify-center gap-2 text-slate-500 text-sm">
-                <XCircle className="w-4 h-4" />
-                <span>Tiket ini sudah ditutup</span>
-              </div>
-            </div>
-          )}
         </div>
       </div>
     );
   }
 
-
   return (
-    <div className="max-w-4xl mx-auto px-4 py-6">
-      {/* Header */}
-      <div className="mb-6">
-        <Link
-          href="/contact"
-          className="inline-flex items-center gap-2 text-slate-600 hover:text-emerald-600 text-sm mb-4"
-        >
-          <ArrowLeft className="w-4 h-4" />
-          Kembali ke Hubungi Kami
-        </Link>
-        <div className="flex items-center gap-3">
-          <div className="w-10 h-10 sm:w-12 sm:h-12 bg-emerald-100 rounded-full flex items-center justify-center">
-            <Inbox className="w-5 h-5 sm:w-6 sm:h-6 text-emerald-600" />
-          </div>
-          <div>
-            <h1 className="text-xl sm:text-2xl font-bold text-slate-900">Tiket Saya</h1>
-            <p className="text-sm text-slate-600">Lihat status dan balasan tiket support Anda</p>
-          </div>
-        </div>
-      </div>
-
-      {/* Search Form */}
-      <div className="bg-white rounded-xl border border-slate-200 p-4 sm:p-6 mb-6">
-        <label className="block text-sm font-medium text-slate-700 mb-2">
-          Masukkan email yang Anda gunakan saat membuat tiket
-        </label>
-        <form onSubmit={handleSearch} className="flex flex-col sm:flex-row gap-3">
-          <input
-            type="email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            placeholder="email@example.com"
-            className="flex-1 px-4 py-2.5 border border-slate-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 text-sm"
-            required
-          />
-          <button
-            type="submit"
-            disabled={loading}
-            className="flex items-center justify-center gap-2 px-6 py-2.5 bg-emerald-600 text-white rounded-lg font-medium hover:bg-emerald-700 disabled:opacity-50 text-sm"
+    <div className="min-h-screen py-12 px-4 sm:px-6 lg:px-8">
+      <div className="max-w-3xl mx-auto">
+        {/* Header */}
+        <div className="mb-10">
+          <Link
+            href="/contact"
+            className="inline-flex items-center gap-2 text-slate-500 hover:text-emerald-600 text-sm mb-6 transition-colors"
           >
-            <Search className="w-4 h-4" />
-            {loading ? 'Mencari...' : 'Cari Tiket'}
-          </button>
-        </form>
-      </div>
-
-      {error && (
-        <div className="bg-red-50 border border-red-200 rounded-lg p-4 mb-6 text-red-700 text-sm">
-          {error}
-        </div>
-      )}
-
-      {/* Results */}
-      {searched && (
-        <div className="bg-white rounded-xl border border-slate-200 overflow-hidden">
-          <div className="p-4 border-b bg-slate-50">
-            <h2 className="font-semibold text-slate-900">
-              {tickets.length > 0 ? `${tickets.length} Tiket Ditemukan` : 'Tidak Ada Tiket'}
-            </h2>
+            <ArrowLeft className="w-4 h-4" />
+            Kembali ke Hubungi Kami
+          </Link>
+          <div className="flex items-center justify-between">
+            <div>
+              <h1 className="text-3xl font-bold text-slate-900 mb-2">Tiket Saya</h1>
+              <p className="text-slate-600">Cek status dan riwayat tiket support Anda</p>
+            </div>
+            <div className="w-12 h-12 bg-emerald-50 rounded-full flex items-center justify-center">
+              <Inbox className="w-6 h-6 text-emerald-600" />
+            </div>
           </div>
-
-          {tickets.length === 0 ? (
-            <div className="p-8 text-center text-slate-500">
-              <Mail className="w-12 h-12 mx-auto mb-3 opacity-40" />
-              <p className="font-medium">Tidak ada tiket dengan email ini</p>
-              <Link
-                href="/contact"
-                className="inline-flex items-center gap-1 text-emerald-600 hover:underline text-sm mt-3"
-              >
-                Buat tiket baru
-                <ChevronRight className="w-4 h-4" />
-              </Link>
-            </div>
-          ) : (
-            <div className="divide-y divide-slate-100">
-              {tickets.map((ticket) => (
-                <div
-                  key={ticket.id}
-                  onClick={() => handleViewTicket(ticket.ticket_number)}
-                  className="p-4 cursor-pointer hover:bg-slate-50 transition-colors active:bg-slate-100"
-                >
-                  <div className="flex items-start justify-between gap-3">
-                    <div className="flex-1 min-w-0">
-                      <div className="flex items-center gap-2 mb-1">
-                        <span className="text-xs font-mono text-slate-400">
-                          {ticket.ticket_number}
-                        </span>
-                        <span
-                          className={`text-xs px-2 py-0.5 rounded-full ${statusColors[ticket.status]}`}
-                        >
-                          {statusLabels[ticket.status]}
-                        </span>
-                      </div>
-                      <h3 className="font-medium text-slate-900 text-sm truncate">
-                        {ticket.subject}
-                      </h3>
-                      <p className="text-xs text-slate-400 mt-1 flex items-center gap-1">
-                        <Clock className="w-3 h-3" />
-                        {formatDate(ticket.created_at)}
-                      </p>
-                    </div>
-                    <ChevronRight className="w-5 h-5 text-slate-300 flex-shrink-0" />
-                  </div>
-                </div>
-              ))}
-            </div>
-          )}
         </div>
-      )}
+
+        {/* Search Form */}
+        <div className="mb-10">
+          <label className="block text-sm font-semibold text-slate-900 mb-3">
+            Cari Tiket dengan Email
+          </label>
+          <form onSubmit={handleSearch} className="flex flex-col sm:flex-row gap-4">
+            <div className="relative flex-1">
+              <Mail className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" />
+              <input
+                type="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                placeholder="Masukkan email Anda..."
+                className="w-full pl-12 pr-4 py-3.5 bg-white border border-slate-200 focus:border-emerald-500 rounded-xl text-sm focus:ring-2 focus:ring-emerald-500/20 outline-none transition-all"
+                required
+              />
+            </div>
+            <button
+              type="submit"
+              disabled={loading}
+              className="flex items-center justify-center gap-2 px-8 py-3.5 bg-emerald-600 text-white rounded-xl font-medium hover:bg-emerald-700 transition-colors disabled:opacity-70 disabled:cursor-not-allowed"
+            >
+              {loading ? (
+                <Loader2 className="w-5 h-5 animate-spin" />
+              ) : (
+                <>
+                  <Search className="w-5 h-5" />
+                  <span>Cari Tiket</span>
+                </>
+              )}
+            </button>
+          </form>
+        </div>
+
+        {error && (
+          <div className="bg-red-50 border border-red-100 rounded-xl p-4 mb-8 flex items-center gap-3 text-red-700">
+            <AlertCircle className="w-5 h-5 flex-shrink-0" />
+            <p className="text-sm font-medium">{error}</p>
+          </div>
+        )}
+
+        {/* Results */}
+        {searched && (
+          <div className="space-y-6">
+            <div className="flex items-center justify-between border-b border-slate-200 pb-4">
+              <h2 className="font-bold text-slate-900 text-lg">
+                Riwayat Tiket
+              </h2>
+              <span className="text-sm text-slate-500">
+                {tickets.length} tiket ditemukan
+              </span>
+            </div>
+
+            {tickets.length === 0 ? (
+              <div className="py-12 text-center">
+                <div className="w-16 h-16 bg-slate-50 rounded-full flex items-center justify-center mx-auto mb-4">
+                  <Inbox className="w-8 h-8 text-slate-300" />
+                </div>
+                <h3 className="text-lg font-medium text-slate-900 mb-2">Tidak Ada Tiket</h3>
+                <p className="text-slate-500 mb-6">Belum ada tiket yang terdaftar dengan email ini.</p>
+                <Link
+                  href="/contact"
+                  className="inline-flex items-center gap-2 text-emerald-600 font-medium hover:underline"
+                >
+                  Buat Tiket Baru <ChevronRight className="w-4 h-4" />
+                </Link>
+              </div>
+            ) : (
+              <div className="divide-y divide-slate-200">
+                {tickets.map((ticket) => (
+                  <div
+                    key={ticket.id}
+                    onClick={() => handleViewTicket(ticket.ticket_number)}
+                    className="group py-4 cursor-pointer hover:bg-slate-50 -mx-4 px-4 rounded-xl transition-colors"
+                  >
+                    <div className="flex items-start justify-between gap-4">
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center gap-3 mb-2">
+                          <span className="text-xs font-mono text-slate-500 bg-white border border-slate-200 px-2 py-0.5 rounded">
+                            #{ticket.ticket_number}
+                          </span>
+                          <span className={`text-xs px-2.5 py-0.5 rounded-full border ${statusColors[ticket.status]}`}>
+                            {statusLabels[ticket.status]}
+                          </span>
+                        </div>
+                        <h3 className="font-bold text-slate-900 text-lg mb-1 group-hover:text-emerald-700 transition-colors">
+                          {ticket.subject}
+                        </h3>
+                        <div className="flex items-center gap-4 text-sm text-slate-500">
+                          <span className="flex items-center gap-1.5">
+                            <Clock className="w-4 h-4" />
+                            {formatDate(ticket.created_at)}
+                          </span>
+                          <span className="flex items-center gap-1.5 capitalize">
+                            <MessageSquare className="w-4 h-4" />
+                            {ticket.category}
+                          </span>
+                        </div>
+                      </div>
+                      <div className="self-center">
+                        <ChevronRight className="w-5 h-5 text-slate-300 group-hover:text-emerald-500 transition-colors" />
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        )}
+      </div>
     </div>
   );
 }
