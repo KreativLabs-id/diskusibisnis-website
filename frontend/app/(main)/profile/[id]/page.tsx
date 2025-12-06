@@ -12,6 +12,7 @@ import UserAvatar from '@/components/ui/UserAvatar';
 interface UserProfile {
   id: string;
   displayName: string;
+  username?: string;
   email?: string;
   avatarUrl?: string;
   bio?: string;
@@ -78,6 +79,7 @@ export default function ProfilePage() {
       setProfile({
         id: userData.id,
         displayName: userData.displayName || userData.display_name || 'User',
+        username: userData.username,
         email: userData.email,
         avatarUrl: userData.avatarUrl || userData.avatar_url,
         bio: userData.bio,
@@ -231,6 +233,9 @@ export default function ProfilePage() {
                       <h1 className="text-2xl sm:text-3xl font-bold text-slate-900">{profile.displayName || 'User'}</h1>
                       <VerifiedBadge isVerified={profile.isVerified || false} size="md" />
                     </div>
+                    {profile.username && (
+                      <p className="text-slate-500 text-sm mb-2 text-center sm:text-left">@{profile.username}</p>
+                    )}
                     <div className="flex flex-wrap items-center justify-center sm:justify-start gap-4 text-sm text-slate-500">
                       <span className="flex items-center gap-1.5">
                         <Calendar className="w-4 h-4" />

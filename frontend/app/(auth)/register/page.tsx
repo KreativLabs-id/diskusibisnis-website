@@ -14,6 +14,7 @@ export default function RegisterPage() {
     email: '',
     password: '',
     displayName: '',
+    username: '',
   });
   const [otp, setOtp] = useState(['', '', '', '', '', '']);
   const [showPassword, setShowPassword] = useState(false);
@@ -286,6 +287,24 @@ export default function RegisterPage() {
                   placeholder="John Doe"
                 />
               </div>
+            </div>
+
+            <div>
+              <label className="block text-sm font-semibold text-slate-700 mb-2">Username</label>
+              <div className="relative">
+                <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-sm">@</span>
+                <input
+                  type="text"
+                  required
+                  value={formData.username}
+                  onChange={(e) => setFormData({ ...formData, username: e.target.value.toLowerCase().replace(/[^a-z0-9_]/g, '') })}
+                  className="w-full pl-8 pr-4 py-3 border border-slate-200 rounded-xl bg-slate-50 focus:bg-white focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
+                  placeholder="username"
+                  minLength={3}
+                  maxLength={30}
+                />
+              </div>
+              <p className="mt-1 text-xs text-slate-500">Huruf kecil, angka, underscore. Contoh: john_doe</p>
             </div>
 
             <div>
