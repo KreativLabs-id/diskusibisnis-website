@@ -35,11 +35,11 @@ setInterval(() => {
  */
 export const requestRegisterOTP = async (req: AuthRequest, res: Response): Promise<void> => {
   try {
-    const { email, password, displayName } = req.body;
+    const { email, password, displayName, username } = req.body;
 
     // Validate input
-    if (!email || !password || !displayName) {
-      errorResponse(res, 'Email, password, dan nama wajib diisi', 400);
+    if (!email || !password || !displayName || !username) {
+      errorResponse(res, 'Email, password, nama, dan username wajib diisi', 400);
       return;
     }
 
@@ -48,14 +48,37 @@ export const requestRegisterOTP = async (req: AuthRequest, res: Response): Promi
       return;
     }
 
-    // Check if user exists
-    const existingUser = await pool.query(
+    // Validate username format
+    const usernameRegex = /^[a-z0-9_]+$/;
+    if (!usernameRegex.test(username)) {
+      errorResponse(res, 'Username hanya boleh huruf kecil, angka, dan underscore', 400);
+      return;
+    }
+
+    if (username.length < 3 || username.length > 30) {
+      errorResponse(res, 'Username harus 3-30 karakter', 400);
+      return;
+    }
+
+    // Check if email exists
+    const existingEmail = await pool.query(
       'SELECT id FROM public.users WHERE email = $1',
       [email]
     );
 
-    if (existingUser.rows.length > 0) {
+    if (existingEmail.rows.length > 0) {
       errorResponse(res, 'Email sudah terdaftar', 400);
+      return;
+    }
+
+    // Check if username exists
+    const existingUsername = await pool.query(
+      'SELECT id FROM public.users WHERE username = $1',
+      [username]
+    );
+
+    if (existingUsername.rows.length > 0) {
+      errorResponse(res, 'Username sudah digunakan, pilih username lain', 400);
       return;
     }
 
@@ -66,7 +89,7 @@ export const requestRegisterOTP = async (req: AuthRequest, res: Response): Promi
     // Store OTP with registration data
     otpStore.set(`register:${email}`, {
       otp,
-      data: { email, password, displayName },
+      data: { email, password, displayName, username },
       expiresAt
     });
 
@@ -118,18 +141,19 @@ export const verifyRegisterOTP = async (req: AuthRequest, res: Response): Promis
     }
 
     // OTP valid, create user
-    const { password, displayName } = stored.data;
+    const { password, displayName, username } = stored.data;
 
     // Hash password
     const salt = await bcrypt.genSalt(10);
     const passwordHash = await bcrypt.hash(password, salt);
 
-    // Create user with verified email
+    // Create user - is_verified false (verified badge is for special accounts only)
+    // email_verified true (email has been verified via OTP)
     const result = await pool.query(
-      `INSERT INTO public.users (email, password_hash, display_name, role, is_verified) 
-       VALUES ($1, $2, $3, 'member', true) 
-       RETURNING id, email, display_name, role, reputation_points, created_at, is_verified`,
-      [email, passwordHash, displayName]
+      `INSERT INTO public.users (email, password_hash, display_name, username, role, is_verified) 
+       VALUES ($1, $2, $3, $4, 'member', false) 
+       RETURNING id, email, display_name, username, role, reputation_points, created_at, is_verified`,
+      [email, passwordHash, displayName, username]
     );
 
     const user = result.rows[0];
