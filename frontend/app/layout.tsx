@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import { Inter } from "next/font/google";
 import Script from "next/script";
+import { SpeedInsights } from "@vercel/speed-insights/next";
 import "./globals.css";
 import ClientProviders from "./components/ClientProviders";
 
@@ -183,6 +184,7 @@ export default function RootLayout({
             {children}
           </div>
         </ClientProviders>
+        <SpeedInsights />
       </body>
     </html>
   );
