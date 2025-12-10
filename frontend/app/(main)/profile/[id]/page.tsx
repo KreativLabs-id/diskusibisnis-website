@@ -52,7 +52,7 @@ export default function ProfilePage() {
 
   const idOrUsername = params.id as string;
   const isUUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(idOrUsername);
-  
+
   // Check if own profile - compare with loaded profile ID
   const isOwnProfile = currentUser && profile ? currentUser.id === profile.id : false;
 
@@ -192,18 +192,18 @@ export default function ProfilePage() {
 
   return (
     <div className="min-h-screen bg-slate-50 pb-20">
-      <div className="max-w-5xl mx-auto px-4 py-6 sm:py-8">
+      <div className="max-w-5xl mx-auto px-0 sm:px-4 py-0 sm:py-8">
         {/* Back Button */}
         <button
           onClick={() => router.back()}
-          className="flex items-center gap-2 text-slate-500 hover:text-slate-900 mb-6 transition-colors group"
+          className="flex items-center gap-2 text-slate-500 hover:text-slate-900 mb-4 sm:mb-6 transition-colors group px-4 sm:px-0 pt-4 sm:pt-0"
         >
           <ArrowLeft className="w-4 h-4 group-hover:-translate-x-1 transition-transform" />
           <span className="font-medium">Kembali</span>
         </button>
 
         {/* Profile Card */}
-        <div className="bg-white rounded-3xl border border-slate-200 shadow-sm overflow-hidden mb-8 relative">
+        <div className="bg-white sm:rounded-3xl sm:border border-slate-200 sm:shadow-sm overflow-hidden mb-6 sm:mb-8 relative">
           {/* Cover Banner */}
           <div className="h-32 sm:h-48 bg-gradient-to-r from-slate-800 to-slate-900 relative overflow-hidden">
             <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] opacity-10"></div>
@@ -299,12 +299,12 @@ export default function ProfilePage() {
         </div>
 
         {/* Content Tabs */}
-        <div className="flex items-center gap-2 mb-6 overflow-x-auto pb-2 sm:pb-0 no-scrollbar">
+        <div className="flex items-center gap-2 mb-6 overflow-x-auto pb-2 sm:pb-0 no-scrollbar px-4 sm:px-0">
           <button
             onClick={() => setActiveTab('questions')}
             className={`flex items-center gap-2 px-5 py-2.5 rounded-full text-sm font-medium transition-all whitespace-nowrap ${activeTab === 'questions'
-                ? 'bg-emerald-600 text-white shadow-lg shadow-emerald-600/20'
-                : 'bg-white text-slate-600 hover:bg-slate-50 border border-slate-200'
+              ? 'bg-emerald-600 text-white shadow-lg shadow-emerald-600/20'
+              : 'bg-white text-slate-600 hover:bg-slate-50 border border-slate-200'
               }`}
           >
             <MessageSquare className="w-4 h-4" />
@@ -316,8 +316,8 @@ export default function ProfilePage() {
           <button
             onClick={() => setActiveTab('answers')}
             className={`flex items-center gap-2 px-5 py-2.5 rounded-full text-sm font-medium transition-all whitespace-nowrap ${activeTab === 'answers'
-                ? 'bg-emerald-600 text-white shadow-lg shadow-emerald-600/20'
-                : 'bg-white text-slate-600 hover:bg-slate-50 border border-slate-200'
+              ? 'bg-emerald-600 text-white shadow-lg shadow-emerald-600/20'
+              : 'bg-white text-slate-600 hover:bg-slate-50 border border-slate-200'
               }`}
           >
             <CheckCircle className="w-4 h-4" />
@@ -329,7 +329,7 @@ export default function ProfilePage() {
         </div>
 
         {/* Tab Content */}
-        <div className="space-y-4">
+        <div className="space-y-4 px-4 sm:px-0">
           {activeTab === 'questions' ? (
             questions.length === 0 ? (
               <div className="bg-white rounded-2xl border border-dashed border-slate-300 p-12 text-center">

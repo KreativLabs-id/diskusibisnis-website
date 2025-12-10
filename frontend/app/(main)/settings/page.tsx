@@ -39,7 +39,7 @@ export default function SettingsPage() {
     if (!authLoading && !user) {
       router.push('/login');
     }
-    
+
     if (user) {
       setFormData({
         displayName: user.displayName || '',
@@ -105,7 +105,7 @@ export default function SettingsPage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (!user) return;
 
     setLoading(true);
@@ -146,7 +146,7 @@ export default function SettingsPage() {
       };
 
       const response = await userAPI.updateProfile(user.id, updateData);
-      
+
       // Update user in context
       if (response.data.success) {
         const updatedUserData = response.data.data.user || response.data.data;
@@ -157,7 +157,7 @@ export default function SettingsPage() {
         });
 
         setSuccess('Profil berhasil diperbarui!');
-        
+
         // Redirect to profile after 2 seconds
         setTimeout(() => {
           router.push(`/profile/${user.username || user.displayName?.toLowerCase().replace(/[^a-z0-9]/g, '')}`);
@@ -196,40 +196,42 @@ export default function SettingsPage() {
 
   return (
     <div className="min-h-screen bg-slate-50 pb-20">
-      <div className="max-w-3xl mx-auto px-4 py-8">
-        <div className="mb-8">
+      <div className="max-w-3xl mx-auto px-0 sm:px-4 py-0 sm:py-8">
+        <div className="mb-8 px-4 sm:px-0 pt-6 sm:pt-0">
           <h1 className="text-2xl font-bold text-slate-900 mb-2">Pengaturan Akun</h1>
           <p className="text-slate-600">Kelola informasi profil dan preferensi akun Anda</p>
         </div>
 
         {/* Success Message */}
-        {success && (
-          <div className="bg-emerald-50 border border-emerald-200 rounded-2xl p-4 mb-6 flex items-start gap-3 shadow-sm animate-in fade-in slide-in-from-top-2">
-            <div className="p-1 bg-emerald-100 rounded-full">
-              <CheckCircle className="w-4 h-4 text-emerald-600" />
+        <div className="px-4 sm:px-0">
+          {success && (
+            <div className="bg-emerald-50 border border-emerald-200 rounded-2xl p-4 mb-6 flex items-start gap-3 shadow-sm animate-in fade-in slide-in-from-top-2">
+              <div className="p-1 bg-emerald-100 rounded-full">
+                <CheckCircle className="w-4 h-4 text-emerald-600" />
+              </div>
+              <div>
+                <p className="text-sm font-bold text-emerald-800">Berhasil Disimpan</p>
+                <p className="text-sm text-emerald-600 mt-0.5">{success}</p>
+              </div>
             </div>
-            <div>
-              <p className="text-sm font-bold text-emerald-800">Berhasil Disimpan</p>
-              <p className="text-sm text-emerald-600 mt-0.5">{success}</p>
-            </div>
-          </div>
-        )}
+          )}
 
-        {/* Error Message */}
-        {error && (
-          <div className="bg-red-50 border border-red-200 rounded-2xl p-4 mb-6 flex items-start gap-3 shadow-sm animate-in fade-in slide-in-from-top-2">
-            <div className="p-1 bg-red-100 rounded-full">
-              <AlertCircle className="w-4 h-4 text-red-600" />
+          {/* Error Message */}
+          {error && (
+            <div className="bg-red-50 border border-red-200 rounded-2xl p-4 mb-6 flex items-start gap-3 shadow-sm animate-in fade-in slide-in-from-top-2">
+              <div className="p-1 bg-red-100 rounded-full">
+                <AlertCircle className="w-4 h-4 text-red-600" />
+              </div>
+              <div>
+                <p className="text-sm font-bold text-red-800">Terjadi Kesalahan</p>
+                <p className="text-sm text-red-600 mt-0.5">{error}</p>
+              </div>
             </div>
-            <div>
-              <p className="text-sm font-bold text-red-800">Terjadi Kesalahan</p>
-              <p className="text-sm text-red-600 mt-0.5">{error}</p>
-            </div>
-          </div>
-        )}
+          )}
+        </div>
 
         {/* Profile Settings */}
-        <div className="bg-white rounded-3xl p-6 sm:p-8 mb-6 shadow-sm border border-slate-100">
+        <div className="bg-white sm:rounded-3xl p-6 sm:p-8 mb-2 sm:mb-6 shadow-none sm:shadow-sm border-y sm:border border-slate-100">
           <div className="flex items-center gap-4 mb-8 pb-6 border-b border-slate-100">
             <div className="w-12 h-12 bg-emerald-50 rounded-2xl flex items-center justify-center text-emerald-600">
               <User className="w-6 h-6" />
@@ -246,7 +248,7 @@ export default function SettingsPage() {
               <label className="block text-sm font-bold text-slate-900">
                 Foto Profil
               </label>
-              
+
               <div className="flex flex-col sm:flex-row items-start sm:items-center gap-6 p-4 bg-slate-50 rounded-2xl border border-slate-100">
                 {avatarPreview ? (
                   <div className="relative group">
@@ -286,7 +288,7 @@ export default function SettingsPage() {
                       <Camera className="w-4 h-4" />
                       {avatarPreview ? 'Ganti Foto' : 'Upload Foto'}
                     </button>
-                    
+
                     {avatarPreview && (
                       <button
                         type="button"
@@ -300,7 +302,7 @@ export default function SettingsPage() {
                     )}
                   </div>
                   <p className="text-xs text-slate-500 leading-relaxed">
-                    Format: JPG, PNG, GIF, atau WebP. Maksimal 5MB.<br/>
+                    Format: JPG, PNG, GIF, atau WebP. Maksimal 5MB.<br />
                     Disarankan menggunakan gambar persegi minimal 500x500px.
                   </p>
                 </div>
@@ -375,7 +377,7 @@ export default function SettingsPage() {
         </div>
 
         {/* Account Info */}
-        <div className="bg-white rounded-3xl p-6 sm:p-8 shadow-sm border border-slate-100">
+        <div className="bg-white sm:rounded-3xl p-6 sm:p-8 shadow-none sm:shadow-sm border-y sm:border border-slate-100">
           <div className="flex items-center gap-4 mb-8 pb-6 border-b border-slate-100">
             <div className="w-12 h-12 bg-purple-50 rounded-2xl flex items-center justify-center text-purple-600">
               <Lock className="w-6 h-6" />
@@ -409,7 +411,7 @@ export default function SettingsPage() {
                   <p className="text-sm font-medium text-slate-900">••••••••</p>
                 </div>
               </div>
-              <button 
+              <button
                 onClick={() => setShowPasswordModal(true)}
                 className="px-4 py-2 text-sm font-medium text-emerald-600 bg-emerald-50 hover:bg-emerald-100 rounded-xl transition-colors"
               >
@@ -422,7 +424,7 @@ export default function SettingsPage() {
 
       {/* Change Password Modal */}
       {showPasswordModal && (
-        <PasswordChangeModal 
+        <PasswordChangeModal
           userId={user.id}
           onClose={() => setShowPasswordModal(false)}
         />
@@ -450,7 +452,7 @@ function PasswordChangeModal({ userId, onClose }: { userId: string; onClose: () 
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (newPassword !== confirmPassword) {
       setError('Password baru tidak cocok');
       return;
@@ -493,7 +495,7 @@ function PasswordChangeModal({ userId, onClose }: { userId: string; onClose: () 
     <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
       <div className="bg-white rounded-2xl max-w-md w-full p-6">
         <h2 className="text-xl font-bold text-slate-900 mb-4">Ubah Password</h2>
-        
+
         {error && (
           <div className="bg-red-50 border border-red-200 rounded-lg p-3 mb-4 flex items-start gap-2">
             <AlertCircle className="w-4 h-4 text-red-600 shrink-0 mt-0.5" />

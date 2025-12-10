@@ -164,22 +164,31 @@ export default function UnansweredPage() {
         </div>
       </div>
 
-      {/* Filter & Sort Bar */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6 sticky top-[60px] z-20 bg-slate-50/80 backdrop-blur-md py-2 -mx-2 px-2 rounded-xl">
-        <div className="flex items-center gap-2 overflow-x-auto pb-2 sm:pb-0 no-scrollbar">
-          {sortOptions.map((option) => (
-            <button
-              key={option.value}
-              onClick={() => setSortBy(option.value as any)}
-              className={`flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-medium transition-all whitespace-nowrap border ${sortBy === option.value
-                  ? 'bg-white border-emerald-200 text-emerald-700 shadow-sm ring-1 ring-emerald-100'
-                  : 'bg-white border-slate-200 text-slate-600 hover:bg-slate-50 hover:border-slate-300'
-                }`}
-            >
-              <option.icon className={`w-4 h-4 ${sortBy === option.value ? 'text-emerald-500' : 'text-slate-400'}`} />
-              {option.label}
-            </button>
-          ))}
+      {/* Filter & Sort Bar - Clean & Minimal */}
+      <div className="bg-white rounded-2xl shadow-sm border border-slate-200 p-2 mb-8 flex flex-col sm:flex-row items-center justify-between gap-4 sticky top-[70px] z-20">
+        <div className="flex items-center gap-1 p-1 bg-slate-100/50 rounded-xl w-full sm:w-auto overflow-x-auto no-scrollbar">
+          {sortOptions.map((option) => {
+            const Icon = option.icon;
+            const isActive = sortBy === option.value;
+            return (
+              <button
+                key={option.value}
+                onClick={() => setSortBy(option.value as any)}
+                className={`inline-flex items-center gap-1.5 px-4 py-2 rounded-lg text-xs sm:text-sm font-semibold whitespace-nowrap transition-all duration-200 flex-1 sm:flex-none justify-center ${isActive
+                  ? 'bg-white text-emerald-600 shadow-sm ring-1 ring-black/5'
+                  : 'text-slate-500 hover:text-slate-700 hover:bg-white/50'
+                  }`}
+              >
+                <Icon className={`w-3.5 h-3.5 ${isActive ? 'text-emerald-500' : 'text-slate-400'}`} />
+                <span>{option.label}</span>
+              </button>
+            )
+          })}
+        </div>
+
+        <div className="hidden sm:flex items-center gap-2 px-3 py-2 text-xs font-medium text-slate-400">
+          <TrendingUp className="w-3.5 h-3.5" />
+          <span>Urutkan berdasarkan</span>
         </div>
       </div>
 
@@ -192,10 +201,18 @@ export default function UnansweredPage() {
         ) : (
           questions.map((question) => (
             <div key={question.id} className="relative">
+              {/* Mobile Badge - Positioned statically to avoid overlap */}
+              <div className="sm:hidden px-4 pt-4 -mb-2 relative z-10">
+                <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-50 text-emerald-700 text-xs font-bold border border-emerald-100 shadow-sm">
+                  <HelpCircle className="w-3.5 h-3.5" />
+                  Butuh Jawaban
+                </span>
+              </div>
+
               <QuestionCard question={question} />
 
-              {/* Floating Badge */}
-              <div className="absolute top-4 right-4 pointer-events-none">
+              {/* Desktop Badge - Absolute positioning */}
+              <div className="hidden sm:block absolute top-6 right-6 pointer-events-none">
                 <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-50 text-emerald-700 text-xs font-bold border border-emerald-100 shadow-sm">
                   <HelpCircle className="w-3.5 h-3.5" />
                   Butuh Jawaban
