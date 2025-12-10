@@ -15,7 +15,8 @@ import {
   Share2,
   MoreHorizontal,
   Flag,
-  CornerDownRight
+  CornerDownRight,
+  LogIn
 } from 'lucide-react';
 import { questionAPI, answerAPI, voteAPI, bookmarkAPI } from '@/lib/api';
 import { useAuth } from '@/contexts/AuthContext';
@@ -27,6 +28,7 @@ import VoteSection from '@/components/ui/VoteSection';
 import ImageGallery from '@/components/ui/ImageGallery';
 import MentionInput from '@/components/ui/MentionInput';
 import RichTextParser from '@/components/ui/RichTextParser';
+import LoginPromptModal from '@/components/ui/LoginPromptModal';
 
 interface QuestionData {
   id: string;
@@ -88,6 +90,14 @@ export default function QuestionDetailPage() {
     onConfirm: () => void;
     type?: 'danger' | 'warning' | 'info';
   }>({ isOpen: false, title: '', message: '', onConfirm: () => { }, type: 'danger' });
+  const [loginPrompt, setLoginPrompt] = useState<{
+    isOpen: boolean;
+    action: 'vote' | 'answer' | 'comment' | 'bookmark' | 'report' | 'ask' | 'general';
+  }>({ isOpen: false, action: 'general' });
+
+  const showLoginPrompt = (action: 'vote' | 'answer' | 'comment' | 'bookmark' | 'report' | 'ask' | 'general') => {
+    setLoginPrompt({ isOpen: true, action });
+  };
 
   const showAlert = (type: 'success' | 'error' | 'warning' | 'info', title: string, message: string) => {
     setAlertModal({ isOpen: true, type, title, message });
@@ -155,7 +165,7 @@ export default function QuestionDetailPage() {
 
   const handleVote = async (votableType: string, votableId: string, voteType: string) => {
     if (!user) {
-      showAlert('warning', 'Login Diperlukan', 'Silakan login untuk melakukan voting');
+      showLoginPrompt('vote');
       return;
     }
 
@@ -198,7 +208,7 @@ export default function QuestionDetailPage() {
   const handleSubmitAnswer = async (e?: React.FormEvent) => {
     if (e) e.preventDefault();
     if (!user) {
-      showAlert('warning', 'Login Diperlukan', 'Silakan login untuk menjawab pertanyaan');
+      showLoginPrompt('answer');
       return;
     }
 
@@ -307,7 +317,7 @@ export default function QuestionDetailPage() {
 
   const handleBookmark = async () => {
     if (!user) {
-      showAlert('warning', 'Login Diperlukan', 'Silakan login untuk menyimpan pertanyaan');
+      showLoginPrompt('bookmark');
       return;
     }
     if (!question) return;
@@ -328,7 +338,7 @@ export default function QuestionDetailPage() {
 
   const handleShare = async () => {
     if (!question) return;
-    
+
     const shareUrl = window.location.href;
     const shareData = {
       title: question.title,
@@ -434,9 +444,10 @@ export default function QuestionDetailPage() {
                 <VoteSection
                   voteCount={question.upvotes_count || 0}
                   userVote={question.user_vote}
-                  onUpvote={() => user ? handleVote('question', question.id, 'upvote') : showAlert('warning', 'Login Diperlukan', 'Silakan login untuk voting')}
-                  onDownvote={() => user ? handleVote('question', question.id, 'downvote') : showAlert('warning', 'Login Diperlukan', 'Silakan login untuk voting')}
+                  onUpvote={() => handleVote('question', question.id, 'upvote')}
+                  onDownvote={() => handleVote('question', question.id, 'downvote')}
                   disabled={!user}
+                  showLoginHint={!user}
                   orientation="vertical"
                   size="medium"
                 />
@@ -528,8 +539,8 @@ export default function QuestionDetailPage() {
                   <VoteSection
                     voteCount={question.upvotes_count || 0}
                     userVote={question.user_vote}
-                    onUpvote={() => user ? handleVote('question', question.id, 'upvote') : showAlert('warning', 'Login Diperlukan', 'Silakan login untuk voting')}
-                    onDownvote={() => user ? handleVote('question', question.id, 'downvote') : showAlert('warning', 'Login Diperlukan', 'Silakan login untuk voting')}
+                    onUpvote={() => handleVote('question', question.id, 'upvote')}
+                    onDownvote={() => handleVote('question', question.id, 'downvote')}
                     disabled={!user}
                     orientation="horizontal"
                     size="small"
@@ -558,7 +569,7 @@ export default function QuestionDetailPage() {
                       {question.answers_count} jawaban
                     </span>
                   </div>
-                  <button 
+                  <button
                     onClick={handleShare}
                     className="flex items-center gap-2 text-sm text-slate-500 hover:text-emerald-600 transition-colors"
                   >
@@ -593,9 +604,10 @@ export default function QuestionDetailPage() {
                     <VoteSection
                       voteCount={answer.upvotes_count || 0}
                       userVote={answer.user_vote}
-                      onUpvote={() => user ? handleVote('answer', answer.id, 'upvote') : showAlert('warning', 'Login Diperlukan', 'Silakan login untuk voting')}
-                      onDownvote={() => user ? handleVote('answer', answer.id, 'downvote') : showAlert('warning', 'Login Diperlukan', 'Silakan login untuk voting')}
+                      onUpvote={() => handleVote('answer', answer.id, 'upvote')}
+                      onDownvote={() => handleVote('answer', answer.id, 'downvote')}
                       disabled={!user}
+                      showLoginHint={!user}
                       orientation="vertical"
                       size="small"
                     />
@@ -686,8 +698,8 @@ export default function QuestionDetailPage() {
                       <VoteSection
                         voteCount={answer.upvotes_count || 0}
                         userVote={answer.user_vote}
-                        onUpvote={() => user ? handleVote('answer', answer.id, 'upvote') : showAlert('warning', 'Login Diperlukan', 'Silakan login untuk voting')}
-                        onDownvote={() => user ? handleVote('answer', answer.id, 'downvote') : showAlert('warning', 'Login Diperlukan', 'Silakan login untuk voting')}
+                        onUpvote={() => handleVote('answer', answer.id, 'upvote')}
+                        onDownvote={() => handleVote('answer', answer.id, 'downvote')}
                         disabled={!user}
                         orientation="horizontal"
                         size="small"
@@ -760,14 +772,29 @@ export default function QuestionDetailPage() {
                 </div>
               </form>
             ) : (
-              <div className="bg-slate-50 rounded-lg p-6 text-center border border-slate-200">
-                <p className="text-slate-600 text-sm mb-3">Anda perlu login untuk menjawab pertanyaan ini.</p>
-                <Link
-                  href="/login"
-                  className="inline-flex items-center px-5 py-2 bg-emerald-600 text-white rounded-lg font-medium hover:bg-emerald-700 transition-colors"
-                >
-                  Login Sekarang
-                </Link>
+              <div className="bg-gradient-to-br from-slate-50 to-slate-100 rounded-2xl p-8 text-center border border-slate-200 shadow-sm">
+                <div className="w-14 h-14 mx-auto mb-4 bg-emerald-100 rounded-full flex items-center justify-center">
+                  <MessageCircle className="w-7 h-7 text-emerald-600" />
+                </div>
+                <h4 className="text-lg font-bold text-slate-900 mb-2">Punya jawaban?</h4>
+                <p className="text-slate-600 text-sm mb-6 max-w-md mx-auto">
+                  Bergabunglah dengan komunitas kami untuk berbagi pengetahuan dan membantu sesama pelaku bisnis.
+                </p>
+                <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
+                  <Link
+                    href="/login"
+                    className="inline-flex items-center gap-2 px-6 py-3 bg-emerald-600 text-white rounded-xl font-semibold hover:bg-emerald-700 transition-colors shadow-lg shadow-emerald-500/25"
+                  >
+                    <LogIn className="w-5 h-5" />
+                    Masuk untuk Menjawab
+                  </Link>
+                  <Link
+                    href="/register"
+                    className="inline-flex items-center gap-2 px-6 py-3 bg-white text-slate-700 rounded-xl font-semibold hover:bg-slate-50 transition-colors border border-slate-200"
+                  >
+                    Buat Akun Baru
+                  </Link>
+                </div>
               </div>
             )}
           </div>
@@ -791,6 +818,13 @@ export default function QuestionDetailPage() {
         title={confirmModal.title}
         message={confirmModal.message}
         type={confirmModal.type}
+      />
+
+      {/* Login Prompt Modal for Guests */}
+      <LoginPromptModal
+        isOpen={loginPrompt.isOpen}
+        onClose={() => setLoginPrompt({ ...loginPrompt, isOpen: false })}
+        action={loginPrompt.action}
       />
     </div>
   );

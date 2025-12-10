@@ -3,12 +3,12 @@
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { 
-  Home, 
-  MessageCircleQuestion, 
-  Tag, 
-  Bookmark, 
-  Users, 
+import {
+  Home,
+  MessageCircleQuestion,
+  Tag,
+  Bookmark,
+  Users,
   Trophy,
   TrendingUp,
   Clock,
@@ -39,22 +39,19 @@ const SidebarItem: React.FC<SidebarItemProps> = ({ href, icon: Icon, label, isAc
     <Link
       href={href}
       onClick={onClick}
-      className={`group flex items-center justify-between px-4 py-2.5 rounded-lg text-sm font-medium transition-all duration-200 ${
-        isActive
+      className={`group flex items-center justify-between px-4 py-2.5 rounded-lg text-sm font-medium transition-all duration-200 ${isActive
           ? 'bg-emerald-50 text-emerald-700'
           : 'text-slate-600 hover:bg-slate-50 hover:text-slate-900'
-      }`}
+        }`}
     >
       <div className="flex items-center gap-3">
-        <Icon className={`w-4 h-4 transition-colors ${
-          isActive ? 'text-emerald-600' : 'text-slate-500 group-hover:text-slate-700'
-        }`} />
+        <Icon className={`w-4 h-4 transition-colors ${isActive ? 'text-emerald-600' : 'text-slate-500 group-hover:text-slate-700'
+          }`} />
         <span>{label}</span>
       </div>
       {count !== undefined && (
-        <span className={`text-xs px-2 py-0.5 rounded-full font-semibold ${
-          isActive ? 'bg-emerald-200 text-emerald-800' : 'bg-slate-200 text-slate-600 group-hover:bg-slate-300'
-        }`}>
+        <span className={`text-xs px-2 py-0.5 rounded-full font-semibold ${isActive ? 'bg-emerald-200 text-emerald-800' : 'bg-slate-200 text-slate-600 group-hover:bg-slate-300'
+          }`}>
           {count}
         </span>
       )}
@@ -107,10 +104,10 @@ export default function Sidebar({ onItemClick }: SidebarProps) {
 
   const handleInstallClick = async () => {
     if (!pwaInstaller) return;
-    
+
     setIsInstalling(true);
     const accepted = await pwaInstaller.promptInstall();
-    
+
     if (!accepted) {
       setIsInstalling(false);
     }
@@ -290,13 +287,16 @@ export default function Sidebar({ onItemClick }: SidebarProps) {
                 isActive={pathname === '/contact'}
                 onClick={onItemClick}
               />
-              <SidebarItem
-                href="/contact/my-tickets"
-                icon={Inbox}
-                label="Tiket Saya"
-                isActive={pathname === '/contact/my-tickets'}
-                onClick={onItemClick}
-              />
+              {/* Tiket Saya only for logged in users */}
+              {user && (
+                <SidebarItem
+                  href="/contact/my-tickets"
+                  icon={Inbox}
+                  label="Tiket Saya"
+                  isActive={pathname === '/contact/my-tickets'}
+                  onClick={onItemClick}
+                />
+              )}
             </nav>
           </div>
         </div>

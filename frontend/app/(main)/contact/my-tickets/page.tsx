@@ -1,12 +1,11 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { supportAPI } from '@/lib/api';
 import { useAuth } from '@/contexts/AuthContext';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import {
-  Mail,
-  Search,
   Clock,
   MessageSquare,
   Inbox,
@@ -18,7 +17,9 @@ import {
   ShieldCheck,
   CheckCircle2,
   AlertCircle,
-  Loader2
+  Loader2,
+  LogIn,
+  RefreshCw
 } from 'lucide-react';
 
 interface Ticket {
@@ -61,43 +62,51 @@ const statusLabels: Record<string, string> = {
 };
 
 export default function MyTicketsPage() {
-  const { user } = useAuth();
-  const [email, setEmail] = useState(user?.email || '');
+  const { user, loading: authLoading } = useAuth();
+  const router = useRouter();
   const [tickets, setTickets] = useState<Ticket[]>([]);
   const [selectedTicket, setSelectedTicket] = useState<TicketDetail | null>(null);
   const [loading, setLoading] = useState(false);
-  const [searched, setSearched] = useState(false);
+  const [initialLoading, setInitialLoading] = useState(true);
   const [error, setError] = useState('');
   const [showDetail, setShowDetail] = useState(false);
   const [replyMessage, setReplyMessage] = useState('');
   const [sending, setSending] = useState(false);
   const [successMessage, setSuccessMessage] = useState('');
 
-  const handleSearch = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!email) return;
+  // Fetch tickets when user is available
+  useEffect(() => {
+    if (!authLoading && user?.email) {
+      fetchTickets();
+    } else if (!authLoading && !user) {
+      setInitialLoading(false);
+    }
+  }, [user, authLoading]);
+
+  const fetchTickets = async () => {
+    if (!user?.email) return;
 
     setLoading(true);
     setError('');
     try {
-      const response = await supportAPI.getMyTickets(email);
+      const response = await supportAPI.getMyTickets(user.email);
       setTickets(response.data.data || []);
-      setSearched(true);
-      setSelectedTicket(null);
-      setShowDetail(false);
     } catch {
-      setError('Gagal mengambil data tiket. Pastikan email benar.');
+      setError('Gagal mengambil data tiket');
     } finally {
       setLoading(false);
+      setInitialLoading(false);
     }
   };
 
   const handleViewTicket = async (ticketNumber: string) => {
+    if (!user?.email) return;
+
     setLoading(true);
     setReplyMessage('');
     setSuccessMessage('');
     try {
-      const response = await supportAPI.getTicketByNumber(ticketNumber, email);
+      const response = await supportAPI.getTicketByNumber(ticketNumber, user.email);
       setSelectedTicket(response.data.data);
       setShowDetail(true);
     } catch {
@@ -108,20 +117,20 @@ export default function MyTicketsPage() {
   };
 
   const handleReply = async () => {
-    if (!selectedTicket || !replyMessage.trim()) return;
+    if (!selectedTicket || !replyMessage.trim() || !user?.email) return;
 
     setSending(true);
     setError('');
     try {
       await supportAPI.userReply(selectedTicket.ticket_number, {
-        email,
+        email: user.email,
         message: replyMessage,
-        name: selectedTicket.name,
+        name: user.displayName || selectedTicket.name,
       });
       setReplyMessage('');
       setSuccessMessage('Balasan berhasil dikirim!');
       // Refresh ticket detail
-      const response = await supportAPI.getTicketByNumber(selectedTicket.ticket_number, email);
+      const response = await supportAPI.getTicketByNumber(selectedTicket.ticket_number, user.email);
       setSelectedTicket(response.data.data);
       // Clear success message after 3 seconds
       setTimeout(() => setSuccessMessage(''), 3000);
@@ -141,6 +150,50 @@ export default function MyTicketsPage() {
       minute: '2-digit',
     });
   };
+
+  // Show loading while checking auth
+  if (authLoading || initialLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-center">
+          <Loader2 className="w-8 h-8 text-emerald-600 animate-spin mx-auto mb-4" />
+          <p className="text-slate-600">Memuat...</p>
+        </div>
+      </div>
+    );
+  }
+
+  // Show login prompt for guests
+  if (!user) {
+    return (
+      <div className="min-h-screen py-12 px-4 sm:px-6 lg:px-8">
+        <div className="max-w-md mx-auto text-center">
+          <div className="w-20 h-20 bg-emerald-100 rounded-full flex items-center justify-center mx-auto mb-6">
+            <Inbox className="w-10 h-10 text-emerald-600" />
+          </div>
+          <h1 className="text-2xl font-bold text-slate-900 mb-3">Tiket Saya</h1>
+          <p className="text-slate-600 mb-8">
+            Silakan login untuk melihat tiket support Anda.
+          </p>
+          <Link
+            href="/login"
+            className="inline-flex items-center gap-2 px-8 py-4 bg-emerald-600 text-white rounded-xl font-semibold hover:bg-emerald-700 transition-colors shadow-lg shadow-emerald-500/25"
+          >
+            <LogIn className="w-5 h-5" />
+            Masuk Sekarang
+          </Link>
+          <div className="mt-6">
+            <Link
+              href="/contact"
+              className="text-slate-500 hover:text-emerald-600 text-sm transition-colors"
+            >
+              Kembali ke Hubungi Kami
+            </Link>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   // Detail View
   if (showDetail && selectedTicket) {
@@ -295,46 +348,22 @@ export default function MyTicketsPage() {
           <div className="flex items-center justify-between">
             <div>
               <h1 className="text-3xl font-bold text-slate-900 mb-2">Tiket Saya</h1>
-              <p className="text-slate-600">Cek status dan riwayat tiket support Anda</p>
+              <p className="text-slate-600">Riwayat tiket support untuk <span className="font-medium text-slate-900">{user.email}</span></p>
             </div>
-            <div className="w-12 h-12 bg-emerald-50 rounded-full flex items-center justify-center">
-              <Inbox className="w-6 h-6 text-emerald-600" />
+            <div className="flex items-center gap-3">
+              <button
+                onClick={fetchTickets}
+                disabled={loading}
+                className="p-2.5 bg-white border border-slate-200 rounded-xl text-slate-600 hover:text-emerald-600 hover:border-emerald-200 transition-colors disabled:opacity-50"
+                title="Refresh"
+              >
+                <RefreshCw className={`w-5 h-5 ${loading ? 'animate-spin' : ''}`} />
+              </button>
+              <div className="w-12 h-12 bg-emerald-50 rounded-full flex items-center justify-center">
+                <Inbox className="w-6 h-6 text-emerald-600" />
+              </div>
             </div>
           </div>
-        </div>
-
-        {/* Search Form */}
-        <div className="mb-10">
-          <label className="block text-sm font-semibold text-slate-900 mb-3">
-            Cari Tiket dengan Email
-          </label>
-          <form onSubmit={handleSearch} className="flex flex-col sm:flex-row gap-4">
-            <div className="relative flex-1">
-              <Mail className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" />
-              <input
-                type="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                placeholder="Masukkan email Anda..."
-                className="w-full pl-12 pr-4 py-3.5 bg-white border border-slate-200 focus:border-emerald-500 rounded-xl text-sm focus:ring-2 focus:ring-emerald-500/20 outline-none transition-all"
-                required
-              />
-            </div>
-            <button
-              type="submit"
-              disabled={loading}
-              className="flex items-center justify-center gap-2 px-8 py-3.5 bg-emerald-600 text-white rounded-xl font-medium hover:bg-emerald-700 transition-colors disabled:opacity-70 disabled:cursor-not-allowed"
-            >
-              {loading ? (
-                <Loader2 className="w-5 h-5 animate-spin" />
-              ) : (
-                <>
-                  <Search className="w-5 h-5" />
-                  <span>Cari Tiket</span>
-                </>
-              )}
-            </button>
-          </form>
         </div>
 
         {error && (
@@ -345,73 +374,76 @@ export default function MyTicketsPage() {
         )}
 
         {/* Results */}
-        {searched && (
-          <div className="space-y-6">
-            <div className="flex items-center justify-between border-b border-slate-200 pb-4">
-              <h2 className="font-bold text-slate-900 text-lg">
-                Riwayat Tiket
-              </h2>
-              <span className="text-sm text-slate-500">
-                {tickets.length} tiket ditemukan
-              </span>
-            </div>
+        <div className="space-y-6">
+          <div className="flex items-center justify-between border-b border-slate-200 pb-4">
+            <h2 className="font-bold text-slate-900 text-lg">
+              Riwayat Tiket
+            </h2>
+            <span className="text-sm text-slate-500">
+              {tickets.length} tiket
+            </span>
+          </div>
 
-            {tickets.length === 0 ? (
-              <div className="py-12 text-center">
-                <div className="w-16 h-16 bg-slate-50 rounded-full flex items-center justify-center mx-auto mb-4">
-                  <Inbox className="w-8 h-8 text-slate-300" />
-                </div>
-                <h3 className="text-lg font-medium text-slate-900 mb-2">Tidak Ada Tiket</h3>
-                <p className="text-slate-500 mb-6">Belum ada tiket yang terdaftar dengan email ini.</p>
-                <Link
-                  href="/contact"
-                  className="inline-flex items-center gap-2 text-emerald-600 font-medium hover:underline"
-                >
-                  Buat Tiket Baru <ChevronRight className="w-4 h-4" />
-                </Link>
+          {loading && tickets.length === 0 ? (
+            <div className="py-12 text-center">
+              <Loader2 className="w-8 h-8 text-emerald-600 animate-spin mx-auto mb-4" />
+              <p className="text-slate-600">Memuat tiket...</p>
+            </div>
+          ) : tickets.length === 0 ? (
+            <div className="py-12 text-center">
+              <div className="w-16 h-16 bg-slate-50 rounded-full flex items-center justify-center mx-auto mb-4">
+                <Inbox className="w-8 h-8 text-slate-300" />
               </div>
-            ) : (
-              <div className="divide-y divide-slate-200">
-                {tickets.map((ticket) => (
-                  <div
-                    key={ticket.id}
-                    onClick={() => handleViewTicket(ticket.ticket_number)}
-                    className="group py-4 cursor-pointer hover:bg-slate-50 -mx-4 px-4 rounded-xl transition-colors"
-                  >
-                    <div className="flex items-start justify-between gap-4">
-                      <div className="flex-1 min-w-0">
-                        <div className="flex items-center gap-3 mb-2">
-                          <span className="text-xs font-mono text-slate-500 bg-white border border-slate-200 px-2 py-0.5 rounded">
-                            #{ticket.ticket_number}
-                          </span>
-                          <span className={`text-xs px-2.5 py-0.5 rounded-full border ${statusColors[ticket.status]}`}>
-                            {statusLabels[ticket.status]}
-                          </span>
-                        </div>
-                        <h3 className="font-bold text-slate-900 text-lg mb-1 group-hover:text-emerald-700 transition-colors">
-                          {ticket.subject}
-                        </h3>
-                        <div className="flex items-center gap-4 text-sm text-slate-500">
-                          <span className="flex items-center gap-1.5">
-                            <Clock className="w-4 h-4" />
-                            {formatDate(ticket.created_at)}
-                          </span>
-                          <span className="flex items-center gap-1.5 capitalize">
-                            <MessageSquare className="w-4 h-4" />
-                            {ticket.category}
-                          </span>
-                        </div>
+              <h3 className="text-lg font-medium text-slate-900 mb-2">Belum Ada Tiket</h3>
+              <p className="text-slate-500 mb-6">Anda belum memiliki tiket support.</p>
+              <Link
+                href="/contact"
+                className="inline-flex items-center gap-2 text-emerald-600 font-medium hover:underline"
+              >
+                Buat Tiket Baru <ChevronRight className="w-4 h-4" />
+              </Link>
+            </div>
+          ) : (
+            <div className="divide-y divide-slate-200">
+              {tickets.map((ticket) => (
+                <div
+                  key={ticket.id}
+                  onClick={() => handleViewTicket(ticket.ticket_number)}
+                  className="group py-4 cursor-pointer hover:bg-slate-50 -mx-4 px-4 rounded-xl transition-colors"
+                >
+                  <div className="flex items-start justify-between gap-4">
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center gap-3 mb-2">
+                        <span className="text-xs font-mono text-slate-500 bg-white border border-slate-200 px-2 py-0.5 rounded">
+                          #{ticket.ticket_number}
+                        </span>
+                        <span className={`text-xs px-2.5 py-0.5 rounded-full border ${statusColors[ticket.status]}`}>
+                          {statusLabels[ticket.status]}
+                        </span>
                       </div>
-                      <div className="self-center">
-                        <ChevronRight className="w-5 h-5 text-slate-300 group-hover:text-emerald-500 transition-colors" />
+                      <h3 className="font-bold text-slate-900 text-lg mb-1 group-hover:text-emerald-700 transition-colors">
+                        {ticket.subject}
+                      </h3>
+                      <div className="flex items-center gap-4 text-sm text-slate-500">
+                        <span className="flex items-center gap-1.5">
+                          <Clock className="w-4 h-4" />
+                          {formatDate(ticket.created_at)}
+                        </span>
+                        <span className="flex items-center gap-1.5 capitalize">
+                          <MessageSquare className="w-4 h-4" />
+                          {ticket.category}
+                        </span>
                       </div>
                     </div>
+                    <div className="self-center">
+                      <ChevronRight className="w-5 h-5 text-slate-300 group-hover:text-emerald-500 transition-colors" />
+                    </div>
                   </div>
-                ))}
-              </div>
-            )}
-          </div>
-        )}
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
       </div>
     </div>
   );

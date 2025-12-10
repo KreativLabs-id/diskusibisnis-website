@@ -1,5 +1,7 @@
 'use client';
 
+import { LogIn } from 'lucide-react';
+
 interface VoteSectionProps {
   voteCount: number;
   userVote?: 'upvote' | 'downvote' | null;
@@ -8,6 +10,7 @@ interface VoteSectionProps {
   disabled?: boolean;
   orientation?: 'vertical' | 'horizontal';
   size?: 'small' | 'medium' | 'large';
+  showLoginHint?: boolean;
 }
 
 export default function VoteSection({
@@ -17,7 +20,8 @@ export default function VoteSection({
   onDownvote,
   disabled = false,
   orientation = 'vertical',
-  size = 'medium'
+  size = 'medium',
+  showLoginHint = false
 }: VoteSectionProps) {
   const sizeClasses = {
     small: 'text-lg',
@@ -45,14 +49,14 @@ export default function VoteSection({
       {/* Upvote Button */}
       <button
         onClick={onUpvote}
-        disabled={disabled}
         className={`
-          ${buttonSizeClasses[size]} rounded-lg flex items-center justify-center
+          ${buttonSizeClasses[size]} rounded-lg flex items-center justify-center transition-all duration-200
           ${userVote === 'upvote'
-            ? 'bg-emerald-100 text-emerald-600'
-            : 'bg-slate-100 text-slate-500 hover:bg-emerald-50 hover:text-emerald-600'
+            ? 'bg-emerald-100 text-emerald-600 ring-2 ring-emerald-500/30'
+            : disabled
+              ? 'bg-slate-100 text-slate-400 hover:bg-emerald-50 hover:text-emerald-500 cursor-pointer'
+              : 'bg-slate-100 text-slate-500 hover:bg-emerald-50 hover:text-emerald-600 cursor-pointer'
           }
-          ${disabled ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}
         `}
         title={disabled ? 'Login untuk voting' : 'Upvote'}
       >
@@ -83,14 +87,14 @@ export default function VoteSection({
       {/* Downvote Button */}
       <button
         onClick={onDownvote}
-        disabled={disabled}
         className={`
-          ${buttonSizeClasses[size]} rounded-lg flex items-center justify-center
+          ${buttonSizeClasses[size]} rounded-lg flex items-center justify-center transition-all duration-200
           ${userVote === 'downvote'
-            ? 'bg-red-100 text-red-600'
-            : 'bg-slate-100 text-slate-500 hover:bg-red-50 hover:text-red-600'
+            ? 'bg-red-100 text-red-600 ring-2 ring-red-500/30'
+            : disabled
+              ? 'bg-slate-100 text-slate-400 hover:bg-red-50 hover:text-red-500 cursor-pointer'
+              : 'bg-slate-100 text-slate-500 hover:bg-red-50 hover:text-red-600 cursor-pointer'
           }
-          ${disabled ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}
         `}
         title={disabled ? 'Login untuk voting' : 'Downvote'}
       >
@@ -98,6 +102,14 @@ export default function VoteSection({
           <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
         </svg>
       </button>
+
+      {/* Login hint for guests */}
+      {disabled && showLoginHint && orientation === 'vertical' && (
+        <div className="mt-2 flex items-center gap-1 text-xs text-slate-400 whitespace-nowrap">
+          <LogIn className="w-3 h-3" />
+          <span>Login to vote</span>
+        </div>
+      )}
     </div>
   );
 }
