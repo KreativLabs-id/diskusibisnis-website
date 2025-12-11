@@ -64,9 +64,28 @@ const formatTimeAgo = (dateString: string) => {
   });
 };
 
+// Fix legacy notification messages with wrong format
+const fixLegacyMessage = (text: string): string => {
+  if (!text) return '';
+
+  // Fix patterns like 'in "title"' to 'di pertanyaan: "title"'
+  let fixed = text.replace(/^in "([^"]+)"$/i, 'Seseorang menyebut Anda di pertanyaan: **$1**');
+  fixed = fixed.replace(/^in '([^']+)'$/i, 'Seseorang menyebut Anda di pertanyaan: **$1**');
+
+  // Fix other English patterns
+  fixed = fixed.replace(/mentioned you in/gi, 'menyebut Anda di');
+  fixed = fixed.replace(/answered your question/gi, 'menjawab pertanyaan Anda');
+  fixed = fixed.replace(/commented on/gi, 'mengomentari');
+  fixed = fixed.replace(/upvoted your/gi, 'menyukai');
+  fixed = fixed.replace(/liked your/gi, 'menyukai');
+
+  return fixed;
+};
+
 // Parse bold text patterns like **name** or **title**
 const formatMessage = (text: string) => {
-  const parts = text.split(/(\*\*.*?\*\*)/g);
+  const fixedText = fixLegacyMessage(text);
+  const parts = fixedText.split(/(\*\*.*?\*\*)/g);
   return parts.map((part, i) => {
     if (part.startsWith('**') && part.endsWith('**')) {
       return <strong key={i} className="font-semibold text-slate-900">{part.slice(2, -2)}</strong>;

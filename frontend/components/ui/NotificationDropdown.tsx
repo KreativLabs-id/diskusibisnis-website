@@ -32,11 +32,11 @@ const formatTimeAgo = (dateString: string) => {
   if (diffInSeconds < 3600) return `${Math.floor(diffInSeconds / 60)} menit lalu`;
   if (diffInSeconds < 86400) return `${Math.floor(diffInSeconds / 3600)} jam lalu`;
   if (diffInSeconds < 604800) return `${Math.floor(diffInSeconds / 86400)} hari lalu`;
-  
-  return date.toLocaleDateString('id-ID', { 
-    day: 'numeric', 
-    month: 'short', 
-    year: 'numeric' 
+
+  return date.toLocaleDateString('id-ID', {
+    day: 'numeric',
+    month: 'short',
+    year: 'numeric'
   });
 };
 
@@ -46,10 +46,10 @@ interface NotificationItemProps {
   onClose: () => void;
 }
 
-const NotificationItem: React.FC<NotificationItemProps> = ({ 
-  notification, 
-  onMarkAsRead, 
-  onClose 
+const NotificationItem: React.FC<NotificationItemProps> = ({
+  notification,
+  onMarkAsRead,
+  onClose
 }) => {
   const handleClick = () => {
     if (!notification.is_read) {
@@ -58,9 +58,28 @@ const NotificationItem: React.FC<NotificationItemProps> = ({
     onClose();
   };
 
+  // Fix legacy notification messages with wrong format
+  const fixLegacyMessage = (text: string): string => {
+    if (!text) return '';
+
+    // Fix patterns like 'in "title"' to 'di pertanyaan: "title"'
+    let fixed = text.replace(/^in "([^"]+)"$/i, 'Seseorang menyebut Anda di pertanyaan: **$1**');
+    fixed = fixed.replace(/^in '([^']+)'$/i, 'Seseorang menyebut Anda di pertanyaan: **$1**');
+
+    // Fix other English patterns
+    fixed = fixed.replace(/mentioned you in/gi, 'menyebut Anda di');
+    fixed = fixed.replace(/answered your question/gi, 'menjawab pertanyaan Anda');
+    fixed = fixed.replace(/commented on/gi, 'mengomentari');
+    fixed = fixed.replace(/upvoted your/gi, 'menyukai');
+    fixed = fixed.replace(/liked your/gi, 'menyukai');
+
+    return fixed;
+  };
+
   // Parse bold text patterns like **name** or **title**
   const formatMessage = (text: string) => {
-    const parts = text.split(/(\*\*.*?\*\*)/g);
+    const fixedText = fixLegacyMessage(text);
+    const parts = fixedText.split(/(\*\*.*?\*\*)/g);
     return parts.map((part, i) => {
       if (part.startsWith('**') && part.endsWith('**')) {
         return <strong key={i} className="font-semibold text-slate-900">{part.slice(2, -2)}</strong>;
@@ -70,12 +89,11 @@ const NotificationItem: React.FC<NotificationItemProps> = ({
   };
 
   const content = (
-    <div 
-      className={`px-4 py-3 hover:bg-slate-50 active:bg-slate-100 transition-colors cursor-pointer border-l-3 ${
-        notification.is_read 
-          ? 'border-transparent bg-white' 
+    <div
+      className={`px-4 py-3 hover:bg-slate-50 active:bg-slate-100 transition-colors cursor-pointer border-l-3 ${notification.is_read
+          ? 'border-transparent bg-white'
           : 'border-emerald-500 bg-emerald-50/30'
-      }`}
+        }`}
       onClick={handleClick}
     >
       <div className="flex items-start gap-3">
@@ -85,9 +103,8 @@ const NotificationItem: React.FC<NotificationItemProps> = ({
         <div className="flex-1 min-w-0">
           <div className="flex items-start gap-2">
             <div className="flex-1 min-w-0">
-              <p className={`text-sm leading-relaxed ${
-                notification.is_read ? 'text-slate-600' : 'text-slate-700'
-              }`}>
+              <p className={`text-sm leading-relaxed ${notification.is_read ? 'text-slate-600' : 'text-slate-700'
+                }`}>
                 {formatMessage(notification.message || notification.title)}
               </p>
             </div>
@@ -115,15 +132,15 @@ const NotificationItem: React.FC<NotificationItemProps> = ({
 };
 
 export default function NotificationDropdown() {
-  const { 
-    notifications, 
-    unreadCount, 
-    loading, 
-    markAsRead, 
+  const {
+    notifications,
+    unreadCount,
+    loading,
+    markAsRead,
     markAllAsRead,
-    fetchNotifications 
+    fetchNotifications
   } = useNotifications();
-  
+
   const [isOpen, setIsOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
 
@@ -235,7 +252,7 @@ export default function NotificationDropdown() {
                     </div>
                   </div>
                 )}
-                
+
                 {/* Read Section */}
                 {notifications.some(n => n.is_read) && (
                   <div>

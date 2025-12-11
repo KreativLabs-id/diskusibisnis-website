@@ -31,10 +31,15 @@ const pool = new Pool({
   ssl: useSsl ? {
     rejectUnauthorized: rejectUnauthorized
   } : false,
-  connectionTimeoutMillis: 30000, // 30 seconds timeout for initial connection
+  connectionTimeoutMillis: 60000, // 60 seconds timeout for initial connection (increased for slow networks)
   idleTimeoutMillis: 30000, // Close idle clients after 30 seconds
-  max: 10, // Maximum number of clients in the pool
+  max: 20, // Maximum number of clients in the pool (increased for production)
   allowExitOnIdle: false, // Don't exit when all clients are idle
+  // Add query timeout
+  query_timeout: 30000, // 30 seconds for queries
+  // Keep connection alive
+  keepAlive: true,
+  keepAliveInitialDelayMillis: 10000, // 10 seconds
 });
 
 pool.on('connect', () => {

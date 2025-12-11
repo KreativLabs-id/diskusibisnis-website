@@ -4,17 +4,21 @@ import pool from './config/database';
 
 const PORT = config.port;
 
-// Test database connection
-pool.query('SELECT NOW()', (err) => {
-  if (err) {
+// Test database connection (non-blocking - don't exit if fails initially)
+const testDatabaseConnection = async () => {
+  try {
+    const result = await pool.query('SELECT NOW()');
+    console.log('✅ Database connected successfully at:', result.rows[0].now);
+    return true;
+  } catch (err) {
     console.error('❌ Failed to connect to database:', err);
-    process.exit(1);
+    console.log('⚠️  Application will continue to start. Database connection will be retried.');
+    return false;
   }
-  console.log('✅ Database connected successfully');
-});
+};
 
-// Start server
-const server = app.listen(PORT, () => {
+// Start server immediately (don't wait for database)
+const server = app.listen(PORT, async () => {
   console.log('');
   console.log('╔════════════════════════════════════════════════════════════════╗');
   console.log('║                                                                ║');
@@ -27,11 +31,25 @@ const server = app.listen(PORT, () => {
   console.log(`║  Health Check: http://localhost:${PORT}/health${' '.repeat(23)}║`);
   console.log('╚════════════════════════════════════════════════════════════════╝');
   console.log('');
+
+  // Test database connection after server starts
+  const dbConnected = await testDatabaseConnection();
+
+  if (!dbConnected) {
+    console.log('⏳ Will retry database connection in background...');
+    // Retry connection after 5 seconds
+    setTimeout(async () => {
+      const retrySuccess = await testDatabaseConnection();
+      if (!retrySuccess) {
+        console.log('⚠️  Database still not available. Check your DATABASE_URL configuration.');
+      }
+    }, 5000);
+  }
 });
 
 // Graceful shutdown
-process.on('SIGTERM', () => {
-  console.log('SIGTERM signal received: closing HTTP server');
+const shutdown = async (signal: string) => {
+  console.log(`${signal} signal received: closing HTTP server`);
   server.close(() => {
     console.log('HTTP server closed');
     pool.end(() => {
@@ -39,17 +57,10 @@ process.on('SIGTERM', () => {
       process.exit(0);
     });
   });
-});
+};
 
-process.on('SIGINT', () => {
-  console.log('SIGINT signal received: closing HTTP server');
-  server.close(() => {
-    console.log('HTTP server closed');
-    pool.end(() => {
-      console.log('Database pool closed');
-      process.exit(0);
-    });
-  });
-});
+process.on('SIGTERM', () => shutdown('SIGTERM'));
+process.on('SIGINT', () => shutdown('SIGINT'));
 
 export default server;
+

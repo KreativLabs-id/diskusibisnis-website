@@ -7,6 +7,7 @@ import cookieParser from 'cookie-parser';
 import rateLimit from 'express-rate-limit';
 import config from './config/environment';
 import routes from './routes';
+import pool from './config/database';
 import { errorHandler, notFoundHandler } from './middlewares/error.middleware';
 
 const app: Application = express();
@@ -106,13 +107,27 @@ const limiter = rateLimit({
 
 app.use('/api/', limiter);
 
-// Health check endpoint
-app.get('/health', (_req, res) => {
-  res.status(200).json({
+// Health check endpoint - Always return 200 for Railway
+app.get('/health', async (_req, res) => {
+  const health = {
     status: 'OK',
     timestamp: new Date().toISOString(),
     uptime: process.uptime(),
-  });
+    environment: config.nodeEnv,
+    database: 'checking...' as string
+  };
+
+  // Try to check database connection without blocking the response
+  try {
+    await pool.query('SELECT 1');
+    health.database = 'connected';
+  } catch (error) {
+    health.database = 'disconnected';
+    console.log('⚠️ Health check: Database not available');
+  }
+
+  // Always return 200 OK for Railway healthcheck
+  res.status(200).json(health);
 });
 
 // API routes
