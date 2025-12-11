@@ -6,6 +6,7 @@ import { formatDate, formatNumber } from '@/lib/utils';
 import { Eye, MessageCircle, ThumbsUp, Clock, User, Award } from 'lucide-react';
 import VerifiedBadge from '@/components/ui/VerifiedBadge';
 import UserAvatar from '@/components/ui/UserAvatar';
+import { getReputationRingColor } from '@/components/ui/ReputationBadge';
 
 interface Question {
   id: string;
@@ -36,6 +37,9 @@ export default function QuestionCard({ question }: { question: Question }) {
 
   const preview =
     plainContent.length > 150 ? `${plainContent.substring(0, 150)}...` : plainContent;
+
+  // Get ring color based on reputation
+  const ringColor = getReputationRingColor(question.author_reputation);
 
   return (
     <div
@@ -120,34 +124,27 @@ export default function QuestionCard({ question }: { question: Question }) {
           </div>
         </div>
 
-        {/* Author Info */}
+        {/* Author Info - with reputation ring color */}
         <div className="flex items-center gap-2">
-          <UserAvatar
-            src={question.author_avatar}
-            alt={question.author_name}
-            size="xs"
-            fallbackName={question.author_name}
-          />
+          <div className={`rounded-full ring-2 ${ringColor}`}>
+            <UserAvatar
+              src={question.author_avatar}
+              alt={question.author_name}
+              size="xs"
+              fallbackName={question.author_name}
+            />
+          </div>
           <Link
             href={`/profile/${authorUsername}`}
             onClick={(e) => e.stopPropagation()}
-            className="flex flex-col"
+            className="flex items-center gap-1.5"
           >
-            <div className="flex items-center gap-1.5">
-              <p className="text-sm font-medium text-slate-700">{question.author_name || 'Unknown'}</p>
-              <VerifiedBadge isVerified={question.author_is_verified} size="sm" />
-              {question.author_reputation >= 100 && (
-                <span className="px-1.5 py-0.5 rounded bg-amber-100 text-amber-700 text-xs font-semibold">
-                  {formatNumber(question.author_reputation)}
-                </span>
-              )}
-            </div>
-            {question.author_reputation < 100 && question.author_reputation > 0 && (
-              <p className="text-xs text-slate-500">{question.author_reputation} poin</p>
-            )}
+            <p className="text-sm font-medium text-slate-700">{question.author_name || 'Unknown'}</p>
+            <VerifiedBadge isVerified={question.author_is_verified} size="sm" />
           </Link>
         </div>
       </div>
     </div>
   );
 }
+

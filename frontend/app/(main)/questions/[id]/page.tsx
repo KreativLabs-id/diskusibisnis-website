@@ -29,6 +29,7 @@ import ImageGallery from '@/components/ui/ImageGallery';
 import MentionInput from '@/components/ui/MentionInput';
 import RichTextParser from '@/components/ui/RichTextParser';
 import LoginPromptModal from '@/components/ui/LoginPromptModal';
+import { ReputationBadgeCompact } from '@/components/ui/ReputationBadge';
 
 interface QuestionData {
   id: string;
@@ -476,9 +477,10 @@ export default function QuestionDetailPage() {
                         fallbackName={question.author_name}
                       />
                       <div>
-                        <div className="flex items-center gap-1">
+                        <div className="flex items-center gap-1 flex-wrap">
                           <span className="font-bold text-slate-900 text-sm group-hover:text-emerald-600 transition-colors">{question.author_name}</span>
                           <VerifiedBadge isVerified={question.author_is_verified} size="sm" />
+                          <ReputationBadgeCompact reputationPoints={question.author_reputation} />
                         </div>
                         <span className="text-xs text-slate-500">{formatDate(question.created_at)}</span>
                       </div>
@@ -630,9 +632,10 @@ export default function QuestionDetailPage() {
                             fallbackName={answer.author_name}
                           />
                           <div>
-                            <div className="flex items-center gap-1">
+                            <div className="flex items-center gap-1 flex-wrap">
                               <span className="font-bold text-slate-900 text-sm group-hover:text-emerald-600 transition-colors">{answer.author_name}</span>
                               <VerifiedBadge isVerified={answer.author_is_verified} size="sm" />
+                              <ReputationBadgeCompact reputationPoints={answer.author_reputation} />
                             </div>
                             <span className="text-xs text-slate-500">{formatDate(answer.created_at)}</span>
                           </div>

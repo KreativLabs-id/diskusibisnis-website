@@ -3,10 +3,11 @@
 import { useState, useEffect } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { Tag, ArrowLeft, MessageSquare, ThumbsUp, User, Calendar, Search } from 'lucide-react';
+import { Tag, ArrowLeft, MessageSquare, ThumbsUp, User, Calendar, Search, Eye } from 'lucide-react';
 import { tagAPI, questionAPI } from '@/lib/api';
 import VerifiedBadge from '@/components/ui/VerifiedBadge';
 import UserAvatar from '@/components/ui/UserAvatar';
+import { getReputationRingColor } from '@/components/ui/ReputationBadge';
 
 interface TagData {
   id: string;
@@ -26,6 +27,7 @@ interface Question {
   author_avatar?: string;
   author_id?: string;
   author_is_verified?: boolean;
+  author_reputation?: number;
   tags: Array<{
     id: string;
     name: string;
@@ -59,7 +61,6 @@ export default function TagDetailPage() {
   const fetchTagData = async () => {
     try {
       const response = await tagAPI.getBySlug(slug);
-      // Extract tag data correctly from nested structure
       let tagData = null;
       if (response.data.data && response.data.data.tag) {
         tagData = response.data.data.tag;
@@ -68,13 +69,12 @@ export default function TagDetailPage() {
       } else if (response.data.data) {
         tagData = response.data.data;
       }
-      
+
       if (!tagData || !tagData.name) {
         setError('Tag tidak ditemukan');
         return;
       }
-      
-      // Map the data to match frontend interface
+
       const mappedTag = {
         id: tagData.id,
         name: tagData.name,
@@ -83,7 +83,7 @@ export default function TagDetailPage() {
         questionCount: tagData.usage_count ?? tagData.question_count ?? 0,
         createdAt: tagData.created_at
       };
-      
+
       setTag(mappedTag);
     } catch (error) {
       console.error('Error fetching tag:', error);
@@ -95,10 +95,8 @@ export default function TagDetailPage() {
 
   const fetchQuestions = async () => {
     try {
-      // First get tag data to get the tag name
       const tagResponse = await tagAPI.getBySlug(slug);
-      
-      // Extract tag data correctly
+
       let tagData = null;
       if (tagResponse.data.data && tagResponse.data.data.tag) {
         tagData = tagResponse.data.data.tag;
@@ -107,19 +105,16 @@ export default function TagDetailPage() {
       } else if (tagResponse.data.data) {
         tagData = tagResponse.data.data;
       }
-      
+
       if (!tagData || !tagData.name) {
         setQuestions([]);
         return;
       }
-      
+
       const tagName = tagData.name;
-      
-      // Then get questions by tag name
       const response = await questionAPI.getAll({ tag: tagName });
       const questionsData = response.data.data;
-      
-      // Handle different response structures
+
       if (Array.isArray(questionsData)) {
         setQuestions(questionsData);
       } else if (questionsData && Array.isArray(questionsData.questions)) {
@@ -137,42 +132,37 @@ export default function TagDetailPage() {
 
   const formatTimeAgo = (dateString: string) => {
     if (!dateString) return '';
-
     const date = new Date(dateString);
     if (isNaN(date.getTime())) return '';
     const now = new Date();
     const diffInSeconds = Math.floor((now.getTime() - date.getTime()) / 1000);
 
     if (diffInSeconds < 60) return 'Baru saja';
-    if (diffInSeconds < 3600) return `${Math.floor(diffInSeconds / 60)} menit lalu`;
-    if (diffInSeconds < 86400) return `${Math.floor(diffInSeconds / 3600)} jam lalu`;
-    if (diffInSeconds < 604800) return `${Math.floor(diffInSeconds / 86400)} hari lalu`;
-    
-    return date.toLocaleDateString('id-ID', { 
-      day: 'numeric', 
-      month: 'short', 
-      year: 'numeric' 
+    if (diffInSeconds < 3600) return `${Math.floor(diffInSeconds / 60)} mnt`;
+    if (diffInSeconds < 86400) return `${Math.floor(diffInSeconds / 3600)} jam`;
+    if (diffInSeconds < 604800) return `${Math.floor(diffInSeconds / 86400)} hari`;
+
+    return date.toLocaleDateString('id-ID', {
+      day: 'numeric',
+      month: 'short',
+      year: 'numeric'
     });
   };
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-slate-50">
-        <div className="max-w-6xl mx-auto px-4 py-8">
+      <div className="min-h-screen bg-white sm:bg-slate-50">
+        <div className="max-w-4xl mx-auto">
           <div className="animate-pulse">
-            <div className="bg-white rounded-2xl p-6 mb-6">
-              <div className="h-10 bg-slate-200 rounded w-1/4 mb-2"></div>
-              <div className="h-4 bg-slate-200 rounded w-1/2"></div>
-            </div>
-            <div className="space-y-4">
-              {[1,2,3,4,5].map(i => (
-                <div key={i} className="bg-white rounded-xl p-6 space-y-3">
-                  <div className="h-6 bg-slate-200 rounded w-3/4"></div>
-                  <div className="h-4 bg-slate-200 rounded w-full"></div>
-                  <div className="h-4 bg-slate-200 rounded w-5/6"></div>
+            <div className="h-14 bg-slate-100 border-b border-slate-200"></div>
+            <div className="p-4 space-y-4">
+              {[1, 2, 3, 4].map(i => (
+                <div key={i} className="py-4 border-b border-slate-100">
+                  <div className="h-5 bg-slate-200 rounded w-3/4 mb-3"></div>
+                  <div className="h-4 bg-slate-100 rounded w-full mb-2"></div>
                   <div className="flex gap-2">
-                    {[1,2,3].map(j => (
-                      <div key={j} className="h-6 bg-slate-200 rounded w-16"></div>
+                    {[1, 2].map(j => (
+                      <div key={j} className="h-5 bg-slate-100 rounded w-16"></div>
                     ))}
                   </div>
                 </div>
@@ -186,17 +176,17 @@ export default function TagDetailPage() {
 
   if (error || !tag) {
     return (
-      <div className="min-h-screen bg-slate-50 flex items-center justify-center">
+      <div className="min-h-screen bg-white sm:bg-slate-50 flex items-center justify-center px-4">
         <div className="text-center">
-          <Tag className="w-16 h-16 text-slate-300 mx-auto mb-4" />
-          <h2 className="text-2xl font-bold text-slate-900 mb-2">Tag Tidak Ditemukan</h2>
-          <p className="text-slate-600 mb-6">Tag yang Anda cari tidak ada atau telah dihapus.</p>
+          <Tag className="w-12 h-12 text-slate-300 mx-auto mb-4" />
+          <h2 className="text-xl font-bold text-slate-900 mb-2">Tag Tidak Ditemukan</h2>
+          <p className="text-slate-500 text-sm mb-6">Tag yang Anda cari tidak ada.</p>
           <Link
             href="/tags"
-            className="inline-flex items-center px-4 py-2 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 transition-colors"
+            className="inline-flex items-center px-4 py-2 bg-emerald-600 text-white rounded-lg text-sm font-medium"
           >
             <ArrowLeft className="w-4 h-4 mr-2" />
-            Kembali ke Tags
+            Kembali
           </Link>
         </div>
       </div>
@@ -206,174 +196,155 @@ export default function TagDetailPage() {
   const displayedQuestionCount = tag.questionCount ?? questions.length;
 
   return (
-    <div className="min-h-screen bg-slate-50">
-      <div className="max-w-6xl mx-auto px-3 sm:px-4 py-4 sm:py-8">
-        {/* Header */}
-        <div className="mb-4 sm:mb-6">
+    <div className="min-h-screen bg-white sm:bg-slate-50 pb-20">
+      {/* Mobile Header - Sticky */}
+      <div className="sticky top-0 z-30 bg-white border-b border-slate-200 sm:hidden">
+        <div className="flex items-center gap-3 px-4 py-3">
           <button
             onClick={() => router.back()}
-            className="inline-flex items-center text-emerald-600 hover:text-emerald-700 mb-3 sm:mb-4 p-2 -ml-2 rounded-lg hover:bg-emerald-50 transition-colors"
+            className="p-1 -ml-1 text-slate-600"
           >
-            <ArrowLeft className="w-4 h-4 mr-2" />
-            <span className="text-sm sm:text-base font-medium">Kembali</span>
+            <ArrowLeft className="w-5 h-5" />
           </button>
-          
-          <div className="bg-white rounded-2xl border border-slate-200 p-4 sm:p-6 shadow-sm">
-            <div className="flex items-start gap-3 sm:gap-4">
-              <div className="w-10 h-10 sm:w-12 sm:h-12 bg-emerald-100 rounded-xl flex items-center justify-center shrink-0">
-                <Tag className="w-5 h-5 sm:w-6 sm:h-6 text-emerald-600" />
-              </div>
-              <div className="flex-1 min-w-0">
-                <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-slate-900 mb-2 sm:mb-3 break-words">#{tag.name}</h1>
-                <p className="text-sm sm:text-base lg:text-lg text-slate-600 mb-3 sm:mb-4">
-                  {tag.description || `Pertanyaan terkait ${tag.name}`}
-                </p>
-                <div className="text-xs sm:text-sm text-slate-500">
-                  <span className="font-medium text-emerald-600">{displayedQuestionCount}</span> pertanyaan tersedia
-                  {formatTimeAgo(tag.createdAt) && (
-                    <>
-                      {' '}Dibuat {formatTimeAgo(tag.createdAt)}
-                    </>
-                  )}
-                </div>
-              </div>
+          <div className="flex-1 min-w-0">
+            <h1 className="text-base font-semibold text-slate-900 truncate">#{tag.name}</h1>
+            <p className="text-xs text-slate-500">{displayedQuestionCount} pertanyaan</p>
+          </div>
+        </div>
+      </div>
+
+      {/* Desktop Header */}
+      <div className="hidden sm:block border-b border-slate-200 bg-white">
+        <div className="max-w-4xl mx-auto px-4 py-4">
+          <button
+            onClick={() => router.back()}
+            className="flex items-center gap-2 text-slate-600 hover:text-emerald-600 mb-4 text-sm"
+          >
+            <ArrowLeft className="w-4 h-4" />
+            <span>Kembali</span>
+          </button>
+
+          <div className="flex items-center gap-4">
+            <div className="w-12 h-12 bg-emerald-100 rounded-xl flex items-center justify-center">
+              <Tag className="w-6 h-6 text-emerald-600" />
+            </div>
+            <div>
+              <h1 className="text-2xl font-bold text-slate-900">#{tag.name}</h1>
+              <p className="text-sm text-slate-500">
+                {tag.description || `Pertanyaan terkait ${tag.name}`} • {displayedQuestionCount} pertanyaan
+              </p>
             </div>
           </div>
         </div>
+      </div>
 
-        {/* Questions Section */}
-        <div className="bg-white rounded-2xl border border-slate-200 shadow-sm">
-          <div className="p-4 sm:p-6 border-b border-slate-200">
-            <h2 className="text-base sm:text-lg lg:text-xl font-semibold text-slate-900">
-              Pertanyaan dengan Tag <span className="text-emerald-600">#{tag.name}</span>
-            </h2>
-            <p className="text-xs sm:text-sm text-slate-500 mt-1">
-              {displayedQuestionCount} pertanyaan ditemukan
-            </p>
+      {/* Mobile Tag Info */}
+      <div className="sm:hidden px-4 py-3 bg-emerald-50 border-b border-emerald-100">
+        <p className="text-sm text-emerald-800">
+          {tag.description || `Pertanyaan terkait ${tag.name}`}
+        </p>
+      </div>
+
+      {/* Questions List */}
+      <div className="max-w-4xl mx-auto">
+        {questionsLoading ? (
+          <div className="p-8 text-center">
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-emerald-600 mx-auto"></div>
+            <p className="text-slate-500 text-sm mt-3">Memuat...</p>
           </div>
-
-          <div className="divide-y divide-slate-100">
-            {questionsLoading ? (
-              <div className="p-8 sm:p-12 text-center">
-                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-emerald-600 mx-auto"></div>
-                <p className="text-slate-500 text-sm sm:text-base mt-4">Memuat pertanyaan...</p>
-              </div>
-            ) : questions.length === 0 ? (
-              <div className="p-8 sm:p-12 text-center">
-                <Search className="w-10 h-10 sm:w-12 sm:h-12 text-slate-300 mx-auto mb-4" />
-                <h3 className="text-base sm:text-lg font-semibold text-slate-900 mb-2">
-                  Belum ada pertanyaan
-                </h3>
-                <p className="text-sm sm:text-base text-slate-500 mb-6">
-                  Jadilah yang pertama bertanya dengan tag #{tag.name}
-                </p>
-                <Link
-                  href="/ask"
-                  className="inline-flex items-center px-4 py-2 sm:px-6 sm:py-3 bg-emerald-600 text-white text-sm sm:text-base rounded-lg hover:bg-emerald-700 transition-colors font-medium"
-                >
-                  Tanya Pertanyaan Pertama
-                </Link>
-              </div>
-            ) : (
-              questions.map((question) => (
+        ) : questions.length === 0 ? (
+          <div className="p-8 text-center">
+            <Search className="w-10 h-10 text-slate-300 mx-auto mb-3" />
+            <h3 className="text-base font-semibold text-slate-900 mb-1">Belum ada pertanyaan</h3>
+            <p className="text-sm text-slate-500 mb-4">Jadilah yang pertama bertanya dengan tag #{tag.name}</p>
+            <Link
+              href="/ask"
+              className="inline-flex items-center px-4 py-2 bg-emerald-600 text-white text-sm rounded-lg font-medium"
+            >
+              Tanya Sekarang
+            </Link>
+          </div>
+        ) : (
+          <div className="divide-y divide-slate-100 sm:bg-white sm:rounded-xl sm:border sm:border-slate-200 sm:mt-6 sm:mx-4">
+            {questions.map((question) => {
+              const ringColor = getReputationRingColor(question.author_reputation || 0);
+              return (
                 <div
                   key={question.id}
-                  className="p-4 sm:p-6 hover:bg-slate-50 transition-colors cursor-pointer"
+                  className="px-4 py-4 hover:bg-slate-50 transition-colors cursor-pointer active:bg-slate-100"
                   onClick={() => router.push(`/questions/${question.id}`)}
                 >
-                  <div className="flex gap-3 sm:gap-4">
-                    {/* Stats - Hidden on mobile, shown as inline on desktop */}
-                    <div className="hidden sm:flex flex-col items-center gap-2 text-sm text-slate-500 min-w-[70px]">
-                      <div className="flex flex-col items-center gap-1">
-                        <ThumbsUp className="w-4 h-4 text-emerald-600" />
-                        <span className="font-semibold text-slate-900">{question.upvotes_count}</span>
-                        <span className="text-xs">vote</span>
-                      </div>
-                      <div className={`flex flex-col items-center gap-1 ${
-                        question.has_accepted_answer ? 'text-green-600' : ''
-                      }`}>
-                        <MessageSquare className="w-4 h-4" />
-                        <span className="font-semibold text-slate-900">{question.answers_count}</span>
-                        <span className="text-xs">jawaban</span>
-                      </div>
+                  {/* Title */}
+                  <h3 className="text-[15px] font-semibold text-slate-900 leading-snug mb-2 line-clamp-2">
+                    {question.title}
+                  </h3>
+
+                  {/* Preview - Desktop only */}
+                  <p className="hidden sm:block text-sm text-slate-600 mb-3 line-clamp-2">
+                    {question.content.replace(/<[^>]*>/g, '').substring(0, 120)}...
+                  </p>
+
+                  {/* Tags */}
+                  <div className="flex flex-wrap gap-1.5 mb-3">
+                    {question.tags.slice(0, 3).map((questionTag) => (
+                      <span
+                        key={questionTag.id}
+                        className={`px-2 py-0.5 text-xs rounded ${questionTag.slug === tag.slug
+                            ? 'bg-emerald-100 text-emerald-700 font-medium'
+                            : 'bg-slate-100 text-slate-600'
+                          }`}
+                      >
+                        {questionTag.name}
+                      </span>
+                    ))}
+                    {question.tags.length > 3 && (
+                      <span className="px-2 py-0.5 text-xs rounded bg-slate-100 text-slate-500">
+                        +{question.tags.length - 3}
+                      </span>
+                    )}
+                  </div>
+
+                  {/* Stats & Author Row */}
+                  <div className="flex items-center justify-between text-xs text-slate-500">
+                    <div className="flex items-center gap-3">
+                      {/* Stats */}
+                      <span className="flex items-center gap-1">
+                        <ThumbsUp className="w-3.5 h-3.5" />
+                        <span className="font-medium text-slate-700">{question.upvotes_count}</span>
+                      </span>
+                      <span className={`flex items-center gap-1 ${question.has_accepted_answer ? 'text-green-600' : ''}`}>
+                        <MessageSquare className="w-3.5 h-3.5" />
+                        <span className="font-medium text-slate-700">{question.answers_count}</span>
+                      </span>
+                      <span className="hidden sm:flex items-center gap-1">
+                        <Eye className="w-3.5 h-3.5" />
+                        <span>{question.views_count}</span>
+                      </span>
                     </div>
 
-                    {/* Content */}
-                    <div className="flex-1 min-w-0">
-                      <Link
-                        href={`/questions/${question.id}`}
-                        className="block group"
-                        onClick={(e) => e.stopPropagation()}
-                      >
-                        <h3 className="text-base sm:text-lg font-semibold text-slate-900 group-hover:text-emerald-600 transition-colors mb-2 line-clamp-2">
-                          {question.title}
-                        </h3>
-                        <p className="text-slate-600 text-xs sm:text-sm line-clamp-2 mb-3">
-                          {question.content.replace(/<[^>]*>/g, '').substring(0, 150)}...
-                        </p>
-                      </Link>
-
-                      {/* Tags */}
-                      <div className="flex flex-wrap gap-1.5 sm:gap-2 mb-3">
-                        {question.tags.map((questionTag) => (
-                          <Link
-                            key={questionTag.id}
-                            href={`/tags/${questionTag.slug}`}
-                            className={`px-2 py-1 text-xs rounded-md border transition-colors ${
-                              questionTag.slug === tag.slug
-                                ? 'bg-emerald-100 text-emerald-700 border-emerald-200 font-medium'
-                                : 'bg-slate-100 text-slate-700 border-slate-200 hover:bg-slate-200'
-                            }`}
-                            onClick={(e) => e.stopPropagation()}
-                          >
-                            {questionTag.name}
-                          </Link>
-                        ))}
+                    {/* Author & Time */}
+                    <div className="flex items-center gap-2">
+                      <div className={`rounded-full ring-2 ${ringColor}`}>
+                        <UserAvatar
+                          src={question.author_avatar}
+                          alt={question.author_name}
+                          size="xs"
+                          fallbackName={question.author_name}
+                          className="w-5 h-5"
+                        />
                       </div>
-
-                      {/* Mobile Stats + Author */}
-                      <div className="flex flex-wrap items-center gap-3 text-xs sm:text-sm text-slate-500">
-                        {/* Mobile stats */}
-                        <div className="flex sm:hidden items-center gap-3">
-                          <div className="flex items-center gap-1">
-                            <ThumbsUp className="w-3.5 h-3.5 text-emerald-600" />
-                            <span className="font-medium text-slate-900">{question.upvotes_count}</span>
-                          </div>
-                          <div className={`flex items-center gap-1 ${
-                            question.has_accepted_answer ? 'text-green-600' : ''
-                          }`}>
-                            <MessageSquare className="w-3.5 h-3.5" />
-                            <span className="font-medium text-slate-900">{question.answers_count}</span>
-                          </div>
-                        </div>
-                        
-                        {/* Author */}
-                        <Link
-                          href={`/profile/${question.author_username || question.author_name?.toLowerCase().replace(/[^a-z0-9]/g, '') || 'unknown'}`}
-                          className="flex items-center gap-1.5 sm:gap-2 hover:text-emerald-600 transition-colors"
-                          onClick={(e) => e.stopPropagation()}
-                        >
-                          <UserAvatar
-                            src={question.author_avatar}
-                            alt={question.author_name}
-                            size="xs"
-                            fallbackName={question.author_name}
-                          />
-                          <span className="truncate max-w-[120px] sm:max-w-none">{question.author_name}</span>
-                          <VerifiedBadge isVerified={question.author_is_verified || false} size="sm" />
-                        </Link>
-                        
-                        {/* Date */}
-                        <span className="ml-auto">{formatTimeAgo(question.created_at)}</span>
-                      </div>
+                      <span className="truncate max-w-[80px]">{question.author_name}</span>
+                      <span className="text-slate-400">•</span>
+                      <span>{formatTimeAgo(question.created_at)}</span>
                     </div>
                   </div>
                 </div>
-              ))
-            )}
+              );
+            })}
           </div>
-        </div>
+        )}
       </div>
     </div>
   );
 }
+

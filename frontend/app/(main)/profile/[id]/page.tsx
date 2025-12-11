@@ -8,6 +8,7 @@ import { userAPI } from '@/lib/api';
 import Link from 'next/link';
 import VerifiedBadge from '@/components/ui/VerifiedBadge';
 import UserAvatar from '@/components/ui/UserAvatar';
+import ReputationBadge, { ReputationProgress } from '@/components/ui/ReputationBadge';
 
 interface UserProfile {
   id: string;
@@ -229,9 +230,12 @@ export default function ProfilePage() {
               <div className="flex-1 pt-4 sm:pt-24 text-center sm:text-left">
                 <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4 mb-4">
                   <div>
-                    <div className="flex items-center justify-center sm:justify-start gap-2 mb-1">
+                    <div className="flex items-center justify-center sm:justify-start gap-2 mb-1 flex-wrap">
                       <h1 className="text-2xl sm:text-3xl font-bold text-slate-900">{profile.displayName || 'User'}</h1>
                       <VerifiedBadge isVerified={profile.isVerified || false} size="md" />
+                      {profile.reputationPoints >= 100 && (
+                        <ReputationBadge reputationPoints={profile.reputationPoints} size="sm" />
+                      )}
                     </div>
                     {profile.username && (
                       <p className="text-slate-500 text-sm mb-2 text-center sm:text-left">@{profile.username}</p>
@@ -293,6 +297,13 @@ export default function ProfilePage() {
                     <p className="text-lg sm:text-2xl font-bold text-purple-700">{answers.length}</p>
                   </div>
                 </div>
+
+                {/* Reputation Progress - Only visible to profile owner */}
+                {isOwnProfile && (
+                  <div className="mt-6 max-w-lg mx-auto sm:mx-0">
+                    <ReputationProgress reputationPoints={profile.reputationPoints} />
+                  </div>
+                )}
               </div>
             </div>
           </div>
