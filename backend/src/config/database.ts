@@ -29,7 +29,7 @@ console.log(`Cloud database detected: ${isCloudDatabase}, Force SSL: ${forceSsl}
 const pool = new Pool({
   connectionString: config.database.url,
   ssl: useSsl ? {
-    rejectUnauthorized: rejectUnauthorized
+    rejectUnauthorized: false // Explicitly set to false to allow self-signed certificates from cloud providers
   } : false,
   connectionTimeoutMillis: 60000, // 60 seconds timeout for initial connection (increased for slow networks)
   idleTimeoutMillis: 30000, // Close idle clients after 30 seconds
