@@ -12,6 +12,7 @@ import notificationsRoutes from './notifications.routes';
 import adminRoutes from './admin.routes';
 import mentionsRoutes from './mentions.routes';
 import supportRoutes from './support.routes';
+import newsletterRoutes from './newsletter.routes';
 
 const router = Router();
 
@@ -29,5 +30,7 @@ router.use('/notifications', notificationsRoutes);
 router.use('/admin', adminRoutes);
 router.use('/mentions', mentionsRoutes);
 router.use('/support', supportRoutes);
+router.use('/admin/newsletter', newsletterRoutes);
 
 export default router;
+
