@@ -20,7 +20,7 @@ export async function apiRequest<T>(
 ): Promise<T> {
   const { method = 'GET', body, headers = {} } = options;
 
-  // Get token from localStorage
+  // Get token from localStorage (for backward compatibility)
   const token = typeof window !== 'undefined' ? localStorage.getItem('token') : null;
 
   const config: RequestInit = {
@@ -30,6 +30,7 @@ export async function apiRequest<T>(
       ...headers,
       ...(token && { Authorization: `Bearer ${token}` }),
     },
+    credentials: 'include', // Required for HttpOnly cookies
   };
 
   if (body) {

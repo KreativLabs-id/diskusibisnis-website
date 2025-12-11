@@ -5,9 +5,12 @@ import crypto from 'crypto';
 import { OAuth2Client } from 'google-auth-library';
 import pool from '../config/database';
 import config from '../config/environment';
+import { otpStore } from '../config/redis';
 import { AuthRequest } from '../types';
 import { successResponse, errorResponse, unauthorizedResponse } from '../utils/response.utils';
 import { sendPasswordResetEmail, sendOTPEmail, sendPasswordChangeOTPEmail } from '../utils/email.service';
+import { setTokenCookie, clearTokenCookie } from '../utils/cookie.utils';
+import { resetLoginRateLimit } from '../middlewares/rate-limit.middleware';
 
 const googleClient = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
 
@@ -15,19 +18,6 @@ const googleClient = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
 const generateOTP = (): string => {
   return Math.floor(100000 + Math.random() * 900000).toString();
 };
-
-// In-memory OTP storage (for production, use Redis)
-const otpStore = new Map<string, { otp: string; data: any; expiresAt: Date }>();
-
-// Clean expired OTPs periodically
-setInterval(() => {
-  const now = new Date();
-  for (const [key, value] of otpStore.entries()) {
-    if (value.expiresAt < now) {
-      otpStore.delete(key);
-    }
-  }
-}, 60000); // Clean every minute
 
 /**
  * Request OTP for registration
@@ -86,12 +76,14 @@ export const requestRegisterOTP = async (req: AuthRequest, res: Response): Promi
     const otp = generateOTP();
     const expiresAt = new Date(Date.now() + 10 * 60 * 1000); // 10 minutes
 
-    // Store OTP with registration data
-    otpStore.set(`register:${email}`, {
+    // Store OTP with registration data (hash password before storing)
+    const salt = await bcrypt.genSalt(10);
+    const hashedPassword = await bcrypt.hash(password, salt);
+    await otpStore.set(`register:${email}`, {
       otp,
-      data: { email, password, displayName, username },
+      data: { email, password: hashedPassword, displayName, username },
       expiresAt
-    });
+    }, 600); // 10 minutes TTL
 
     // Send OTP email
     const emailSent = await sendOTPEmail(email, otp, displayName);
@@ -122,7 +114,7 @@ export const verifyRegisterOTP = async (req: AuthRequest, res: Response): Promis
     }
 
     // Get stored OTP
-    const stored = otpStore.get(`register:${email}`);
+    const stored = await otpStore.get(`register:${email}`);
 
     if (!stored) {
       errorResponse(res, 'OTP tidak ditemukan atau sudah kadaluarsa. Silakan minta OTP baru.', 400);
@@ -130,7 +122,7 @@ export const verifyRegisterOTP = async (req: AuthRequest, res: Response): Promis
     }
 
     if (stored.expiresAt < new Date()) {
-      otpStore.delete(`register:${email}`);
+      await otpStore.delete(`register:${email}`);
       errorResponse(res, 'OTP sudah kadaluarsa. Silakan minta OTP baru.', 400);
       return;
     }
@@ -141,11 +133,10 @@ export const verifyRegisterOTP = async (req: AuthRequest, res: Response): Promis
     }
 
     // OTP valid, create user
-    const { password, displayName, username } = stored.data;
+    const { password: hashedPassword, displayName, username } = stored.data;
 
-    // Hash password
-    const salt = await bcrypt.genSalt(10);
-    const passwordHash = await bcrypt.hash(password, salt);
+    // Password is already hashed from OTP request
+    const passwordHash = hashedPassword;
 
     // Create user - is_verified false (verified badge is for special accounts only)
     // email_verified true (email has been verified via OTP)
@@ -159,7 +150,7 @@ export const verifyRegisterOTP = async (req: AuthRequest, res: Response): Promis
     const user = result.rows[0];
 
     // Clear OTP
-    otpStore.delete(`register:${email}`);
+    await otpStore.delete(`register:${email}`);
 
     // Generate JWT token
     const token = jwt.sign(
@@ -167,6 +158,9 @@ export const verifyRegisterOTP = async (req: AuthRequest, res: Response): Promis
       config.jwt.secret,
       { expiresIn: config.jwt.expiresIn } as jwt.SignOptions
     );
+
+    // Set HttpOnly cookie for security
+    setTokenCookie(res, token);
 
     successResponse(
       res,
@@ -179,7 +173,7 @@ export const verifyRegisterOTP = async (req: AuthRequest, res: Response): Promis
           reputationPoints: user.reputation_points,
           isVerified: user.is_verified,
         },
-        token,
+        token, // Still return token for backward compatibility
       },
       'Registrasi berhasil! Email Anda telah terverifikasi.',
       201
@@ -252,12 +246,28 @@ export const register = async (req: AuthRequest, res: Response): Promise<void> =
 };
 
 /**
+ * Logout user
+ * POST /api/auth/logout
+ */
+export const logout = async (_req: AuthRequest, res: Response): Promise<void> => {
+  try {
+    // Clear HttpOnly cookie
+    clearTokenCookie(res);
+    successResponse(res, null, 'Logout successful');
+  } catch (error) {
+    console.error('Logout error:', error);
+    errorResponse(res, 'Server error during logout');
+  }
+};
+
+/**
  * Login user
  * POST /api/auth/login
  */
 export const login = async (req: AuthRequest, res: Response): Promise<void> => {
   try {
     const { email, password } = req.body;
+    const ip = req.ip || req.socket.remoteAddress || 'unknown';
 
     // Find user
     const result = await pool.query(
@@ -288,12 +298,18 @@ export const login = async (req: AuthRequest, res: Response): Promise<void> => {
       return;
     }
 
+    // Reset rate limit on successful login
+    await resetLoginRateLimit(ip, email);
+
     // Generate JWT token
     const token = jwt.sign(
       { id: user.id, email: user.email, role: user.role },
       config.jwt.secret,
       { expiresIn: config.jwt.expiresIn } as jwt.SignOptions
     );
+
+    // Set HttpOnly cookie for security
+    setTokenCookie(res, token);
 
     successResponse(res, {
       user: {
@@ -304,7 +320,7 @@ export const login = async (req: AuthRequest, res: Response): Promise<void> => {
         role: user.role,
         reputationPoints: user.reputation_points,
       },
-      token,
+      token, // Still return token for backward compatibility (mobile apps, etc.)
     }, 'Login successful');
   } catch (error) {
     console.error('Login error:', error);
@@ -355,7 +371,7 @@ export const googleLogin = async (req: AuthRequest, res: Response): Promise<void
       isNewUser = true;
     } else {
       user = userResult.rows[0];
-      
+
       // Update google_id if not set
       if (!user.google_id) {
         await pool.query(
@@ -378,6 +394,9 @@ export const googleLogin = async (req: AuthRequest, res: Response): Promise<void
       { expiresIn: config.jwt.expiresIn } as jwt.SignOptions
     );
 
+    // Set HttpOnly cookie for security
+    setTokenCookie(res, token);
+
     successResponse(res, {
       user: {
         id: user.id,
@@ -387,7 +406,7 @@ export const googleLogin = async (req: AuthRequest, res: Response): Promise<void
         role: user.role,
         reputationPoints: user.reputation_points || 0,
       },
-      token,
+      token, // Still return token for backward compatibility
       isNewUser,
     }, isNewUser ? 'Account created successfully' : 'Login successful');
   } catch (error) {
@@ -536,11 +555,11 @@ export const requestChangePasswordOTP = async (req: AuthRequest, res: Response):
     const expiresAt = new Date(Date.now() + 10 * 60 * 1000); // 10 minutes
 
     // Store OTP
-    otpStore.set(`change-password:${userId}`, {
+    await otpStore.set(`change-password:${userId}`, {
       otp,
       data: { userId },
       expiresAt
-    });
+    }, 600); // 10 minutes TTL
 
     // Send OTP email
     const emailSent = await sendPasswordChangeOTPEmail(user.email, otp, user.display_name || 'User');
@@ -578,7 +597,7 @@ export const changePassword = async (req: AuthRequest, res: Response): Promise<v
 
     // Verify OTP if provided
     if (otp) {
-      const stored = otpStore.get(`change-password:${userId}`);
+      const stored = await otpStore.get(`change-password:${userId}`);
 
       if (!stored) {
         errorResponse(res, 'OTP tidak ditemukan atau sudah kadaluarsa', 400);
@@ -586,7 +605,7 @@ export const changePassword = async (req: AuthRequest, res: Response): Promise<v
       }
 
       if (stored.expiresAt < new Date()) {
-        otpStore.delete(`change-password:${userId}`);
+        await otpStore.delete(`change-password:${userId}`);
         errorResponse(res, 'OTP sudah kadaluarsa. Silakan minta OTP baru.', 400);
         return;
       }
@@ -628,7 +647,7 @@ export const changePassword = async (req: AuthRequest, res: Response): Promise<v
     );
 
     // Clear OTP
-    otpStore.delete(`change-password:${userId}`);
+    await otpStore.delete(`change-password:${userId}`);
 
     successResponse(res, null, 'Password berhasil diubah');
   } catch (error) {

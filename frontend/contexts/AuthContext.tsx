@@ -34,32 +34,32 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   useEffect(() => {
     let mounted = true;
-    
+
     // Check if user is logged in on mount
     const initAuth = async () => {
       if (typeof window === 'undefined') {
         if (mounted) setLoading(false);
         return;
       }
-      
+
       const token = localStorage.getItem('token');
       const savedUser = localStorage.getItem('user');
-      
+
       if (token && savedUser) {
         try {
           const parsedUser = JSON.parse(savedUser);
           if (mounted) setUser(parsedUser);
-          
+
           // Debounce user refresh to avoid duplicate requests (React Strict Mode)
           const lastRefresh = localStorage.getItem('lastUserRefresh');
           const now = Date.now();
           const shouldRefresh = !lastRefresh || (now - parseInt(lastRefresh)) > 30000; // 30 seconds
-          
+
           if (shouldRefresh) {
             try {
               const response = await userAPI.getProfile(parsedUser.id);
               const userData = response.data.data.user || response.data.user;
-              
+
               const updatedUser = {
                 id: userData.id,
                 email: userData.email || parsedUser.email,
@@ -70,7 +70,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
                 reputationPoints: userData.reputationPoints || userData.reputation_points || 0,
                 isVerified: userData.isVerified || userData.is_verified || (userData.role === 'admin')
               };
-              
+
               if (mounted) {
                 setUser(updatedUser);
                 localStorage.setItem('user', JSON.stringify(updatedUser));
@@ -86,12 +86,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           localStorage.removeItem('user');
         }
       }
-      
+
       if (mounted) setLoading(false);
     };
 
     initAuth();
-    
+
     return () => {
       mounted = false;
     };
@@ -100,13 +100,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const login = async (email: string, password: string) => {
     const response = await authAPI.login({ email, password });
     const { user, token } = response.data.data;
-    
+
     if (typeof window !== 'undefined') {
       localStorage.setItem('token', token);
       localStorage.setItem('user', JSON.stringify(user));
     }
     setUser(user);
-    
+
     // Refresh user data from server to get latest role
     setTimeout(() => {
       refreshUser();
@@ -116,13 +116,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const googleLogin = async (credential: string) => {
     const response = await authAPI.googleLogin(credential);
     const { user, token } = response.data.data;
-    
+
     if (typeof window !== 'undefined') {
       localStorage.setItem('token', token);
       localStorage.setItem('user', JSON.stringify(user));
     }
     setUser(user);
-    
+
     // Refresh user data from server to get latest info
     setTimeout(() => {
       refreshUser();
@@ -132,7 +132,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const register = async (email: string, password: string, displayName: string) => {
     const response = await authAPI.register({ email, password, displayName });
     const { user, token } = response.data.data;
-    
+
     if (typeof window !== 'undefined') {
       localStorage.setItem('token', token);
       localStorage.setItem('user', JSON.stringify(user));
@@ -140,10 +140,18 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     setUser(user);
   };
 
-  const logout = () => {
+  const logout = async () => {
     if (typeof window !== 'undefined') {
+      try {
+        // Call logout API to clear HttpOnly cookie
+        await authAPI.logout();
+      } catch (error) {
+        console.error('Logout API error:', error);
+      }
+      // Always clear local storage and redirect
       localStorage.removeItem('token');
       localStorage.removeItem('user');
+      localStorage.removeItem('lastUserRefresh');
       setUser(null);
       window.location.href = '/';
     }
@@ -158,11 +166,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const refreshUser = async () => {
     if (!user) return;
-    
+
     try {
       const response = await userAPI.getProfile(user.id);
       const userData = response.data.data.user || response.data.user;
-      
+
       const updatedUser = {
         id: userData.id,
         email: userData.email,
@@ -173,7 +181,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         reputationPoints: userData.reputationPoints || userData.reputation_points || 0,
         isVerified: userData.isVerified || userData.is_verified || (userData.role === 'admin')
       };
-      
+
       updateUser(updatedUser);
     } catch (error) {
       console.error('Error refreshing user data:', error);
@@ -182,11 +190,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const forceRefreshUser = async () => {
     if (!user) return;
-    
+
     try {
       const response = await userAPI.getProfile(user.id);
       const userData = response.data.data.user || response.data.user;
-      
+
       const updatedUser = {
         id: userData.id,
         email: userData.email,
@@ -197,7 +205,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         reputationPoints: userData.reputationPoints || userData.reputation_points || 0,
         isVerified: userData.isVerified || userData.is_verified || (userData.role === 'admin')
       };
-      
+
       updateUser(updatedUser);
     } catch (error) {
       console.error('Error force refreshing user data:', error);

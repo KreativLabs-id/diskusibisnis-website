@@ -15,12 +15,21 @@ const isCloudDatabase = dbUrl?.includes('supabase') ||
 const forceSsl = process.env.DB_SSL === 'true';
 const useSsl = isCloudDatabase || forceSsl;
 
-console.log(`Cloud database detected: ${isCloudDatabase}, Force SSL: ${forceSsl}`);
+// SSL certificate validation
+// In production, set DB_SSL_REJECT_UNAUTHORIZED=true for proper certificate validation
+// This protects against man-in-the-middle attacks
+const rejectUnauthorized = process.env.DB_SSL_REJECT_UNAUTHORIZED === 'true';
+
+if (useSsl && !rejectUnauthorized) {
+  console.log('⚠️ SSL certificate validation is disabled. For production, set DB_SSL_REJECT_UNAUTHORIZED=true');
+}
+
+console.log(`Cloud database detected: ${isCloudDatabase}, Force SSL: ${forceSsl}, Reject unauthorized: ${rejectUnauthorized}`);
 
 const pool = new Pool({
   connectionString: config.database.url,
   ssl: useSsl ? {
-    rejectUnauthorized: false
+    rejectUnauthorized: rejectUnauthorized
   } : false,
   connectionTimeoutMillis: 30000, // 30 seconds timeout for initial connection
   idleTimeoutMillis: 30000, // Close idle clients after 30 seconds
@@ -38,3 +47,4 @@ pool.on('error', (err: Error) => {
 });
 
 export default pool;
+

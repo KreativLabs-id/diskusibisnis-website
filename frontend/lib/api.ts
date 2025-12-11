@@ -25,14 +25,19 @@ const api = axios.create({
   headers: {
     'Content-Type': 'application/json',
   },
+  withCredentials: true, // Required for HttpOnly cookies to be sent
 });
 
-// Request interceptor to add auth token
+// Request interceptor to add auth token (for backward compatibility)
 api.interceptors.request.use(
   (config) => {
-    const token = localStorage.getItem('token');
-    if (token) {
-      config.headers.Authorization = `Bearer ${token}`;
+    // Still include Authorization header for backward compatibility
+    // This allows the app to work with both cookie and header auth
+    if (typeof window !== 'undefined') {
+      const token = localStorage.getItem('token');
+      if (token) {
+        config.headers.Authorization = `Bearer ${token}`;
+      }
     }
     return config;
   },
@@ -46,12 +51,12 @@ api.interceptors.response.use(
   (response) => response,
   (error) => {
     // Don't redirect on 401 if we're on auth pages (login, register, etc.)
-    const isAuthPage = typeof window !== 'undefined' && 
-      (window.location.pathname.includes('/login') || 
-       window.location.pathname.includes('/register') ||
-       window.location.pathname.includes('/forgot-password') ||
-       window.location.pathname.includes('/reset-password'));
-    
+    const isAuthPage = typeof window !== 'undefined' &&
+      (window.location.pathname.includes('/login') ||
+        window.location.pathname.includes('/register') ||
+        window.location.pathname.includes('/forgot-password') ||
+        window.location.pathname.includes('/reset-password'));
+
     if (error.response?.status === 401 && !isAuthPage) {
       localStorage.removeItem('token');
       localStorage.removeItem('user');
@@ -71,6 +76,8 @@ export const authAPI = {
     api.post('/auth/register', data),
   login: (data: { email: string; password: string }) =>
     api.post('/auth/login', data),
+  logout: () =>
+    api.post('/auth/logout'),
   googleLogin: (credential: string) =>
     api.post('/auth/google', { credential }),
   forgotPassword: (email: string) =>
@@ -124,10 +131,10 @@ export const commentAPI = {
 // Votes
 export const voteAPI = {
   cast: (data: { votableType: string; votableId: string; voteType: string }) =>
-    api.post('/votes', { 
-      targetType: data.votableType, 
-      targetId: data.votableId, 
-      voteType: data.voteType 
+    api.post('/votes', {
+      targetType: data.votableType,
+      targetId: data.votableId,
+      voteType: data.voteType
     }),
   remove: (id: string) =>
     api.delete(`/votes/${id}`),

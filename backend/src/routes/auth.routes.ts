@@ -1,11 +1,12 @@
 import { Router } from 'express';
 import { body } from 'express-validator';
-import { 
-  register, 
-  login, 
-  googleLogin, 
-  forgotPassword, 
-  resetPassword, 
+import {
+  register,
+  login,
+  logout,
+  googleLogin,
+  forgotPassword,
+  resetPassword,
   changePassword,
   requestRegisterOTP,
   verifyRegisterOTP,
@@ -13,12 +14,18 @@ import {
 } from '../controllers/auth.controller';
 import { validate } from '../utils/validator.utils';
 import { requireAuth } from '../middlewares/auth.middleware';
+import {
+  loginRateLimiter,
+  passwordResetRateLimiter,
+  otpRateLimiter
+} from '../middlewares/rate-limit.middleware';
 
 const router = Router();
 
-// Request OTP for registration
+// Request OTP for registration (with rate limiting)
 router.post(
   '/register/request-otp',
+  otpRateLimiter,
   [
     body('email').isEmail().withMessage('Email tidak valid'),
     body('password').isLength({ min: 6 }).withMessage('Password minimal 6 karakter'),
@@ -51,9 +58,10 @@ router.post(
   register
 );
 
-// Login
+// Login (with brute force protection)
 router.post(
   '/login',
+  loginRateLimiter,
   [
     body('email').isEmail().withMessage('Valid email is required'),
     body('password').notEmpty().withMessage('Password is required'),
@@ -61,6 +69,9 @@ router.post(
   ],
   login
 );
+
+// Logout
+router.post('/logout', logout);
 
 // Google Login
 router.post(
@@ -72,9 +83,10 @@ router.post(
   googleLogin
 );
 
-// Forgot password
+// Forgot password (with rate limiting)
 router.post(
   '/forgot-password',
+  passwordResetRateLimiter,
   [
     body('email').isEmail().withMessage('Valid email is required'),
     validate
@@ -113,3 +125,4 @@ router.post(
 );
 
 export default router;
+

@@ -3,6 +3,7 @@ import cors from 'cors';
 import helmet from 'helmet';
 import morgan from 'morgan';
 import compression from 'compression';
+import cookieParser from 'cookie-parser';
 import rateLimit from 'express-rate-limit';
 import config from './config/environment';
 import routes from './routes';
@@ -13,39 +14,62 @@ const app: Application = express();
 // Security middleware
 app.use(helmet());
 
+// Cookie parser middleware (required for HttpOnly cookies)
+app.use(cookieParser());
+
 // CORS configuration - Handle multiple origins
 app.use(cors({
   origin: (origin, callback) => {
     const allowedOrigins = config.cors.origin;
-    
+    const isProduction = config.nodeEnv === 'production';
+
     // Allow requests with no origin (like mobile apps, Postman, curl requests)
     if (!origin) {
-      console.log('CORS: Request with no origin - allowing');
+      if (!isProduction) {
+        console.log('CORS: Request with no origin - allowing');
+      }
       return callback(null, true);
     }
-    
-    // Log incoming origin for debugging
-    console.log('CORS: Checking origin:', origin);
-    console.log('CORS: Allowed origins:', allowedOrigins);
-    
+
+    // Log incoming origin for debugging (only in development)
+    if (!isProduction) {
+      console.log('CORS: Checking origin:', origin);
+      console.log('CORS: Allowed origins:', allowedOrigins);
+    }
+
     // Check if origin is allowed
     if (Array.isArray(allowedOrigins)) {
       if (allowedOrigins.includes(origin)) {
-        console.log('CORS: Origin allowed (array match)');
+        if (!isProduction) {
+          console.log('CORS: Origin allowed (array match)');
+        }
         callback(null, true);
       } else {
-        console.log('CORS: Origin NOT allowed');
-        // Instead of throwing error, allow but log warning
-        // This prevents blocking but helps debugging
-        callback(null, true); // CHANGED: Allow all origins temporarily for debugging
+        // In production, reject unauthorized origins
+        if (isProduction) {
+          console.warn('CORS: Origin blocked in production:', origin);
+          callback(new Error('Not allowed by CORS'));
+        } else {
+          // In development, allow but log warning
+          console.log('CORS: Origin NOT in list, allowing for development');
+          callback(null, true);
+        }
       }
     } else {
-      const isAllowed = origin === allowedOrigins;
-      console.log(`CORS: Origin ${isAllowed ? 'allowed' : 'NOT allowed'} (string match)`);
-      callback(null, isAllowed || allowedOrigins === '*');
+      const isAllowed = origin === allowedOrigins || allowedOrigins === '*';
+      if (!isProduction) {
+        console.log(`CORS: Origin ${isAllowed ? 'allowed' : 'NOT allowed'} (string match)`);
+      }
+      if (isAllowed) {
+        callback(null, true);
+      } else if (isProduction) {
+        callback(new Error('Not allowed by CORS'));
+      } else {
+        callback(null, true);
+      }
     }
   },
-  credentials: true,
+  credentials: true, // Required for cookies to work cross-origin
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With'],
 }));
@@ -72,9 +96,9 @@ const limiter = rateLimit({
   standardHeaders: true,
   legacyHeaders: false,
   skip: (req) => {
-    // Skip rate limiting for health check and auth endpoints in development
+    // Skip rate limiting for health check in development
     if (config.nodeEnv === 'development') {
-      return req.path === '/health' || req.path.startsWith('/api/auth');
+      return req.path === '/health';
     }
     return false;
   },
@@ -101,3 +125,4 @@ app.use(notFoundHandler);
 app.use(errorHandler);
 
 export default app;
+

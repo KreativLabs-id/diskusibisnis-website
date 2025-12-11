@@ -4,14 +4,32 @@ import config from '../config/environment';
 import { AuthRequest, AuthUser } from '../types';
 import { unauthorizedResponse } from '../utils/response.utils';
 
+/**
+ * Get token from cookie or Authorization header
+ * Supports both methods for backward compatibility
+ */
+const extractToken = (req: AuthRequest): string | null => {
+  // First try to get from cookie (more secure)
+  if (req.cookies?.auth_token) {
+    return req.cookies.auth_token;
+  }
+
+  // Fallback to Authorization header (for mobile apps, API clients)
+  const authHeader = req.headers['authorization'];
+  if (authHeader && authHeader.startsWith('Bearer ')) {
+    return authHeader.split(' ')[1];
+  }
+
+  return null;
+};
+
 export const authenticateToken = (
   req: AuthRequest,
   res: Response,
   next: NextFunction
 ): void => {
   try {
-    const authHeader = req.headers['authorization'];
-    const token = authHeader && authHeader.split(' ')[1]; // Bearer TOKEN
+    const token = extractToken(req);
 
     if (!token) {
       unauthorizedResponse(res, 'Authentication token required');
@@ -37,8 +55,7 @@ export const optionalAuth = (
   next: NextFunction
 ): void => {
   try {
-    const authHeader = req.headers['authorization'];
-    const token = authHeader && authHeader.split(' ')[1];
+    const token = extractToken(req);
 
     if (token && config.jwt.secret) {
       const decoded = jwt.verify(token, config.jwt.secret) as AuthUser;
@@ -52,3 +69,4 @@ export const optionalAuth = (
 };
 
 export const requireAuth = authenticateToken;
+

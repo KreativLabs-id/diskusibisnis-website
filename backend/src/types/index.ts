@@ -11,6 +11,10 @@ export interface AuthRequest extends Request {
   body: any;
   params: any;
   query: any;
+  rateLimitKeys?: {
+    ipKey: string;
+    emailKey?: string;
+  };
 }
 
 export interface ApiResponse<T = any> {
