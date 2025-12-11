@@ -128,7 +128,7 @@ export default function Navbar({ onMenuClick }: NavbarProps) {
                         </div>
                       </div>
                       <Link
-                        href={`/profile/${user.username || user.displayName?.toLowerCase().replace(/[^a-z0-9]/g, '')}`}
+                        href={`/profile/${user.username || user.id}`}
                         className="flex items-center space-x-2 sm:space-x-3 px-3 sm:px-5 py-2 sm:py-3 text-slate-700 hover:bg-slate-50 transition-all duration-200 rounded-lg mx-1.5 sm:mx-2"
                         onClick={() => setShowUserMenu(false)}
                       >
@@ -159,7 +159,7 @@ export default function Navbar({ onMenuClick }: NavbarProps) {
                           <span className="text-xs sm:text-sm font-medium">Admin Dashboard</span>
                         </Link>
                       )}
-                      
+
                       <div className="border-t border-slate-100 mt-1.5 sm:mt-2 pt-1.5 sm:pt-2">
                         <button
                           onClick={logout}

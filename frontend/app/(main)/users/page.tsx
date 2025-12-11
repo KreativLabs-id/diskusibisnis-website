@@ -132,12 +132,12 @@ export default function UsersPage() {
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6">
             {filteredUsers.map((user) => {
-              const username = user.username || user.display_name.toLowerCase().replace(/[^a-z0-9]/g, '');
+              const profileLink = user.username || user.id;
 
               return (
                 <Link
                   key={user.id}
-                  href={`/profile/${username}`}
+                  href={`/profile/${profileLink}`}
                   className="bg-white rounded-2xl border border-slate-200 p-5 hover:border-emerald-500/50 hover:shadow-xl hover:shadow-emerald-500/5 transition-all duration-300 group relative overflow-hidden"
                 >
                   {/* Decorative Background */}

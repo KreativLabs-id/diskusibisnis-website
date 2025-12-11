@@ -40,8 +40,8 @@ const SidebarItem: React.FC<SidebarItemProps> = ({ href, icon: Icon, label, isAc
       href={href}
       onClick={onClick}
       className={`group flex items-center justify-between px-4 py-2.5 rounded-lg text-sm font-medium transition-all duration-200 ${isActive
-          ? 'bg-emerald-50 text-emerald-700'
-          : 'text-slate-600 hover:bg-slate-50 hover:text-slate-900'
+        ? 'bg-emerald-50 text-emerald-700'
+        : 'text-slate-600 hover:bg-slate-50 hover:text-slate-900'
         }`}
     >
       <div className="flex items-center gap-3">
@@ -126,7 +126,7 @@ export default function Sidebar({ onItemClick }: SidebarProps) {
   ] : [];
 
   const profileItems = user ? [
-    { href: `/profile/${user.username || user.displayName?.toLowerCase().replace(/[^a-z0-9]/g, '')}`, icon: User, label: 'Profil Saya' },
+    { href: `/profile/${user.username || user.id}`, icon: User, label: 'Profil Saya' },
     { href: '/settings', icon: Settings, label: 'Pengaturan' },
   ] : [];
 

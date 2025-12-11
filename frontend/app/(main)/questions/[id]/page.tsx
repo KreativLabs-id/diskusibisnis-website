@@ -469,7 +469,7 @@ export default function QuestionDetailPage() {
                 {/* Meta Header */}
                 <div className="flex items-center justify-between mb-4">
                   <div className="flex items-center gap-3">
-                    <Link href={`/profile/${question.author_username || question.author_name}`} className="flex items-center gap-2 group">
+                    <Link href={`/profile/${question.author_username || question.author_id}`} className="flex items-center gap-2 group">
                       <UserAvatar
                         src={question.author_avatar}
                         alt={question.author_name}
@@ -624,7 +624,7 @@ export default function QuestionDetailPage() {
                     {/* Answer Header */}
                     <div className="flex items-center justify-between mb-4">
                       <div className="flex items-center gap-3">
-                        <Link href={`/profile/${answer.author_username || answer.author_name}`} className="flex items-center gap-2 group">
+                        <Link href={`/profile/${answer.author_username || answer.author_id}`} className="flex items-center gap-2 group">
                           <UserAvatar
                             src={answer.author_avatar}
                             alt={answer.author_name}

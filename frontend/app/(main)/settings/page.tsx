@@ -160,7 +160,7 @@ export default function SettingsPage() {
 
         // Redirect to profile after 2 seconds
         setTimeout(() => {
-          router.push(`/profile/${user.username || user.displayName?.toLowerCase().replace(/[^a-z0-9]/g, '')}`);
+          router.push(`/profile/${user.username || user.id}`);
         }, 2000);
       }
     } catch (err: any) {
