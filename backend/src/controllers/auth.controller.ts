@@ -441,6 +441,8 @@ export const googleLogin = async (req: AuthRequest, res: Response): Promise<void
         avatarUrl: user.avatar_url || picture,
         role: user.role,
         reputationPoints: user.reputation_points || 0,
+        googleId: googleId, // Include googleId so frontend knows this is a Google user
+        hasPassword: !!user.password_hash, // Include hasPassword so frontend knows if user can use email+password login
       },
       token, // Still return token for backward compatibility
       isNewUser,
@@ -696,6 +698,77 @@ export const changePassword = async (req: AuthRequest, res: Response): Promise<v
     successResponse(res, null, 'Password berhasil diubah');
   } catch (error) {
     console.error('Change password error:', error);
+    errorResponse(res, 'Server error');
+  }
+};
+
+/**
+ * Set password for Google users (who don't have a password)
+ * POST /api/auth/set-password
+ */
+export const setPassword = async (req: AuthRequest, res: Response): Promise<void> => {
+  try {
+    const { newPassword, confirmPassword } = req.body;
+    const userId = req.user?.id;
+
+    if (!userId) {
+      unauthorizedResponse(res);
+      return;
+    }
+
+    // Validate passwords
+    if (!newPassword || !confirmPassword) {
+      errorResponse(res, 'Password baru dan konfirmasi wajib diisi', 400);
+      return;
+    }
+
+    if (newPassword !== confirmPassword) {
+      errorResponse(res, 'Password tidak cocok', 400);
+      return;
+    }
+
+    if (newPassword.length < 6) {
+      errorResponse(res, 'Password minimal 6 karakter', 400);
+      return;
+    }
+
+    // Get user and check if they already have a password
+    const userResult = await pool.query(
+      'SELECT id, password_hash, google_id, email FROM public.users WHERE id = $1',
+      [userId]
+    );
+
+    if (userResult.rows.length === 0) {
+      errorResponse(res, 'User tidak ditemukan', 404);
+      return;
+    }
+
+    const user = userResult.rows[0];
+
+    // Check if user already has a password
+    if (user.password_hash) {
+      errorResponse(res, 'Anda sudah memiliki password. Gunakan fitur Ubah Password.', 400);
+      return;
+    }
+
+    // Make sure user is a Google user
+    if (!user.google_id) {
+      errorResponse(res, 'Fitur ini hanya untuk akun Google', 400);
+      return;
+    }
+
+    // Hash new password
+    const hashedPassword = await bcrypt.hash(newPassword, 10);
+
+    // Update user with new password
+    await pool.query(
+      'UPDATE public.users SET password_hash = $1, updated_at = CURRENT_TIMESTAMP WHERE id = $2',
+      [hashedPassword, userId]
+    );
+
+    successResponse(res, null, 'Password berhasil dibuat! Sekarang Anda bisa login dengan email dan password.');
+  } catch (error) {
+    console.error('Set password error:', error);
     errorResponse(res, 'Server error');
   }
 };

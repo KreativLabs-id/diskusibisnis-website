@@ -8,6 +8,7 @@ import {
   forgotPassword,
   resetPassword,
   changePassword,
+  setPassword,
   requestRegisterOTP,
   verifyRegisterOTP,
   requestChangePasswordOTP
@@ -122,6 +123,18 @@ router.post(
     validate
   ],
   changePassword
+);
+
+// Set password for Google users (who don't have a password yet)
+router.post(
+  '/set-password',
+  requireAuth,
+  [
+    body('newPassword').isLength({ min: 6 }).withMessage('Password minimal 6 karakter'),
+    body('confirmPassword').notEmpty().withMessage('Konfirmasi password wajib diisi'),
+    validate
+  ],
+  setPassword
 );
 
 export default router;

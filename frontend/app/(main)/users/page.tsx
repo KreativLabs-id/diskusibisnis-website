@@ -190,7 +190,7 @@ export default function UsersPage() {
                       <div className="flex flex-col items-center flex-1">
                         <span className="text-xs text-slate-500 font-medium uppercase tracking-wide">Bergabung</span>
                         <span className="text-slate-700 font-semibold text-xs">
-                          {new Date(user.created_at).toLocaleDateString('id-ID', { month: 'short', year: '2-digit' })}
+                          {new Date(user.created_at).toLocaleDateString('id-ID', { month: 'short', year: 'numeric' })}
                         </span>
                       </div>
                     </div>

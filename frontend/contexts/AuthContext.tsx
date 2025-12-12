@@ -12,6 +12,8 @@ interface User {
   role: string;
   reputationPoints: number;
   isVerified: boolean;
+  googleId?: string; // For detecting Google-authenticated users
+  hasPassword?: boolean; // For detecting if user has a password set
 }
 
 interface AuthContextType {
@@ -68,7 +70,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
                 avatarUrl: userData.avatarUrl || userData.avatar_url,
                 role: userData.role || parsedUser.role,
                 reputationPoints: userData.reputationPoints || userData.reputation_points || 0,
-                isVerified: userData.isVerified || userData.is_verified || (userData.role === 'admin')
+                isVerified: userData.isVerified || userData.is_verified || (userData.role === 'admin'),
+                googleId: userData.googleId || userData.google_id || parsedUser.googleId,
+                hasPassword: userData.hasPassword ?? userData.has_password ?? parsedUser.hasPassword
               };
 
               if (mounted) {
@@ -179,7 +183,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         avatarUrl: userData.avatarUrl || userData.avatar_url,
         role: userData.role,
         reputationPoints: userData.reputationPoints || userData.reputation_points || 0,
-        isVerified: userData.isVerified || userData.is_verified || (userData.role === 'admin')
+        isVerified: userData.isVerified || userData.is_verified || (userData.role === 'admin'),
+        googleId: userData.googleId || userData.google_id,
+        hasPassword: userData.hasPassword ?? userData.has_password
       };
 
       updateUser(updatedUser);
@@ -203,7 +209,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         avatarUrl: userData.avatarUrl || userData.avatar_url,
         role: userData.role,
         reputationPoints: userData.reputationPoints || userData.reputation_points || 0,
-        isVerified: userData.isVerified || userData.is_verified || (userData.role === 'admin')
+        isVerified: userData.isVerified || userData.is_verified || (userData.role === 'admin'),
+        googleId: userData.googleId || userData.google_id,
+        hasPassword: userData.hasPassword ?? userData.has_password
       };
 
       updateUser(updatedUser);

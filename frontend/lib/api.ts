@@ -86,6 +86,8 @@ export const authAPI = {
     api.post('/auth/reset-password', data),
   changePassword: (data: { userId: string; currentPassword: string; newPassword: string }) =>
     api.post('/auth/change-password', data),
+  setPassword: (data: { newPassword: string; confirmPassword: string }) =>
+    api.post('/auth/set-password', data),
 };
 
 // Questions
@@ -152,6 +154,8 @@ export const userAPI = {
     api.put(`/users/${id}`, data),
   deleteAvatar: (id: string) =>
     api.delete(`/users/${id}/avatar`),
+  deleteAccount: (id: string, password?: string) =>
+    api.delete(`/users/${id}/account`, { data: { password } }),
   getQuestions: (id: string) =>
     api.get(`/users/${id}/questions`),
   getAnswers: (id: string) =>

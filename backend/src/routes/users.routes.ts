@@ -8,7 +8,8 @@ import {
   getUserActivities,
   getUserRank,
   updateUserProfile,
-  deleteUserAvatar
+  deleteUserAvatar,
+  deleteAccount
 } from '../controllers/users.controller';
 import { authenticateToken } from '../middlewares/auth.middleware';
 
@@ -34,6 +35,9 @@ router.get('/:id/answers', getUserAnswers);
 
 // Delete user avatar (must come before /:id)
 router.delete('/:id/avatar', authenticateToken, deleteUserAvatar);
+
+// Delete user account permanently (self-deletion)
+router.delete('/:id/account', authenticateToken, deleteAccount);
 
 // Update user profile (must come before /:id)
 router.put('/:id', authenticateToken, updateUserProfile);

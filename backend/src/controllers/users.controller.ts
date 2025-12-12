@@ -74,13 +74,14 @@ export const getUserById = async (req: AuthRequest, res: Response): Promise<void
 
     // Check if parameter is UUID or username
     const isUUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(idOrUsername);
-    
+
     let query;
     if (isUUID) {
       query = `
         SELECT 
           id, display_name, username, avatar_url, bio, reputation_points, 
-          role, is_verified, created_at,
+          role, is_verified, created_at, google_id,
+          (password_hash IS NOT NULL) as has_password,
           (SELECT COUNT(*) FROM questions WHERE author_id = users.id) as questions_count,
           (SELECT COUNT(*) FROM answers WHERE author_id = users.id) as answers_count,
           (SELECT COUNT(*) FROM votes WHERE user_id = users.id) as total_votes
@@ -91,7 +92,8 @@ export const getUserById = async (req: AuthRequest, res: Response): Promise<void
       query = `
         SELECT 
           id, display_name, username, avatar_url, bio, reputation_points, 
-          role, is_verified, created_at,
+          role, is_verified, created_at, google_id,
+          (password_hash IS NOT NULL) as has_password,
           (SELECT COUNT(*) FROM questions WHERE author_id = users.id) as questions_count,
           (SELECT COUNT(*) FROM answers WHERE author_id = users.id) as answers_count,
           (SELECT COUNT(*) FROM votes WHERE user_id = users.id) as total_votes
@@ -159,7 +161,7 @@ export const getUserQuestions = async (req: AuthRequest, res: Response): Promise
 
     // Check if parameter is UUID or username
     const isUUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(idOrUsername);
-    
+
     // Get user ID from username if needed
     let userId = idOrUsername;
     if (!isUUID) {
@@ -224,7 +226,7 @@ export const getUserAnswers = async (req: AuthRequest, res: Response): Promise<v
 
     // Check if parameter is UUID or username
     const isUUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(idOrUsername);
-    
+
     // Get user ID from username if needed
     let userId = idOrUsername;
     if (!isUUID) {
@@ -481,9 +483,9 @@ export const updateUserProfile = async (req: AuthRequest, res: Response): Promis
       return;
     }
 
-    successResponse(res, { 
+    successResponse(res, {
       user: result.rows[0],
-      message: 'Profile updated successfully' 
+      message: 'Profile updated successfully'
     });
   } catch (error) {
     console.error('Update user profile error:', error);
@@ -520,12 +522,160 @@ export const deleteUserAvatar = async (req: AuthRequest, res: Response): Promise
       return;
     }
 
-    successResponse(res, { 
+    successResponse(res, {
       user: result.rows[0],
-      message: 'Avatar deleted successfully' 
+      message: 'Avatar deleted successfully'
     });
   } catch (error) {
     console.error('Delete user avatar error:', error);
     errorResponse(res, 'Server error');
+  }
+};
+
+/**
+ * Delete user account (self-deletion)
+ * DELETE /api/users/:id/account
+ * 
+ * This permanently deletes:
+ * - User record
+ * - All questions authored by user
+ * - All answers authored by user
+ * - All comments authored by user
+ * - All votes by user
+ * - All bookmarks by user
+ * - All notifications for user
+ * - All community memberships
+ */
+export const deleteAccount = async (req: AuthRequest, res: Response): Promise<void> => {
+  const client = await pool.connect();
+
+  try {
+    const userId = req.params.id;
+    const { password } = req.body;
+
+    // Check if user is deleting their own account
+    if (req.user?.id !== userId) {
+      res.status(403).json({
+        success: false,
+        message: 'Anda hanya dapat menghapus akun Anda sendiri'
+      });
+      return;
+    }
+
+    // Get user data to verify password (if not Google user)
+    const userResult = await client.query(
+      'SELECT id, email, password_hash, google_id, display_name FROM public.users WHERE id = $1',
+      [userId]
+    );
+
+    if (userResult.rows.length === 0) {
+      res.status(404).json({
+        success: false,
+        message: 'User tidak ditemukan'
+      });
+      return;
+    }
+
+    const user = userResult.rows[0];
+
+    // Password is required ONLY if user has a password (not a Google-only account)
+    // Google-only users (have google_id but no password_hash) don't need password
+    const needsPassword = user.password_hash && !user.google_id;
+
+    if (needsPassword) {
+      if (!password) {
+        res.status(400).json({
+          success: false,
+          message: 'Password diperlukan untuk menghapus akun'
+        });
+        return;
+      }
+
+      // Import bcrypt for password verification
+      const bcrypt = require('bcryptjs');
+      const isValidPassword = await bcrypt.compare(password, user.password_hash);
+
+      if (!isValidPassword) {
+        res.status(401).json({
+          success: false,
+          message: 'Password tidak sesuai'
+        });
+        return;
+      }
+    }
+
+    // Start transaction
+    await client.query('BEGIN');
+
+    try {
+      // Delete in order to respect foreign key constraints
+
+      // 1. Delete notifications
+      await client.query('DELETE FROM public.notifications WHERE user_id = $1', [userId]);
+      console.log(`Deleted notifications for user ${userId}`);
+
+      // 2. Delete bookmarks
+      await client.query('DELETE FROM public.bookmarks WHERE user_id = $1', [userId]);
+      console.log(`Deleted bookmarks for user ${userId}`);
+
+      // 3. Delete votes
+      await client.query('DELETE FROM public.votes WHERE user_id = $1', [userId]);
+      console.log(`Deleted votes for user ${userId}`);
+
+      // 4. Delete comments
+      await client.query('DELETE FROM public.comments WHERE author_id = $1', [userId]);
+      console.log(`Deleted comments for user ${userId}`)
+
+      // 5. Delete answers
+      await client.query('DELETE FROM public.answers WHERE author_id = $1', [userId]);
+      console.log(`Deleted answers for user ${userId}`);
+
+      // 6. Delete community memberships
+      await client.query('DELETE FROM public.community_members WHERE user_id = $1', [userId]);
+      console.log(`Deleted community memberships for user ${userId}`);
+
+      // 7. Delete questions
+      await client.query('DELETE FROM public.questions WHERE author_id = $1', [userId]);
+      console.log(`Deleted questions for user ${userId}`);
+
+      // 8. Delete support tickets if table exists
+      const supportTableExists = await client.query(`
+        SELECT EXISTS (
+          SELECT FROM pg_tables WHERE schemaname = 'public' AND tablename = 'support_tickets'
+        )
+      `);
+      if (supportTableExists.rows[0].exists) {
+        await client.query('DELETE FROM public.support_tickets WHERE email = $1', [user.email]);
+        console.log(`Deleted support tickets for user ${userId}`);
+      }
+
+      // 9. Delete newsletter subscription if table exists
+      const newsletterTableExists = await client.query(`
+        SELECT EXISTS (
+          SELECT FROM pg_tables WHERE schemaname = 'public' AND tablename = 'newsletter_subscribers'
+        )
+      `);
+      if (newsletterTableExists.rows[0].exists) {
+        await client.query('DELETE FROM public.newsletter_subscribers WHERE email = $1', [user.email]);
+        console.log(`Deleted newsletter subscription for user ${userId}`);
+      }
+
+      // 10. Finally, delete the user
+      await client.query('DELETE FROM public.users WHERE id = $1', [userId]);
+      console.log(`Deleted user ${userId}`);
+
+      // Commit transaction
+      await client.query('COMMIT');
+
+      successResponse(res, null, 'Akun Anda berhasil dihapus secara permanen');
+    } catch (error) {
+      await client.query('ROLLBACK');
+      throw error;
+    }
+  } catch (error) {
+    console.error('Delete account error:', error);
+    errorResponse(res, 'Gagal menghapus akun. Silakan coba lagi.');
+  } finally {
+    client.release();
   }
 };
