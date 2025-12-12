@@ -50,7 +50,7 @@ export default function QuestionCard({ question }: { question: Question }) {
         {/* Title */}
         <Link
           href={`/questions/${question.id}`}
-          onClick={(e) => e.stopPropagation()}
+          onClick={(e: React.MouseEvent) => e.stopPropagation()}
         >
           <h3 className="text-lg font-bold text-slate-900 hover:text-emerald-600 transition-colors line-clamp-2 leading-tight mt-2">
             {question.title}
@@ -85,7 +85,7 @@ export default function QuestionCard({ question }: { question: Question }) {
             <Link
               key={tag.id}
               href={`/tags/${tag.slug}`}
-              onClick={(e) => e.stopPropagation()}
+              onClick={(e: React.MouseEvent) => e.stopPropagation()}
               className="px-2.5 py-1 rounded-full bg-emerald-50 text-emerald-700 text-xs font-medium hover:bg-emerald-100 transition-colors"
             >
               {tag.name}
@@ -135,7 +135,7 @@ export default function QuestionCard({ question }: { question: Question }) {
           </div>
           <Link
             href={`/profile/${authorProfileLink}`}
-            onClick={(e) => e.stopPropagation()}
+            onClick={(e: React.MouseEvent) => e.stopPropagation()}
             className="flex items-center gap-1.5"
           >
             <p className="text-sm font-medium text-slate-700">{question.author_name || 'Unknown'}</p>
