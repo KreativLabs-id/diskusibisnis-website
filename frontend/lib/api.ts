@@ -212,6 +212,15 @@ export const adminAPI = {
     api.post(`/admin/communities/${id}/unban`),
   getStats: () =>
     api.get('/admin/stats'),
+  // Newsletter
+  getNewsletterStats: () =>
+    api.get('/admin/newsletter/stats'),
+  getNewsletterHistory: () =>
+    api.get('/admin/newsletter/history'),
+  sendNewsletter: (data: { subject: string; content: string; previewHtml?: string }) =>
+    api.post('/admin/newsletter/send', data),
+  sendTestNewsletter: (data: { email: string; subject: string; content: string; previewHtml?: string }) =>
+    api.post('/admin/newsletter/test', data),
 };
 
 // Bookmark API

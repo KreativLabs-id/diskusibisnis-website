@@ -336,15 +336,35 @@ export const googleLogin = async (req: AuthRequest, res: Response): Promise<void
   try {
     const { credential } = req.body;
 
+    // Validate credential
+    if (!credential) {
+      errorResponse(res, 'Google credential is required', 400);
+      return;
+    }
+
+    // Check if GOOGLE_CLIENT_ID is configured
+    if (!process.env.GOOGLE_CLIENT_ID) {
+      console.error('GOOGLE_CLIENT_ID is not configured in environment variables');
+      errorResponse(res, 'Google authentication is not configured', 500);
+      return;
+    }
+
     // Verify Google token
-    const ticket = await googleClient.verifyIdToken({
-      idToken: credential,
-      audience: process.env.GOOGLE_CLIENT_ID,
-    });
+    let ticket;
+    try {
+      ticket = await googleClient.verifyIdToken({
+        idToken: credential,
+        audience: process.env.GOOGLE_CLIENT_ID,
+      });
+    } catch (verifyError: any) {
+      console.error('Google token verification error:', verifyError.message);
+      errorResponse(res, 'Invalid Google token. Please try again.', 400);
+      return;
+    }
 
     const payload = ticket.getPayload();
     if (!payload || !payload.email) {
-      errorResponse(res, 'Invalid Google token', 400);
+      errorResponse(res, 'Unable to get user info from Google token', 400);
       return;
     }
 
@@ -360,12 +380,27 @@ export const googleLogin = async (req: AuthRequest, res: Response): Promise<void
     let isNewUser = false;
 
     if (userResult.rows.length === 0) {
-      // Create new user
+      // Create new user - generate a unique username from email
+      const baseUsername = email.split('@')[0].toLowerCase().replace(/[^a-z0-9_]/g, '_');
+      let username = baseUsername;
+      let counter = 1;
+
+      // Check if username exists and generate unique one
+      while (true) {
+        const usernameCheck = await pool.query(
+          'SELECT id FROM public.users WHERE username = $1',
+          [username]
+        );
+        if (usernameCheck.rows.length === 0) break;
+        username = `${baseUsername}${counter}`;
+        counter++;
+      }
+
       const result = await pool.query(
-        `INSERT INTO public.users (email, display_name, avatar_url, google_id, role, is_verified) 
-         VALUES ($1, $2, $3, $4, 'member', false) 
-         RETURNING id, email, display_name, avatar_url, role, reputation_points, is_verified`,
-        [email, name || email?.split('@')[0], picture, googleId]
+        `INSERT INTO public.users (email, display_name, username, avatar_url, google_id, role, is_verified) 
+         VALUES ($1, $2, $3, $4, $5, 'member', false) 
+         RETURNING id, email, display_name, username, avatar_url, role, reputation_points, is_verified`,
+        [email, name || email?.split('@')[0], username, picture, googleId]
       );
       user = result.rows[0];
       isNewUser = true;
@@ -402,6 +437,7 @@ export const googleLogin = async (req: AuthRequest, res: Response): Promise<void
         id: user.id,
         email: user.email,
         displayName: user.display_name,
+        username: user.username,
         avatarUrl: user.avatar_url || picture,
         role: user.role,
         reputationPoints: user.reputation_points || 0,
@@ -409,9 +445,17 @@ export const googleLogin = async (req: AuthRequest, res: Response): Promise<void
       token, // Still return token for backward compatibility
       isNewUser,
     }, isNewUser ? 'Account created successfully' : 'Login successful');
-  } catch (error) {
-    console.error('Google login error:', error);
-    errorResponse(res, 'Failed to authenticate with Google');
+  } catch (error: any) {
+    console.error('Google login error:', error.message || error);
+
+    // Provide more specific error message
+    if (error.message?.includes('Token used too late')) {
+      errorResponse(res, 'Google token has expired. Please try again.', 400);
+    } else if (error.message?.includes('Wrong recipient')) {
+      errorResponse(res, 'Google authentication configuration error', 500);
+    } else {
+      errorResponse(res, 'Failed to authenticate with Google. Please try again.');
+    }
   }
 };
 

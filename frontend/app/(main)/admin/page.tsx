@@ -4,7 +4,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { adminAPI } from '@/lib/api';
-import { Users, MessageSquare, BarChart3, Shield, AlertTriangle, CheckCircle } from 'lucide-react';
+import { Users, MessageSquare, BarChart3, Shield, AlertTriangle, CheckCircle, Mail } from 'lucide-react';
 import Link from 'next/link';
 
 interface AdminStats {
@@ -211,6 +211,21 @@ export default function AdminDashboard() {
             <div>
               <h3 className="font-semibold text-slate-900">Support Tickets</h3>
               <p className="text-sm text-slate-600">Kelola tiket bantuan dari pengguna</p>
+            </div>
+          </div>
+        </Link>
+
+        <Link
+          href="/admin/newsletter"
+          className="bg-white rounded-xl border border-slate-200 p-6 hover:border-pink-300 hover:shadow-md transition-all duration-200 group"
+        >
+          <div className="flex items-center gap-4">
+            <div className="p-3 bg-gradient-to-br from-purple-100 to-pink-100 rounded-lg group-hover:from-purple-200 group-hover:to-pink-200 transition-colors">
+              <Mail className="w-6 h-6 text-purple-600" />
+            </div>
+            <div>
+              <h3 className="font-semibold text-slate-900">Newsletter</h3>
+              <p className="text-sm text-slate-600">Kirim newsletter ke semua subscriber</p>
             </div>
           </div>
         </Link>

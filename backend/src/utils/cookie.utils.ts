@@ -5,10 +5,14 @@ import config from '../config/environment';
 const isProduction = config.nodeEnv === 'production';
 
 // Default cookie options for JWT token
+// Note: When frontend and backend are on different domains,
+// we need sameSite: 'none' with secure: true for cross-origin cookies
 export const cookieOptions: CookieOptions = {
     httpOnly: true, // Cannot be accessed by JavaScript
     secure: isProduction, // Only HTTPS in production
-    sameSite: isProduction ? 'strict' : 'lax', // CSRF protection
+    // Use 'none' for cross-origin requests in production (different domains)
+    // Use 'lax' for development (same origin)
+    sameSite: isProduction ? 'none' : 'lax',
     maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days in milliseconds
     path: '/',
 };
@@ -17,7 +21,7 @@ export const cookieOptions: CookieOptions = {
 export const clearCookieOptions: CookieOptions = {
     httpOnly: true,
     secure: isProduction,
-    sameSite: isProduction ? 'strict' : 'lax',
+    sameSite: isProduction ? 'none' : 'lax',
     path: '/',
 };
 
