@@ -3,192 +3,92 @@ import Link from 'next/link';
 import { ArrowLeft, Shield, Lock, Eye, FileText } from 'lucide-react';
 
 export const metadata: Metadata = {
-  title: 'Kebijakan Privasi - DiskusiBisnis',
-  description: 'Kebijakan privasi DiskusiBisnis tentang pengumpulan, penggunaan, dan perlindungan data pengguna'
+  title: 'Kebijakan Privasi',
+  description: 'Komitmen kami dalam melindungi data dan privasi pengguna.'
 };
 
 export default function PrivacyPage() {
   return (
-    <div className="min-h-screen bg-slate-50">
-      <div className="max-w-4xl mx-auto px-4 py-8">
+    <div className="min-h-screen bg-white">
+      <div className="max-w-3xl mx-auto px-6 py-12 md:py-20">
+
+        {/* Navigation */}
+        <nav className="mb-12">
+          <Link
+            href="/explore"
+            className="group inline-flex items-center gap-2 text-sm font-medium text-slate-500 hover:text-emerald-600 transition-colors"
+          >
+            <ArrowLeft className="w-4 h-4 group-hover:-translate-x-1 transition-transform" />
+            Kembali
+          </Link>
+        </nav>
+
         {/* Header */}
-        <Link 
-          href="/"
-          className="inline-flex items-center gap-2 text-slate-600 hover:text-emerald-600 mb-6 transition-colors"
-        >
-          <ArrowLeft size={20} />
-          <span>Kembali ke Beranda</span>
-        </Link>
-
-        <div className="bg-white rounded-2xl shadow-sm border border-slate-200 p-6">
-          {/* Title */}
-          <div className="flex items-center gap-3 mb-6">
-            <div className="p-2 bg-emerald-100 rounded-lg">
-              <Shield size={28} className="text-emerald-600" />
-            </div>
-            <div>
-              <h1 className="text-2xl font-bold text-slate-900">Kebijakan Privasi</h1>
-              <p className="text-slate-600">Terakhir diperbarui: 16 November 2025</p>
-            </div>
+        <header className="mb-16 border-b border-slate-100 pb-10">
+          <h1 className="text-3xl md:text-5xl font-bold text-slate-900 mb-6">Kebijakan Privasi</h1>
+          <div className="flex items-center gap-4 text-slate-500 text-sm">
+            <span className="flex items-center gap-1.5">
+              <Shield className="w-4 h-4 text-emerald-600" />
+              Terakhir diperbarui: 16 November 2025
+            </span>
           </div>
+        </header>
 
-          {/* Content */}
-          <div className="prose prose-slate max-w-none">
-            <section className="mb-8">
-              <p className="text-lg text-slate-700 leading-relaxed">
-                DiskusiBisnis berkomitmen untuk melindungi privasi Anda. Kebijakan Privasi ini menjelaskan 
-                bagaimana kami mengumpulkan, menggunakan, dan melindungi informasi pribadi Anda.
-              </p>
-            </section>
+        {/* Content */}
+        <div className="prose prose-slate prose-lg max-w-none prose-headings:font-bold prose-headings:text-slate-900 prose-p:text-slate-600 prose-li:text-slate-600 prose-a:text-emerald-600 hover:prose-a:text-emerald-700">
+          <p className="lead text-xl text-slate-600 mb-12">
+            Privasi Anda adalah prioritas kami. Dokumen ini menjelaskan transparansi kami dalam mengelola data Anda di platform DiskusiBisnis.
+          </p>
 
-            <section className="mb-8">
-              <div className="flex items-center gap-3 mb-4">
-                <Eye size={22} className="text-emerald-600" />
-                <h2 className="text-xl font-bold text-slate-900 m-0">Informasi yang Kami Kumpulkan</h2>
-              </div>
-              <div className="space-y-4">
-                <div>
-                  <h3 className="text-lg font-semibold text-slate-900">1. Informasi Akun</h3>
-                  <ul className="list-disc list-inside text-slate-700 space-y-2">
-                    <li>Nama lengkap dan nama tampilan</li>
-                    <li>Alamat email</li>
-                    <li>Password (terenkripsi)</li>
-                    <li>Foto profil (opsional)</li>
-                    <li>Bio dan informasi profil lainnya</li>
-                  </ul>
-                </div>
+          <section className="mb-12">
+            <h3>1. Informasi yang Kami Kumpulkan</h3>
+            <p>Kami mengumpulkan informasi terbatas yang diperlukan untuk menyediakan layanan terbaik bagi komunitas:</p>
+            <ul>
+              <li><strong>Informasi Akun:</strong> Nama, email, dan foto profil saat Anda mendaftar.</li>
+              <li><strong>Konten:</strong> Pertanyaan, jawaban, dan diskusi yang Anda publikasikan.</li>
+              <li><strong>Interaksi:</strong> Vote, bookmark, dan reputasi yang Anda peroleh.</li>
+              <li><strong>Teknis:</strong> Log akses dasar dan cookies untuk fungsionalitas login.</li>
+            </ul>
+          </section>
 
-                <div>
-                  <h3 className="text-lg font-semibold text-slate-900">2. Konten yang Anda Buat</h3>
-                  <ul className="list-disc list-inside text-slate-700 space-y-2">
-                    <li>Pertanyaan dan jawaban</li>
-                    <li>Komentar dan diskusi</li>
-                    <li>Vote dan interaksi</li>
-                    <li>Komunitas yang Anda ikuti</li>
-                  </ul>
-                </div>
+          <section className="mb-12">
+            <h3>2. Penggunaan Informasi</h3>
+            <p>Data Anda digunakan semata-mata untuk operasional platform:</p>
+            <ul>
+              <li>Memungkinkan Anda berinteraksi dengan pengguna lain.</li>
+              <li>Membangun sistem reputasi dan kredibilitas.</li>
+              <li>Mengirimkan notifikasi relevan (yang bisa Anda atur).</li>
+              <li>Mencegah spam dan penyalahgunaan platform.</li>
+            </ul>
+          </section>
 
-                <div>
-                  <h3 className="text-lg font-semibold text-slate-900">3. Data Teknis</h3>
-                  <ul className="list-disc list-inside text-slate-700 space-y-2">
-                    <li>Alamat IP</li>
-                    <li>Browser dan device information</li>
-                    <li>Log aktivitas platform</li>
-                    <li>Cookies dan teknologi serupa</li>
-                  </ul>
-                </div>
-              </div>
-            </section>
+          <section className="mb-12">
+            <h3>3. Perlindungan & Keamanan</h3>
+            <p>
+              Kami menerapkan standar keamanan industri untuk melindungi data Anda. Password dienkripsi,
+              koneksi menggunakan HTTPS, dan akses ke database dibatasi ketat. Kami tidak akan pernah
+              menjual data pribadi Anda kepada pihak ketiga untuk tujuan pemasaran.
+            </p>
+          </section>
 
-            <section className="mb-8">
-              <div className="flex items-center gap-3 mb-4">
-                <FileText size={22} className="text-emerald-600" />
-                <h2 className="text-xl font-bold text-slate-900 m-0">Bagaimana Kami Menggunakan Informasi</h2>
-              </div>
-              <ul className="list-disc list-inside text-slate-700 space-y-2">
-                <li>Menyediakan dan meningkatkan layanan platform</li>
-                <li>Memproses registrasi dan autentikasi pengguna</li>
-                <li>Menampilkan konten yang relevan untuk Anda</li>
-                <li>Mengirim notifikasi penting terkait akun Anda</li>
-                <li>Mencegah penyalahgunaan dan fraud</li>
-                <li>Menganalisis penggunaan platform untuk perbaikan</li>
-                <li>Berkomunikasi dengan Anda tentang update dan fitur baru</li>
-              </ul>
-            </section>
+          <section className="mb-12">
+            <h3>4. Kendali Anda</h3>
+            <p>Anda memiliki kendali penuh atas data Anda:</p>
+            <ul>
+              <li>Anda bisa mengedit atau menghapus profil Anda kapan saja.</li>
+              <li>Anda bisa meminta salinan data yang kami miliki (Export Data).</li>
+              <li>Anda bisa menghapus akun secara permanen melalui Pengaturan.</li>
+            </ul>
+          </section>
 
-            <section className="mb-8">
-              <div className="flex items-center gap-3 mb-4">
-                <Lock size={22} className="text-emerald-600" />
-                <h2 className="text-xl font-bold text-slate-900 m-0">Perlindungan Data</h2>
-              </div>
-              <div className="space-y-4 text-slate-700">
-                <p>
-                  Kami menerapkan langkah-langkah keamanan yang sesuai untuk melindungi informasi pribadi Anda:
-                </p>
-                <ul className="list-disc list-inside space-y-2">
-                  <li>Enkripsi data sensitif (password, token)</li>
-                  <li>HTTPS untuk semua komunikasi</li>
-                  <li>Akses terbatas ke data pribadi</li>
-                  <li>Regular security audits</li>
-                  <li>Backup data berkala</li>
-                </ul>
-              </div>
-            </section>
+          <section className="bg-slate-50 p-8 rounded-2xl border border-slate-100 not-prose mt-16">
+            <h4 className="text-lg font-bold text-slate-900 mb-2">Punya pertanyaan tentang privasi?</h4>
+            <p className="text-slate-600 mb-4">Tim kami siap membantu menjelaskan praktik data kami.</p>
+            <Link href="/help" className="text-emerald-600 font-medium hover:underline">
+              Hubungi Pusat Bantuan &rarr;
+            </Link>
+          </section>
 
-            <section className="mb-8">
-              <h2 className="text-xl font-bold text-slate-900 mb-4">Berbagi Informasi</h2>
-              <div className="space-y-4 text-slate-700">
-                <p>Kami <strong>TIDAK</strong> menjual data pribadi Anda kepada pihak ketiga.</p>
-                <p>Kami hanya membagikan informasi dalam situasi berikut:</p>
-                <ul className="list-disc list-inside space-y-2">
-                  <li><strong>Dengan persetujuan Anda</strong> - Ketika Anda secara eksplisit menyetujui</li>
-                  <li><strong>Service providers</strong> - Provider hosting, analytics yang membantu operasional platform</li>
-                  <li><strong>Kepatuhan hukum</strong> - Jika diwajibkan oleh hukum atau proses hukum</li>
-                  <li><strong>Perlindungan hak</strong> - Untuk melindungi hak, properti, dan keamanan kami atau pengguna lain</li>
-                </ul>
-              </div>
-            </section>
-
-            <section className="mb-8">
-              <h2 className="text-xl font-bold text-slate-900 mb-4">Hak Anda</h2>
-              <div className="space-y-4 text-slate-700">
-                <p>Anda memiliki hak untuk:</p>
-                <ul className="list-disc list-inside space-y-2">
-                  <li><strong>Akses</strong> - Melihat informasi pribadi yang kami miliki tentang Anda</li>
-                  <li><strong>Koreksi</strong> - Memperbarui atau memperbaiki informasi yang tidak akurat</li>
-                  <li><strong>Penghapusan</strong> - Meminta penghapusan akun dan data pribadi Anda</li>
-                  <li><strong>Portabilitas</strong> - Mendapatkan salinan data Anda dalam format terstruktur</li>
-                  <li><strong>Keberatan</strong> - Menolak pemrosesan tertentu atas data Anda</li>
-                </ul>
-                <p>
-                  Untuk melaksanakan hak-hak ini, silakan hubungi kami melalui halaman Bantuan atau 
-                  email ke <strong>privacy@diskusibisnis.com</strong>
-                </p>
-              </div>
-            </section>
-
-            <section className="mb-8">
-              <h2 className="text-xl font-bold text-slate-900 mb-4">Cookies</h2>
-              <div className="space-y-4 text-slate-700">
-                <p>
-                  Kami menggunakan cookies dan teknologi serupa untuk meningkatkan pengalaman Anda:
-                </p>
-                <ul className="list-disc list-inside space-y-2">
-                  <li><strong>Essential cookies</strong> - Diperlukan untuk fungsi dasar platform</li>
-                  <li><strong>Analytics cookies</strong> - Membantu kami memahami penggunaan platform</li>
-                  <li><strong>Preference cookies</strong> - Menyimpan preferensi Anda</li>
-                </ul>
-                <p>
-                  Anda dapat mengontrol penggunaan cookies melalui pengaturan browser Anda.
-                </p>
-              </div>
-            </section>
-
-            <section className="mb-8">
-              <h2 className="text-xl font-bold text-slate-900 mb-4">Perubahan Kebijakan</h2>
-              <p className="text-slate-700">
-                Kami dapat memperbarui Kebijakan Privasi ini dari waktu ke waktu. Kami akan memberitahu 
-                Anda tentang perubahan signifikan melalui email atau notifikasi di platform. Penggunaan 
-                berkelanjutan setelah perubahan berarti Anda menerima kebijakan yang diperbarui.
-              </p>
-            </section>
-
-            <section className="mb-8 bg-emerald-50 p-6 rounded-xl border border-emerald-200">
-              <h2 className="text-xl font-bold text-slate-900 mb-4">Hubungi Kami</h2>
-              <p className="text-slate-700 mb-4">
-                Jika Anda memiliki pertanyaan tentang Kebijakan Privasi ini, silakan hubungi:
-              </p>
-              <div className="text-slate-700 space-y-2">
-                <p><strong>Email:</strong> privacy@diskusibisnis.com</p>
-                <p><strong>Alamat:</strong> Jakarta, Indonesia</p>
-                <p>
-                  <Link href="/help" className="text-emerald-600 hover:text-emerald-700 font-semibold">
-                    Lihat Halaman Bantuan →
-                  </Link>
-                </p>
-              </div>
-            </section>
-          </div>
         </div>
       </div>
     </div>

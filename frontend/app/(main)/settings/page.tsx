@@ -3,7 +3,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/contexts/AuthContext';
-import { User, Mail, Lock, Save, AlertCircle, Trash2, Camera, X, CheckCircle, AlertTriangle, ChevronRight, Shield, LogOut } from 'lucide-react';
+import { User, Mail, Lock, Save, AlertCircle, Trash2, Camera, X, CheckCircle, AlertTriangle, ChevronRight, Shield, LogOut, Moon, BellRing, HelpCircle, Info, ExternalLink } from 'lucide-react';
 import { userAPI, authAPI } from '@/lib/api';
 import { uploadAvatar, deleteAvatar } from '@/lib/image-upload';
 import AlertModal from '@/components/ui/AlertModal';
@@ -337,6 +337,84 @@ export default function SettingsPage() {
                 </div>
                 <ChevronRight className="w-5 h-5 text-slate-300" />
               </div>
+
+            </div>
+          </section>
+
+          <hr className="border-slate-100 mx-2 md:mx-0" />
+
+          {/* Preferences Section */}
+          <section className="px-2 md:px-0">
+            <h2 className="text-sm font-bold text-slate-900 uppercase tracking-wider mb-4">Preferensi</h2>
+            <div className="flex flex-col">
+
+              <div className="flex items-center justify-between py-4 border-b border-slate-50 hover:bg-slate-50/50 transition-colors -mx-4 px-4 rounded-xl cursor-pointer">
+                <div className="flex items-center gap-4">
+                  <div className="p-2 bg-slate-50 text-slate-600 rounded-lg">
+                    <Moon className="w-5 h-5" />
+                  </div>
+                  <div>
+                    <p className="text-sm font-medium text-slate-900">Mode Gelap</p>
+                    <p className="text-xs text-slate-500">Tampilan ramah mata</p>
+                  </div>
+                </div>
+                {/* Visual Toggle (Dummy) */}
+                <div className="w-11 h-6 bg-slate-200 rounded-full relative cursor-pointer transition-colors">
+                  <div className="absolute top-1 left-1 w-4 h-4 bg-white rounded-full shadow-sm transition-all"></div>
+                </div>
+              </div>
+
+              <div className="flex items-center justify-between py-4 border-b border-slate-50 hover:bg-slate-50/50 transition-colors -mx-4 px-4 rounded-xl cursor-pointer">
+                <div className="flex items-center gap-4">
+                  <div className="p-2 bg-slate-50 text-slate-600 rounded-lg">
+                    <BellRing className="w-5 h-5" />
+                  </div>
+                  <div>
+                    <p className="text-sm font-medium text-slate-900">Notifikasi Email</p>
+                    <p className="text-xs text-slate-500">Info terbaru via email</p>
+                  </div>
+                </div>
+                {/* Visual Toggle (Dummy - On) */}
+                <div className="w-11 h-6 bg-emerald-500 rounded-full relative cursor-pointer transition-colors">
+                  <div className="absolute top-1 right-1 w-4 h-4 bg-white rounded-full shadow-sm transition-all"></div>
+                </div>
+              </div>
+
+            </div>
+          </section>
+
+          <hr className="border-slate-100 mx-2 md:mx-0" />
+
+          {/* About & Support Section */}
+          <section className="px-2 md:px-0">
+            <h2 className="text-sm font-bold text-slate-900 uppercase tracking-wider mb-4">Tentang & Bantuan</h2>
+            <div className="flex flex-col">
+
+              <a href="/help" className="flex items-center justify-between py-4 border-b border-slate-50 hover:bg-slate-50/50 transition-colors -mx-4 px-4 rounded-xl cursor-pointer">
+                <div className="flex items-center gap-4">
+                  <div className="p-2 bg-slate-50 text-slate-600 rounded-lg">
+                    <HelpCircle className="w-5 h-5" />
+                  </div>
+                  <div>
+                    <p className="text-sm font-medium text-slate-900">Pusat Bantuan</p>
+                    <p className="text-xs text-slate-500">FAQ dan Hubungi Kami</p>
+                  </div>
+                </div>
+                <ExternalLink className="w-4 h-4 text-slate-300" />
+              </a>
+
+              <a href="/terms" className="flex items-center justify-between py-4 border-b border-slate-50 hover:bg-slate-50/50 transition-colors -mx-4 px-4 rounded-xl cursor-pointer">
+                <div className="flex items-center gap-4">
+                  <div className="p-2 bg-slate-50 text-slate-600 rounded-lg">
+                    <Info className="w-5 h-5" />
+                  </div>
+                  <div>
+                    <p className="text-sm font-medium text-slate-900">Tentang Aplikasi</p>
+                    <p className="text-xs text-slate-500">Versi 1.0.0 (Beta)</p>
+                  </div>
+                </div>
+                <ChevronRight className="w-5 h-5 text-slate-300" />
+              </a>
 
             </div>
           </section>

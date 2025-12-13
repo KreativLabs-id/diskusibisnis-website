@@ -22,8 +22,7 @@ export default function ExplorePage() {
         <div className="max-w-4xl mx-auto">
 
             {/* Header */}
-            <div className="mb-8 p-6 bg-gradient-to-br from-emerald-600 to-teal-600 rounded-3xl text-white shadow-xl relative overflow-hidden">
-                <div className="absolute top-0 right-0 w-64 h-64 bg-white/10 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2"></div>
+            <div className="mb-8 p-6 bg-gradient-to-br from-emerald-600 to-teal-600 rounded-lg text-white shadow-lg relative overflow-hidden">
                 <div className="relative z-10">
                     <h1 className="text-2xl font-bold mb-2">Jelajahi Forum</h1>
                     <p className="text-emerald-50 text-sm">Temukan komunitas, topik menarik, dan diskusi yang relevan untuk bisnis Anda.</p>
@@ -39,7 +38,7 @@ export default function ExplorePage() {
                         Menu Utama
                     </h2>
                     <div className="grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4">
-                        <Link href="/communities" className="group p-4 bg-white border border-slate-200 rounded-2xl hover:border-emerald-500 hover:shadow-md transition-all duration-200 flex flex-col justify-between h-32 relative overflow-hidden">
+                        <Link href="/communities" className="group p-4 bg-white border border-slate-200 rounded-lg hover:border-emerald-500 hover:shadow-md transition-all duration-200 flex flex-col justify-between h-32 relative overflow-hidden">
                             <div className="absolute top-0 right-0 p-3 opacity-10 group-hover:opacity-20 transition-opacity">
                                 <Users className="w-16 h-16 text-emerald-600" />
                             </div>
@@ -52,7 +51,7 @@ export default function ExplorePage() {
                             </div>
                         </Link>
 
-                        <Link href="/tags" className="group p-4 bg-white border border-slate-200 rounded-2xl hover:border-emerald-500 hover:shadow-md transition-all duration-200 flex flex-col justify-between h-32 relative overflow-hidden">
+                        <Link href="/tags" className="group p-4 bg-white border border-slate-200 rounded-lg hover:border-emerald-500 hover:shadow-md transition-all duration-200 flex flex-col justify-between h-32 relative overflow-hidden">
                             <div className="absolute top-0 right-0 p-3 opacity-10 group-hover:opacity-20 transition-opacity">
                                 <Hash className="w-16 h-16 text-emerald-600" />
                             </div>
@@ -65,7 +64,7 @@ export default function ExplorePage() {
                             </div>
                         </Link>
 
-                        <Link href="/reputation" className="group p-4 bg-white border border-slate-200 rounded-2xl hover:border-emerald-500 hover:shadow-md transition-all duration-200 flex flex-col justify-between h-32 relative overflow-hidden">
+                        <Link href="/reputation" className="group p-4 bg-white border border-slate-200 rounded-lg hover:border-emerald-500 hover:shadow-md transition-all duration-200 flex flex-col justify-between h-32 relative overflow-hidden">
                             <div className="absolute top-0 right-0 p-3 opacity-10 group-hover:opacity-20 transition-opacity">
                                 <Trophy className="w-16 h-16 text-emerald-600" />
                             </div>
@@ -78,7 +77,7 @@ export default function ExplorePage() {
                             </div>
                         </Link>
 
-                        <Link href="/users" className="group p-4 bg-white border border-slate-200 rounded-2xl hover:border-emerald-500 hover:shadow-md transition-all duration-200 flex flex-col justify-between h-32 relative overflow-hidden">
+                        <Link href="/users" className="group p-4 bg-white border border-slate-200 rounded-lg hover:border-emerald-500 hover:shadow-md transition-all duration-200 flex flex-col justify-between h-32 relative overflow-hidden">
                             <div className="absolute top-0 right-0 p-3 opacity-10 group-hover:opacity-20 transition-opacity">
                                 <User className="w-16 h-16 text-emerald-600" />
                             </div>
@@ -102,7 +101,7 @@ export default function ExplorePage() {
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
                         <Link
                             href="/questions"
-                            className="p-5 bg-white border border-slate-200 rounded-2xl hover:border-emerald-500 hover:bg-emerald-50/30 transition-all flex items-center justify-between group"
+                            className="p-5 bg-white border border-slate-200 rounded-lg hover:border-emerald-500 hover:bg-emerald-50/30 transition-all flex items-center justify-between group"
                         >
                             <div className="flex items-center gap-4">
                                 <div className="p-3 bg-emerald-100 text-emerald-600 rounded-xl group-hover:scale-110 transition-transform">
@@ -116,7 +115,7 @@ export default function ExplorePage() {
                             <ArrowRight className="w-5 h-5 text-slate-300 group-hover:text-emerald-500 group-hover:translate-x-1 transition-all" />
                         </Link>
 
-                        <Link href="/unanswered" className="p-5 bg-white border border-slate-200 rounded-2xl hover:border-orange-500 hover:bg-orange-50/30 transition-all flex items-center justify-between group">
+                        <Link href="/unanswered" className="p-5 bg-white border border-slate-200 rounded-lg hover:border-orange-500 hover:bg-orange-50/30 transition-all flex items-center justify-between group">
                             <div className="flex items-center gap-4">
                                 <div className="p-3 bg-orange-100 text-orange-600 rounded-xl group-hover:scale-110 transition-transform">
                                     <HelpCircle className="w-6 h-6" />
@@ -129,7 +128,7 @@ export default function ExplorePage() {
                             <ArrowRight className="w-5 h-5 text-slate-300 group-hover:text-orange-500 group-hover:translate-x-1 transition-all" />
                         </Link>
 
-                        <Link href="/saved" className="p-5 bg-white border border-slate-200 rounded-2xl hover:border-sky-500 hover:bg-sky-50/30 transition-all flex items-center justify-between group">
+                        <Link href="/saved" className="p-5 bg-white border border-slate-200 rounded-lg hover:border-sky-500 hover:bg-sky-50/30 transition-all flex items-center justify-between group">
                             <div className="flex items-center gap-4">
                                 <div className="p-3 bg-sky-100 text-sky-600 rounded-xl group-hover:scale-110 transition-transform">
                                     <Bookmark className="w-6 h-6" />
@@ -142,7 +141,7 @@ export default function ExplorePage() {
                             <ArrowRight className="w-5 h-5 text-slate-300 group-hover:text-sky-500 group-hover:translate-x-1 transition-all" />
                         </Link>
 
-                        <Link href="/contact" className="p-5 bg-white border border-slate-200 rounded-2xl hover:border-slate-500 hover:bg-slate-50/50 transition-all flex items-center justify-between group">
+                        <Link href="/contact" className="p-5 bg-white border border-slate-200 rounded-lg hover:border-slate-500 hover:bg-slate-50/50 transition-all flex items-center justify-between group">
                             <div className="flex items-center gap-4">
                                 <div className="p-3 bg-slate-100 text-slate-600 rounded-xl group-hover:scale-110 transition-transform">
                                     <Mail className="w-6 h-6" />
