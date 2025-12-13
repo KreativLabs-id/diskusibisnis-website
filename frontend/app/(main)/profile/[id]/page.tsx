@@ -192,12 +192,12 @@ export default function ProfilePage() {
   }
 
   return (
-    <div className="min-h-screen bg-slate-50 pb-20">
+    <div className="min-h-screen bg-slate-50">
       <div className="max-w-5xl mx-auto px-0 sm:px-4 py-0 sm:py-8">
         {/* Back Button */}
         <button
           onClick={() => router.back()}
-          className="flex items-center gap-2 text-slate-500 hover:text-slate-900 mb-4 sm:mb-6 transition-colors group px-4 sm:px-0 pt-4 sm:pt-0"
+          className="hidden sm:flex items-center gap-2 text-slate-500 hover:text-slate-900 mb-4 sm:mb-6 transition-colors group px-4 sm:px-0 pt-4 sm:pt-0"
         >
           <ArrowLeft className="w-4 h-4 group-hover:-translate-x-1 transition-transform" />
           <span className="font-medium">Kembali</span>

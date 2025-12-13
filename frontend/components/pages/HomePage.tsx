@@ -267,7 +267,7 @@ export default function HomePage() {
       </div>
 
       {/* Main Content with negative margin to overlap hero */}
-      <main className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 pb-12 -mt-12 relative z-20">
+      <main className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 pb-4 -mt-12 relative z-20">
         {/* Tag Filter Display */}
         {currentTag && (
           <div className="flex items-center gap-2 sm:gap-3 p-3 sm:p-4 mb-4 sm:mb-6 bg-white border border-emerald-100 rounded-xl shadow-lg shadow-emerald-900/5">
@@ -334,14 +334,7 @@ export default function HomePage() {
             )}
       </main>
 
-      {/* Floating Action Button - Mobile */}
-      <Link
-        href="/ask"
-        className="fixed bottom-6 right-6 z-50 md:hidden w-12 h-12 bg-emerald-600 text-white rounded-full shadow-lg flex items-center justify-center"
-        title="Ajukan Pertanyaan"
-      >
-        <Plus className="w-6 h-6" />
-      </Link>
+
     </div>
   );
 }

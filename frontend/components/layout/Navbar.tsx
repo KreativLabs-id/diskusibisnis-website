@@ -39,10 +39,10 @@ export default function Navbar({ onMenuClick }: NavbarProps) {
     <nav className="w-full bg-white sticky top-0 z-40 shadow-sm">
       <div className="container mx-auto px-3 sm:px-4">
         <div className="flex items-center justify-between h-14 sm:h-16 gap-2">
-          {/* Mobile Menu Button */}
+          {/* Mobile Menu Button - Hidden as we use Bottom Nav & Discovery Page */}
           <button
             onClick={onMenuClick}
-            className="lg:hidden p-2 rounded-lg hover:bg-slate-50 transition-colors shrink-0"
+            className="hidden lg:hidden p-2 rounded-lg hover:bg-slate-50 transition-colors shrink-0"
           >
             <Menu className="w-5 h-5 sm:w-6 sm:h-6 text-slate-700" />
           </button>
@@ -71,14 +71,16 @@ export default function Navbar({ onMenuClick }: NavbarProps) {
                   <span>Tanya</span>
                 </Link>
 
-                {/* Notification - All devices */}
-                <NotificationDropdown />
+                {/* Notification - All devices (Hidden on mobile) */}
+                <div className="hidden lg:block">
+                  <NotificationDropdown />
+                </div>
 
                 {/* User Menu */}
                 <div className="relative" ref={userMenuRef}>
                   <button
                     onClick={() => setShowUserMenu(!showUserMenu)}
-                    className="flex items-center gap-2 p-1.5 sm:p-2 hover:bg-slate-50 rounded-lg transition-colors group"
+                    className="hidden lg:flex items-center gap-2 p-1.5 sm:p-2 hover:bg-slate-50 rounded-lg transition-colors group"
                   >
                     <UserAvatar
                       src={user.avatarUrl}
@@ -193,10 +195,10 @@ export default function Navbar({ onMenuClick }: NavbarProps) {
                   </Link>
                 </div>
 
-                {/* Mobile: Single consolidated button */}
+                {/* Mobile: Single consolidated button - Hidden on mobile to keep header clean */}
                 <Link
                   href="/login"
-                  className="md:hidden p-2.5 text-slate-700 hover:text-emerald-600 transition-colors rounded-xl hover:bg-white/80"
+                  className="hidden md:hidden p-2.5 text-slate-700 hover:text-emerald-600 transition-colors rounded-xl hover:bg-white/80"
                   title="Masuk / Daftar"
                 >
                   <User className="w-5 h-5" />

@@ -9,6 +9,13 @@ import {
   Plus,
   Filter,
   Search,
+  Users,
+  Hash,
+  Trophy,
+  User,
+  Bookmark,
+  HelpCircle,
+  Mail,
 } from 'lucide-react';
 import Link from 'next/link';
 
@@ -184,8 +191,12 @@ export default function QuestionsPageContent() {
         </div>
       </div>
 
+      {/* Discovery Hub - Replaces Sidebar on Mobile */}
+
+
       {/* Search Bar - Modern Design */}
-      <div className="mb-8">
+      <div className="mb-6">
+        <h2 className="text-sm font-bold text-slate-900 mb-3 px-1 uppercase tracking-wider">Cari Diskusi</h2>
         <div className="relative group">
           <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
             <Search className="h-5 w-5 text-slate-400 group-focus-within:text-emerald-500 transition-colors" />
@@ -200,8 +211,8 @@ export default function QuestionsPageContent() {
         </div>
       </div>
 
-      {/* Filter & Sort Section - Clean & Minimal */}
-      <div className="bg-white rounded-2xl shadow-sm border border-slate-200 p-2 mb-8 flex flex-col sm:flex-row items-center justify-between gap-4">
+      {/* Simple Filter Tabs */}
+      <div className="bg-white rounded-2xl shadow-sm border border-slate-200 p-2 mb-6 flex flex-col sm:flex-row items-center justify-between gap-4">
         <div className="flex items-center gap-1 p-1 bg-slate-100/50 rounded-xl w-full sm:w-auto overflow-x-auto no-scrollbar">
           {sortOptions.map((option) => {
             const Icon = option.icon;
@@ -221,11 +232,6 @@ export default function QuestionsPageContent() {
               </button>
             );
           })}
-        </div>
-
-        <div className="hidden sm:flex items-center gap-2 px-3 py-2 text-xs font-medium text-slate-400">
-          <TrendingUp className="w-3.5 h-3.5" />
-          <span>Urutkan diskusi</span>
         </div>
       </div>
 
@@ -263,15 +269,6 @@ export default function QuestionsPageContent() {
             ))
         }
       </div>
-
-      {/* Floating Action Button - Mobile */}
-      <Link
-        href="/ask"
-        className="fixed bottom-6 right-6 z-50 md:hidden w-14 h-14 bg-gradient-to-r from-emerald-600 to-emerald-700 text-white rounded-full shadow-lg hover:shadow-xl hover:from-emerald-700 hover:to-emerald-800 transition-all duration-200 flex items-center justify-center group"
-        title="Ajukan Pertanyaan"
-      >
-        <Plus className="w-6 h-6 group-hover:scale-110 transition-transform" />
-      </Link>
     </div>
   );
 }

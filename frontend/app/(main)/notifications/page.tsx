@@ -173,11 +173,11 @@ export default function NotificationsPage() {
   };
 
   return (
-    <div className="min-h-screen bg-slate-50 pb-20">
+    <div className="min-h-screen bg-slate-50">
       {/* Mobile Header - Sticky */}
       <div className="sticky top-0 z-30 bg-white border-b border-slate-200 px-4 py-3 sm:hidden flex items-center justify-between shadow-sm">
         <div className="flex items-center gap-3">
-          <Link href="/" className="p-1 -ml-1 text-slate-600">
+          <Link href="/" className="hidden p-1 -ml-1 text-slate-600">
             <ArrowLeft className="w-6 h-6" />
           </Link>
           <h1 className="text-lg font-bold text-slate-900">Notifikasi</h1>
