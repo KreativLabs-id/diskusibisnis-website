@@ -2,6 +2,8 @@
 node_modules/
 **/node_modules/
 
+#sementara
+mobile
 # Environment variables
 .env
 .env.local
@@ -41,3 +43,6 @@ coverage/
 *.pem
 .eslintcache
 .vercel
+
+# Secrets
+backend/config/firebase-admin-sdk.json

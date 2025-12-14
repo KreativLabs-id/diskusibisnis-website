@@ -31,6 +31,7 @@ router.post(
     body('email').isEmail().withMessage('Email tidak valid'),
     body('password').isLength({ min: 6 }).withMessage('Password minimal 6 karakter'),
     body('displayName').notEmpty().withMessage('Nama wajib diisi'),
+    body('username').notEmpty().withMessage('Username wajib diisi').matches(/^[a-z0-9_]+$/).withMessage('Username hanya boleh huruf kecil, angka, dan underscore'),
     validate
   ],
   requestRegisterOTP

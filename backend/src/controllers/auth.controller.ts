@@ -172,6 +172,8 @@ export const verifyRegisterOTP = async (req: AuthRequest, res: Response): Promis
           role: user.role,
           reputationPoints: user.reputation_points,
           isVerified: user.is_verified,
+          authProvider: 'email',
+          hasPassword: true,
         },
         token, // Still return token for backward compatibility
       },
@@ -233,6 +235,8 @@ export const register = async (req: AuthRequest, res: Response): Promise<void> =
           displayName: user.display_name,
           role: user.role,
           reputationPoints: user.reputation_points,
+          authProvider: 'email',
+          hasPassword: true,
         },
         token,
       },
@@ -319,6 +323,8 @@ export const login = async (req: AuthRequest, res: Response): Promise<void> => {
         avatarUrl: user.avatar_url,
         role: user.role,
         reputationPoints: user.reputation_points,
+        authProvider: 'email',
+        hasPassword: true,
       },
       token, // Still return token for backward compatibility (mobile apps, etc.)
     }, 'Login successful');
@@ -334,7 +340,7 @@ export const login = async (req: AuthRequest, res: Response): Promise<void> => {
  */
 export const googleLogin = async (req: AuthRequest, res: Response): Promise<void> => {
   try {
-    const { credential } = req.body;
+    const { credential, tokenType } = req.body;
 
     // Validate credential
     if (!credential) {
@@ -349,26 +355,60 @@ export const googleLogin = async (req: AuthRequest, res: Response): Promise<void
       return;
     }
 
-    // Verify Google token
-    let ticket;
-    try {
-      ticket = await googleClient.verifyIdToken({
-        idToken: credential,
-        audience: process.env.GOOGLE_CLIENT_ID,
-      });
-    } catch (verifyError: any) {
-      console.error('Google token verification error:', verifyError.message);
-      errorResponse(res, 'Invalid Google token. Please try again.', 400);
-      return;
-    }
+    let email: string | undefined;
+    let name: string | undefined;
+    let picture: string | undefined;
+    let googleId: string | undefined;
 
-    const payload = ticket.getPayload();
-    if (!payload || !payload.email) {
-      errorResponse(res, 'Unable to get user info from Google token', 400);
-      return;
-    }
+    // Handle different token types
+    if (tokenType === 'access_token') {
+      // Verify access token using Google userinfo API
+      try {
+        const response = await fetch(`https://www.googleapis.com/oauth2/v3/userinfo?access_token=${credential}`);
+        if (!response.ok) {
+          errorResponse(res, 'Invalid Google access token. Please try again.', 400);
+          return;
+        }
+        const userInfo = await response.json() as { email?: string; name?: string; picture?: string; sub?: string };
+        email = userInfo.email;
+        name = userInfo.name;
+        picture = userInfo.picture;
+        googleId = userInfo.sub;
 
-    const { email, name, picture, sub: googleId } = payload;
+        if (!email) {
+          errorResponse(res, 'Unable to get email from Google token', 400);
+          return;
+        }
+      } catch (fetchError: any) {
+        console.error('Google userinfo fetch error:', fetchError.message);
+        errorResponse(res, 'Failed to verify Google access token', 400);
+        return;
+      }
+    } else {
+      // Default: Verify ID token
+      let ticket;
+      try {
+        ticket = await googleClient.verifyIdToken({
+          idToken: credential,
+          audience: process.env.GOOGLE_CLIENT_ID,
+        });
+      } catch (verifyError: any) {
+        console.error('Google token verification error:', verifyError.message);
+        errorResponse(res, 'Invalid Google token. Please try again.', 400);
+        return;
+      }
+
+      const payload = ticket.getPayload();
+      if (!payload || !payload.email) {
+        errorResponse(res, 'Unable to get user info from Google token', 400);
+        return;
+      }
+
+      email = payload.email;
+      name = payload.name;
+      picture = payload.picture;
+      googleId = payload.sub;
+    }
 
     // Check if user exists
     let userResult = await pool.query(
@@ -381,7 +421,7 @@ export const googleLogin = async (req: AuthRequest, res: Response): Promise<void
 
     if (userResult.rows.length === 0) {
       // Create new user - generate a unique username from email
-      const baseUsername = email.split('@')[0].toLowerCase().replace(/[^a-z0-9_]/g, '_');
+      const baseUsername = email!.split('@')[0].toLowerCase().replace(/[^a-z0-9_]/g, '_');
       let username = baseUsername;
       let counter = 1;
 
@@ -443,6 +483,7 @@ export const googleLogin = async (req: AuthRequest, res: Response): Promise<void
         reputationPoints: user.reputation_points || 0,
         googleId: googleId, // Include googleId so frontend knows this is a Google user
         hasPassword: !!user.password_hash, // Include hasPassword so frontend knows if user can use email+password login
+        authProvider: 'google',
       },
       token, // Still return token for backward compatibility
       isNewUser,
