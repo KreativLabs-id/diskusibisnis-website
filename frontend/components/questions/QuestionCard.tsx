@@ -3,7 +3,8 @@
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { formatDate, formatNumber } from '@/lib/utils';
-import { Eye, MessageCircle, ThumbsUp, Clock, User, Award } from 'lucide-react';
+import { Eye, MessageCircle, ThumbsUp, Clock, User, Award, Flag, MoreHorizontal } from 'lucide-react';
+import { useState } from 'react';
 import VerifiedBadge from '@/components/ui/VerifiedBadge';
 import UserAvatar from '@/components/ui/UserAvatar';
 import { getReputationRingColor } from '@/components/ui/ReputationBadge';
@@ -27,7 +28,13 @@ interface Question {
   created_at: string;
 }
 
-export default function QuestionCard({ question }: { question: Question }) {
+interface QuestionCardProps {
+  question: Question;
+  onReport?: (questionId: string, title: string) => void;
+  currentUserId?: string;
+}
+
+export default function QuestionCard({ question, onReport, currentUserId }: QuestionCardProps) {
   const router = useRouter();
   const plainContent = (question.content || '').replace(/<[^>]*>/g, '').trim();
 
@@ -41,12 +48,27 @@ export default function QuestionCard({ question }: { question: Question }) {
   const ringColor = getReputationRingColor(question.author_reputation);
 
   return (
-    <div
-      className="py-6 border-b border-slate-300 last:border-b-0 hover:bg-slate-50 transition-colors duration-200 group cursor-pointer"
-      onClick={() => router.push(`/questions/${question.id}`)}
-    >
-      {/* Content Section - Full Width */}
-      <div className="space-y-3 px-3 sm:px-4 lg:px-6">
+    <div className="py-6 border-b border-slate-300 last:border-b-0 hover:bg-slate-50 transition-colors duration-200 group cursor-pointer relative">
+      {/* Report Button - Top Right */}
+      {onReport && currentUserId && currentUserId !== question.author_id && (
+        <div className="absolute top-4 right-3 sm:right-4 lg:right-6 z-10">
+          <button
+            onClick={(e) => {
+              e.stopPropagation();
+              onReport(question.id, question.title);
+            }}
+            className="p-2 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors opacity-0 group-hover:opacity-100"
+            title="Laporkan Pertanyaan"
+          >
+            <Flag className="w-4 h-4" />
+          </button>
+        </div>
+      )}
+
+      <div
+        className="space-y-3 px-3 sm:px-4 lg:px-6"
+        onClick={() => router.push(`/questions/${question.id}`)}
+      >
         {/* Title */}
         <Link
           href={`/questions/${question.id}`}

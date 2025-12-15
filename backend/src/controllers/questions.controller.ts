@@ -365,6 +365,49 @@ export const getQuestionById = async (req: AuthRequest, res: Response): Promise<
 
     question.answers = answersResult.rows;
 
+    // Get question comments
+    const questionCommentsResult = await pool.query(`
+      SELECT 
+        c.id, c.content, c.created_at, c.updated_at,
+        u.id as author_id, u.display_name as author_name, u.avatar_url as author_avatar,
+        u.reputation_points as author_reputation, 
+        COALESCE(u.is_verified, false) as author_is_verified
+      FROM public.comments c
+      LEFT JOIN public.users u ON c.author_id = u.id
+      WHERE c.commentable_type = 'question' AND c.commentable_id = $1
+      ORDER BY c.created_at ASC
+    `, [questionId]);
+    question.comments = questionCommentsResult.rows;
+
+    // Get answer comments
+    if (question.answers.length > 0) {
+      const answerIds = question.answers.map((a: any) => a.id);
+      const answerCommentsResult = await pool.query(`
+        SELECT 
+          c.id, c.content, c.commentable_id, c.created_at, c.updated_at,
+          u.id as author_id, u.display_name as author_name, u.avatar_url as author_avatar,
+          u.reputation_points as author_reputation, 
+          COALESCE(u.is_verified, false) as author_is_verified
+        FROM public.comments c
+        LEFT JOIN public.users u ON c.author_id = u.id
+        WHERE c.commentable_type = 'answer' AND c.commentable_id = ANY($1)
+        ORDER BY c.created_at ASC
+      `, [answerIds]);
+
+      const commentsByAnswerId = answerCommentsResult.rows.reduce((acc: any, row: any) => {
+        if (!acc[row.commentable_id]) acc[row.commentable_id] = [];
+        acc[row.commentable_id].push(row);
+        return acc;
+      }, {});
+
+      question.answers = question.answers.map((a: any) => ({
+        ...a,
+        comments: commentsByAnswerId[a.id] || []
+      }));
+    } else {
+      question.answers = question.answers.map((a: any) => ({ ...a, comments: [] }));
+    }
+
     successResponse(res, question);
   } catch (error) {
     console.error('Get question error:', error);

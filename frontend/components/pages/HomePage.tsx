@@ -17,6 +17,8 @@ import { questionAPI, tagAPI } from '@/lib/api';
 import QuestionCard from '../questions/QuestionCard';
 import { useAuth } from '@/contexts/AuthContext';
 import Link from 'next/link';
+import ReportModal from '../ui/ReportModal';
+import LoginPromptModal from '../ui/LoginPromptModal';
 
 interface Question {
   id: string;
@@ -46,6 +48,12 @@ export default function HomePage() {
   const { user } = useAuth();
   const searchParams = useSearchParams();
   const tagParam = searchParams.get('tag');
+  const [reportModal, setReportModal] = useState<{
+    isOpen: boolean;
+    questionId: string;
+    title: string;
+  }>({ isOpen: false, questionId: '', title: '' });
+  const [loginPrompt, setLoginPrompt] = useState(false);
 
   const fetchQuestions = useCallback(async () => {
     try {
@@ -117,6 +125,14 @@ export default function HomePage() {
     { value: 'popular', label: 'Populer', icon: TrendingUp },
     { value: 'unanswered', label: 'Belum Terjawab', icon: MessageCircleQuestion },
   ];
+
+  const handleReport = (questionId: string, title: string) => {
+    if (!user) {
+      setLoginPrompt(true);
+      return;
+    }
+    setReportModal({ isOpen: true, questionId, title });
+  };
 
   const renderSkeleton = (
     <div className="space-y-4">
@@ -328,13 +344,32 @@ export default function HomePage() {
             : (
               <div className="space-y-4">
                 {questions.map((question) => (
-                  <QuestionCard key={question.id} question={question} />
+                  <QuestionCard
+                    key={question.id}
+                    question={question}
+                    onReport={handleReport}
+                    currentUserId={user?.id}
+                  />
                 ))}
               </div>
             )}
       </main>
 
+      {/* Report Modal */}
+      <ReportModal
+        isOpen={reportModal.isOpen}
+        onClose={() => setReportModal(prev => ({ ...prev, isOpen: false }))}
+        reportType="question"
+        reportId={reportModal.questionId}
+        reportTitle={reportModal.title}
+      />
 
+      {/* Login Prompt Modal */}
+      <LoginPromptModal
+        isOpen={loginPrompt}
+        onClose={() => setLoginPrompt(false)}
+        action="report"
+      />
     </div>
   );
 }

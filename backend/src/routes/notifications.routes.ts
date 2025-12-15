@@ -80,7 +80,7 @@ router.post('/test-notification', authenticateToken, async (req: AuthRequest, re
     const { fcm_token, display_name } = result.rows[0];
 
     // Import firebase service
-    const { sendNotificationToDevice } = require('../services/firebase.service');
+    const { sendNotificationToDevice } = await import('../services/firebase.service');
 
     // Send test notification
     await sendNotificationToDevice(

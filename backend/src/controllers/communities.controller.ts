@@ -128,7 +128,7 @@ export const createCommunity = async (req: AuthRequest, res: Response): Promise<
       return;
     }
 
-    const { name, description, category, location } = req.body;
+    const { name, description, category, location, avatar_url } = req.body;
 
     // Check if community name already exists
     const existingCommunity = await pool.query(
@@ -146,10 +146,10 @@ export const createCommunity = async (req: AuthRequest, res: Response): Promise<
 
     // Create community
     const result = await pool.query(
-      `INSERT INTO public.communities (name, slug, description, category, location, created_by) 
-       VALUES ($1, $2, $3, $4, $5, $6) 
-       RETURNING id, name, slug, description, category, location, created_at`,
-      [name, slug, description, category, location, user.id]
+      `INSERT INTO public.communities (name, slug, description, category, location, avatar_url, created_by) 
+       VALUES ($1, $2, $3, $4, $5, $6, $7) 
+       RETURNING id, name, slug, description, category, location, avatar_url, created_at`,
+      [name, slug, description, category, location, avatar_url || null, user.id]
     );
 
     const community = result.rows[0];
@@ -181,12 +181,12 @@ export const getCommunityBySlug = async (req: AuthRequest, res: Response): Promi
     // Build query based on whether user is authenticated
     let query: string;
     let params: any[];
-    
+
     if (currentUserId) {
       query = `
         SELECT 
           c.id, c.name, c.slug, c.description, c.category, c.location, c.created_at, c.created_by,
-          c.vision, c.mission, c.target_members, c.benefits,
+          c.avatar_url, c.vision, c.mission, c.target_members, c.benefits,
           u.display_name as creator_name,
           COUNT(DISTINCT cm.id) as members_count,
           CASE WHEN user_cm.user_id IS NOT NULL THEN TRUE ELSE FALSE END as is_member,
@@ -203,7 +203,7 @@ export const getCommunityBySlug = async (req: AuthRequest, res: Response): Promi
       query = `
         SELECT 
           c.id, c.name, c.slug, c.description, c.category, c.location, c.created_at, c.created_by,
-          c.vision, c.mission, c.target_members, c.benefits,
+          c.avatar_url, c.vision, c.mission, c.target_members, c.benefits,
           u.display_name as creator_name,
           COUNT(DISTINCT cm.id) as members_count,
           FALSE as is_member,
@@ -615,7 +615,7 @@ export const updateCommunity = async (req: AuthRequest, res: Response): Promise<
     }
 
     const { slug } = req.params;
-    const { name, description, category, location } = req.body;
+    const { name, description, category, location, avatar_url } = req.body;
 
     // Get community and check if requester is admin
     const communityResult = await pool.query(`
@@ -652,10 +652,10 @@ export const updateCommunity = async (req: AuthRequest, res: Response): Promise<
     // Update community
     const updateResult = await pool.query(`
       UPDATE public.communities 
-      SET name = $1, description = $2, category = $3, location = $4
-      WHERE id = $5
-      RETURNING id, name, slug, description, category, location
-    `, [name.trim(), description.trim(), category, location || null, communityId]);
+      SET name = $1, description = $2, category = $3, location = $4, avatar_url = COALESCE($5, avatar_url)
+      WHERE id = $6
+      RETURNING id, name, slug, description, category, location, avatar_url
+    `, [name.trim(), description.trim(), category, location || null, avatar_url, communityId]);
 
     successResponse(res, updateResult.rows[0], 'Community updated successfully');
   } catch (error) {

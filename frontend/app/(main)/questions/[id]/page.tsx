@@ -29,6 +29,7 @@ import ImageGallery from '@/components/ui/ImageGallery';
 import MentionInput from '@/components/ui/MentionInput';
 import RichTextParser from '@/components/ui/RichTextParser';
 import LoginPromptModal from '@/components/ui/LoginPromptModal';
+import ReportModal from '@/components/ui/ReportModal';
 import { ReputationBadgeCompact } from '@/components/ui/ReputationBadge';
 
 interface QuestionData {
@@ -95,6 +96,12 @@ export default function QuestionDetailPage() {
     isOpen: boolean;
     action: 'vote' | 'answer' | 'comment' | 'bookmark' | 'report' | 'ask' | 'general';
   }>({ isOpen: false, action: 'general' });
+  const [reportModal, setReportModal] = useState<{
+    isOpen: boolean;
+    type: 'question' | 'answer';
+    id: string;
+    title: string;
+  }>({ isOpen: false, type: 'question', id: '', title: '' });
 
   const showLoginPrompt = (action: 'vote' | 'answer' | 'comment' | 'bookmark' | 'report' | 'ask' | 'general') => {
     setLoginPrompt({ isOpen: true, action });
@@ -371,6 +378,14 @@ export default function QuestionDetailPage() {
     }
   };
 
+  const handleReport = (type: 'question' | 'answer', id: string, title: string) => {
+    if (!user) {
+      showLoginPrompt('report');
+      return;
+    }
+    setReportModal({ isOpen: true, type, id, title });
+  };
+
   if (loading) {
     return (
       <div className="min-h-screen bg-slate-50 pb-20">
@@ -489,6 +504,15 @@ export default function QuestionDetailPage() {
 
                   {/* Actions Dropdown or Buttons */}
                   <div className="flex items-center gap-2">
+                    {user && user.id !== question.author_id && (
+                      <button
+                        onClick={() => handleReport('question', question.id, question.title)}
+                        className="p-2 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+                        title="Laporkan"
+                      >
+                        <Flag className="w-4 h-4" />
+                      </button>
+                    )}
                     {user?.id === question.author_id && (
                       <>
                         <button
@@ -644,6 +668,15 @@ export default function QuestionDetailPage() {
 
                       {/* Answer Actions */}
                       <div className="flex items-center gap-2">
+                        {user && user.id !== answer.author_id && (
+                          <button
+                            onClick={() => handleReport('answer', answer.id, answer.content.substring(0, 50))}
+                            className="p-1.5 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+                            title="Laporkan"
+                          >
+                            <Flag className="w-4 h-4" />
+                          </button>
+                        )}
                         {user?.id === answer.author_id && editingAnswerId !== answer.id && (
                           <>
                             <button
@@ -828,6 +861,15 @@ export default function QuestionDetailPage() {
         isOpen={loginPrompt.isOpen}
         onClose={() => setLoginPrompt({ ...loginPrompt, isOpen: false })}
         action={loginPrompt.action}
+      />
+
+      {/* Report Modal */}
+      <ReportModal
+        isOpen={reportModal.isOpen}
+        onClose={() => setReportModal({ ...reportModal, isOpen: false })}
+        reportType={reportModal.type}
+        reportId={reportModal.id}
+        reportTitle={reportModal.title}
       />
     </div>
   );
