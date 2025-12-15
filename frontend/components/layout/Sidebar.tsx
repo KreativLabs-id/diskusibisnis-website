@@ -118,6 +118,7 @@ export default function Sidebar({ onItemClick }: SidebarProps) {
     { href: '/questions', icon: MessageCircleQuestion, label: 'Pertanyaan' },
     { href: '/tags', icon: Tag, label: 'Tag' },
     { href: '/users', icon: Users, label: 'Pengguna' },
+    { href: '/leaderboard', icon: Trophy, label: 'Leaderboard' },
   ];
 
   const userItems = user ? [

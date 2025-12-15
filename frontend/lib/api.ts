@@ -144,7 +144,7 @@ export const voteAPI = {
 
 // Users
 export const userAPI = {
-  getAll: (params?: { sort?: string }) =>
+  getAll: (params?: { page?: number; limit?: number; search?: string; sort?: string }) =>
     api.get('/users', { params }),
   getProfile: (id: string) =>
     api.get(`/users/${id}`),
