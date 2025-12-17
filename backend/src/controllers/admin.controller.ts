@@ -361,3 +361,149 @@ export const unbanCommunity = async (req: AuthRequest, res: Response): Promise<v
     errorResponse(res, 'Server error');
   }
 };
+
+/**
+ * Send custom notification to user
+ * POST /api/admin/users/:id/notify
+ */
+export const sendNotificationToUser = async (req: AuthRequest, res: Response): Promise<void> => {
+  try {
+    const userId = req.params.id;
+    const { title, message } = req.body;
+
+    if (!title || !message) {
+      errorResponse(res, 'Title and message are required', 400);
+      return;
+    }
+
+    // Check if user exists and get FCM token
+    const userResult = await pool.query(
+      'SELECT id, fcm_token FROM public.users WHERE id = $1',
+      [userId]
+    );
+
+    if (userResult.rows.length === 0) {
+      notFoundResponse(res, 'User not found');
+      return;
+    }
+
+    const { fcm_token } = userResult.rows[0];
+
+    // Create notification in database
+    await pool.query(
+      `INSERT INTO public.notifications (id, user_id, type, message, link, is_read)
+       VALUES (gen_random_uuid(), $1, 'admin_message', $2, '/', false)`,
+      [userId, message]
+    );
+
+    // Send push notification if token exists
+    if (fcm_token) {
+      const { sendNotificationToDevice } = await import('../services/firebase.service');
+      await sendNotificationToDevice(
+        fcm_token,
+        {
+          title: title,
+          body: message,
+        },
+        {
+          type: 'admin_message',
+          link: '/',
+        }
+      );
+      successResponse(res, null, 'Notification sent successfully');
+    } else {
+      successResponse(res, null, 'Notification saved to database (User has no push token)');
+    }
+
+  } catch (error) {
+    console.error('Send notification error:', error);
+    errorResponse(res, 'Server error');
+  }
+};
+
+/**
+ * Broadcast notification to ALL users
+ * POST /api/admin/notifications/broadcast
+ */
+export const broadcastNotification = async (req: AuthRequest, res: Response): Promise<void> => {
+  try {
+    const { title, message, type = 'system', link = '/' } = req.body;
+
+    if (!title || !message) {
+      errorResponse(res, 'Title and message are required', 400);
+      return;
+    }
+
+    // 1. Get all users
+    const usersResult = await pool.query('SELECT id, fcm_token FROM public.users');
+    const users = usersResult.rows;
+
+    if (users.length === 0) {
+      successResponse(res, null, 'No users to broadcast to');
+      return;
+    }
+
+    // 2. Create notification records for all users (Bulk Insert)
+    // Create query: INSERT INTO ... VALUES ($1, $2...), ($3, $4...)...
+    const values: any[] = [];
+    const placeholders: string[] = [];
+    let paramIndex = 1;
+
+    users.forEach((user) => {
+      placeholders.push(`(gen_random_uuid(), $${paramIndex}, $${paramIndex + 1}, $${paramIndex + 2}, $${paramIndex + 3}, false)`);
+      values.push(user.id, type, message, link);
+      paramIndex += 4;
+    });
+
+    const queryInfo = `
+      INSERT INTO public.notifications (id, user_id, type, message, link, is_read)
+      VALUES ${placeholders.join(', ')}
+    `;
+
+    // Execute DB insert
+    // Note: If there are thousands of users, we should batch this. For now (<1000 users), this one query is likely fine.
+    // However, PostgreSQL has a parameter limit (65535). 4 params per user => ~16,000 users max.
+    // Sufficient for now.
+    await pool.query(queryInfo, values);
+
+    // 3. Collect valid FCM tokens
+    const tokens: string[] = users
+      .map(u => u.fcm_token)
+      .filter(token => token && token.length > 10); // Basic validation
+
+    // 4. Send Push Notifications
+    let pushResult = { success: true, successCount: 0, failureCount: 0 };
+    if (tokens.length > 0) {
+      const { sendNotificationToMultipleDevices } = await import('../services/firebase.service');
+      // Batch tokens if > 500 (Firebase multicast limit)
+      // The service implementation uses sendEachForMulticast which handles up to 500 tokens per call.
+      // We should ideally check if the service handles batching, but looking at previous file view it uses standard API.
+      // Standard `sendEachForMulticast` accepts up to 500. We should batch here or update service.
+
+      // We'll implemented simple batching here just in case
+      const batchSize = 400; // Safe margin
+      for (let i = 0; i < tokens.length; i += batchSize) {
+        const batchTokens = tokens.slice(i, i + batchSize);
+        const result = await sendNotificationToMultipleDevices(
+          batchTokens,
+          { title, body: message },
+          { type, link }
+        );
+        if (result.success) {
+          pushResult.successCount += (result.successCount || 0);
+          pushResult.failureCount += (result.failureCount || 0);
+        }
+      }
+    }
+
+    successResponse(res, {
+      totalUsers: users.length,
+      notificationsStoring: 'success',
+      pushNotifications: pushResult
+    }, 'Broadcast sent successfully');
+
+  } catch (error) {
+    console.error('Broadcast notification error:', error);
+    errorResponse(res, 'Server error during broadcast');
+  }
+};

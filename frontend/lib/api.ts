@@ -202,6 +202,10 @@ export const adminAPI = {
     api.post(`/admin/users/${id}/verify`),
   unverifyUser: (id: string) =>
     api.post(`/admin/users/${id}/unverify`),
+  sendNotification: (id: string, data: { title: string; message: string }) =>
+    api.post(`/admin/users/${id}/notify`, data),
+  broadcastNotification: (data: { title: string; message: string; type?: string; link?: string }) =>
+    api.post('/admin/notifications/broadcast', data),
   getQuestions: () =>
     api.get('/admin/questions'),
   deleteQuestion: (id: string) =>

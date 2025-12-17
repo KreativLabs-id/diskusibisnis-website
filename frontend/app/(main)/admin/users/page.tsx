@@ -4,7 +4,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { adminAPI } from '@/lib/api';
-import { Users, Ban, UserX, ArrowLeft, Search, Filter, MoreVertical, CheckCircle, XCircle } from 'lucide-react';
+import { Users, Ban, UserX, ArrowLeft, Search, Filter, MoreVertical, CheckCircle, XCircle, Bell } from 'lucide-react';
 import Link from 'next/link';
 import VerifiedBadge from '@/components/ui/VerifiedBadge';
 import AlertModal from '@/components/ui/AlertModal';
@@ -40,7 +40,14 @@ export default function AdminUsers() {
     title: string;
     message: string;
     onConfirm: () => void;
-  }>({ isOpen: false, title: '', message: '', onConfirm: () => {} });
+  }>({ isOpen: false, title: '', message: '', onConfirm: () => { } });
+
+  const [notificationModal, setNotificationModal] = useState<{
+    isOpen: boolean;
+    userId: string;
+    title: string;
+    message: string;
+  }>({ isOpen: false, userId: '', title: '', message: '' });
 
   const showAlert = (type: 'success' | 'error' | 'warning' | 'info', title: string, message: string) => {
     setAlertModal({ isOpen: true, type, title, message });
@@ -113,14 +120,28 @@ export default function AdminUsers() {
     }
   };
 
+  const handleSendNotification = async () => {
+    try {
+      await adminAPI.sendNotification(notificationModal.userId, {
+        title: notificationModal.title,
+        message: notificationModal.message
+      });
+      showAlert('success', 'Success', 'Notification sent successfully');
+      setNotificationModal({ isOpen: false, userId: '', title: '', message: '' });
+    } catch (error) {
+      console.error('Error sending notification:', error);
+      showAlert('error', 'Error', 'Failed to send notification');
+    }
+  };
+
   const filteredUsers = users.filter(u => {
     const matchesSearch = u.display_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         u.email.toLowerCase().includes(searchTerm.toLowerCase());
+      u.email.toLowerCase().includes(searchTerm.toLowerCase());
     const matchesRole = filterRole === 'all' || u.role === filterRole;
-    const matchesStatus = filterStatus === 'all' || 
-                         (filterStatus === 'banned' && u.is_banned) ||
-                         (filterStatus === 'active' && !u.is_banned);
-    
+    const matchesStatus = filterStatus === 'all' ||
+      (filterStatus === 'banned' && u.is_banned) ||
+      (filterStatus === 'active' && !u.is_banned);
+
     return matchesSearch && matchesRole && matchesStatus;
   });
 
@@ -233,21 +254,19 @@ export default function AdminUsers() {
                       </div>
                     </td>
                     <td className="py-4 px-6">
-                      <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
-                        u.role === 'admin' 
-                          ? 'bg-red-100 text-red-800' 
-                          : 'bg-blue-100 text-blue-800'
-                      }`}>
+                      <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${u.role === 'admin'
+                        ? 'bg-red-100 text-red-800'
+                        : 'bg-blue-100 text-blue-800'
+                        }`}>
                         {u.role}
                       </span>
                     </td>
                     <td className="py-4 px-6 text-slate-900">{u.reputation_points}</td>
                     <td className="py-4 px-6">
-                      <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
-                        u.is_banned 
-                          ? 'bg-red-100 text-red-800' 
-                          : 'bg-green-100 text-green-800'
-                      }`}>
+                      <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${u.is_banned
+                        ? 'bg-red-100 text-red-800'
+                        : 'bg-green-100 text-green-800'
+                        }`}>
                         {u.is_banned ? 'Banned' : 'Active'}
                       </span>
                     </td>
@@ -265,12 +284,23 @@ export default function AdminUsers() {
                     <td className="py-4 px-6">
                       <div className="flex items-center gap-2">
                         <button
+                          onClick={() => setNotificationModal({
+                            isOpen: true,
+                            userId: u.id,
+                            title: '',
+                            message: ''
+                          })}
+                          className="p-2 rounded-lg transition-colors hover:bg-yellow-100 text-yellow-600"
+                          title="Send Notification"
+                        >
+                          <Bell className="w-4 h-4" />
+                        </button>
+                        <button
                           onClick={() => handleVerifyUser(u.id, u.is_verified)}
-                          className={`p-2 rounded-lg transition-colors ${
-                            u.is_verified
-                              ? 'hover:bg-orange-100 text-orange-600'
-                              : 'hover:bg-blue-100 text-blue-600'
-                          }`}
+                          className={`p-2 rounded-lg transition-colors ${u.is_verified
+                            ? 'hover:bg-orange-100 text-orange-600'
+                            : 'hover:bg-blue-100 text-blue-600'
+                            }`}
                           title={u.is_verified ? 'Unverify user' : 'Verify user'}
                           disabled={u.role === 'admin'}
                         >
@@ -278,11 +308,10 @@ export default function AdminUsers() {
                         </button>
                         <button
                           onClick={() => handleBanUser(u.id, u.is_banned)}
-                          className={`p-2 rounded-lg transition-colors ${
-                            u.is_banned
-                              ? 'hover:bg-green-100 text-green-600'
-                              : 'hover:bg-orange-100 text-orange-600'
-                          }`}
+                          className={`p-2 rounded-lg transition-colors ${u.is_banned
+                            ? 'hover:bg-green-100 text-green-600'
+                            : 'hover:bg-orange-100 text-orange-600'
+                            }`}
                           title={u.is_banned ? 'Unban user' : 'Ban user'}
                         >
                           <Ban className="w-4 h-4" />
@@ -327,6 +356,76 @@ export default function AdminUsers() {
         message={confirmModal.message}
         type="danger"
       />
+
+      {/* Notification Modal */}
+      {notificationModal.isOpen && (
+        <div className="fixed inset-0 z-50 overflow-y-auto">
+          <div className="flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
+            <div className="fixed inset-0 transition-opacity" aria-hidden="true">
+              <div className="absolute inset-0 bg-gray-500 opacity-75"></div>
+            </div>
+            <span className="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
+            <div className="inline-block align-bottom bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full">
+              <div className="bg-white px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
+                <div className="sm:flex sm:items-start">
+                  <div className="mx-auto flex-shrink-0 flex items-center justify-center h-12 w-12 rounded-full bg-blue-100 sm:mx-0 sm:h-10 sm:w-10">
+                    <Bell className="h-6 w-6 text-blue-600" />
+                  </div>
+                  <div className="mt-3 text-center sm:mt-0 sm:ml-4 sm:text-left w-full">
+                    <h3 className="text-lg leading-6 font-medium text-gray-900">
+                      Send Notification
+                    </h3>
+                    <div className="mt-2">
+                      <p className="text-sm text-gray-500 mb-4">
+                        Send a push notification to this user.
+                      </p>
+                      <div className="space-y-4">
+                        <div>
+                          <label className="block text-sm font-medium text-gray-700">Title</label>
+                          <input
+                            type="text"
+                            value={notificationModal.title}
+                            onChange={(e) => setNotificationModal({ ...notificationModal, title: e.target.value })}
+                            className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                            placeholder="Notification Title"
+                          />
+                        </div>
+                        <div>
+                          <label className="block text-sm font-medium text-gray-700">Message</label>
+                          <textarea
+                            value={notificationModal.message}
+                            onChange={(e) => setNotificationModal({ ...notificationModal, message: e.target.value })}
+                            rows={3}
+                            className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                            placeholder="Notification Message"
+                          />
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div className="bg-gray-50 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse">
+                <button
+                  type="button"
+                  onClick={handleSendNotification}
+                  disabled={!notificationModal.title || !notificationModal.message}
+                  className="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-blue-600 text-base font-medium text-white hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 sm:ml-3 sm:w-auto sm:text-sm disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  Send
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setNotificationModal({ ...notificationModal, isOpen: false })}
+                  className="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm"
+                >
+                  Cancel
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
