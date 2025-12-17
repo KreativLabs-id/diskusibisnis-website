@@ -2,7 +2,8 @@ import pool from '../config/database';
 import {
   sendAnswerNotification,
   sendVoteNotification,
-  sendNotificationToDevice
+  sendNotificationToDevice,
+  sendNotificationToMultipleDevices
 } from '../services/firebase.service';
 
 export interface CreateNotificationData {
@@ -58,26 +59,46 @@ export const createCommentNotification = async (
     link: `/questions/${contentId}`
   });
 
-  // Send Push Notification for Comment
+  // Send Push Notification for Comment - to ALL devices
   try {
-    const result = await pool.query(
-      'SELECT fcm_token FROM public.users WHERE id = $1 AND fcm_token IS NOT NULL',
-      [targetUserId]
-    );
-
-    if (result.rows.length > 0) {
-      const fcmToken = result.rows[0].fcm_token;
-      await sendNotificationToDevice(
-        fcmToken,
-        {
-          title: '💬 Komentar Baru',
-          body: `**${commenterName}** mengomentari ${contentType === 'question' ? 'pertanyaan' : 'jawaban'} Anda`,
-        },
-        {
-          type: 'comment',
-          link: `/questions/${contentId}`,
-        }
+    // Try new multi-device table first
+    let tokens: string[] = [];
+    try {
+      const result = await pool.query(
+        'SELECT fcm_token FROM public.user_fcm_tokens WHERE user_id = $1',
+        [targetUserId]
       );
+      tokens = result.rows.map((row: any) => row.fcm_token);
+    } catch (tableError) {
+      // Table might not exist, continue to legacy
+    }
+
+    if (tokens.length === 0) {
+      // Fallback to legacy single token
+      const legacyResult = await pool.query(
+        'SELECT fcm_token FROM public.users WHERE id = $1 AND fcm_token IS NOT NULL',
+        [targetUserId]
+      );
+      if (legacyResult.rows.length > 0 && legacyResult.rows[0].fcm_token) {
+        tokens = [legacyResult.rows[0].fcm_token];
+      }
+    }
+
+    if (tokens.length > 0) {
+      const notification = {
+        title: '💬 Komentar Baru',
+        body: `${commenterName} mengomentari ${contentType === 'question' ? 'pertanyaan' : 'jawaban'} Anda`,
+      };
+      const data = {
+        type: 'comment',
+        link: `/questions/${contentId}`,
+      };
+
+      if (tokens.length === 1) {
+        await sendNotificationToDevice(tokens[0], notification, data);
+      } else {
+        await sendNotificationToMultipleDevices(tokens, notification, data);
+      }
     }
   } catch (error) {
     console.error('Error sending comment push notification:', error);
@@ -145,26 +166,46 @@ export const createMentionNotification = async (
       link
     });
 
-    // Send Push Notification for Mention
+    // Send Push Notification for Mention - to ALL devices
     try {
-      const result = await pool.query(
-        'SELECT fcm_token FROM public.users WHERE id = $1 AND fcm_token IS NOT NULL',
-        [mentionedUserId]
-      );
-
-      if (result.rows.length > 0) {
-        const fcmToken = result.rows[0].fcm_token;
-        await sendNotificationToDevice(
-          fcmToken,
-          {
-            title: '📢 Mention Baru',
-            body: `**${mentionerName}** menyebut Anda di pertanyaan: ${contentTitle}`,
-          },
-          {
-            type: 'mention',
-            link: link,
-          }
+      // Try new multi-device table first
+      let tokens: string[] = [];
+      try {
+        const result = await pool.query(
+          'SELECT fcm_token FROM public.user_fcm_tokens WHERE user_id = $1',
+          [mentionedUserId]
         );
+        tokens = result.rows.map((row: any) => row.fcm_token);
+      } catch (tableError) {
+        // Table might not exist, continue to legacy
+      }
+
+      if (tokens.length === 0) {
+        // Fallback to legacy single token
+        const legacyResult = await pool.query(
+          'SELECT fcm_token FROM public.users WHERE id = $1 AND fcm_token IS NOT NULL',
+          [mentionedUserId]
+        );
+        if (legacyResult.rows.length > 0 && legacyResult.rows[0].fcm_token) {
+          tokens = [legacyResult.rows[0].fcm_token];
+        }
+      }
+
+      if (tokens.length > 0) {
+        const notification = {
+          title: '📢 Mention Baru',
+          body: `${mentionerName} menyebut Anda di pertanyaan: ${contentTitle}`,
+        };
+        const data = {
+          type: 'mention',
+          link: link,
+        };
+
+        if (tokens.length === 1) {
+          await sendNotificationToDevice(tokens[0], notification, data);
+        } else {
+          await sendNotificationToMultipleDevices(tokens, notification, data);
+        }
       }
     } catch (error) {
       console.error('Error sending mention push notification:', error);

@@ -27,6 +27,43 @@ interface NotificationData {
 }
 
 /**
+ * Helper function to get all FCM tokens for a user
+ * Falls back to legacy single token if user_fcm_tokens table doesn't exist
+ */
+const getUserFcmTokens = async (userId: string, pool: any): Promise<string[]> => {
+    try {
+        // Try new multi-device table first
+        const result = await pool.query(
+            'SELECT fcm_token FROM public.user_fcm_tokens WHERE user_id = $1',
+            [userId]
+        );
+
+        if (result.rows.length > 0) {
+            return result.rows.map((row: any) => row.fcm_token);
+        }
+    } catch (error) {
+        // Table might not exist, fall through to legacy
+        console.log('user_fcm_tokens table not available, using legacy method');
+    }
+
+    // Fallback to legacy single token
+    try {
+        const legacyResult = await pool.query(
+            'SELECT fcm_token FROM public.users WHERE id = $1 AND fcm_token IS NOT NULL',
+            [userId]
+        );
+
+        if (legacyResult.rows.length > 0 && legacyResult.rows[0].fcm_token) {
+            return [legacyResult.rows[0].fcm_token];
+        }
+    } catch (error) {
+        console.error('Error getting legacy FCM token:', error);
+    }
+
+    return [];
+};
+
+/**
  * Send push notification to a single device
  */
 export const sendNotificationToDevice = async (
@@ -105,7 +142,7 @@ export const sendNotificationToMultipleDevices = async (
 };
 
 /**
- * Send notification when answer is posted
+ * Send notification when answer is posted - sends to ALL user devices
  */
 export const sendAnswerNotification = async (
     questionOwnerId: string,
@@ -114,37 +151,47 @@ export const sendAnswerNotification = async (
     pool: any
 ) => {
     try {
-        // Get FCM tokens for the question owner
-        const result = await pool.query(
-            'SELECT fcm_token FROM public.users WHERE id = $1 AND fcm_token IS NOT NULL',
-            [questionOwnerId]
-        );
+        const tokens = await getUserFcmTokens(questionOwnerId, pool);
 
-        if (result.rows.length === 0) {
+        if (tokens.length === 0) {
             console.log('No FCM token found for user');
             return;
         }
 
-        const fcmToken = result.rows[0].fcm_token;
+        console.log(`Sending answer notification to ${tokens.length} device(s)`);
 
-        await sendNotificationToDevice(
-            fcmToken,
-            {
-                title: '💬 Jawaban Baru!',
-                body: `${answererName} menjawab pertanyaan "${questionTitle}"`,
-            },
-            {
-                type: 'answer',
-                link: '/notifications',
-            }
-        );
+        if (tokens.length === 1) {
+            await sendNotificationToDevice(
+                tokens[0],
+                {
+                    title: '💬 Jawaban Baru!',
+                    body: `${answererName} menjawab pertanyaan "${questionTitle}"`,
+                },
+                {
+                    type: 'answer',
+                    link: '/notifications',
+                }
+            );
+        } else {
+            await sendNotificationToMultipleDevices(
+                tokens,
+                {
+                    title: '💬 Jawaban Baru!',
+                    body: `${answererName} menjawab pertanyaan "${questionTitle}"`,
+                },
+                {
+                    type: 'answer',
+                    link: '/notifications',
+                }
+            );
+        }
     } catch (error) {
         console.error('Error sending answer notification:', error);
     }
 };
 
 /**
- * Send notification when vote is cast
+ * Send notification when vote is cast - sends to ALL user devices
  */
 export const sendVoteNotification = async (
     userId: string,
@@ -153,33 +200,33 @@ export const sendVoteNotification = async (
     pool: any
 ) => {
     try {
-        const result = await pool.query(
-            'SELECT fcm_token FROM public.users WHERE id = $1 AND fcm_token IS NOT NULL',
-            [userId]
-        );
+        const tokens = await getUserFcmTokens(userId, pool);
 
-        if (result.rows.length === 0) return;
+        if (tokens.length === 0) return;
 
-        const fcmToken = result.rows[0].fcm_token;
+        console.log(`Sending vote notification to ${tokens.length} device(s)`);
 
-        await sendNotificationToDevice(
-            fcmToken,
-            {
-                title: '👍 Upvote!',
-                body: `${voterName} menyukai ${itemType === 'question' ? 'pertanyaan' : 'jawaban'} Anda`,
-            },
-            {
-                type: 'vote',
-                link: '/notifications',
-            }
-        );
+        const notification = {
+            title: '👍 Upvote!',
+            body: `${voterName} menyukai ${itemType === 'question' ? 'pertanyaan' : 'jawaban'} Anda`,
+        };
+        const data = {
+            type: 'vote',
+            link: '/notifications',
+        };
+
+        if (tokens.length === 1) {
+            await sendNotificationToDevice(tokens[0], notification, data);
+        } else {
+            await sendNotificationToMultipleDevices(tokens, notification, data);
+        }
     } catch (error) {
         console.error('Error sending vote notification:', error);
     }
 };
 
 /**
- * Send notification when answer is accepted
+ * Send notification when answer is accepted - sends to ALL user devices
  */
 export const sendAnswerAcceptedNotification = async (
     answererId: string,
@@ -187,26 +234,26 @@ export const sendAnswerAcceptedNotification = async (
     pool: any
 ) => {
     try {
-        const result = await pool.query(
-            'SELECT fcm_token FROM public.users WHERE id = $1 AND fcm_token IS NOT NULL',
-            [answererId]
-        );
+        const tokens = await getUserFcmTokens(answererId, pool);
 
-        if (result.rows.length === 0) return;
+        if (tokens.length === 0) return;
 
-        const fcmToken = result.rows[0].fcm_token;
+        console.log(`Sending answer accepted notification to ${tokens.length} device(s)`);
 
-        await sendNotificationToDevice(
-            fcmToken,
-            {
-                title: '✅ Jawaban Diterima!',
-                body: `Jawaban Anda untuk "${questionTitle}" telah diterima`,
-            },
-            {
-                type: 'answer_accepted',
-                link: '/notifications',
-            }
-        );
+        const notification = {
+            title: '✅ Jawaban Diterima!',
+            body: `Jawaban Anda untuk "${questionTitle}" telah diterima`,
+        };
+        const data = {
+            type: 'answer_accepted',
+            link: '/notifications',
+        };
+
+        if (tokens.length === 1) {
+            await sendNotificationToDevice(tokens[0], notification, data);
+        } else {
+            await sendNotificationToMultipleDevices(tokens, notification, data);
+        }
     } catch (error) {
         console.error('Error sending answer accepted notification:', error);
     }

@@ -20,18 +20,33 @@ router.post('/:id/read', requireAuth, markNotificationAsRead);
 // Mark all notifications as read
 router.post('/read-all', requireAuth, markAllNotificationsAsRead);
 
-// Register FCM token for push notifications
+// Register FCM token for push notifications (supports multiple devices)
 router.post('/register-token', authenticateToken, async (req: AuthRequest, res: Response): Promise<void> => {
   try {
     const userId = req.user?.id;
-    const { fcmToken } = req.body;
+    const { fcmToken, deviceType = 'web', deviceName } = req.body;
 
     if (!fcmToken) {
       errorResponse(res, 'FCM token is required', 400);
       return;
     }
 
-    // Update user's FCM token
+    // Try to insert into user_fcm_tokens table (for multi-device support)
+    // If table doesn't exist, fall back to legacy single token
+    try {
+      await pool.query(
+        `INSERT INTO public.user_fcm_tokens (user_id, fcm_token, device_type, device_name, last_used_at)
+         VALUES ($1, $2, $3, $4, CURRENT_TIMESTAMP)
+         ON CONFLICT (user_id, fcm_token) 
+         DO UPDATE SET last_used_at = CURRENT_TIMESTAMP, device_type = $3, device_name = $4`,
+        [userId, fcmToken, deviceType, deviceName || null]
+      );
+    } catch (tableError: any) {
+      // Table might not exist yet, just log and continue with legacy method
+      console.log('user_fcm_tokens table not available, using legacy method');
+    }
+
+    // Always update legacy fcm_token column for backward compatibility
     await pool.query(
       'UPDATE public.users SET fcm_token = $1, updated_at = CURRENT_TIMESTAMP WHERE id = $2',
       [fcmToken, userId]
