@@ -391,8 +391,8 @@ export const sendNotificationToUser = async (req: AuthRequest, res: Response): P
 
     // Create notification in database
     await pool.query(
-      `INSERT INTO public.notifications (id, user_id, type, message, link, is_read)
-       VALUES (gen_random_uuid(), $1, 'admin_message', $2, '/', false)`,
+      `INSERT INTO public.notifications (id, user_id, type, message, is_read)
+       VALUES (gen_random_uuid(), $1, 'admin_message', $2, false)`,
       [userId, message]
     );
 
@@ -450,13 +450,13 @@ export const broadcastNotification = async (req: AuthRequest, res: Response): Pr
     let paramIndex = 1;
 
     users.forEach((user) => {
-      placeholders.push(`(gen_random_uuid(), $${paramIndex}, $${paramIndex + 1}, $${paramIndex + 2}, $${paramIndex + 3}, false)`);
-      values.push(user.id, type, message, link);
-      paramIndex += 4;
+      placeholders.push(`(gen_random_uuid(), $${paramIndex}, $${paramIndex + 1}, $${paramIndex + 2}, $${paramIndex + 3}, $${paramIndex + 4}, false)`);
+      values.push(user.id, type, title, message, link);
+      paramIndex += 5;
     });
 
     const queryInfo = `
-      INSERT INTO public.notifications (id, user_id, type, message, link, is_read)
+      INSERT INTO public.notifications (id, user_id, type, title, message, link, is_read)
       VALUES ${placeholders.join(', ')}
     `;
 

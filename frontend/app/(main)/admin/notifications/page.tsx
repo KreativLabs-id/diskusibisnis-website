@@ -38,9 +38,10 @@ export default function AdminNotifications() {
     };
 
     const templates = [
+        // === SISTEM & TEKNIS ===
         {
             id: 1,
-            title: 'Pemeliharaan Sistem',
+            title: 'Pemeliharaan Sistem 🔧',
             message: 'Kami akan melakukan pemeliharaan server pada [Waktu]. Aplikasi mungkin tidak dapat diakses sementara. Mohon maaf atas ketidaknyamanannya.',
             type: 'warning',
             link: '/'
@@ -54,24 +55,137 @@ export default function AdminNotifications() {
         },
         {
             id: 3,
-            title: 'Highlight Diskusi Minggu Ini 💡',
-            message: 'Ingin bisnis makin berkembang? Cek diskusi terpopuler minggu ini dan temukan insight berharga dari sesama pebisnis!',
-            type: 'promo',
-            link: '/questions'
-        },
-        {
-            id: 4,
             title: 'Fitur Baru Telah Hadir! ✨',
             message: 'Halo! Kami baru saja merilis fitur baru yang akan membantu Anda berdiskusi lebih asik. Coba sekarang!',
             type: 'system',
             link: '/'
         },
         {
+            id: 4,
+            title: '⚠️ Peringatan Keamanan',
+            message: 'Demi keamanan akun Anda, pastikan untuk tidak membagikan password kepada siapapun. Aktifkan juga verifikasi email Anda.',
+            type: 'warning',
+            link: '/settings'
+        },
+
+        // === ENGAGEMENT & KOMUNITAS ===
+        {
             id: 5,
+            title: 'Highlight Diskusi Minggu Ini 💡',
+            message: 'Ingin bisnis makin berkembang? Cek diskusi terpopuler minggu ini dan temukan insight berharga dari sesama pebisnis!',
+            type: 'promo',
+            link: '/questions'
+        },
+        {
+            id: 6,
             title: 'Ayo Tingkatkan Reputasi! 🏆',
             message: 'Jadilah member yang bermanfaat! Bantu jawab pertanyaan teman-teman komunitas dan dapatkan poin reputasi.',
             type: 'system',
             link: '/leaderboard'
+        },
+        {
+            id: 7,
+            title: 'Selamat Bergabung! 🎉',
+            message: 'Terima kasih sudah bergabung di DiskusiBisnis! Mulai diskusi pertamamu dan temukan solusi dari para pebisnis lainnya.',
+            type: 'system',
+            link: '/questions/ask'
+        },
+        {
+            id: 8,
+            title: 'Pertanyaanmu Belum Terjawab? 🤔',
+            message: 'Jangan khawatir! Coba tambahkan detail atau tag yang lebih spesifik agar lebih mudah ditemukan oleh ahlinya.',
+            type: 'system',
+            link: '/questions'
+        },
+        {
+            id: 9,
+            title: 'Komunitas Baru Tersedia! 🌟',
+            message: 'Ada komunitas baru yang mungkin cocok dengan bisnismu. Yuk, gabung dan mulai berdiskusi dengan sesama pebisnis!',
+            type: 'promo',
+            link: '/communities'
+        },
+        {
+            id: 10,
+            title: 'Milestone Tercapai! 🎊',
+            message: 'DiskusiBisnis telah mencapai [X] member aktif! Terima kasih sudah menjadi bagian dari komunitas kami.',
+            type: 'system',
+            link: '/'
+        },
+
+        // === TIPS & EDUKASI ===
+        {
+            id: 11,
+            title: 'Tips Bisnis Hari Ini 📚',
+            message: 'Tahukah kamu? Konsistensi adalah kunci sukses UMKM. Yuk baca tips lengkapnya di forum diskusi!',
+            type: 'system',
+            link: '/questions'
+        },
+        {
+            id: 12,
+            title: 'Webinar Gratis! 🎓',
+            message: 'Ikuti webinar gratis tentang [Topik] pada [Tanggal]. Daftar sekarang, kuota terbatas!',
+            type: 'promo',
+            link: '/'
+        },
+        {
+            id: 13,
+            title: 'Panduan Lengkap UMKM 📖',
+            message: 'Kami telah menyiapkan panduan lengkap untuk membantu bisnismu berkembang. Akses gratis untuk semua member!',
+            type: 'system',
+            link: '/about/bantuan'
+        },
+
+        // === EVENT & PROMO ===
+        {
+            id: 14,
+            title: 'Challenge Mingguan! 🔥',
+            message: 'Jawab 5 pertanyaan minggu ini dan dapatkan badge spesial! Tunjukkan kemampuanmu membantu sesama pebisnis.',
+            type: 'promo',
+            link: '/questions?filter=unanswered'
+        },
+        {
+            id: 15,
+            title: 'Survey Kepuasan Pengguna 📝',
+            message: 'Bantu kami menjadi lebih baik! Isi survey singkat ini (2 menit) dan bantu tingkatkan pengalaman DiskusiBisnis.',
+            type: 'system',
+            link: '/'
+        },
+        {
+            id: 16,
+            title: 'Promo Spesial Partner! 🤝',
+            message: 'Dapatkan diskon eksklusif dari partner DiskusiBisnis untuk mendukung bisnismu. Klik untuk info lengkap!',
+            type: 'promo',
+            link: '/'
+        },
+
+        // === SEASONAL & GREETINGS ===
+        {
+            id: 17,
+            title: 'Selamat Tahun Baru! 🎆',
+            message: 'Tim DiskusiBisnis mengucapkan Selamat Tahun Baru! Semoga bisnis Anda semakin sukses di tahun ini.',
+            type: 'system',
+            link: '/'
+        },
+        {
+            id: 18,
+            title: 'Selamat Hari Raya! 🌙',
+            message: 'Tim DiskusiBisnis mengucapkan Selamat Hari Raya. Mohon maaf lahir dan batin. Semoga bisnismu semakin berkah!',
+            type: 'system',
+            link: '/'
+        },
+        {
+            id: 19,
+            title: 'Selamat Hari Kemerdekaan! 🇮🇩',
+            message: 'Dirgahayu Republik Indonesia! Mari terus majukan UMKM Indonesia bersama DiskusiBisnis.',
+            type: 'system',
+            link: '/'
+        },
+        {
+            id: 20,
+            title: 'Terima Kasih! 💙',
+            message: 'Terima kasih telah menjadi bagian dari DiskusiBisnis. Kontribusimu sangat berarti bagi komunitas ini!',
+            type: 'system',
+            link: '/'
         }
     ];
 

@@ -2,7 +2,7 @@
 
 import React, { useState, useRef, useEffect } from 'react';
 import Link from 'next/link';
-import { Bell, Check, CheckCheck, MessageSquare, ThumbsUp, User, AlertCircle, X } from 'lucide-react';
+import { Bell, Check, CheckCheck, MessageSquare, ThumbsUp, User, AlertCircle, AlertTriangle, CheckCircle, Info, X } from 'lucide-react';
 import { useNotifications } from '@/contexts/NotificationContext';
 import { Notification } from '@/types/notification';
 
@@ -16,8 +16,14 @@ const getNotificationIcon = (type: string) => {
       return <ThumbsUp className="w-4 h-4 text-orange-600" />;
     case 'mention':
       return <User className="w-4 h-4 text-purple-600" />;
+    case 'warning':
+      return <AlertTriangle className="w-4 h-4 text-red-600" />;
+    case 'update':
+      return <CheckCircle className="w-4 h-4 text-green-600" />;
+    case 'promo':
+      return <Bell className="w-4 h-4 text-purple-600" />;
     case 'system':
-      return <AlertCircle className="w-4 h-4 text-red-600" />;
+      return <Info className="w-4 h-4 text-blue-600" />;
     default:
       return <Bell className="w-4 h-4 text-gray-600" />;
   }
@@ -91,8 +97,8 @@ const NotificationItem: React.FC<NotificationItemProps> = ({
   const content = (
     <div
       className={`px-4 py-3 hover:bg-slate-50 active:bg-slate-100 transition-colors cursor-pointer border-l-3 ${notification.is_read
-          ? 'border-transparent bg-white'
-          : 'border-emerald-500 bg-emerald-50/30'
+        ? 'border-transparent bg-white'
+        : 'border-emerald-500 bg-emerald-50/30'
         }`}
       onClick={handleClick}
     >
@@ -103,10 +109,20 @@ const NotificationItem: React.FC<NotificationItemProps> = ({
         <div className="flex-1 min-w-0">
           <div className="flex items-start gap-2">
             <div className="flex-1 min-w-0">
-              <p className={`text-sm leading-relaxed ${notification.is_read ? 'text-slate-600' : 'text-slate-700'
-                }`}>
-                {formatMessage(notification.message || notification.title)}
-              </p>
+              {/* Title - Bold header */}
+              {notification.title && (
+                <p className={`text-sm font-semibold leading-snug ${notification.is_read ? 'text-slate-700' : 'text-slate-900'
+                  }`}>
+                  {notification.title}
+                </p>
+              )}
+              {/* Message - Body text */}
+              {notification.message && (
+                <p className={`text-sm leading-relaxed mt-0.5 ${notification.is_read ? 'text-slate-500' : 'text-slate-600'
+                  }`}>
+                  {formatMessage(notification.message)}
+                </p>
+              )}
             </div>
             {!notification.is_read && (
               <div className="w-2 h-2 bg-emerald-500 rounded-full shrink-0 mt-1.5"></div>
