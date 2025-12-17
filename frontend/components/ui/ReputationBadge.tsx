@@ -21,10 +21,10 @@ interface ReputationLevel {
 
 // Definisi 4 level berdasarkan reputasi
 const getReputationLevel = (points: number): ReputationLevel => {
-    if (points >= 1000) {
+    if (points >= 5000) {
         return {
             name: 'Legend',
-            minPoints: 1000,
+            minPoints: 5000,
             color: 'text-amber-600',
             bgColor: 'bg-gradient-to-r from-amber-50 to-yellow-50',
             borderColor: 'border-amber-300',
@@ -32,10 +32,10 @@ const getReputationLevel = (points: number): ReputationLevel => {
             icon: <Crown className="w-full h-full" />,
         };
     }
-    if (points >= 500) {
+    if (points >= 1000) {
         return {
             name: 'Master',
-            minPoints: 500,
+            minPoints: 1000,
             color: 'text-purple-600',
             bgColor: 'bg-gradient-to-r from-purple-50 to-pink-50',
             borderColor: 'border-purple-300',
@@ -43,10 +43,10 @@ const getReputationLevel = (points: number): ReputationLevel => {
             icon: <Trophy className="w-full h-full" />,
         };
     }
-    if (points >= 100) {
+    if (points >= 250) {
         return {
             name: 'Expert',
-            minPoints: 100,
+            minPoints: 250,
             color: 'text-emerald-600',
             bgColor: 'bg-gradient-to-r from-emerald-50 to-teal-50',
             borderColor: 'border-emerald-300',
@@ -54,7 +54,7 @@ const getReputationLevel = (points: number): ReputationLevel => {
             icon: <Zap className="w-full h-full" />,
         };
     }
-    // Newbie (0-99) - no badge shown
+    // Newbie (0-249) - no badge shown
     return {
         name: 'Newbie',
         minPoints: 0,
@@ -68,7 +68,7 @@ const getReputationLevel = (points: number): ReputationLevel => {
 
 // Get next level info
 export const getNextLevel = (points: number): { name: string; pointsNeeded: number; progress: number } | null => {
-    const levels = [100, 500, 1000];
+    const levels = [250, 1000, 5000];
     const levelNames = ['Expert', 'Master', 'Legend'];
 
     for (let i = 0; i < levels.length; i++) {
@@ -87,9 +87,9 @@ export const getNextLevel = (points: number): { name: string; pointsNeeded: numb
 
 // Get ring color for avatar border based on reputation
 export const getReputationRingColor = (points: number): string => {
-    if (points >= 1000) return 'ring-amber-400'; // Legend
-    if (points >= 500) return 'ring-purple-400'; // Master
-    if (points >= 100) return 'ring-emerald-400'; // Expert
+    if (points >= 5000) return 'ring-amber-400'; // Legend
+    if (points >= 1000) return 'ring-purple-400'; // Master
+    if (points >= 250) return 'ring-emerald-400'; // Expert
     return 'ring-transparent'; // Newbie - no ring
 };
 

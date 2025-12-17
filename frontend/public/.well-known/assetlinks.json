@@ -1,0 +1,12 @@
+[
+  {
+    "relation": ["delegate_permission/common.handle_all_urls"],
+    "target": {
+      "namespace": "android_app",
+      "package_name": "diskusibisnis.id",
+      "sha256_cert_fingerprints": [
+        "AF:C9:E4:83:AF:56:B4:9F:31:B5:C9:E9:2F:43:20:E7:F3:0E:7E:9A:2E:4A:EE:5A:14:0A:A1:B1:B0:8C:7E:13"
+      ]
+    }
+  }
+]

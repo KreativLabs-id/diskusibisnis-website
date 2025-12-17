@@ -120,7 +120,7 @@ export default function Navbar({ onMenuClick }: NavbarProps) {
                                   {user.reputationPoints} poin
                                 </span>
                               )}
-                              {user.reputationPoints >= 100 && (
+                              {user.reputationPoints >= 250 && (
                                 <span className="px-1.5 sm:px-2 py-0.5 bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-400 rounded-full text-[10px] sm:text-xs font-semibold">
                                   Expert
                                 </span>

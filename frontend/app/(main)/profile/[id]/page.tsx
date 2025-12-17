@@ -244,7 +244,7 @@ export default function ProfilePage() {
                     <div className="flex items-center justify-center sm:justify-start gap-2 mb-1 flex-wrap">
                       <h1 className="text-2xl sm:text-3xl font-bold text-slate-900 dark:text-slate-100">{profile.displayName || 'User'}</h1>
                       <VerifiedBadge isVerified={profile.isVerified || false} size="md" />
-                      {profile.reputationPoints >= 100 && (
+                      {profile.reputationPoints >= 250 && (
                         <ReputationBadge reputationPoints={profile.reputationPoints} size="sm" />
                       )}
                     </div>

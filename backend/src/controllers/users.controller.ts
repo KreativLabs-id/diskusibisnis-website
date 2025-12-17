@@ -1,4 +1,5 @@
 import { Response } from 'express';
+import bcrypt from 'bcryptjs';
 import pool from '../config/database';
 import { AuthRequest } from '../types';
 import { successResponse, errorResponse, notFoundResponse } from '../utils/response.utils';
@@ -591,8 +592,7 @@ export const deleteAccount = async (req: AuthRequest, res: Response): Promise<vo
         return;
       }
 
-      // Import bcrypt for password verification
-      const bcrypt = require('bcryptjs');
+      // Verify password
       const isValidPassword = await bcrypt.compare(password, user.password_hash);
 
       if (!isValidPassword) {
