@@ -97,13 +97,20 @@ const formatMessage = (text: string) => {
 interface NotificationItemProps {
   notification: Notification;
   onMarkAsRead: (id: string) => void;
+  onDelete: (id: string) => void;
 }
 
-const NotificationItem: React.FC<NotificationItemProps> = ({ notification, onMarkAsRead }) => {
+const NotificationItem: React.FC<NotificationItemProps> = ({ notification, onMarkAsRead, onDelete }) => {
   const handleClick = () => {
     if (!notification.is_read) {
       onMarkAsRead(notification.id);
     }
+  };
+
+  const handleDelete = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    onDelete(notification.id);
   };
 
   const content = (
@@ -124,12 +131,23 @@ const NotificationItem: React.FC<NotificationItemProps> = ({ notification, onMar
               }`}>
               {notification.title}
             </h3>
-            <span className="text-xs text-slate-400 dark:text-slate-500 whitespace-nowrap flex-shrink-0 flex items-center gap-1">
-              {formatTimeAgo(notification.created_at)}
-              {!notification.is_read && (
-                <span className="w-2 h-2 bg-emerald-500 rounded-full inline-block ml-1"></span>
-              )}
-            </span>
+            <div className="flex items-center gap-2">
+              <span className="text-xs text-slate-400 dark:text-slate-500 whitespace-nowrap flex-shrink-0 flex items-center gap-1">
+                {formatTimeAgo(notification.created_at)}
+                {!notification.is_read && (
+                  <span className="w-2 h-2 bg-emerald-500 rounded-full inline-block ml-1"></span>
+                )}
+              </span>
+              <button
+                onClick={handleDelete}
+                className="p-1 hover:bg-slate-200 dark:hover:bg-slate-700 rounded transition-colors"
+                title="Hapus notifikasi"
+              >
+                <svg className="w-4 h-4 text-slate-400 hover:text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
+            </div>
           </div>
 
           {notification.message && (
@@ -161,7 +179,8 @@ export default function NotificationsPage() {
     loading,
     markAsRead,
     markAllAsRead,
-    fetchNotifications
+    fetchNotifications,
+    deleteNotification
   } = useNotifications();
 
   useEffect(() => {
@@ -170,6 +189,10 @@ export default function NotificationsPage() {
 
   const handleMarkAllAsRead = async () => {
     await markAllAsRead();
+  };
+
+  const handleDeleteNotification = async (id: string) => {
+    await deleteNotification(id);
   };
 
   return (
@@ -255,6 +278,7 @@ export default function NotificationsPage() {
                   key={notification.id}
                   notification={notification}
                   onMarkAsRead={markAsRead}
+                  onDelete={handleDeleteNotification}
                 />
               ))}
             </div>

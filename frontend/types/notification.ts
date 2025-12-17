@@ -1,7 +1,7 @@
 export interface Notification {
   id: string;
   user_id: string;
-  type: 'answer' | 'comment' | 'vote' | 'mention' | 'system';
+  type: 'answer' | 'comment' | 'vote' | 'mention' | 'system' | 'accepted_answer';
   title: string;
   message?: string;
   link?: string;
@@ -17,4 +17,5 @@ export interface NotificationContextType {
   markAsRead: (id: string) => Promise<void>;
   markAllAsRead: () => Promise<void>;
   addNotification: (notification: Notification) => void;
+  deleteNotification: (id: string) => Promise<void>;
 }

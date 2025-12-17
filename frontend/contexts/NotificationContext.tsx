@@ -1,6 +1,7 @@
 'use client';
 
-import React, { createContext, useContext, useState, useEffect, useRef } from 'react';
+import React, { createContext, useContext, useState, useEffect, useRef, useCallback } from 'react';
+import { io, Socket } from 'socket.io-client';
 import { notificationAPI } from '@/lib/api';
 import { Notification, NotificationContextType } from '@/types/notification';
 import { useAuth } from './AuthContext';
@@ -9,12 +10,14 @@ import { Bell } from 'lucide-react';
 const NotificationContext = createContext<NotificationContextType | undefined>(undefined);
 
 export function NotificationProvider({ children }: { children: React.ReactNode }) {
-  const { user } = useAuth();
+  const { user, token } = useAuth();
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const [loading, setLoading] = useState(false);
   const [toast, setToast] = useState<{ message: string; visible: boolean } | null>(null);
+  const [isConnected, setIsConnected] = useState(false);
   const prevUnreadCountRef = useRef(0);
   const isFirstLoad = useRef(true);
+  const socketRef = useRef<Socket | null>(null);
 
   const unreadCount = Array.isArray(notifications) ? notifications.filter(n => !n.is_read).length : 0;
 
@@ -34,6 +37,83 @@ export function NotificationProvider({ children }: { children: React.ReactNode }
       if (!isBackground) setLoading(false);
     }
   };
+
+  // Handle new notification from WebSocket
+  const handleNewNotification = useCallback((notification: Notification) => {
+    console.log('[WebSocket] New notification received:', notification);
+    setNotifications(prev => {
+      // Check if notification already exists
+      if (Array.isArray(prev) && prev.some(n => n.id === notification.id)) {
+        return prev;
+      }
+      return Array.isArray(prev) ? [notification, ...prev] : [notification];
+    });
+  }, []);
+
+  // WebSocket Connection
+  useEffect(() => {
+    if (!user || !token) {
+      // Disconnect if no user
+      if (socketRef.current) {
+        socketRef.current.disconnect();
+        socketRef.current = null;
+        setIsConnected(false);
+      }
+      return;
+    }
+
+    // Connect to WebSocket
+    const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
+    const wsUrl = apiUrl.replace('/api', ''); // Remove /api suffix for WebSocket
+
+    console.log('[WebSocket] Connecting to:', wsUrl);
+
+    const socket = io(wsUrl, {
+      auth: { token },
+      transports: ['websocket', 'polling'],
+      reconnection: true,
+      reconnectionAttempts: 5,
+      reconnectionDelay: 1000,
+    });
+
+    socketRef.current = socket;
+
+    socket.on('connect', () => {
+      console.log('[WebSocket] Connected:', socket.id);
+      setIsConnected(true);
+    });
+
+    socket.on('disconnect', (reason) => {
+      console.log('[WebSocket] Disconnected:', reason);
+      setIsConnected(false);
+    });
+
+    socket.on('connect_error', (error) => {
+      console.error('[WebSocket] Connection error:', error.message);
+      setIsConnected(false);
+    });
+
+    // Listen for new notifications
+    socket.on('notification:new', handleNewNotification);
+
+    // Listen for notification deleted
+    socket.on('notification:deleted', (data: { id: string }) => {
+      console.log('[WebSocket] Notification deleted:', data.id);
+      setNotifications(prev =>
+        Array.isArray(prev) ? prev.filter(n => n.id !== data.id) : []
+      );
+    });
+
+    // Cleanup
+    return () => {
+      console.log('[WebSocket] Cleaning up...');
+      socket.off('notification:new', handleNewNotification);
+      socket.off('notification:deleted');
+      socket.disconnect();
+      socketRef.current = null;
+      setIsConnected(false);
+    };
+  }, [user, token, handleNewNotification]);
 
   // Track unread changes for toast
   useEffect(() => {
@@ -94,6 +174,17 @@ export function NotificationProvider({ children }: { children: React.ReactNode }
     setNotifications(prev => Array.isArray(prev) ? [notification, ...prev] : [notification]);
   };
 
+  const deleteNotification = async (id: string) => {
+    try {
+      await notificationAPI.delete(id);
+      setNotifications(prev =>
+        Array.isArray(prev) ? prev.filter(notification => notification.id !== id) : []
+      );
+    } catch (error) {
+      console.error('Error deleting notification:', error);
+    }
+  };
+
   // Initial Fetch
   useEffect(() => {
     let mounted = true;
@@ -112,16 +203,17 @@ export function NotificationProvider({ children }: { children: React.ReactNode }
     return () => { mounted = false; };
   }, [user]);
 
-  // Real-time Polling (10 seconds)
+  // Fallback Polling (60 seconds) - only if WebSocket is not connected
   useEffect(() => {
-    if (!user) return;
+    if (!user || isConnected) return;
 
+    console.log('[Polling] WebSocket not connected, using fallback polling...');
     const interval = setInterval(() => {
       fetchNotifications(true);
-    }, 10000); // 10 seconds for "instant feel"
+    }, 60000); // 60 seconds fallback
 
     return () => clearInterval(interval);
-  }, [user]);
+  }, [user, isConnected]);
 
   return (
     <NotificationContext.Provider value={{
@@ -131,7 +223,8 @@ export function NotificationProvider({ children }: { children: React.ReactNode }
       fetchNotifications,
       markAsRead,
       markAllAsRead,
-      addNotification
+      addNotification,
+      deleteNotification
     }}>
       {children}
       {/* Toast Notification */}

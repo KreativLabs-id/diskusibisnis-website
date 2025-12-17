@@ -5,6 +5,7 @@ import {
   sendNotificationToDevice,
   sendNotificationToMultipleDevices
 } from '../services/firebase.service';
+import { emitToUser } from '../services/socket.service';
 
 export interface CreateNotificationData {
   userId: string;
@@ -16,10 +17,22 @@ export interface CreateNotificationData {
 
 export const createNotification = async (data: CreateNotificationData): Promise<void> => {
   try {
-    await pool.query(
-      'INSERT INTO public.notifications (user_id, type, title, message, link) VALUES ($1, $2, $3, $4, $5)',
+    const result = await pool.query(
+      'INSERT INTO public.notifications (user_id, type, title, message, link) VALUES ($1, $2, $3, $4, $5) RETURNING *',
       [data.userId, data.type, data.title, data.message, data.link]
     );
+    
+    // Emit real-time notification via WebSocket
+    const notification = result.rows[0];
+    emitToUser(data.userId, 'notification:new', {
+      id: notification.id,
+      type: notification.type,
+      title: notification.title,
+      message: notification.message,
+      link: notification.link,
+      is_read: notification.is_read,
+      created_at: notification.created_at
+    });
   } catch (error) {
     console.error('Error creating notification:', error);
     throw error;

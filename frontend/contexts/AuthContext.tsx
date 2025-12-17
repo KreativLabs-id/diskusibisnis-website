@@ -18,6 +18,7 @@ interface User {
 
 interface AuthContextType {
   user: User | null;
+  token: string | null;
   loading: boolean;
   login: (email: string, password: string) => Promise<void>;
   googleLogin: (credential: string) => Promise<void>;
@@ -32,6 +33,7 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
+  const [token, setToken] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -44,10 +46,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         return;
       }
 
-      const token = localStorage.getItem('token');
+      const savedToken = localStorage.getItem('token');
       const savedUser = localStorage.getItem('user');
 
-      if (token && savedUser) {
+      if (savedToken && savedUser) {
+        if (mounted) setToken(savedToken);
         try {
           const parsedUser = JSON.parse(savedUser);
           if (mounted) setUser(parsedUser);
@@ -103,13 +106,14 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const login = async (email: string, password: string) => {
     const response = await authAPI.login({ email, password });
-    const { user, token } = response.data.data;
+    const { user, token: newToken } = response.data.data;
 
     if (typeof window !== 'undefined') {
-      localStorage.setItem('token', token);
+      localStorage.setItem('token', newToken);
       localStorage.setItem('user', JSON.stringify(user));
     }
     setUser(user);
+    setToken(newToken);
 
     // Refresh user data from server to get latest role
     setTimeout(() => {
@@ -119,13 +123,14 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const googleLogin = async (credential: string) => {
     const response = await authAPI.googleLogin(credential);
-    const { user, token } = response.data.data;
+    const { user, token: newToken } = response.data.data;
 
     if (typeof window !== 'undefined') {
-      localStorage.setItem('token', token);
+      localStorage.setItem('token', newToken);
       localStorage.setItem('user', JSON.stringify(user));
     }
     setUser(user);
+    setToken(newToken);
 
     // Refresh user data from server to get latest info
     setTimeout(() => {
@@ -135,13 +140,14 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const register = async (email: string, password: string, displayName: string) => {
     const response = await authAPI.register({ email, password, displayName });
-    const { user, token } = response.data.data;
+    const { user, token: newToken } = response.data.data;
 
     if (typeof window !== 'undefined') {
-      localStorage.setItem('token', token);
+      localStorage.setItem('token', newToken);
       localStorage.setItem('user', JSON.stringify(user));
     }
     setUser(user);
+    setToken(newToken);
   };
 
   const logout = async () => {
@@ -157,6 +163,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       localStorage.removeItem('user');
       localStorage.removeItem('lastUserRefresh');
       setUser(null);
+      setToken(null);
       window.location.href = '/';
     }
   };
@@ -221,7 +228,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   };
 
   return (
-    <AuthContext.Provider value={{ user, loading, login, googleLogin, register, logout, updateUser, refreshUser, forceRefreshUser }}>
+    <AuthContext.Provider value={{ user, token, loading, login, googleLogin, register, logout, updateUser, refreshUser, forceRefreshUser }}>
       {children}
     </AuthContext.Provider>
   );

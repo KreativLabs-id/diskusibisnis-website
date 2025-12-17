@@ -537,6 +537,13 @@ export const deleteQuestion = async (req: AuthRequest, res: Response): Promise<v
       return;
     }
 
+    // Clean up related notifications before deleting question
+    await pool.query(
+      `DELETE FROM public.notifications 
+       WHERE link LIKE $1`,
+      [`/questions/${questionId}%`]
+    );
+
     await pool.query('DELETE FROM public.questions WHERE id = $1', [questionId]);
 
     successResponse(res, null, 'Question deleted successfully');

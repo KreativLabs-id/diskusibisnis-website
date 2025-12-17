@@ -17,6 +17,29 @@ router.get('/', requireAuth, getNotifications);
 // Mark notification as read
 router.post('/:id/read', requireAuth, markNotificationAsRead);
 
+// Delete a specific notification
+router.delete('/:id', requireAuth, async (req: AuthRequest, res: Response): Promise<void> => {
+  try {
+    const userId = req.user?.id;
+    const notificationId = req.params.id;
+
+    const result = await pool.query(
+      'DELETE FROM public.notifications WHERE id = $1 AND user_id = $2',
+      [notificationId, userId]
+    );
+
+    if (result.rowCount === 0) {
+      errorResponse(res, 'Notification not found', 404);
+      return;
+    }
+
+    successResponse(res, null, 'Notification deleted successfully');
+  } catch (error) {
+    console.error('Delete notification error:', error);
+    errorResponse(res, 'Failed to delete notification');
+  }
+});
+
 // Mark all notifications as read
 router.post('/read-all', requireAuth, markAllNotificationsAsRead);
 

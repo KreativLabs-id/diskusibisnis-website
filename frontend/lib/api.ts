@@ -184,6 +184,8 @@ export const notificationAPI = {
     api.post(`/notifications/${id}/read`),
   markAllAsRead: () =>
     api.post('/notifications/read-all'),
+  delete: (id: string) =>
+    api.delete(`/notifications/${id}`),
 };
 
 // Admin

@@ -1,8 +1,17 @@
+import { createServer } from 'http';
 import app from './app';
 import config from './config/environment';
 import pool from './config/database';
+import { initializeSocketIO } from './services/socket.service';
 
 const PORT = config.port;
+
+// Create HTTP server
+const server = createServer(app);
+
+// Initialize Socket.io
+const io = initializeSocketIO(server);
+console.log('Socket.IO initialized:', io ? 'success' : 'failed');
 
 // Test database connection (non-blocking - don't exit if fails initially)
 const testDatabaseConnection = async () => {
@@ -18,7 +27,7 @@ const testDatabaseConnection = async () => {
 };
 
 // Start server immediately (don't wait for database)
-const server = app.listen(PORT, async () => {
+server.listen(PORT, async () => {
   console.log('');
   console.log('╔════════════════════════════════════════════════════════════════╗');
   console.log('║                                                                ║');
@@ -29,6 +38,7 @@ const server = app.listen(PORT, async () => {
   console.log(`║  Port: ${String(PORT).padEnd(56)}║`);
   console.log(`║  URL: http://localhost:${PORT}${' '.repeat(36)}║`);
   console.log(`║  Health Check: http://localhost:${PORT}/health${' '.repeat(23)}║`);
+  console.log(`║  WebSocket: ws://localhost:${PORT}${' '.repeat(32)}║`);
   console.log('╚════════════════════════════════════════════════════════════════╝');
   console.log('');
 

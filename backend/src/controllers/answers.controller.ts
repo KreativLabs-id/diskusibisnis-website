@@ -210,6 +210,15 @@ export const deleteAnswer = async (req: AuthRequest, res: Response): Promise<voi
       return;
     }
 
+    // Clean up related notifications before deleting answer
+    await pool.query(
+      `DELETE FROM public.notifications 
+       WHERE (type IN ('answer', 'accepted_answer', 'vote', 'comment', 'mention') 
+       AND link = $1)
+       OR (type = 'accepted_answer' AND user_id = $2 AND link = $1)`,
+      [`/questions/${answer.question_id}`, answer.author_id]
+    );
+
     await pool.query('DELETE FROM public.answers WHERE id = $1', [answerId]);
 
     // Update question answers count
