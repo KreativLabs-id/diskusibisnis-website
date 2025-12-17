@@ -109,14 +109,14 @@ export default function TagsPage() {
   }
 
   return (
-    <div className="min-h-screen bg-slate-50 pb-20">
+    <div className="min-h-screen bg-slate-50 dark:bg-slate-950 pb-20 transition-colors duration-200">
       {/* Mobile Header - Sticky */}
-      <div className="sticky top-0 z-30 bg-white border-b border-slate-200 px-4 py-3 sm:hidden flex items-center justify-between shadow-sm">
+      <div className="sticky top-0 z-30 bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800 px-4 py-3 sm:hidden flex items-center justify-between shadow-sm">
         <div className="flex items-center gap-2">
-          <div className="w-8 h-8 bg-emerald-100 rounded-lg flex items-center justify-center">
-            <Tag className="w-4 h-4 text-emerald-600" />
+          <div className="w-8 h-8 bg-emerald-100 dark:bg-emerald-900/30 rounded-lg flex items-center justify-center">
+            <Tag className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
           </div>
-          <h1 className="text-lg font-bold text-slate-900">Tags</h1>
+          <h1 className="text-lg font-bold text-slate-900 dark:text-slate-100">Tags</h1>
         </div>
       </div>
 
@@ -124,18 +124,18 @@ export default function TagsPage() {
         {/* Desktop Header */}
         <div className="hidden sm:block mb-8">
           <div className="flex items-center gap-3 mb-2">
-            <div className="w-10 h-10 bg-emerald-100 rounded-xl flex items-center justify-center">
-              <Tag className="w-5 h-5 text-emerald-600" />
+            <div className="w-10 h-10 bg-emerald-100 dark:bg-emerald-900/30 rounded-xl flex items-center justify-center">
+              <Tag className="w-5 h-5 text-emerald-600 dark:text-emerald-400" />
             </div>
-            <h1 className="text-3xl font-bold text-slate-900">Tags</h1>
+            <h1 className="text-3xl font-bold text-slate-900 dark:text-slate-100">Tags</h1>
           </div>
-          <p className="text-slate-600 text-lg">
+          <p className="text-slate-600 dark:text-slate-400 text-lg">
             Jelajahi pertanyaan berdasarkan kategori bisnis
           </p>
         </div>
 
         {/* Search & Filter Section */}
-        <div className="sticky sm:static top-[60px] z-20 bg-slate-50 pt-2 pb-4 sm:py-0 mb-4 sm:mb-8">
+        <div className="sticky sm:static top-[60px] z-20 bg-slate-50 dark:bg-slate-950 pt-2 pb-4 sm:py-0 mb-4 sm:mb-8">
           <div className="flex flex-col sm:flex-row gap-4">
             <div className="relative flex-1">
               <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 text-slate-400 w-5 h-5" />
@@ -144,7 +144,7 @@ export default function TagsPage() {
                 placeholder="Cari topik bisnis..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full pl-11 pr-4 py-3 border-2 border-slate-200 rounded-xl focus:outline-none focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/10 text-sm sm:text-base bg-white shadow-sm transition-all"
+                className="w-full pl-11 pr-4 py-3 border-2 border-slate-200 dark:border-slate-700 rounded-xl focus:outline-none focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/10 text-sm sm:text-base bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 shadow-sm transition-all"
               />
             </div>
 
@@ -152,8 +152,8 @@ export default function TagsPage() {
               <button
                 onClick={() => setSortBy('popular')}
                 className={`inline-flex items-center gap-2 px-4 py-3 rounded-xl text-sm font-semibold transition-all whitespace-nowrap flex-1 sm:flex-none justify-center ${sortBy === 'popular'
-                    ? 'bg-emerald-600 text-white shadow-lg shadow-emerald-600/20'
-                    : 'bg-white text-slate-600 border-2 border-slate-200 hover:border-emerald-200 hover:bg-emerald-50'
+                  ? 'bg-emerald-600 text-white shadow-lg shadow-emerald-600/20'
+                  : 'bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300 border-2 border-slate-200 dark:border-slate-700 hover:border-emerald-200 dark:hover:border-emerald-700 hover:bg-emerald-50 dark:hover:bg-emerald-900/20'
                   }`}
               >
                 <TrendingUp className="w-4 h-4" />
@@ -162,8 +162,8 @@ export default function TagsPage() {
               <button
                 onClick={() => setSortBy('name')}
                 className={`inline-flex items-center gap-2 px-4 py-3 rounded-xl text-sm font-semibold transition-all whitespace-nowrap flex-1 sm:flex-none justify-center ${sortBy === 'name'
-                    ? 'bg-emerald-600 text-white shadow-lg shadow-emerald-600/20'
-                    : 'bg-white text-slate-600 border-2 border-slate-200 hover:border-emerald-200 hover:bg-emerald-50'
+                  ? 'bg-emerald-600 text-white shadow-lg shadow-emerald-600/20'
+                  : 'bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300 border-2 border-slate-200 dark:border-slate-700 hover:border-emerald-200 dark:hover:border-emerald-700 hover:bg-emerald-50 dark:hover:bg-emerald-900/20'
                   }`}
               >
                 <Hash className="w-4 h-4" />
@@ -175,14 +175,14 @@ export default function TagsPage() {
 
         {/* Tags Grid */}
         {filteredTags.length === 0 ? (
-          <div className="bg-white border-2 border-dashed border-slate-200 rounded-2xl p-12 text-center">
-            <div className="w-16 h-16 bg-slate-50 rounded-full flex items-center justify-center mx-auto mb-4">
-              <Search className="w-8 h-8 text-slate-300" />
+          <div className="bg-white dark:bg-slate-800 border-2 border-dashed border-slate-200 dark:border-slate-700 rounded-2xl p-12 text-center">
+            <div className="w-16 h-16 bg-slate-50 dark:bg-slate-700 rounded-full flex items-center justify-center mx-auto mb-4">
+              <Search className="w-8 h-8 text-slate-300 dark:text-slate-500" />
             </div>
-            <h3 className="text-lg font-bold text-slate-900 mb-2">
+            <h3 className="text-lg font-bold text-slate-900 dark:text-slate-100 mb-2">
               {searchQuery ? 'Tidak ada tag ditemukan' : 'Belum ada tag'}
             </h3>
-            <p className="text-slate-500 max-w-xs mx-auto">
+            <p className="text-slate-500 dark:text-slate-400 max-w-xs mx-auto">
               {searchQuery
                 ? `Tidak dapat menemukan tag "${searchQuery}"`
                 : 'Tag akan muncul setelah ada pertanyaan dibuat'}
@@ -190,7 +190,7 @@ export default function TagsPage() {
           </div>
         ) : (
           <>
-            <div className="mb-4 text-sm font-medium text-slate-500 px-1">
+            <div className="mb-4 text-sm font-medium text-slate-500 dark:text-slate-400 px-1">
               Menampilkan {filteredTags.length} topik diskusi
             </div>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
@@ -198,10 +198,10 @@ export default function TagsPage() {
                 <Link
                   key={tag.id}
                   href={`/tags/${tag.slug}`}
-                  className="group bg-white rounded-2xl p-5 border border-slate-200 hover:border-emerald-500/50 hover:shadow-xl hover:shadow-emerald-500/5 transition-all duration-300 relative overflow-hidden"
+                  className="group bg-white dark:bg-slate-800 rounded-2xl p-5 border border-slate-200 dark:border-slate-700 hover:border-emerald-500/50 hover:shadow-xl hover:shadow-emerald-500/5 transition-all duration-300 relative overflow-hidden"
                 >
                   <div className="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity transform group-hover:scale-110 duration-500">
-                    <Hash className="w-24 h-24 text-emerald-600 rotate-12" />
+                    <Hash className="w-24 h-24 text-emerald-600 dark:text-emerald-400 rotate-12" />
                   </div>
 
                   <div className="relative z-10">
@@ -215,20 +215,20 @@ export default function TagsPage() {
                       </div>
                     </div>
 
-                    <h3 className="text-lg font-bold text-slate-900 mb-2 group-hover:text-emerald-600 transition-colors">
+                    <h3 className="text-lg font-bold text-slate-900 dark:text-slate-100 mb-2 group-hover:text-emerald-600 dark:group-hover:text-emerald-400 transition-colors">
                       {tag.name}
                     </h3>
 
-                    <p className="text-sm text-slate-500 line-clamp-2 mb-4 h-10 leading-relaxed">
+                    <p className="text-sm text-slate-500 dark:text-slate-400 line-clamp-2 mb-4 h-10 leading-relaxed">
                       {tag.description || `Diskusi dan pertanyaan seputar topik ${tag.name} dalam bisnis.`}
                     </p>
 
-                    <div className="flex items-center justify-between pt-4 border-t border-slate-100">
-                      <div className="flex items-center gap-1.5 text-slate-500 text-xs font-medium bg-slate-50 px-2.5 py-1 rounded-md">
+                    <div className="flex items-center justify-between pt-4 border-t border-slate-100 dark:border-slate-700">
+                      <div className="flex items-center gap-1.5 text-slate-500 dark:text-slate-400 text-xs font-medium bg-slate-50 dark:bg-slate-700 px-2.5 py-1 rounded-md">
                         <MessageSquare className="w-3.5 h-3.5" />
                         <span>{tag.questionCount} diskusi</span>
                       </div>
-                      <span className="text-xs font-semibold text-emerald-600 flex items-center gap-1 group-hover:translate-x-1 transition-transform">
+                      <span className="text-xs font-semibold text-emerald-600 dark:text-emerald-400 flex items-center gap-1 group-hover:translate-x-1 transition-transform">
                         Lihat Topik
                         <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />

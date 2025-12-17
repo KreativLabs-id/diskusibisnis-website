@@ -9,14 +9,14 @@ export const metadata: Metadata = {
 
 export default function AboutPage() {
   return (
-    <div className="min-h-screen bg-white">
+    <div className="min-h-screen bg-white dark:bg-slate-950 transition-colors duration-200">
       <div className="max-w-3xl mx-auto px-6 py-12 md:py-20">
 
         {/* Navigation */}
         <nav className="mb-12">
           <Link
             href="/explore"
-            className="group inline-flex items-center gap-2 text-sm font-medium text-slate-500 hover:text-emerald-600 transition-colors"
+            className="group inline-flex items-center gap-2 text-sm font-medium text-slate-500 dark:text-slate-400 hover:text-emerald-600 dark:hover:text-emerald-400 transition-colors"
           >
             <ArrowLeft className="w-4 h-4 group-hover:-translate-x-1 transition-transform" />
             Kembali
@@ -25,10 +25,10 @@ export default function AboutPage() {
 
         {/* Hero Section */}
         <header className="mb-16 md:mb-24">
-          <h1 className="text-4xl md:text-6xl font-bold tracking-tight text-slate-900 mb-6 leading-tight">
-            Membangun masa depan <span className="text-emerald-600">UMKM Indonesia</span>.
+          <h1 className="text-4xl md:text-6xl font-bold tracking-tight text-slate-900 dark:text-slate-100 mb-6 leading-tight">
+            Membangun masa depan <span className="text-emerald-600 dark:text-emerald-400">UMKM Indonesia</span>.
           </h1>
-          <p className="text-lg md:text-xl text-slate-600 leading-relaxed max-w-2xl">
+          <p className="text-lg md:text-xl text-slate-600 dark:text-slate-400 leading-relaxed max-w-2xl">
             DiskusiBisnis adalah platform Q&A yang didedikasikan untuk menghubungkan pengusaha, berbagi strategi nyata, dan tumbuh bersama tanpa batasan.
           </p>
         </header>
@@ -37,43 +37,43 @@ export default function AboutPage() {
           {/* Mission & Vision */}
           <section className="grid md:grid-cols-2 gap-12">
             <div>
-              <div className="w-12 h-12 flex items-center justify-center rounded-full bg-emerald-50 text-emerald-600 mb-6">
+              <div className="w-12 h-12 flex items-center justify-center rounded-full bg-emerald-50 dark:bg-emerald-900/30 text-emerald-600 dark:text-emerald-400 mb-6">
                 <Target className="w-6 h-6" />
               </div>
-              <h2 className="text-2xl font-bold text-slate-900 mb-4">Misi Kami</h2>
-              <p className="text-slate-600 leading-relaxed">
+              <h2 className="text-2xl font-bold text-slate-900 dark:text-slate-100 mb-4">Misi Kami</h2>
+              <p className="text-slate-600 dark:text-slate-400 leading-relaxed">
                 Mendemokratisasi akses pengetahuan bisnis. Kami ingin memastikan setiap pengusaha, sekecil apapun, memiliki akses ke mentorship dan solusi yang mereka butuhkan untuk berkembang.
               </p>
             </div>
             <div>
-              <div className="w-12 h-12 flex items-center justify-center rounded-full bg-emerald-50 text-emerald-600 mb-6">
+              <div className="w-12 h-12 flex items-center justify-center rounded-full bg-emerald-50 dark:bg-emerald-900/30 text-emerald-600 dark:text-emerald-400 mb-6">
                 <Lightbulb className="w-6 h-6" />
               </div>
-              <h2 className="text-2xl font-bold text-slate-900 mb-4">Visi Kami</h2>
-              <p className="text-slate-600 leading-relaxed">
+              <h2 className="text-2xl font-bold text-slate-900 dark:text-slate-100 mb-4">Visi Kami</h2>
+              <p className="text-slate-600 dark:text-slate-400 leading-relaxed">
                 Menjadi ekosistem digital terbesar yang menggerakkan ekonomi mikro Indonesia, di mana kolaborasi menggantikan kompetisi yang tidak sehat.
               </p>
             </div>
           </section>
 
           {/* Stats - Minimalist */}
-          <section className="border-y border-slate-100 py-12 md:py-16">
+          <section className="border-y border-slate-100 dark:border-slate-800 py-12 md:py-16">
             <div className="grid grid-cols-2 md:grid-cols-4 gap-8 text-center">
               <div>
-                <div className="text-3xl md:text-4xl font-bold text-slate-900 mb-2">10k+</div>
-                <div className="text-sm font-medium text-emerald-600 uppercase tracking-wider">Anggota</div>
+                <div className="text-3xl md:text-4xl font-bold text-slate-900 dark:text-slate-100 mb-2">10k+</div>
+                <div className="text-sm font-medium text-emerald-600 dark:text-emerald-400 uppercase tracking-wider">Anggota</div>
               </div>
               <div>
-                <div className="text-3xl md:text-4xl font-bold text-slate-900 mb-2">50k+</div>
-                <div className="text-sm font-medium text-emerald-600 uppercase tracking-wider">Solusi</div>
+                <div className="text-3xl md:text-4xl font-bold text-slate-900 dark:text-slate-100 mb-2">50k+</div>
+                <div className="text-sm font-medium text-emerald-600 dark:text-emerald-400 uppercase tracking-wider">Solusi</div>
               </div>
               <div>
-                <div className="text-3xl md:text-4xl font-bold text-slate-900 mb-2">100+</div>
-                <div className="text-sm font-medium text-emerald-600 uppercase tracking-wider">Topik</div>
+                <div className="text-3xl md:text-4xl font-bold text-slate-900 dark:text-slate-100 mb-2">100+</div>
+                <div className="text-sm font-medium text-emerald-600 dark:text-emerald-400 uppercase tracking-wider">Topik</div>
               </div>
               <div>
-                <div className="text-3xl md:text-4xl font-bold text-slate-900 mb-2">24/7</div>
-                <div className="text-sm font-medium text-emerald-600 uppercase tracking-wider">Aktif</div>
+                <div className="text-3xl md:text-4xl font-bold text-slate-900 dark:text-slate-100 mb-2">24/7</div>
+                <div className="text-sm font-medium text-emerald-600 dark:text-emerald-400 uppercase tracking-wider">Aktif</div>
               </div>
             </div>
           </section>

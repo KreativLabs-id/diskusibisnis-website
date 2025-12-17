@@ -9,14 +9,14 @@ export const metadata: Metadata = {
 
 export default function TermsPage() {
   return (
-    <div className="min-h-screen bg-white">
+    <div className="min-h-screen bg-white dark:bg-slate-950 transition-colors duration-200">
       <div className="max-w-3xl mx-auto px-6 py-12 md:py-20">
 
         {/* Navigation */}
         <nav className="mb-12">
           <Link
             href="/explore"
-            className="group inline-flex items-center gap-2 text-sm font-medium text-slate-500 hover:text-emerald-600 transition-colors"
+            className="group inline-flex items-center gap-2 text-sm font-medium text-slate-500 dark:text-slate-400 hover:text-emerald-600 dark:hover:text-emerald-400 transition-colors"
           >
             <ArrowLeft className="w-4 h-4 group-hover:-translate-x-1 transition-transform" />
             Kembali
@@ -24,9 +24,9 @@ export default function TermsPage() {
         </nav>
 
         {/* Header */}
-        <header className="mb-16 border-b border-slate-100 pb-10">
-          <h1 className="text-3xl md:text-5xl font-bold text-slate-900 mb-6">Syarat & Ketentuan</h1>
-          <div className="flex items-center gap-4 text-slate-500 text-sm">
+        <header className="mb-16 border-b border-slate-100 dark:border-slate-800 pb-10">
+          <h1 className="text-3xl md:text-5xl font-bold text-slate-900 dark:text-slate-100 mb-6">Syarat & Ketentuan</h1>
+          <div className="flex items-center gap-4 text-slate-500 dark:text-slate-400 text-sm">
             <span className="flex items-center gap-1.5">
               <FileText className="w-4 h-4" />
               Berlaku mulai: 1 Januari 2025
@@ -35,8 +35,8 @@ export default function TermsPage() {
         </header>
 
         {/* Content */}
-        <div className="prose prose-slate prose-lg max-w-none prose-headings:font-bold prose-headings:text-slate-900 prose-p:text-slate-600 prose-li:text-slate-600 prose-a:text-emerald-600 hover:prose-a:text-emerald-700">
-          <p className="lead text-xl text-slate-600 mb-12">
+        <div className="prose prose-slate prose-lg max-w-none prose-headings:font-bold prose-headings:text-slate-900 dark:prose-headings:text-slate-100 prose-p:text-slate-600 dark:prose-p:text-slate-400 prose-li:text-slate-600 dark:prose-li:text-slate-400 prose-a:text-emerald-600 dark:prose-a:text-emerald-400 hover:prose-a:text-emerald-700">
+          <p className="lead text-xl text-slate-600 dark:text-slate-400 mb-12">
             Selamat datang di DiskusiBisnis. Dengan menggunakan platform ini, Anda setuju untuk membangun komunitas yang sehat dan produktif.
           </p>
 
@@ -78,10 +78,10 @@ export default function TermsPage() {
             </p>
           </section>
 
-          <section className="bg-slate-50 p-8 rounded-2xl border border-slate-100 not-prose mt-16">
-            <h4 className="text-lg font-bold text-slate-900 mb-2">Butuh klarifikasi?</h4>
-            <p className="text-slate-600 mb-4">Kami siap menjelaskan aturan main komunitas ini.</p>
-            <Link href="/help" className="text-emerald-600 font-medium hover:underline">
+          <section className="bg-slate-50 dark:bg-slate-800 p-8 rounded-2xl border border-slate-100 dark:border-slate-700 not-prose mt-16">
+            <h4 className="text-lg font-bold text-slate-900 dark:text-slate-100 mb-2">Butuh klarifikasi?</h4>
+            <p className="text-slate-600 dark:text-slate-400 mb-4">Kami siap menjelaskan aturan main komunitas ini.</p>
+            <Link href="/help" className="text-emerald-600 dark:text-emerald-400 font-medium hover:underline">
               Hubungi Tim Moderasi &rarr;
             </Link>
           </section>

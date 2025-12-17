@@ -3,7 +3,8 @@
 import { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/contexts/AuthContext';
-import { User, Mail, Lock, Save, AlertCircle, Trash2, Camera, X, CheckCircle, AlertTriangle, ChevronRight, Shield, LogOut, Moon, BellRing, HelpCircle, Info, ExternalLink } from 'lucide-react';
+import { useTheme } from '@/contexts/ThemeContext';
+import { User, Mail, Lock, Save, AlertCircle, Trash2, Camera, X, CheckCircle, AlertTriangle, ChevronRight, Shield, LogOut, Moon, Sun, BellRing, HelpCircle, Info, ExternalLink } from 'lucide-react';
 import { userAPI, authAPI } from '@/lib/api';
 import { uploadAvatar, deleteAvatar } from '@/lib/image-upload';
 import AlertModal from '@/components/ui/AlertModal';
@@ -11,6 +12,7 @@ import AlertModal from '@/components/ui/AlertModal';
 export default function SettingsPage() {
   const router = useRouter();
   const { user, updateUser, logout, loading: authLoading } = useAuth();
+  const { theme, setTheme } = useTheme();
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [formData, setFormData] = useState({
     displayName: '',
@@ -147,13 +149,13 @@ export default function SettingsPage() {
   if (!user) return null;
 
   return (
-    <div className="min-h-screen bg-white pb-20 font-sans">
+    <div className="min-h-screen bg-white dark:bg-slate-950 pb-20 font-sans transition-colors duration-200">
       <div className="max-w-2xl mx-auto px-4 md:px-0 py-8">
 
         {/* Header - Simple & Clean */}
         <div className="mb-10 px-2 md:px-0">
-          <h1 className="text-2xl font-bold text-slate-900">Pengaturan</h1>
-          <p className="text-slate-500 text-sm mt-1">Kelola preferensi akun Anda</p>
+          <h1 className="text-2xl font-bold text-slate-900 dark:text-slate-100">Pengaturan</h1>
+          <p className="text-slate-500 dark:text-slate-400 text-sm mt-1">Kelola preferensi akun Anda</p>
         </div>
 
         {/* Notifications */}
@@ -176,7 +178,7 @@ export default function SettingsPage() {
         <div className="space-y-12">
 
           <section className="px-2 md:px-0">
-            <h2 className="text-sm font-bold text-slate-900 uppercase tracking-wider mb-6">Profil</h2>
+            <h2 className="text-sm font-bold text-slate-900 dark:text-slate-100 uppercase tracking-wider mb-6">Profil</h2>
 
             <form onSubmit={handleSubmit}>
               <div className="flex flex-col gap-6">
@@ -188,10 +190,10 @@ export default function SettingsPage() {
                       <img
                         src={avatarPreview}
                         alt="Avatar"
-                        className="w-20 h-20 rounded-full object-cover border-2 border-slate-100"
+                        className="w-20 h-20 rounded-full object-cover border-2 border-slate-100 dark:border-slate-700"
                       />
                     ) : (
-                      <div className="w-20 h-20 rounded-full bg-slate-100 flex items-center justify-center text-slate-300">
+                      <div className="w-20 h-20 rounded-full bg-slate-100 dark:bg-slate-800 flex items-center justify-center text-slate-300 dark:text-slate-600">
                         <User className="w-8 h-8" />
                       </div>
                     )}
@@ -199,7 +201,7 @@ export default function SettingsPage() {
                       type="button"
                       onClick={() => fileInputRef.current?.click()}
                       disabled={uploadingAvatar || loading}
-                      className="absolute bottom-0 right-0 p-1.5 bg-slate-900 text-white rounded-full hover:bg-slate-700 transition-colors border-2 border-white shadow-sm"
+                      className="absolute bottom-0 right-0 p-1.5 bg-slate-900 dark:bg-slate-100 text-white dark:text-slate-900 rounded-full hover:bg-slate-700 dark:hover:bg-slate-300 transition-colors border-2 border-white dark:border-slate-700 shadow-sm"
                     >
                       <Camera className="w-3.5 h-3.5" />
                     </button>
@@ -212,12 +214,12 @@ export default function SettingsPage() {
                     />
                   </div>
                   <div>
-                    <h3 className="text-base font-semibold text-slate-900">Foto Profil</h3>
+                    <h3 className="text-base font-semibold text-slate-900 dark:text-slate-100">Foto Profil</h3>
                     <div className="flex items-center gap-3 mt-1">
                       <button
                         type="button"
                         onClick={() => fileInputRef.current?.click()}
-                        className="text-sm font-medium text-emerald-600 hover:text-emerald-700"
+                        className="text-sm font-medium text-emerald-600 dark:text-emerald-400 hover:text-emerald-700 dark:hover:text-emerald-300"
                       >
                         Ubah
                       </button>
@@ -225,7 +227,7 @@ export default function SettingsPage() {
                         <button
                           type="button"
                           onClick={handleRemoveAvatar}
-                          className="text-sm font-medium text-red-600 hover:text-red-700"
+                          className="text-sm font-medium text-red-600 dark:text-red-400 hover:text-red-700 dark:hover:text-red-300"
                         >
                           Hapus
                         </button>
@@ -237,27 +239,27 @@ export default function SettingsPage() {
                 {/* Form Fields - Minimalist, underline/clean style */}
                 <div className="space-y-6 mt-2">
                   <div className="group">
-                    <label className="block text-xs font-semibold text-slate-500 mb-1.5 uppercase">Display Name</label>
+                    <label className="block text-xs font-semibold text-slate-500 dark:text-slate-400 mb-1.5 uppercase">Display Name</label>
                     <input
                       type="text"
                       value={formData.displayName}
                       onChange={(e) => setFormData({ ...formData, displayName: e.target.value })}
-                      className="w-full py-2.5 bg-transparent border-b border-slate-200 focus:border-emerald-500 focus:outline-none transition-colors text-slate-900 font-medium placeholder:text-slate-300"
+                      className="w-full py-2.5 bg-transparent border-b border-slate-200 dark:border-slate-700 focus:border-emerald-500 focus:outline-none transition-colors text-slate-900 dark:text-slate-100 font-medium placeholder:text-slate-300 dark:placeholder:text-slate-600"
                       placeholder="Nama Lengkap"
                     />
                   </div>
 
                   <div className="group">
-                    <label className="block text-xs font-semibold text-slate-500 mb-1.5 uppercase">Bio</label>
+                    <label className="block text-xs font-semibold text-slate-500 dark:text-slate-400 mb-1.5 uppercase">Bio</label>
                     <textarea
                       rows={2}
                       value={formData.bio}
                       onChange={(e) => setFormData({ ...formData, bio: e.target.value })}
-                      className="w-full py-2.5 bg-transparent border-b border-slate-200 focus:border-emerald-500 focus:outline-none transition-colors text-slate-900 resize-none placeholder:text-slate-300"
+                      className="w-full py-2.5 bg-transparent border-b border-slate-200 dark:border-slate-700 focus:border-emerald-500 focus:outline-none transition-colors text-slate-900 dark:text-slate-100 resize-none placeholder:text-slate-300 dark:placeholder:text-slate-600"
                       placeholder="Ceritakan sedikit tentang Anda..."
                       maxLength={200}
                     />
-                    <div className="text-right mt-1 text-xs text-slate-400">
+                    <div className="text-right mt-1 text-xs text-slate-400 dark:text-slate-500">
                       {formData.bio.length}/200
                     </div>
                   </div>
@@ -287,91 +289,96 @@ export default function SettingsPage() {
             </form>
           </section>
 
-          <hr className="border-slate-100 mx-2 md:mx-0" />
+          <hr className="border-slate-100 dark:border-slate-800 mx-2 md:mx-0" />
 
           {/* Account Section - List Style */}
           <section className="px-2 md:px-0">
-            <h2 className="text-sm font-bold text-slate-900 uppercase tracking-wider mb-4">Akun & Keamanan</h2>
+            <h2 className="text-sm font-bold text-slate-900 dark:text-slate-100 uppercase tracking-wider mb-4">Akun & Keamanan</h2>
             <div className="flex flex-col">
 
-              <div className="flex items-center justify-between py-4 border-b border-slate-50 hover:bg-slate-50/50 transition-colors -mx-4 px-4 rounded-xl">
+              <div className="flex items-center justify-between py-4 border-b border-slate-50 dark:border-slate-800 hover:bg-slate-50/50 dark:hover:bg-slate-800/50 transition-colors -mx-4 px-4 rounded-xl">
                 <div className="flex items-center gap-4">
-                  <div className="p-2 bg-slate-50 text-slate-600 rounded-lg">
+                  <div className="p-2 bg-slate-50 dark:bg-slate-800 text-slate-600 dark:text-slate-400 rounded-lg">
                     <Mail className="w-5 h-5" />
                   </div>
                   <div>
-                    <p className="text-sm font-medium text-slate-900">Email</p>
-                    <p className="text-xs text-slate-500">{user.email}</p>
+                    <p className="text-sm font-medium text-slate-900 dark:text-slate-100">Email</p>
+                    <p className="text-xs text-slate-500 dark:text-slate-400">{user.email}</p>
                   </div>
                 </div>
               </div>
 
-              <div className="flex items-center justify-between py-4 border-b border-slate-50 hover:bg-slate-50/50 transition-colors -mx-4 px-4 rounded-xl cursor-pointer"
+              <div className="flex items-center justify-between py-4 border-b border-slate-50 dark:border-slate-800 hover:bg-slate-50/50 dark:hover:bg-slate-800/50 transition-colors -mx-4 px-4 rounded-xl cursor-pointer"
                 onClick={() => user.googleId && !user.hasPassword ? setShowSetPasswordModal(true) : setShowPasswordModal(true)}>
                 <div className="flex items-center gap-4">
-                  <div className="p-2 bg-slate-50 text-slate-600 rounded-lg">
+                  <div className="p-2 bg-slate-50 dark:bg-slate-800 text-slate-600 dark:text-slate-400 rounded-lg">
                     <Lock className="w-5 h-5" />
                   </div>
                   <div>
-                    <p className="text-sm font-medium text-slate-900">Password</p>
-                    <p className="text-xs text-slate-500">
+                    <p className="text-sm font-medium text-slate-900 dark:text-slate-100">Password</p>
+                    <p className="text-xs text-slate-500 dark:text-slate-400">
                       {user.googleId && !user.hasPassword ? 'Belum diset (Login Google)' : '••••••••'}
                     </p>
                   </div>
                 </div>
-                <ChevronRight className="w-5 h-5 text-slate-300" />
+                <ChevronRight className="w-5 h-5 text-slate-300 dark:text-slate-600" />
               </div>
 
-              <div className="flex items-center justify-between py-4 border-b border-slate-50 hover:bg-slate-50/50 transition-colors -mx-4 px-4 rounded-xl cursor-pointer"
+              <div className="flex items-center justify-between py-4 border-b border-slate-50 dark:border-slate-800 hover:bg-slate-50/50 dark:hover:bg-slate-800/50 transition-colors -mx-4 px-4 rounded-xl cursor-pointer"
                 onClick={logout}>
                 <div className="flex items-center gap-4">
-                  <div className="p-2 bg-red-50 text-red-600 rounded-lg">
+                  <div className="p-2 bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400 rounded-lg">
                     <LogOut className="w-5 h-5" />
                   </div>
                   <div>
-                    <p className="text-sm font-medium text-red-600">Keluar</p>
-                    <p className="text-xs text-slate-500">
+                    <p className="text-sm font-medium text-red-600 dark:text-red-400">Keluar</p>
+                    <p className="text-xs text-slate-500 dark:text-slate-400">
                       Keluar dari akun Anda
                     </p>
                   </div>
                 </div>
-                <ChevronRight className="w-5 h-5 text-slate-300" />
+                <ChevronRight className="w-5 h-5 text-slate-300 dark:text-slate-600" />
               </div>
 
             </div>
           </section>
 
-          <hr className="border-slate-100 mx-2 md:mx-0" />
+          <hr className="border-slate-100 dark:border-slate-800 mx-2 md:mx-0" />
 
           {/* Preferences Section */}
           <section className="px-2 md:px-0">
-            <h2 className="text-sm font-bold text-slate-900 uppercase tracking-wider mb-4">Preferensi</h2>
+            <h2 className="text-sm font-bold text-slate-900 dark:text-slate-100 uppercase tracking-wider mb-4">Preferensi</h2>
             <div className="flex flex-col">
 
-              <div className="flex items-center justify-between py-4 border-b border-slate-50 hover:bg-slate-50/50 transition-colors -mx-4 px-4 rounded-xl cursor-pointer">
+              <div className="flex items-center justify-between py-4 border-b border-slate-50 dark:border-slate-800 hover:bg-slate-50/50 dark:hover:bg-slate-800/50 transition-colors -mx-4 px-4 rounded-xl">
                 <div className="flex items-center gap-4">
-                  <div className="p-2 bg-slate-50 text-slate-600 rounded-lg">
-                    <Moon className="w-5 h-5" />
+                  <div className="p-2 bg-slate-50 dark:bg-slate-800 text-slate-600 dark:text-slate-400 rounded-lg">
+                    {theme === 'dark' ? <Moon className="w-5 h-5" /> : <Sun className="w-5 h-5" />}
                   </div>
                   <div>
-                    <p className="text-sm font-medium text-slate-900">Mode Gelap</p>
-                    <p className="text-xs text-slate-500">Tampilan ramah mata</p>
+                    <p className="text-sm font-medium text-slate-900 dark:text-slate-100">Mode Gelap</p>
+                    <p className="text-xs text-slate-500 dark:text-slate-400">Tampilan ramah mata</p>
                   </div>
                 </div>
-                {/* Visual Toggle (Dummy) */}
-                <div className="w-11 h-6 bg-slate-200 rounded-full relative cursor-pointer transition-colors">
-                  <div className="absolute top-1 left-1 w-4 h-4 bg-white rounded-full shadow-sm transition-all"></div>
-                </div>
+                {/* Functional Toggle */}
+                <button
+                  onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
+                  className={`w-11 h-6 rounded-full relative cursor-pointer transition-colors ${theme === 'dark' ? 'bg-emerald-500' : 'bg-slate-200 dark:bg-slate-700'
+                    }`}
+                >
+                  <div className={`absolute top-1 w-4 h-4 bg-white rounded-full shadow-sm transition-all ${theme === 'dark' ? 'right-1' : 'left-1'
+                    }`}></div>
+                </button>
               </div>
 
-              <div className="flex items-center justify-between py-4 border-b border-slate-50 hover:bg-slate-50/50 transition-colors -mx-4 px-4 rounded-xl cursor-pointer">
+              <div className="flex items-center justify-between py-4 border-b border-slate-50 dark:border-slate-800 hover:bg-slate-50/50 dark:hover:bg-slate-800/50 transition-colors -mx-4 px-4 rounded-xl">
                 <div className="flex items-center gap-4">
-                  <div className="p-2 bg-slate-50 text-slate-600 rounded-lg">
+                  <div className="p-2 bg-slate-50 dark:bg-slate-800 text-slate-600 dark:text-slate-400 rounded-lg">
                     <BellRing className="w-5 h-5" />
                   </div>
                   <div>
-                    <p className="text-sm font-medium text-slate-900">Notifikasi Email</p>
-                    <p className="text-xs text-slate-500">Info terbaru via email</p>
+                    <p className="text-sm font-medium text-slate-900 dark:text-slate-100">Notifikasi Email</p>
+                    <p className="text-xs text-slate-500 dark:text-slate-400">Info terbaru via email</p>
                   </div>
                 </div>
                 {/* Visual Toggle (Dummy - On) */}
@@ -383,43 +390,43 @@ export default function SettingsPage() {
             </div>
           </section>
 
-          <hr className="border-slate-100 mx-2 md:mx-0" />
+          <hr className="border-slate-100 dark:border-slate-800 mx-2 md:mx-0" />
 
           {/* About & Support Section */}
           <section className="px-2 md:px-0">
-            <h2 className="text-sm font-bold text-slate-900 uppercase tracking-wider mb-4">Tentang & Bantuan</h2>
+            <h2 className="text-sm font-bold text-slate-900 dark:text-slate-100 uppercase tracking-wider mb-4">Tentang & Bantuan</h2>
             <div className="flex flex-col">
 
-              <a href="/help" className="flex items-center justify-between py-4 border-b border-slate-50 hover:bg-slate-50/50 transition-colors -mx-4 px-4 rounded-xl cursor-pointer">
+              <a href="/help" className="flex items-center justify-between py-4 border-b border-slate-50 dark:border-slate-800 hover:bg-slate-50/50 dark:hover:bg-slate-800/50 transition-colors -mx-4 px-4 rounded-xl cursor-pointer">
                 <div className="flex items-center gap-4">
-                  <div className="p-2 bg-slate-50 text-slate-600 rounded-lg">
+                  <div className="p-2 bg-slate-50 dark:bg-slate-800 text-slate-600 dark:text-slate-400 rounded-lg">
                     <HelpCircle className="w-5 h-5" />
                   </div>
                   <div>
-                    <p className="text-sm font-medium text-slate-900">Pusat Bantuan</p>
-                    <p className="text-xs text-slate-500">FAQ dan Hubungi Kami</p>
+                    <p className="text-sm font-medium text-slate-900 dark:text-slate-100">Pusat Bantuan</p>
+                    <p className="text-xs text-slate-500 dark:text-slate-400">FAQ dan Hubungi Kami</p>
                   </div>
                 </div>
-                <ExternalLink className="w-4 h-4 text-slate-300" />
+                <ExternalLink className="w-4 h-4 text-slate-300 dark:text-slate-600" />
               </a>
 
-              <a href="/terms" className="flex items-center justify-between py-4 border-b border-slate-50 hover:bg-slate-50/50 transition-colors -mx-4 px-4 rounded-xl cursor-pointer">
+              <a href="/terms" className="flex items-center justify-between py-4 border-b border-slate-50 dark:border-slate-800 hover:bg-slate-50/50 dark:hover:bg-slate-800/50 transition-colors -mx-4 px-4 rounded-xl cursor-pointer">
                 <div className="flex items-center gap-4">
-                  <div className="p-2 bg-slate-50 text-slate-600 rounded-lg">
+                  <div className="p-2 bg-slate-50 dark:bg-slate-800 text-slate-600 dark:text-slate-400 rounded-lg">
                     <Info className="w-5 h-5" />
                   </div>
                   <div>
-                    <p className="text-sm font-medium text-slate-900">Tentang Aplikasi</p>
-                    <p className="text-xs text-slate-500">Versi 1.0.0 (Beta)</p>
+                    <p className="text-sm font-medium text-slate-900 dark:text-slate-100">Tentang Aplikasi</p>
+                    <p className="text-xs text-slate-500 dark:text-slate-400">Versi 1.0.0 (Beta)</p>
                   </div>
                 </div>
-                <ChevronRight className="w-5 h-5 text-slate-300" />
+                <ChevronRight className="w-5 h-5 text-slate-300 dark:text-slate-600" />
               </a>
 
             </div>
           </section>
 
-          <hr className="border-slate-100 mx-2 md:mx-0" />
+          <hr className="border-slate-100 dark:border-slate-800 mx-2 md:mx-0" />
 
           {/* Danger Zone - Subtle */}
           <section className="px-2 md:px-0">
@@ -428,10 +435,10 @@ export default function SettingsPage() {
               onClick={() => setShowDeleteModal(true)}
             >
               <div>
-                <h3 className="text-sm font-medium text-red-600 group-hover:text-red-700 transition-colors">Hapus Akun</h3>
-                <p className="text-xs text-slate-400 mt-0.5">Hapus permanen akun dan data Anda</p>
+                <h3 className="text-sm font-medium text-red-600 dark:text-red-400 group-hover:text-red-700 dark:group-hover:text-red-300 transition-colors">Hapus Akun</h3>
+                <p className="text-xs text-slate-400 dark:text-slate-500 mt-0.5">Hapus permanen akun dan data Anda</p>
               </div>
-              <div className="p-2 text-slate-300 group-hover:text-red-600 group-hover:bg-red-50 rounded-full transition-all">
+              <div className="p-2 text-slate-300 dark:text-slate-600 group-hover:text-red-600 dark:group-hover:text-red-400 group-hover:bg-red-50 dark:group-hover:bg-red-900/20 rounded-full transition-all">
                 <Trash2 className="w-4 h-4" />
               </div>
             </div>

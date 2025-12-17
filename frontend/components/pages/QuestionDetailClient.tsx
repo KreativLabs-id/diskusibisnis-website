@@ -429,12 +429,12 @@ export default function QuestionDetailClient({ initialQuestion, questionId }: Qu
 
     if (loading) {
         return (
-            <div className="min-h-screen bg-slate-50 pb-20">
+            <div className="min-h-screen bg-slate-50 dark:bg-slate-950 pb-20 transition-colors duration-200">
                 <div className="max-w-4xl mx-auto px-4 py-8">
                     <div className="animate-pulse space-y-6">
-                        <div className="h-8 bg-slate-200 rounded w-1/3"></div>
-                        <div className="h-64 bg-slate-200 rounded-2xl"></div>
-                        <div className="h-40 bg-slate-200 rounded-2xl"></div>
+                        <div className="h-8 bg-slate-200 dark:bg-slate-800 rounded w-1/3"></div>
+                        <div className="h-64 bg-slate-200 dark:bg-slate-800 rounded-2xl"></div>
+                        <div className="h-40 bg-slate-200 dark:bg-slate-800 rounded-2xl"></div>
                     </div>
                 </div>
             </div>
@@ -443,12 +443,12 @@ export default function QuestionDetailClient({ initialQuestion, questionId }: Qu
 
     if (!question) {
         return (
-            <div className="min-h-screen bg-slate-50 flex items-center justify-center">
+            <div className="min-h-screen bg-slate-50 dark:bg-slate-950 flex items-center justify-center transition-colors duration-200">
                 <div className="text-center">
-                    <p className="text-slate-600 font-medium">Pertanyaan tidak ditemukan</p>
+                    <p className="text-slate-600 dark:text-slate-400 font-medium">Pertanyaan tidak ditemukan</p>
                     <button
                         onClick={() => router.back()}
-                        className="mt-4 text-emerald-600 hover:text-emerald-700 font-medium"
+                        className="mt-4 text-emerald-600 dark:text-emerald-400 hover:text-emerald-700 dark:hover:text-emerald-300 font-medium"
                     >
                         Kembali
                     </button>
@@ -458,32 +458,32 @@ export default function QuestionDetailClient({ initialQuestion, questionId }: Qu
     }
 
     return (
-        <div className="min-h-screen bg-white pb-20">
+        <div className="min-h-screen bg-white dark:bg-slate-950 pb-20 transition-colors duration-200">
             {/* Mobile Header - Sticky */}
-            <div className="sticky top-0 z-30 bg-white border-b border-slate-200 px-4 py-3 sm:hidden flex items-center justify-between">
+            <div className="sticky top-0 z-30 bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800 px-4 py-3 sm:hidden flex items-center justify-between">
                 <div className="flex items-center gap-3">
                     <button
                         onClick={() => router.back()}
-                        className="p-1 -ml-1 text-slate-600 hover:text-slate-900"
+                        className="p-1 -ml-1 text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-100"
                     >
                         <ArrowLeft className="w-5 h-5" />
                     </button>
-                    <h1 className="text-base font-semibold text-slate-900 truncate">Pertanyaan</h1>
+                    <h1 className="text-base font-semibold text-slate-900 dark:text-slate-100 truncate">Pertanyaan</h1>
                 </div>
                 <button
                     onClick={handleBookmark}
-                    className={`p-2 rounded-lg ${question.is_bookmarked ? 'text-emerald-600 bg-emerald-50' : 'text-slate-400 hover:bg-slate-50'}`}
+                    className={`p-2 rounded-lg ${question.is_bookmarked ? 'text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-900/30' : 'text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800'}`}
                 >
                     {question.is_bookmarked ? <BookmarkCheck className="w-5 h-5" /> : <Bookmark className="w-5 h-5" />}
                 </button>
             </div>
 
             {/* Desktop Back Button */}
-            <div className="hidden sm:block border-b border-slate-200">
+            <div className="hidden sm:block border-b border-slate-200 dark:border-slate-800">
                 <div className="max-w-5xl mx-auto px-6 py-3">
                     <button
                         onClick={() => router.back()}
-                        className="flex items-center gap-2 text-slate-600 hover:text-emerald-600 transition-colors group text-sm"
+                        className="flex items-center gap-2 text-slate-600 dark:text-slate-400 hover:text-emerald-600 dark:hover:text-emerald-400 transition-colors group text-sm"
                     >
                         <ArrowLeft className="w-4 h-4 group-hover:-translate-x-1 transition-transform" />
                         <span className="font-medium">Kembali</span>
@@ -492,7 +492,7 @@ export default function QuestionDetailClient({ initialQuestion, questionId }: Qu
             </div>
 
             {/* Question Card */}
-            <div className="border-b border-slate-200">
+            <div className="border-b border-slate-200 dark:border-slate-800">
                 <div className="max-w-5xl mx-auto">
                     <div className="p-4 sm:p-6">
                         <div className="flex gap-6">

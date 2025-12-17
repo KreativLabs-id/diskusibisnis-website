@@ -48,7 +48,7 @@ export default function QuestionCard({ question, onReport, currentUserId }: Ques
   const ringColor = getReputationRingColor(question.author_reputation);
 
   return (
-    <div className="py-6 border-b border-slate-300 last:border-b-0 hover:bg-slate-50 transition-colors duration-200 group cursor-pointer relative">
+    <div className="p-4 sm:p-6 bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 hover:border-emerald-500/50 hover:shadow-md dark:hover:shadow-emerald-900/10 transition-all duration-200 group cursor-pointer relative mb-4">
       {/* Report Button - Top Right */}
       {onReport && currentUserId && currentUserId !== question.author_id && (
         <div className="absolute top-4 right-3 sm:right-4 lg:right-6 z-10">
@@ -57,7 +57,7 @@ export default function QuestionCard({ question, onReport, currentUserId }: Ques
               e.stopPropagation();
               onReport(question.id, question.title);
             }}
-            className="p-2 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors opacity-0 group-hover:opacity-100"
+            className="p-2 text-slate-400 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-colors opacity-0 group-hover:opacity-100"
             title="Laporkan Pertanyaan"
           >
             <Flag className="w-4 h-4" />
@@ -66,7 +66,7 @@ export default function QuestionCard({ question, onReport, currentUserId }: Ques
       )}
 
       <div
-        className="space-y-3 px-3 sm:px-4 lg:px-6"
+        className="space-y-3"
         onClick={() => router.push(`/questions/${question.id}`)}
       >
         {/* Title */}
@@ -74,20 +74,20 @@ export default function QuestionCard({ question, onReport, currentUserId }: Ques
           href={`/questions/${question.id}`}
           onClick={(e: React.MouseEvent) => e.stopPropagation()}
         >
-          <h3 className="text-lg font-bold text-slate-900 hover:text-emerald-600 transition-colors line-clamp-2 leading-tight mt-2">
+          <h3 className="text-lg font-bold text-slate-900 dark:text-slate-100 hover:text-emerald-600 dark:hover:text-emerald-400 transition-colors line-clamp-2 leading-tight mt-1">
             {question.title}
           </h3>
         </Link>
 
         {/* Preview Content */}
         {preview && (
-          <p className="text-sm text-slate-600 leading-relaxed line-clamp-2">{preview}</p>
+          <p className="text-sm text-slate-600 dark:text-slate-400 leading-relaxed line-clamp-2">{preview}</p>
         )}
 
         {/* Question Image Thumbnail */}
         {question.images && question.images.length > 0 && (
           <div className="mt-2">
-            <div className="relative aspect-video max-w-xl rounded-lg overflow-hidden border border-slate-200 bg-slate-50">
+            <div className="relative aspect-video max-w-xl rounded-lg overflow-hidden border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900">
               <img
                 src={question.images[0]}
                 alt={question.title}
@@ -102,51 +102,51 @@ export default function QuestionCard({ question, onReport, currentUserId }: Ques
         )}
 
         {/* Tags */}
-        <div className="flex flex-wrap gap-1.5">
+        <div className="flex flex-wrap gap-1.5 pt-1">
           {question.tags && question.tags.slice(0, 4).map((tag) => (
             <Link
               key={tag.id}
               href={`/tags/${tag.slug}`}
               onClick={(e: React.MouseEvent) => e.stopPropagation()}
-              className="px-2.5 py-1 rounded-full bg-emerald-50 text-emerald-700 text-xs font-medium hover:bg-emerald-100 transition-colors"
+              className="px-2.5 py-1 rounded-full bg-emerald-50 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400 text-xs font-medium hover:bg-emerald-100 dark:hover:bg-emerald-900/50 transition-colors"
             >
               {tag.name}
             </Link>
           ))}
           {question.tags && question.tags.length > 4 && (
-            <span className="px-2.5 py-1 rounded-full bg-slate-100 text-slate-600 text-xs font-medium">
+            <span className="px-2.5 py-1 rounded-full bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300 text-xs font-medium">
               +{question.tags.length - 4}
             </span>
           )}
         </div>
 
         {/* Stats Row - Responsive */}
-        <div className="flex flex-wrap items-center gap-3 sm:gap-4 text-xs text-slate-500 py-2 border-t border-slate-100">
+        <div className="flex flex-wrap items-center gap-3 sm:gap-4 text-xs text-slate-500 dark:text-slate-400 py-2 border-t border-slate-100 dark:border-slate-700/50 mt-2">
           <div className="flex items-center gap-1.5">
-            <ThumbsUp className="w-4 h-4 text-emerald-600" />
-            <span className="font-semibold text-slate-900">{question.upvotes_count || 0}</span>
+            <ThumbsUp className="w-4 h-4 text-emerald-600 dark:text-emerald-500" />
+            <span className="font-semibold text-slate-900 dark:text-slate-200">{question.upvotes_count || 0}</span>
             <span className="hidden sm:inline">vote</span>
           </div>
           <div className="flex items-center gap-1.5">
-            <MessageCircle className={`w-4 h-4 ${question.has_accepted_answer ? 'text-green-600' : question.answers_count > 0 ? 'text-emerald-600' : 'text-slate-400'}`} />
-            <span className={`font-semibold ${question.has_accepted_answer ? 'text-green-600' : question.answers_count > 0 ? 'text-emerald-600' : 'text-slate-900'}`}>
+            <MessageCircle className={`w-4 h-4 ${question.has_accepted_answer ? 'text-green-600 dark:text-green-500' : question.answers_count > 0 ? 'text-emerald-600 dark:text-emerald-500' : 'text-slate-400'}`} />
+            <span className={`font-semibold ${question.has_accepted_answer ? 'text-green-600 dark:text-green-500' : question.answers_count > 0 ? 'text-emerald-600 dark:text-emerald-500' : 'text-slate-900 dark:text-slate-200'}`}>
               {question.answers_count || 0}
             </span>
             <span className="hidden sm:inline">jawaban</span>
           </div>
           <div className="flex items-center gap-1.5">
             <Eye className="w-4 h-4 text-slate-400" />
-            <span className="font-medium text-slate-700">{formatNumber(question.views_count)}</span>
+            <span className="font-medium text-slate-700 dark:text-slate-300">{formatNumber(question.views_count)}</span>
             <span className="hidden sm:inline">views</span>
           </div>
           <div className="flex items-center gap-1.5 ml-auto">
             <Clock className="w-3.5 h-3.5" />
-            <span className="text-slate-600">{formatDate(question.created_at)}</span>
+            <span className="text-slate-600 dark:text-slate-400">{formatDate(question.created_at)}</span>
           </div>
         </div>
 
         {/* Author Info - with reputation ring color */}
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2 pt-1">
           <div className={`rounded-full ring-2 ${ringColor}`}>
             <UserAvatar
               src={question.author_avatar}
@@ -158,9 +158,9 @@ export default function QuestionCard({ question, onReport, currentUserId }: Ques
           <Link
             href={`/profile/${authorProfileLink}`}
             onClick={(e: React.MouseEvent) => e.stopPropagation()}
-            className="flex items-center gap-1.5"
+            className="flex items-center gap-1.5 group/author"
           >
-            <p className="text-sm font-medium text-slate-700">{question.author_name || 'Unknown'}</p>
+            <p className="text-sm font-medium text-slate-700 dark:text-slate-300 group-hover/author:text-emerald-600 dark:group-hover/author:text-emerald-400 transition-colors">{question.author_name || 'Unknown'}</p>
             <VerifiedBadge isVerified={question.author_is_verified} size="sm" />
           </Link>
         </div>

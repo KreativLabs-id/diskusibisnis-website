@@ -26,10 +26,10 @@ export default function LeaderboardPage() {
 
     if (loading) {
         return (
-            <div className="min-h-screen bg-slate-50 pt-20 px-4">
+            <div className="min-h-screen bg-slate-50 dark:bg-slate-950 pt-20 px-4 transition-colors duration-200">
                 <div className="max-w-3xl mx-auto space-y-4">
                     {[...Array(5)].map((_, i) => (
-                        <div key={i} className="h-20 bg-slate-200 rounded-xl animate-pulse" />
+                        <div key={i} className="h-20 bg-slate-200 dark:bg-slate-800 rounded-xl animate-pulse" />
                     ))}
                 </div>
             </div>
@@ -37,7 +37,7 @@ export default function LeaderboardPage() {
     }
 
     return (
-        <div className="bg-slate-50 min-h-screen pb-20">
+        <div className="bg-slate-50 dark:bg-slate-950 min-h-screen pb-20 transition-colors duration-200">
             <div className="bg-emerald-600 text-white py-12 px-4 shadow-sm relative overflow-hidden">
                 <div className="absolute top-0 left-0 w-full h-full opacity-10 bg-[url('/pattern.svg')]"></div>
                 <div className="relative max-w-3xl mx-auto text-center">
@@ -52,13 +52,13 @@ export default function LeaderboardPage() {
             </div>
 
             <div className="max-w-3xl mx-auto px-4 -mt-8 relative z-10">
-                <div className="bg-white rounded-xl shadow-lg border border-slate-100 overflow-hidden">
+                <div className="bg-white dark:bg-slate-900 rounded-xl shadow-lg border border-slate-100 dark:border-slate-800 overflow-hidden text-slate-900 dark:text-slate-100">
                     {users.length > 0 ? (
                         users.map((user, index) => (
-                            <div key={user.id} className="flex items-center p-4 sm:p-5 border-b border-slate-100 hover:bg-slate-50 transition-colors group">
+                            <div key={user.id} className="flex items-center p-4 sm:p-5 border-b border-slate-100 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors group">
                                 <div className={`w-10 text-center font-bold text-lg mr-4 ${index === 0 ? 'text-yellow-500 text-2xl' :
-                                        index === 1 ? 'text-slate-400 text-xl' :
-                                            index === 2 ? 'text-amber-700 text-xl' : 'text-slate-400'
+                                    index === 1 ? 'text-slate-400 dark:text-slate-500 text-xl' :
+                                        index === 2 ? 'text-amber-700 dark:text-amber-600 text-xl' : 'text-slate-400 dark:text-slate-600'
                                     }`}>
                                     {index + 1}
                                 </div>
@@ -71,27 +71,27 @@ export default function LeaderboardPage() {
                                     />
                                     <div className="min-w-0">
                                         <div className="flex items-center gap-1.5 flex-wrap">
-                                            <Link href={`/profile/${user.username || user.id}`} className="font-semibold text-slate-900 group-hover:text-emerald-600 truncate transition-colors text-base sm:text-lg">
+                                            <Link href={`/profile/${user.username || user.id}`} className="font-semibold text-slate-900 dark:text-slate-100 group-hover:text-emerald-600 dark:group-hover:text-emerald-400 truncate transition-colors text-base sm:text-lg">
                                                 {user.display_name}
                                             </Link>
                                             <VerifiedBadge isVerified={user.is_verified} size="sm" />
                                         </div>
-                                        <div className="text-xs text-slate-500 hidden sm:block">
+                                        <div className="text-xs text-slate-500 dark:text-slate-400 hidden sm:block">
                                             Bergabung sejak {new Date(user.created_at).getFullYear()}
                                         </div>
                                     </div>
                                 </div>
                                 <div className="text-right pl-2">
-                                    <div className="font-bold text-emerald-600 flex items-center justify-end gap-1.5 text-base sm:text-lg">
+                                    <div className="font-bold text-emerald-600 dark:text-emerald-400 flex items-center justify-end gap-1.5 text-base sm:text-lg">
                                         <Award className="w-4 h-4 sm:w-5 sm:h-5" />
                                         {user.reputation_points}
                                     </div>
-                                    <div className="text-[10px] sm:text-xs text-slate-400 uppercase tracking-wide font-medium">Reputasi</div>
+                                    <div className="text-[10px] sm:text-xs text-slate-400 dark:text-slate-500 uppercase tracking-wide font-medium">Reputasi</div>
                                 </div>
                             </div>
                         ))
                     ) : (
-                        <div className="p-8 text-center text-slate-500">Belum ada data kontributor.</div>
+                        <div className="p-8 text-center text-slate-500 dark:text-slate-400">Belum ada data kontributor.</div>
                     )}
                 </div>
             </div>

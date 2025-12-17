@@ -54,7 +54,7 @@ export default function AskPage() {
 
   const addCustomTag = () => {
     const trimmedTag = customTag.trim().toLowerCase();
-    
+
     if (!trimmedTag) {
       setError('Tag tidak boleh kosong');
       return;
@@ -91,7 +91,7 @@ export default function AskPage() {
 
   const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    
+
     if (!user) {
       router.push('/login');
       return;
@@ -130,11 +130,11 @@ export default function AskPage() {
       // Get question ID from response
       const questionData = response.data.data?.question || response.data.data;
       const questionId = questionData?.id;
-      
+
       if (!questionId) {
         throw new Error('Question ID not found in response');
       }
-      
+
       router.push(`/questions/${questionId}`);
     } catch (err) {
       const error = err as { response?: { data?: { message?: string } } };
@@ -146,16 +146,16 @@ export default function AskPage() {
 
   if (authLoading) {
     return (
-      <div className="min-h-screen bg-slate-50">
+      <div className="min-h-screen bg-slate-50 dark:bg-slate-950 transition-colors duration-200">
         <div className="max-w-4xl mx-auto px-4 py-10">
           <div className="animate-pulse space-y-6">
-            <div className="h-8 bg-slate-200 rounded w-1/3"></div>
-            <div className="bg-white rounded-2xl p-6 space-y-4">
-              <div className="h-10 bg-slate-200 rounded"></div>
-              <div className="h-40 bg-slate-200 rounded"></div>
-              <div className="h-10 bg-slate-200 rounded"></div>
+            <div className="h-8 bg-slate-200 dark:bg-slate-800 rounded w-1/3"></div>
+            <div className="bg-white dark:bg-slate-900 rounded-2xl p-6 space-y-4">
+              <div className="h-10 bg-slate-200 dark:bg-slate-800 rounded"></div>
+              <div className="h-40 bg-slate-200 dark:bg-slate-800 rounded"></div>
+              <div className="h-10 bg-slate-200 dark:bg-slate-800 rounded"></div>
               <div className="flex justify-end">
-                <div className="h-10 bg-slate-200 rounded w-32"></div>
+                <div className="h-10 bg-slate-200 dark:bg-slate-800 rounded w-32"></div>
               </div>
             </div>
           </div>
@@ -169,24 +169,24 @@ export default function AskPage() {
   }
 
   return (
-    <div className="min-h-screen bg-slate-50">
+    <div className="min-h-screen bg-slate-50 dark:bg-slate-950 transition-colors duration-200">
       <div className="max-w-4xl mx-auto px-4 py-10">
         {/* Back Button */}
         <button
           onClick={() => router.back()}
-          className="flex items-center gap-2 text-gray-600 hover:text-gray-900 mb-6 transition-colors"
+          className="flex items-center gap-2 text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200 mb-6 transition-colors"
         >
           <ArrowLeft className="w-5 h-5" />
           <span className="font-medium">Kembali</span>
         </button>
 
-        <div className="bg-white border border-slate-200 rounded-2xl p-6 mb-8 shadow-sm">
+        <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-6 mb-8 shadow-sm">
           <p className="inline-flex items-center gap-2 text-sm text-emerald-600 font-semibold">
             <HelpCircle className="w-4 h-4" />
             Formulir Pertanyaan
           </p>
-          <h1 className="text-3xl font-bold text-slate-900 mt-3">Tanyakan Masalah Bisnis Anda</h1>
-          <p className="text-sm text-slate-500 mt-2 leading-relaxed">
+          <h1 className="text-3xl font-bold text-slate-900 dark:text-slate-100 mt-3">Tanyakan Masalah Bisnis Anda</h1>
+          <p className="text-sm text-slate-500 dark:text-slate-400 mt-2 leading-relaxed">
             Jelaskan kendala secara spesifik agar mentor dan pelaku usaha lain bisa memberikan solusi
             terbaik. Sertakan data yang relevan, konteks usaha, dan langkah yang sudah Anda coba.
           </p>
@@ -218,11 +218,11 @@ export default function AskPage() {
 
         <form
           onSubmit={handleSubmit}
-          className="bg-white border border-slate-200 rounded-2xl p-6 space-y-6 shadow-sm"
+          className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-6 space-y-6 shadow-sm"
         >
           <div>
             <div className="flex items-center justify-between mb-2">
-              <label htmlFor="title" className="block text-sm font-medium text-slate-700">
+              <label htmlFor="title" className="block text-sm font-medium text-slate-700 dark:text-slate-300">
                 Judul Pertanyaan <span className="text-red-500">*</span>
               </label>
               <span className={`text-xs ${title.length < 10 ? 'text-red-500' : 'text-slate-500'}`}>
@@ -288,7 +288,7 @@ export default function AskPage() {
                 {selectedTags.length}/5 tag
               </p>
             </div>
-            
+
             {/* Selected Tags Display */}
             {selectedTags.length > 0 && (
               <div className="flex flex-wrap gap-2 mb-3 p-3 bg-slate-50 rounded-xl border border-slate-200">
@@ -354,13 +354,12 @@ export default function AskPage() {
                     type="button"
                     onClick={() => toggleTag(tag)}
                     disabled={!selectedTags.includes(tag) && selectedTags.length >= 5}
-                    className={`inline-flex items-center gap-2 px-3 py-1.5 rounded-full border text-sm font-medium transition-colors ${
-                      selectedTags.includes(tag)
+                    className={`inline-flex items-center gap-2 px-3 py-1.5 rounded-full border text-sm font-medium transition-colors ${selectedTags.includes(tag)
                         ? 'bg-emerald-600 text-white border-emerald-600'
                         : !selectedTags.includes(tag) && selectedTags.length >= 5
-                        ? 'bg-slate-100 text-slate-400 border-slate-200 cursor-not-allowed'
-                        : 'bg-white text-slate-600 border-slate-200 hover:border-emerald-400 hover:text-emerald-600'
-                    }`}
+                          ? 'bg-slate-100 text-slate-400 border-slate-200 cursor-not-allowed'
+                          : 'bg-white text-slate-600 border-slate-200 hover:border-emerald-400 hover:text-emerald-600'
+                      }`}
                   >
                     <Tag className="w-3.5 h-3.5" />
                     {tag}

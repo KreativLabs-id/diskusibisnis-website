@@ -46,11 +46,11 @@ interface TicketDetail extends Ticket {
 }
 
 const statusColors: Record<string, string> = {
-  open: 'bg-amber-50 text-amber-700 border-amber-200',
-  replied: 'bg-blue-50 text-blue-700 border-blue-200',
-  in_progress: 'bg-purple-50 text-purple-700 border-purple-200',
-  resolved: 'bg-emerald-50 text-emerald-700 border-emerald-200',
-  closed: 'bg-slate-100 text-slate-600 border-slate-200',
+  open: 'bg-amber-50 dark:bg-amber-900/30 text-amber-700 dark:text-amber-400 border-amber-200 dark:border-amber-800',
+  replied: 'bg-blue-50 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400 border-blue-200 dark:border-blue-800',
+  in_progress: 'bg-purple-50 dark:bg-purple-900/30 text-purple-700 dark:text-purple-400 border-purple-200 dark:border-purple-800',
+  resolved: 'bg-emerald-50 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400 border-emerald-200 dark:border-emerald-800',
+  closed: 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 border-slate-200 dark:border-slate-700',
 };
 
 const statusLabels: Record<string, string> = {
@@ -154,10 +154,10 @@ export default function MyTicketsPage() {
   // Show loading while checking auth
   if (authLoading || initialLoading) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
+      <div className="min-h-screen flex items-center justify-center bg-slate-50 dark:bg-slate-950 transition-colors duration-200">
         <div className="text-center">
           <Loader2 className="w-8 h-8 text-emerald-600 animate-spin mx-auto mb-4" />
-          <p className="text-slate-600">Memuat...</p>
+          <p className="text-slate-600 dark:text-slate-400">Memuat...</p>
         </div>
       </div>
     );
@@ -166,13 +166,13 @@ export default function MyTicketsPage() {
   // Show login prompt for guests
   if (!user) {
     return (
-      <div className="min-h-screen py-12 px-4 sm:px-6 lg:px-8">
+      <div className="min-h-screen py-12 px-4 sm:px-6 lg:px-8 bg-slate-50 dark:bg-slate-950 transition-colors duration-200">
         <div className="max-w-md mx-auto text-center">
-          <div className="w-20 h-20 bg-emerald-100 rounded-full flex items-center justify-center mx-auto mb-6">
-            <Inbox className="w-10 h-10 text-emerald-600" />
+          <div className="w-20 h-20 bg-emerald-100 dark:bg-emerald-900/30 rounded-full flex items-center justify-center mx-auto mb-6">
+            <Inbox className="w-10 h-10 text-emerald-600 dark:text-emerald-400" />
           </div>
-          <h1 className="text-2xl font-bold text-slate-900 mb-3">Tiket Saya</h1>
-          <p className="text-slate-600 mb-8">
+          <h1 className="text-2xl font-bold text-slate-900 dark:text-slate-100 mb-3">Tiket Saya</h1>
+          <p className="text-slate-600 dark:text-slate-400 mb-8">
             Silakan login untuk melihat tiket support Anda.
           </p>
           <Link
@@ -185,7 +185,7 @@ export default function MyTicketsPage() {
           <div className="mt-6">
             <Link
               href="/contact"
-              className="text-slate-500 hover:text-emerald-600 text-sm transition-colors"
+              className="text-slate-500 dark:text-slate-400 hover:text-emerald-600 dark:hover:text-emerald-400 text-sm transition-colors"
             >
               Kembali ke Hubungi Kami
             </Link>
@@ -198,12 +198,12 @@ export default function MyTicketsPage() {
   // Detail View
   if (showDetail && selectedTicket) {
     return (
-      <div className="min-h-screen py-8 px-4">
+      <div className="min-h-screen py-8 px-4 bg-slate-50 dark:bg-slate-950 transition-colors duration-200">
         <div className="max-w-3xl mx-auto">
           {/* Navigation */}
           <button
             onClick={() => setShowDetail(false)}
-            className="inline-flex items-center gap-2 text-slate-500 hover:text-emerald-600 mb-8 transition-colors text-sm font-medium"
+            className="inline-flex items-center gap-2 text-slate-500 dark:text-slate-400 hover:text-emerald-600 dark:hover:text-emerald-400 mb-8 transition-colors text-sm font-medium"
           >
             <ArrowLeft className="w-4 h-4" />
             Kembali ke Daftar Tiket
@@ -211,12 +211,12 @@ export default function MyTicketsPage() {
 
           <div className="space-y-8">
             {/* Ticket Header */}
-            <div className="border-b border-slate-200 pb-6">
+            <div className="border-b border-slate-200 dark:border-slate-700 pb-6">
               <div className="flex items-start justify-between mb-4">
                 <div>
-                  <h1 className="text-2xl font-bold text-slate-900 mb-2">{selectedTicket.subject}</h1>
-                  <div className="flex items-center gap-3 text-sm text-slate-500">
-                    <span className="font-mono bg-white px-2 py-0.5 rounded border border-slate-200">#{selectedTicket.ticket_number}</span>
+                  <h1 className="text-2xl font-bold text-slate-900 dark:text-slate-100 mb-2">{selectedTicket.subject}</h1>
+                  <div className="flex items-center gap-3 text-sm text-slate-500 dark:text-slate-400">
+                    <span className="font-mono bg-white dark:bg-slate-800 px-2 py-0.5 rounded border border-slate-200 dark:border-slate-700">#{selectedTicket.ticket_number}</span>
                     <span>•</span>
                     <span>{formatDate(selectedTicket.created_at)}</span>
                     <span>•</span>
@@ -229,12 +229,12 @@ export default function MyTicketsPage() {
               </div>
 
               <div className="flex items-start gap-4 mt-6">
-                <div className="w-10 h-10 bg-slate-100 rounded-full flex items-center justify-center text-slate-600 font-bold text-sm shrink-0">
+                <div className="w-10 h-10 bg-slate-100 dark:bg-slate-800 rounded-full flex items-center justify-center text-slate-600 dark:text-slate-300 font-bold text-sm shrink-0">
                   {selectedTicket.name?.charAt(0).toUpperCase()}
                 </div>
                 <div>
-                  <p className="text-sm font-semibold text-slate-900">{selectedTicket.name}</p>
-                  <p className="text-slate-700 mt-2 whitespace-pre-wrap leading-relaxed">
+                  <p className="text-sm font-semibold text-slate-900 dark:text-slate-100">{selectedTicket.name}</p>
+                  <p className="text-slate-700 dark:text-slate-300 mt-2 whitespace-pre-wrap leading-relaxed">
                     {selectedTicket.message}
                   </p>
                 </div>
@@ -243,7 +243,7 @@ export default function MyTicketsPage() {
 
             {/* Replies Thread */}
             <div className="space-y-8">
-              <h3 className="text-sm font-bold text-slate-900 uppercase tracking-wider">Riwayat Percakapan</h3>
+              <h3 className="text-sm font-bold text-slate-900 dark:text-slate-100 uppercase tracking-wider">Riwayat Percakapan</h3>
 
               {selectedTicket.replies?.length > 0 ? (
                 selectedTicket.replies.map((reply) => {
@@ -255,24 +255,24 @@ export default function MyTicketsPage() {
                     >
                       <div className="shrink-0">
                         {isAdmin ? (
-                          <div className="w-8 h-8 bg-emerald-100 rounded-full flex items-center justify-center">
-                            <ShieldCheck className="w-4 h-4 text-emerald-600" />
+                          <div className="w-8 h-8 bg-emerald-100 dark:bg-emerald-900/30 rounded-full flex items-center justify-center">
+                            <ShieldCheck className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
                           </div>
                         ) : (
-                          <div className="w-8 h-8 bg-slate-100 rounded-full flex items-center justify-center">
-                            <User className="w-4 h-4 text-slate-500" />
+                          <div className="w-8 h-8 bg-slate-100 dark:bg-slate-800 rounded-full flex items-center justify-center">
+                            <User className="w-4 h-4 text-slate-500 dark:text-slate-400" />
                           </div>
                         )}
                       </div>
 
                       <div className={`flex-1 ${isAdmin ? 'text-right' : ''}`}>
                         <div className={`flex items-center gap-2 mb-1 ${isAdmin ? 'justify-end' : ''}`}>
-                          <span className={`text-sm font-semibold ${isAdmin ? 'text-emerald-700' : 'text-slate-900'}`}>
+                          <span className={`text-sm font-semibold ${isAdmin ? 'text-emerald-700 dark:text-emerald-400' : 'text-slate-900 dark:text-slate-100'}`}>
                             {reply.sender_name || (isAdmin ? 'Admin Support' : 'User')}
                           </span>
-                          <span className="text-xs text-slate-400">{formatDate(reply.created_at)}</span>
+                          <span className="text-xs text-slate-400 dark:text-slate-500">{formatDate(reply.created_at)}</span>
                         </div>
-                        <div className={`text-slate-700 leading-relaxed whitespace-pre-wrap ${isAdmin ? 'bg-emerald-50/50 p-4 rounded-2xl rounded-tr-none' : 'bg-white border border-slate-200 p-4 rounded-2xl rounded-tl-none'}`}>
+                        <div className={`text-slate-700 dark:text-slate-300 leading-relaxed whitespace-pre-wrap ${isAdmin ? 'bg-emerald-50/50 dark:bg-emerald-900/20 p-4 rounded-2xl rounded-tr-none' : 'bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 p-4 rounded-2xl rounded-tl-none'}`}>
                           {reply.message}
                         </div>
                       </div>
@@ -280,32 +280,32 @@ export default function MyTicketsPage() {
                   );
                 })
               ) : (
-                <div className="text-center py-8 border-y border-slate-200 border-dashed">
-                  <p className="text-slate-500">Belum ada balasan.</p>
+                <div className="text-center py-8 border-y border-slate-200 dark:border-slate-700 border-dashed">
+                  <p className="text-slate-500 dark:text-slate-400">Belum ada balasan.</p>
                 </div>
               )}
             </div>
 
             {/* Reply Box */}
             {selectedTicket.status !== 'closed' ? (
-              <div className="pt-6 border-t border-slate-200">
+              <div className="pt-6 border-t border-slate-200 dark:border-slate-700">
                 {successMessage && (
-                  <div className="mb-4 p-3 bg-emerald-50 text-emerald-700 text-sm rounded-lg flex items-center gap-2 border border-emerald-100">
+                  <div className="mb-4 p-3 bg-emerald-50 dark:bg-emerald-900/20 text-emerald-700 dark:text-emerald-400 text-sm rounded-lg flex items-center gap-2 border border-emerald-100 dark:border-emerald-800">
                     <CheckCircle2 className="w-4 h-4" /> {successMessage}
                   </div>
                 )}
                 {error && (
-                  <div className="mb-4 p-3 bg-red-50 text-red-700 text-sm rounded-lg flex items-center gap-2 border border-red-100">
+                  <div className="mb-4 p-3 bg-red-50 dark:bg-red-900/20 text-red-700 dark:text-red-400 text-sm rounded-lg flex items-center gap-2 border border-red-100 dark:border-red-800">
                     <AlertCircle className="w-4 h-4" /> {error}
                   </div>
                 )}
 
-                <label className="block text-sm font-semibold text-slate-900 mb-3">Kirim Balasan</label>
+                <label className="block text-sm font-semibold text-slate-900 dark:text-slate-100 mb-3">Kirim Balasan</label>
                 <textarea
                   value={replyMessage}
                   onChange={(e) => setReplyMessage(e.target.value)}
                   placeholder="Tulis pesan balasan..."
-                  className="w-full bg-white border border-slate-200 rounded-xl p-4 text-sm focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none transition-all resize-none mb-4"
+                  className="w-full bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl p-4 text-sm text-slate-900 dark:text-slate-100 focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none transition-all resize-none mb-4 placeholder:text-slate-400 dark:placeholder:text-slate-500"
                   rows={4}
                 />
                 <div className="flex justify-end">
@@ -320,8 +320,8 @@ export default function MyTicketsPage() {
                 </div>
               </div>
             ) : (
-              <div className="bg-slate-50 rounded-xl p-4 text-center border border-slate-200">
-                <p className="text-slate-500 flex items-center justify-center gap-2">
+              <div className="bg-slate-50 dark:bg-slate-800 rounded-xl p-4 text-center border border-slate-200 dark:border-slate-700">
+                <p className="text-slate-500 dark:text-slate-400 flex items-center justify-center gap-2">
                   <XCircle className="w-4 h-4" />
                   Tiket ini sudah ditutup.
                 </p>
@@ -334,40 +334,40 @@ export default function MyTicketsPage() {
   }
 
   return (
-    <div className="min-h-screen py-12 px-4 sm:px-6 lg:px-8">
+    <div className="min-h-screen py-12 px-4 sm:px-6 lg:px-8 bg-slate-50 dark:bg-slate-950 transition-colors duration-200">
       <div className="max-w-3xl mx-auto">
         {/* Header */}
         <div className="mb-10">
           <Link
             href="/contact"
-            className="inline-flex items-center gap-2 text-slate-500 hover:text-emerald-600 text-sm mb-6 transition-colors"
+            className="inline-flex items-center gap-2 text-slate-500 dark:text-slate-400 hover:text-emerald-600 dark:hover:text-emerald-400 text-sm mb-6 transition-colors"
           >
             <ArrowLeft className="w-4 h-4" />
             Kembali ke Hubungi Kami
           </Link>
           <div className="flex items-center justify-between">
             <div>
-              <h1 className="text-3xl font-bold text-slate-900 mb-2">Tiket Saya</h1>
-              <p className="text-slate-600">Riwayat tiket support untuk <span className="font-medium text-slate-900">{user.email}</span></p>
+              <h1 className="text-3xl font-bold text-slate-900 dark:text-slate-100 mb-2">Tiket Saya</h1>
+              <p className="text-slate-600 dark:text-slate-400">Riwayat tiket support untuk <span className="font-medium text-slate-900 dark:text-slate-100">{user.email}</span></p>
             </div>
             <div className="flex items-center gap-3">
               <button
                 onClick={fetchTickets}
                 disabled={loading}
-                className="p-2.5 bg-white border border-slate-200 rounded-xl text-slate-600 hover:text-emerald-600 hover:border-emerald-200 transition-colors disabled:opacity-50"
+                className="p-2.5 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-slate-600 dark:text-slate-400 hover:text-emerald-600 dark:hover:text-emerald-400 hover:border-emerald-200 dark:hover:border-emerald-700 transition-colors disabled:opacity-50"
                 title="Refresh"
               >
                 <RefreshCw className={`w-5 h-5 ${loading ? 'animate-spin' : ''}`} />
               </button>
-              <div className="w-12 h-12 bg-emerald-50 rounded-full flex items-center justify-center">
-                <Inbox className="w-6 h-6 text-emerald-600" />
+              <div className="w-12 h-12 bg-emerald-50 dark:bg-emerald-900/30 rounded-full flex items-center justify-center">
+                <Inbox className="w-6 h-6 text-emerald-600 dark:text-emerald-400" />
               </div>
             </div>
           </div>
         </div>
 
         {error && (
-          <div className="bg-red-50 border border-red-100 rounded-xl p-4 mb-8 flex items-center gap-3 text-red-700">
+          <div className="bg-red-50 dark:bg-red-900/20 border border-red-100 dark:border-red-800 rounded-xl p-4 mb-8 flex items-center gap-3 text-red-700 dark:text-red-400">
             <AlertCircle className="w-5 h-5 flex-shrink-0" />
             <p className="text-sm font-medium">{error}</p>
           </div>
@@ -375,11 +375,11 @@ export default function MyTicketsPage() {
 
         {/* Results */}
         <div className="space-y-6">
-          <div className="flex items-center justify-between border-b border-slate-200 pb-4">
-            <h2 className="font-bold text-slate-900 text-lg">
+          <div className="flex items-center justify-between border-b border-slate-200 dark:border-slate-700 pb-4">
+            <h2 className="font-bold text-slate-900 dark:text-slate-100 text-lg">
               Riwayat Tiket
             </h2>
-            <span className="text-sm text-slate-500">
+            <span className="text-sm text-slate-500 dark:text-slate-400">
               {tickets.length} tiket
             </span>
           </div>
@@ -387,44 +387,44 @@ export default function MyTicketsPage() {
           {loading && tickets.length === 0 ? (
             <div className="py-12 text-center">
               <Loader2 className="w-8 h-8 text-emerald-600 animate-spin mx-auto mb-4" />
-              <p className="text-slate-600">Memuat tiket...</p>
+              <p className="text-slate-600 dark:text-slate-400">Memuat tiket...</p>
             </div>
           ) : tickets.length === 0 ? (
             <div className="py-12 text-center">
-              <div className="w-16 h-16 bg-slate-50 rounded-full flex items-center justify-center mx-auto mb-4">
-                <Inbox className="w-8 h-8 text-slate-300" />
+              <div className="w-16 h-16 bg-slate-50 dark:bg-slate-800 rounded-full flex items-center justify-center mx-auto mb-4">
+                <Inbox className="w-8 h-8 text-slate-300 dark:text-slate-600" />
               </div>
-              <h3 className="text-lg font-medium text-slate-900 mb-2">Belum Ada Tiket</h3>
-              <p className="text-slate-500 mb-6">Anda belum memiliki tiket support.</p>
+              <h3 className="text-lg font-medium text-slate-900 dark:text-slate-100 mb-2">Belum Ada Tiket</h3>
+              <p className="text-slate-500 dark:text-slate-400 mb-6">Anda belum memiliki tiket support.</p>
               <Link
                 href="/contact"
-                className="inline-flex items-center gap-2 text-emerald-600 font-medium hover:underline"
+                className="inline-flex items-center gap-2 text-emerald-600 dark:text-emerald-400 font-medium hover:underline"
               >
                 Buat Tiket Baru <ChevronRight className="w-4 h-4" />
               </Link>
             </div>
           ) : (
-            <div className="divide-y divide-slate-200">
+            <div className="divide-y divide-slate-200 dark:divide-slate-700">
               {tickets.map((ticket) => (
                 <div
                   key={ticket.id}
                   onClick={() => handleViewTicket(ticket.ticket_number)}
-                  className="group py-4 cursor-pointer hover:bg-slate-50 -mx-4 px-4 rounded-xl transition-colors"
+                  className="group py-4 cursor-pointer hover:bg-slate-100 dark:hover:bg-slate-800/50 -mx-4 px-4 rounded-xl transition-colors"
                 >
                   <div className="flex items-start justify-between gap-4">
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-3 mb-2">
-                        <span className="text-xs font-mono text-slate-500 bg-white border border-slate-200 px-2 py-0.5 rounded">
+                        <span className="text-xs font-mono text-slate-500 dark:text-slate-400 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 px-2 py-0.5 rounded">
                           #{ticket.ticket_number}
                         </span>
                         <span className={`text-xs px-2.5 py-0.5 rounded-full border ${statusColors[ticket.status]}`}>
                           {statusLabels[ticket.status]}
                         </span>
                       </div>
-                      <h3 className="font-bold text-slate-900 text-lg mb-1 group-hover:text-emerald-700 transition-colors">
+                      <h3 className="font-bold text-slate-900 dark:text-slate-100 text-lg mb-1 group-hover:text-emerald-700 dark:group-hover:text-emerald-400 transition-colors">
                         {ticket.subject}
                       </h3>
-                      <div className="flex items-center gap-4 text-sm text-slate-500">
+                      <div className="flex items-center gap-4 text-sm text-slate-500 dark:text-slate-400">
                         <span className="flex items-center gap-1.5">
                           <Clock className="w-4 h-4" />
                           {formatDate(ticket.created_at)}
@@ -436,7 +436,7 @@ export default function MyTicketsPage() {
                       </div>
                     </div>
                     <div className="self-center">
-                      <ChevronRight className="w-5 h-5 text-slate-300 group-hover:text-emerald-500 transition-colors" />
+                      <ChevronRight className="w-5 h-5 text-slate-300 dark:text-slate-600 group-hover:text-emerald-500 transition-colors" />
                     </div>
                   </div>
                 </div>

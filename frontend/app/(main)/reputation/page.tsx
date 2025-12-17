@@ -138,14 +138,14 @@ export default function ReputationPage() {
   }
 
   return (
-    <div className="min-h-screen bg-slate-50 pb-20">
+    <div className="min-h-screen bg-slate-50 dark:bg-slate-950 pb-20 transition-colors duration-200">
       {/* Mobile Header - Clean & Minimalist */}
-      <div className="sticky top-0 z-30 bg-white/80 backdrop-blur-md border-b border-slate-200 px-4 py-3 sm:hidden">
+      <div className="sticky top-0 z-30 bg-white/80 dark:bg-slate-900/80 backdrop-blur-md border-b border-slate-200 dark:border-slate-800 px-4 py-3 sm:hidden">
         <div className="flex items-center justify-between">
-          <h1 className="text-lg font-bold text-slate-900">Reputasi</h1>
-          <div className="flex items-center gap-1.5 bg-emerald-50 px-3 py-1.5 rounded-full border border-emerald-100">
-            <Trophy className="w-3.5 h-3.5 text-emerald-600" />
-            <span className="text-sm font-bold text-emerald-700">{user.reputationPoints || 0}</span>
+          <h1 className="text-lg font-bold text-slate-900 dark:text-slate-100">Reputasi</h1>
+          <div className="flex items-center gap-1.5 bg-emerald-50 dark:bg-emerald-900/30 px-3 py-1.5 rounded-full border border-emerald-100 dark:border-emerald-800">
+            <Trophy className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" />
+            <span className="text-sm font-bold text-emerald-700 dark:text-emerald-400">{user.reputationPoints || 0}</span>
           </div>
         </div>
       </div>
@@ -158,8 +158,8 @@ export default function ReputationPage() {
               <Trophy className="w-7 h-7 text-white" />
             </div>
             <div>
-              <h1 className="text-3xl font-bold text-slate-900">Reputasi Anda</h1>
-              <p className="text-slate-600 text-lg">
+              <h1 className="text-3xl font-bold text-slate-900 dark:text-slate-100">Reputasi Anda</h1>
+              <p className="text-slate-600 dark:text-slate-400 text-lg">
                 Statistik pencapaian dan kontribusi Anda
               </p>
             </div>
@@ -170,18 +170,18 @@ export default function ReputationPage() {
         {/* Stats Grid - Responsive */}
         <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 sm:gap-4 mb-6 sm:mb-8">
           {/* Total Reputation Card */}
-          <div className="col-span-1 bg-white rounded-2xl p-4 sm:p-5 border border-slate-200 shadow-sm relative overflow-hidden group">
-            <div className="absolute top-0 right-0 w-24 h-24 bg-emerald-50 rounded-full blur-2xl -translate-y-1/2 translate-x-1/2 group-hover:bg-emerald-100 transition-colors"></div>
+          <div className="col-span-1 bg-white dark:bg-slate-800 rounded-2xl p-4 sm:p-5 border border-slate-200 dark:border-slate-700 shadow-sm relative overflow-hidden group">
+            <div className="absolute top-0 right-0 w-24 h-24 bg-emerald-50 dark:bg-emerald-900/20 rounded-full blur-2xl -translate-y-1/2 translate-x-1/2 group-hover:bg-emerald-100 dark:group-hover:bg-emerald-900/30 transition-colors"></div>
             <div className="relative z-10">
               <div className="flex items-center gap-2 sm:gap-3 mb-2">
-                <div className="p-1.5 sm:p-2 bg-emerald-50 rounded-lg text-emerald-600">
+                <div className="p-1.5 sm:p-2 bg-emerald-50 dark:bg-emerald-900/30 rounded-lg text-emerald-600 dark:text-emerald-400">
                   <Trophy className="w-4 h-4 sm:w-5 sm:h-5" />
                 </div>
-                <span className="text-xs sm:text-sm font-medium text-slate-500">Total Poin</span>
+                <span className="text-xs sm:text-sm font-medium text-slate-500 dark:text-slate-400">Total Poin</span>
               </div>
               <div className="flex flex-col sm:flex-row sm:items-baseline gap-0.5 sm:gap-1.5">
-                <span className="text-2xl sm:text-3xl font-bold text-slate-900">{user.reputationPoints || 0}</span>
-                <span className="text-xs sm:text-sm font-medium text-slate-400">poin</span>
+                <span className="text-2xl sm:text-3xl font-bold text-slate-900 dark:text-slate-100">{user.reputationPoints || 0}</span>
+                <span className="text-xs sm:text-sm font-medium text-slate-400 dark:text-slate-500">poin</span>
               </div>
             </div>
           </div>

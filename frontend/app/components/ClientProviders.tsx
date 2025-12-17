@@ -5,6 +5,7 @@ import { NotificationProvider } from '@/contexts/NotificationContext';
 import { PWAInstallPrompt } from '@/components/PWAInstallPrompt';
 import { PWAUpdateModal } from '@/components/PWAUpdateModal';
 import { OfflineIndicator } from '@/components/OfflineIndicator';
+import { ThemeProvider } from '@/contexts/ThemeContext';
 
 export default function ClientProviders({
   children,
@@ -12,13 +13,15 @@ export default function ClientProviders({
   children: React.ReactNode;
 }) {
   return (
-    <AuthProvider>
-      <NotificationProvider>
-        <OfflineIndicator />
-        {children}
-        <PWAInstallPrompt />
-        <PWAUpdateModal />
-      </NotificationProvider>
-    </AuthProvider>
+    <ThemeProvider>
+      <AuthProvider>
+        <NotificationProvider>
+          <OfflineIndicator />
+          {children}
+          <PWAInstallPrompt />
+          <PWAUpdateModal />
+        </NotificationProvider>
+      </AuthProvider>
+    </ThemeProvider>
   );
 }

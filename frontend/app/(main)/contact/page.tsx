@@ -88,19 +88,19 @@ export default function ContactPage() {
 
   if (submitted) {
     return (
-      <div className="min-h-[80vh] flex items-center justify-center px-4 py-12">
+      <div className="min-h-[80vh] flex items-center justify-center px-4 py-12 bg-slate-50 dark:bg-slate-950 transition-colors duration-200">
         <div className="max-w-md w-full text-center">
-          <div className="w-20 h-20 bg-emerald-100 rounded-full flex items-center justify-center mx-auto mb-6">
-            <CheckCircle className="w-10 h-10 text-emerald-600" />
+          <div className="w-20 h-20 bg-emerald-100 dark:bg-emerald-900/30 rounded-full flex items-center justify-center mx-auto mb-6">
+            <CheckCircle className="w-10 h-10 text-emerald-600 dark:text-emerald-400" />
           </div>
-          <h1 className="text-2xl font-bold text-slate-900 mb-3">Tiket Terkirim</h1>
-          <p className="text-slate-600 mb-8 leading-relaxed">
-            Kami akan membalas ke <span className="font-semibold text-slate-900">{formData.email}</span>
+          <h1 className="text-2xl font-bold text-slate-900 dark:text-slate-100 mb-3">Tiket Terkirim</h1>
+          <p className="text-slate-600 dark:text-slate-400 mb-8 leading-relaxed">
+            Kami akan membalas ke <span className="font-semibold text-slate-900 dark:text-slate-100">{formData.email}</span>
           </p>
 
-          <div className="bg-white/50 backdrop-blur-sm rounded-xl p-6 mb-8 border border-slate-200">
-            <p className="text-xs text-slate-500 uppercase tracking-wider font-semibold mb-2">Nomor Tiket</p>
-            <p className="text-3xl font-mono font-bold text-slate-900 tracking-tight">{ticketNumber}</p>
+          <div className="bg-white/50 dark:bg-slate-800/50 backdrop-blur-sm rounded-xl p-6 mb-8 border border-slate-200 dark:border-slate-700">
+            <p className="text-xs text-slate-500 dark:text-slate-400 uppercase tracking-wider font-semibold mb-2">Nomor Tiket</p>
+            <p className="text-3xl font-mono font-bold text-slate-900 dark:text-slate-100 tracking-tight">{ticketNumber}</p>
           </div>
 
           <div className="flex flex-col gap-3">
@@ -115,7 +115,7 @@ export default function ContactPage() {
                 setSubmitted(false);
                 setFormData({ ...formData, subject: '', message: '' });
               }}
-              className="w-full px-6 py-3 bg-white text-slate-600 border border-slate-200 rounded-xl font-medium hover:bg-slate-50 hover:text-slate-900 transition-colors"
+              className="w-full px-6 py-3 bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-slate-700 rounded-xl font-medium hover:bg-slate-50 dark:hover:bg-slate-700 hover:text-slate-900 dark:hover:text-slate-100 transition-colors"
             >
               Kirim Lagi
             </button>
@@ -126,19 +126,19 @@ export default function ContactPage() {
   }
 
   return (
-    <div className="min-h-screen py-12 px-4 sm:px-6 lg:px-8">
+    <div className="min-h-screen py-12 px-4 sm:px-6 lg:px-8 bg-slate-50 dark:bg-slate-950 transition-colors duration-200">
       <div className="max-w-3xl mx-auto">
         {/* Header Section */}
         <div className="mb-10 text-center">
-          <h1 className="text-4xl font-bold text-slate-900 mb-4">
+          <h1 className="text-4xl font-bold text-slate-900 dark:text-slate-100 mb-4">
             Hubungi Kami
           </h1>
-          <p className="text-lg text-slate-600 mb-6">
+          <p className="text-lg text-slate-600 dark:text-slate-400 mb-6">
             Tim kami siap membantu Anda menyelesaikan masalah secepat mungkin.
           </p>
           <Link
             href="/contact/my-tickets"
-            className="inline-flex items-center gap-2 px-5 py-2.5 bg-white text-emerald-700 rounded-full hover:bg-emerald-50 transition-all text-sm font-medium border border-slate-200 hover:border-emerald-200 shadow-sm"
+            className="inline-flex items-center gap-2 px-5 py-2.5 bg-white dark:bg-slate-800 text-emerald-700 dark:text-emerald-400 rounded-full hover:bg-emerald-50 dark:hover:bg-slate-700 transition-all text-sm font-medium border border-slate-200 dark:border-slate-700 hover:border-emerald-200 dark:hover:border-emerald-700 shadow-sm"
           >
             Cek Status Tiket Saya
             <ArrowRight className="w-4 h-4" />
@@ -150,7 +150,7 @@ export default function ContactPage() {
 
           {/* Category Selection */}
           <div>
-            <label className="block text-sm font-semibold text-slate-900 mb-4">Kategori Masalah</label>
+            <label className="block text-sm font-semibold text-slate-900 dark:text-slate-100 mb-4">Kategori Masalah</label>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               {categories.map((cat) => (
                 <button
@@ -158,18 +158,18 @@ export default function ContactPage() {
                   type="button"
                   onClick={() => setFormData({ ...formData, category: cat.value })}
                   className={`flex items-start p-4 rounded-xl border transition-all text-left ${formData.category === cat.value
-                      ? 'border-emerald-500 bg-emerald-50/50 ring-1 ring-emerald-500'
-                      : 'border-slate-200 bg-white hover:border-slate-300 hover:bg-slate-50'
+                    ? 'border-emerald-500 bg-emerald-50/50 dark:bg-emerald-900/20 ring-1 ring-emerald-500'
+                    : 'border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 hover:border-slate-300 dark:hover:border-slate-600 hover:bg-slate-50 dark:hover:bg-slate-700'
                     }`}
                 >
-                  <cat.icon className={`w-5 h-5 mr-3 mt-0.5 ${formData.category === cat.value ? 'text-emerald-600' : 'text-slate-400'
+                  <cat.icon className={`w-5 h-5 mr-3 mt-0.5 ${formData.category === cat.value ? 'text-emerald-600 dark:text-emerald-400' : 'text-slate-400 dark:text-slate-500'
                     }`} />
                   <div>
-                    <div className={`font-medium ${formData.category === cat.value ? 'text-emerald-900' : 'text-slate-900'
+                    <div className={`font-medium ${formData.category === cat.value ? 'text-emerald-900 dark:text-emerald-300' : 'text-slate-900 dark:text-slate-100'
                       }`}>
                       {cat.label}
                     </div>
-                    <div className="text-sm text-slate-500 mt-1">
+                    <div className="text-sm text-slate-500 dark:text-slate-400 mt-1">
                       {cat.description}
                     </div>
                   </div>
@@ -181,23 +181,23 @@ export default function ContactPage() {
           {/* User Info */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div className="space-y-2">
-              <label className="block text-sm font-semibold text-slate-900">Nama Lengkap</label>
+              <label className="block text-sm font-semibold text-slate-900 dark:text-slate-100">Nama Lengkap</label>
               <input
                 type="text"
                 value={formData.name}
                 onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                className="w-full px-4 py-3 bg-white border border-slate-200 focus:border-emerald-500 rounded-xl text-sm focus:ring-2 focus:ring-emerald-500/20 outline-none transition-all"
+                className="w-full px-4 py-3 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 focus:border-emerald-500 rounded-xl text-sm text-slate-900 dark:text-slate-100 focus:ring-2 focus:ring-emerald-500/20 outline-none transition-all placeholder:text-slate-400 dark:placeholder:text-slate-500"
                 placeholder="Nama kamu"
                 required
               />
             </div>
             <div className="space-y-2">
-              <label className="block text-sm font-semibold text-slate-900">Email</label>
+              <label className="block text-sm font-semibold text-slate-900 dark:text-slate-100">Email</label>
               <input
                 type="email"
                 value={formData.email}
                 onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                className="w-full px-4 py-3 bg-white border border-slate-200 focus:border-emerald-500 rounded-xl text-sm focus:ring-2 focus:ring-emerald-500/20 outline-none transition-all"
+                className="w-full px-4 py-3 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 focus:border-emerald-500 rounded-xl text-sm text-slate-900 dark:text-slate-100 focus:ring-2 focus:ring-emerald-500/20 outline-none transition-all placeholder:text-slate-400 dark:placeholder:text-slate-500"
                 placeholder="email@example.com"
                 required
               />
@@ -206,12 +206,12 @@ export default function ContactPage() {
 
           {/* Subject */}
           <div className="space-y-2">
-            <label className="block text-sm font-semibold text-slate-900">Subjek</label>
+            <label className="block text-sm font-semibold text-slate-900 dark:text-slate-100">Subjek</label>
             <input
               type="text"
               value={formData.subject}
               onChange={(e) => setFormData({ ...formData, subject: e.target.value })}
-              className="w-full px-4 py-3 bg-white border border-slate-200 focus:border-emerald-500 rounded-xl text-sm focus:ring-2 focus:ring-emerald-500/20 outline-none transition-all"
+              className="w-full px-4 py-3 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 focus:border-emerald-500 rounded-xl text-sm text-slate-900 dark:text-slate-100 focus:ring-2 focus:ring-emerald-500/20 outline-none transition-all placeholder:text-slate-400 dark:placeholder:text-slate-500"
               placeholder="Judul masalah"
               required
             />
@@ -219,11 +219,11 @@ export default function ContactPage() {
 
           {/* Message */}
           <div className="space-y-2">
-            <label className="block text-sm font-semibold text-slate-900">Pesan</label>
+            <label className="block text-sm font-semibold text-slate-900 dark:text-slate-100">Pesan</label>
             <textarea
               value={formData.message}
               onChange={(e) => setFormData({ ...formData, message: e.target.value })}
-              className="w-full px-4 py-3 bg-white border border-slate-200 focus:border-emerald-500 rounded-xl text-sm focus:ring-2 focus:ring-emerald-500/20 outline-none transition-all resize-none min-h-[150px]"
+              className="w-full px-4 py-3 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 focus:border-emerald-500 rounded-xl text-sm text-slate-900 dark:text-slate-100 focus:ring-2 focus:ring-emerald-500/20 outline-none transition-all resize-none min-h-[150px] placeholder:text-slate-400 dark:placeholder:text-slate-500"
               placeholder="Jelaskan detail masalah..."
               required
             />

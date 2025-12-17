@@ -77,10 +77,10 @@ export default function LoginPage() {
   // Show loading state while checking auth
   if (authLoading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-slate-50">
+      <div className="min-h-screen flex items-center justify-center bg-slate-50 dark:bg-slate-950 transition-colors duration-200">
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-emerald-600 mx-auto"></div>
-          <p className="mt-4 text-slate-600 font-medium">Memuat...</p>
+          <p className="mt-4 text-slate-600 dark:text-slate-400 font-medium">Memuat...</p>
         </div>
       </div>
     );
@@ -92,7 +92,7 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="min-h-screen flex flex-col justify-center py-8 sm:py-12 px-4 sm:px-6 lg:px-8 bg-slate-50 relative overflow-hidden">
+    <div className="min-h-screen flex flex-col justify-center py-8 sm:py-12 px-4 sm:px-6 lg:px-8 bg-slate-50 dark:bg-slate-950 relative overflow-hidden transition-colors duration-200">
       {/* Decorative Background Elements */}
       <div className="absolute top-0 left-0 w-full h-full overflow-hidden pointer-events-none">
         <div className="absolute -top-24 -left-24 w-96 h-96 bg-emerald-500/10 rounded-full blur-3xl"></div>
@@ -111,17 +111,17 @@ export default function LoginPage() {
               />
             </div>
           </Link>
-          <h2 className="text-2xl sm:text-3xl font-bold tracking-tight text-slate-900">
+          <h2 className="text-2xl sm:text-3xl font-bold tracking-tight text-slate-900 dark:text-slate-100">
             Selamat Datang Kembali
           </h2>
-          <p className="mt-2 text-sm text-slate-600">
+          <p className="mt-2 text-sm text-slate-600 dark:text-slate-400">
             Masuk untuk melanjutkan diskusi dengan komunitas
           </p>
         </div>
       </div>
 
       <div className="mt-6 sm:mt-8 sm:mx-auto sm:w-full sm:max-w-md relative z-10">
-        <div className="bg-white py-6 sm:py-8 px-4 shadow-xl shadow-slate-200/50 rounded-2xl sm:px-10 border border-slate-100">
+        <div className="bg-white dark:bg-slate-900 py-6 sm:py-8 px-4 shadow-xl shadow-slate-200/50 dark:shadow-slate-950/50 rounded-2xl sm:px-10 border border-slate-100 dark:border-slate-800">
           {error && (
             <div className="mb-6 p-4 bg-red-50 border border-red-100 rounded-xl flex items-start gap-3 animate-in fade-in slide-in-from-top-2">
               <AlertCircle className="w-5 h-5 text-red-600 flex-shrink-0 mt-0.5" />
@@ -241,7 +241,7 @@ export default function LoginPage() {
             </div>
 
             <div className="mt-6">
-              <GoogleLoginButton 
+              <GoogleLoginButton
                 onSuccess={handleGoogleSuccess}
                 onError={() => setError('Gagal login dengan Google')}
                 text="Masuk dengan Google"

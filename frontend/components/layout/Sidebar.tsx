@@ -40,17 +40,17 @@ const SidebarItem: React.FC<SidebarItemProps> = ({ href, icon: Icon, label, isAc
       href={href}
       onClick={onClick}
       className={`group flex items-center justify-between px-4 py-2.5 rounded-lg text-sm font-medium transition-all duration-200 ${isActive
-        ? 'bg-emerald-50 text-emerald-700'
-        : 'text-slate-600 hover:bg-slate-50 hover:text-slate-900'
+        ? 'bg-emerald-50 text-emerald-700 dark:bg-emerald-900/20 dark:text-emerald-400'
+        : 'text-slate-600 hover:bg-slate-50 hover:text-slate-900 dark:text-slate-400 dark:hover:bg-slate-800 dark:hover:text-slate-200'
         }`}
     >
       <div className="flex items-center gap-3">
-        <Icon className={`w-4 h-4 transition-colors ${isActive ? 'text-emerald-600' : 'text-slate-500 group-hover:text-slate-700'
+        <Icon className={`w-4 h-4 transition-colors ${isActive ? 'text-emerald-600 dark:text-emerald-400' : 'text-slate-500 group-hover:text-slate-700 dark:text-slate-500 dark:group-hover:text-slate-300'
           }`} />
         <span>{label}</span>
       </div>
       {count !== undefined && (
-        <span className={`text-xs px-2 py-0.5 rounded-full font-semibold ${isActive ? 'bg-emerald-200 text-emerald-800' : 'bg-slate-200 text-slate-600 group-hover:bg-slate-300'
+        <span className={`text-xs px-2 py-0.5 rounded-full font-semibold ${isActive ? 'bg-emerald-200 text-emerald-800 dark:bg-emerald-900 dark:text-emerald-300' : 'bg-slate-200 text-slate-600 group-hover:bg-slate-300 dark:bg-slate-700 dark:text-slate-300 dark:group-hover:bg-slate-600'
           }`}>
           {count}
         </span>
@@ -138,7 +138,7 @@ export default function Sidebar({ onItemClick }: SidebarProps) {
   ];
 
   return (
-    <div className="w-full h-full overflow-y-auto flex flex-col bg-white">
+    <div className="w-full h-full overflow-y-auto flex flex-col bg-white dark:bg-slate-900 border-r border-slate-200 dark:border-slate-800 transition-colors duration-200">
       <div className="p-4 sm:p-6 space-y-6 flex-1">
         {/* Main Navigation */}
         <div>

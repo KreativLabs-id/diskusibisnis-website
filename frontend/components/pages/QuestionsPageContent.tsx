@@ -99,37 +99,37 @@ export default function QuestionsPageContent() {
       {[1, 2, 3, 4, 5].map((i) => (
         <div
           key={i}
-          className="bg-white rounded-xl border border-slate-200 p-6 animate-pulse"
+          className="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 p-6 animate-pulse"
         >
           <div className="flex gap-6">
             {/* Vote section skeleton */}
             <div className="flex flex-col items-center gap-3">
-              <div className="w-16 h-10 bg-slate-200 rounded-lg" />
-              <div className="w-16 h-10 bg-slate-200 rounded-lg" />
+              <div className="w-16 h-10 bg-slate-200 dark:bg-slate-700 rounded-lg" />
+              <div className="w-16 h-10 bg-slate-200 dark:bg-slate-700 rounded-lg" />
             </div>
 
             {/* Content skeleton */}
             <div className="flex-1 space-y-3">
               {/* Title */}
-              <div className="h-6 bg-slate-200 rounded w-3/4" />
+              <div className="h-6 bg-slate-200 dark:bg-slate-700 rounded w-3/4" />
 
               {/* Description */}
               <div className="space-y-2">
-                <div className="h-4 bg-slate-200 rounded w-full" />
-                <div className="h-4 bg-slate-200 rounded w-5/6" />
+                <div className="h-4 bg-slate-200 dark:bg-slate-700 rounded w-full" />
+                <div className="h-4 bg-slate-200 dark:bg-slate-700 rounded w-5/6" />
               </div>
 
               {/* Tags and meta */}
               <div className="flex flex-wrap items-center gap-2">
-                <div className="h-6 w-20 bg-slate-200 rounded-full" />
-                <div className="h-6 w-24 bg-slate-200 rounded-full" />
-                <div className="h-6 w-16 bg-slate-200 rounded-full" />
+                <div className="h-6 w-20 bg-slate-200 dark:bg-slate-700 rounded-full" />
+                <div className="h-6 w-24 bg-slate-200 dark:bg-slate-700 rounded-full" />
+                <div className="h-6 w-16 bg-slate-200 dark:bg-slate-700 rounded-full" />
               </div>
 
               {/* Footer */}
               <div className="flex items-center gap-4 pt-3">
-                <div className="h-8 w-8 bg-slate-200 rounded-full" />
-                <div className="h-4 w-32 bg-slate-200 rounded" />
+                <div className="h-8 w-8 bg-slate-200 dark:bg-slate-700 rounded-full" />
+                <div className="h-4 w-32 bg-slate-200 dark:bg-slate-700 rounded" />
               </div>
             </div>
           </div>
@@ -140,11 +140,11 @@ export default function QuestionsPageContent() {
 
   const renderEmptyState = (
     <div className="text-center py-16">
-      <MessageCircleQuestion className="w-16 h-16 text-slate-300 mx-auto mb-4" />
-      <h3 className="text-xl font-semibold text-slate-900 mb-2">
+      <MessageCircleQuestion className="w-16 h-16 text-slate-300 dark:text-slate-600 mx-auto mb-4" />
+      <h3 className="text-xl font-semibold text-slate-900 dark:text-slate-100 mb-2">
         Belum ada pertanyaan
       </h3>
-      <p className="text-slate-600 mb-6">
+      <p className="text-slate-600 dark:text-slate-400 mb-6">
         Jadilah yang pertama bertanya di komunitas kami!
       </p>
       <Link
@@ -191,12 +191,9 @@ export default function QuestionsPageContent() {
         </div>
       </div>
 
-      {/* Discovery Hub - Replaces Sidebar on Mobile */}
-
-
       {/* Search Bar - Modern Design */}
       <div className="mb-6">
-        <h2 className="text-sm font-bold text-slate-900 mb-3 px-1 uppercase tracking-wider">Cari Diskusi</h2>
+        <h2 className="text-sm font-bold text-slate-900 dark:text-slate-100 mb-3 px-1 uppercase tracking-wider">Cari Diskusi</h2>
         <div className="relative group">
           <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
             <Search className="h-5 w-5 text-slate-400 group-focus-within:text-emerald-500 transition-colors" />
@@ -206,14 +203,14 @@ export default function QuestionsPageContent() {
             placeholder="Cari pertanyaan berdasarkan judul, konten, atau tag..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="block w-full pl-11 pr-4 py-4 border-2 border-slate-100 rounded-2xl leading-5 bg-white placeholder-slate-400 focus:outline-none focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/10 transition-all duration-200 shadow-sm hover:shadow-md"
+            className="block w-full pl-11 pr-4 py-4 border-2 border-slate-100 dark:border-slate-700 rounded-2xl leading-5 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/10 transition-all duration-200 shadow-sm hover:shadow-md"
           />
         </div>
       </div>
 
       {/* Simple Filter Tabs */}
-      <div className="bg-white rounded-2xl shadow-sm border border-slate-200 p-2 mb-6 flex flex-col sm:flex-row items-center justify-between gap-4">
-        <div className="flex items-center gap-1 p-1 bg-slate-100/50 rounded-xl w-full sm:w-auto overflow-x-auto no-scrollbar">
+      <div className="bg-white dark:bg-slate-800 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700 p-2 mb-6 flex flex-col sm:flex-row items-center justify-between gap-4">
+        <div className="flex items-center gap-1 p-1 bg-slate-100/50 dark:bg-slate-700/50 rounded-xl w-full sm:w-auto overflow-x-auto no-scrollbar">
           {sortOptions.map((option) => {
             const Icon = option.icon;
             const isActive = sortBy === option.value;
@@ -222,12 +219,12 @@ export default function QuestionsPageContent() {
                 key={option.value}
                 onClick={() => setSortBy(option.value as 'newest' | 'popular' | 'unanswered')}
                 className={`inline-flex items-center gap-1.5 px-4 py-2 rounded-lg text-xs sm:text-sm font-semibold whitespace-nowrap transition-all duration-200 flex-1 sm:flex-none justify-center ${isActive
-                  ? 'bg-white text-emerald-600 shadow-sm ring-1 ring-black/5'
-                  : 'text-slate-500 hover:text-slate-700 hover:bg-white/50'
+                  ? 'bg-white dark:bg-slate-700 text-emerald-600 dark:text-emerald-400 shadow-sm ring-1 ring-black/5 dark:ring-white/10'
+                  : 'text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 hover:bg-white/50 dark:hover:bg-slate-600/50'
                   }`}
                 title={option.label}
               >
-                <Icon className={`w-3.5 h-3.5 ${isActive ? 'text-emerald-500' : 'text-slate-400'}`} />
+                <Icon className={`w-3.5 h-3.5 ${isActive ? 'text-emerald-500' : 'text-slate-400 dark:text-slate-500'}`} />
                 <span>{option.label}</span>
               </button>
             );
@@ -241,17 +238,17 @@ export default function QuestionsPageContent() {
           ? renderSkeleton
           : !filteredQuestions || filteredQuestions.length === 0
             ? searchQuery ? (
-              <div className="text-center py-16">
-                <Search className="w-16 h-16 text-slate-300 mx-auto mb-4" />
-                <h3 className="text-xl font-semibold text-slate-900 mb-2">
+              <div className="text-center py-16 bg-white dark:bg-slate-800 rounded-2xl border border-slate-200 dark:border-slate-700">
+                <Search className="w-16 h-16 text-slate-300 dark:text-slate-600 mx-auto mb-4" />
+                <h3 className="text-xl font-semibold text-slate-900 dark:text-slate-100 mb-2">
                   Tidak ada hasil untuk "{searchQuery}"
                 </h3>
-                <p className="text-slate-600 mb-6">
+                <p className="text-slate-600 dark:text-slate-400 mb-6">
                   Coba gunakan kata kunci yang berbeda atau buat pertanyaan baru.
                 </p>
                 <button
                   onClick={() => setSearchQuery('')}
-                  className="inline-flex items-center gap-2 px-6 py-3 bg-slate-100 text-slate-700 rounded-lg hover:bg-slate-200 transition-colors font-medium mr-3"
+                  className="inline-flex items-center gap-2 px-6 py-3 bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-slate-200 rounded-lg hover:bg-slate-200 dark:hover:bg-slate-600 transition-colors font-medium mr-3"
                 >
                   Hapus Pencarian
                 </button>

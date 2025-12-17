@@ -139,37 +139,37 @@ export default function HomePage() {
       {[1, 2, 3, 4, 5].map((i) => (
         <div
           key={i}
-          className="bg-white rounded-xl border border-slate-200 p-6 animate-pulse"
+          className="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 p-6 animate-pulse"
         >
           <div className="flex gap-6">
             {/* Vote section skeleton */}
             <div className="flex flex-col items-center gap-3">
-              <div className="w-16 h-10 bg-slate-200 rounded-lg" />
-              <div className="w-16 h-10 bg-slate-200 rounded-lg" />
+              <div className="w-16 h-10 bg-slate-200 dark:bg-slate-700 rounded-lg" />
+              <div className="w-16 h-10 bg-slate-200 dark:bg-slate-700 rounded-lg" />
             </div>
 
             {/* Content skeleton */}
             <div className="flex-1 space-y-3">
               {/* Title */}
-              <div className="h-6 bg-slate-200 rounded w-3/4" />
+              <div className="h-6 bg-slate-200 dark:bg-slate-700 rounded w-3/4" />
 
               {/* Description */}
               <div className="space-y-2">
-                <div className="h-4 bg-slate-200 rounded w-full" />
-                <div className="h-4 bg-slate-200 rounded w-5/6" />
+                <div className="h-4 bg-slate-200 dark:bg-slate-700 rounded w-full" />
+                <div className="h-4 bg-slate-200 dark:bg-slate-700 rounded w-5/6" />
               </div>
 
               {/* Tags and meta */}
               <div className="flex flex-wrap items-center gap-2">
-                <div className="h-6 w-20 bg-slate-200 rounded-full" />
-                <div className="h-6 w-24 bg-slate-200 rounded-full" />
-                <div className="h-6 w-16 bg-slate-200 rounded-full" />
+                <div className="h-6 w-20 bg-slate-200 dark:bg-slate-700 rounded-full" />
+                <div className="h-6 w-24 bg-slate-200 dark:bg-slate-700 rounded-full" />
+                <div className="h-6 w-16 bg-slate-200 dark:bg-slate-700 rounded-full" />
               </div>
 
               {/* Footer */}
               <div className="flex items-center gap-4 pt-3">
-                <div className="h-8 w-8 bg-slate-200 rounded-full" />
-                <div className="h-4 w-32 bg-slate-200 rounded" />
+                <div className="h-8 w-8 bg-slate-200 dark:bg-slate-700 rounded-full" />
+                <div className="h-4 w-32 bg-slate-200 dark:bg-slate-700 rounded" />
               </div>
             </div>
           </div>
@@ -179,15 +179,15 @@ export default function HomePage() {
   );
 
   const renderEmptyState = (
-    <div className="bg-white rounded-2xl border border-dashed border-slate-300 p-8 text-center space-y-4">
-      <div className="w-16 h-16 bg-emerald-100 rounded-2xl flex items-center justify-center mx-auto">
-        <MessageCircleQuestion className="w-8 h-8 text-emerald-600" />
+    <div className="bg-white dark:bg-slate-800 rounded-2xl border border-dashed border-slate-300 dark:border-slate-700 p-8 text-center space-y-4">
+      <div className="w-16 h-16 bg-emerald-100 dark:bg-emerald-900/30 rounded-2xl flex items-center justify-center mx-auto">
+        <MessageCircleQuestion className="w-8 h-8 text-emerald-600 dark:text-emerald-400" />
       </div>
       <div className="space-y-2">
-        <h3 className="text-xl font-bold text-slate-900">
+        <h3 className="text-xl font-bold text-slate-900 dark:text-slate-100">
           {currentTag ? `Belum ada pertanyaan dengan tag #${currentTag.name}` : 'Belum ada pertanyaan'}
         </h3>
-        <p className="text-slate-500 max-w-md mx-auto">
+        <p className="text-slate-500 dark:text-slate-400 max-w-md mx-auto">
           {currentTag
             ? `Jadilah yang pertama bertanya dengan tag #${currentTag.name}`
             : 'Mulai diskusi pertama dan bantu sesama pemilik UMKM'
@@ -205,7 +205,7 @@ export default function HomePage() {
         {!user && (
           <Link
             href="/register"
-            className="inline-flex items-center justify-center px-6 py-2.5 rounded-xl border border-slate-300 text-slate-600 font-semibold hover:border-emerald-300 hover:text-emerald-600 hover:bg-emerald-50 transition-all duration-200"
+            className="inline-flex items-center justify-center px-6 py-2.5 rounded-xl border border-slate-300 dark:border-slate-600 text-slate-600 dark:text-slate-300 font-semibold hover:border-emerald-300 dark:hover:border-emerald-700 hover:text-emerald-600 dark:hover:text-emerald-400 hover:bg-emerald-50 dark:hover:bg-emerald-900/20 transition-all duration-200"
           >
             Gabung Komunitas
           </Link>
@@ -214,7 +214,7 @@ export default function HomePage() {
     </div>
   );
   return (
-    <div className="min-h-screen bg-slate-50">
+    <div className="min-h-screen bg-slate-50 dark:bg-slate-950 transition-colors duration-200">
       {/* Hero Section - Optimized for Mobile Performance */}
       <div className="relative bg-gradient-to-br from-emerald-600 via-emerald-500 to-teal-600 pb-24 pt-8 sm:pt-12 overflow-hidden rounded-b-[2rem] sm:rounded-b-[3rem] shadow-lg sm:shadow-2xl z-10">
         {/* Decorative Elements - Hidden on mobile for performance */}
@@ -259,7 +259,7 @@ export default function HomePage() {
               <div className="flex flex-wrap items-center gap-3">
                 <Link
                   href="/ask"
-                  className="inline-flex items-center gap-2 px-5 py-2.5 bg-white text-emerald-600 rounded-xl font-bold hover:bg-emerald-50 transition-all shadow-lg hover:shadow-xl hover:-translate-y-0.5 text-sm"
+                  className="inline-flex items-center gap-2 px-5 py-2.5 bg-white dark:bg-slate-800 text-emerald-600 dark:text-emerald-400 rounded-xl font-bold hover:bg-emerald-50 dark:hover:bg-slate-700 transition-all shadow-lg hover:shadow-xl hover:-translate-y-0.5 text-sm"
                 >
                   <Plus className="w-4 h-4" />
                   Buat Pertanyaan
@@ -286,30 +286,30 @@ export default function HomePage() {
       <main className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 pb-4 -mt-12 relative z-20">
         {/* Tag Filter Display */}
         {currentTag && (
-          <div className="flex items-center gap-2 sm:gap-3 p-3 sm:p-4 mb-4 sm:mb-6 bg-white border border-emerald-100 rounded-xl shadow-lg shadow-emerald-900/5">
-            <Tag className="w-4 h-4 text-emerald-600 flex-shrink-0" />
+          <div className="flex items-center gap-2 sm:gap-3 p-3 sm:p-4 mb-4 sm:mb-6 bg-white dark:bg-slate-900 border border-emerald-100 dark:border-emerald-900 rounded-xl shadow-lg shadow-emerald-900/5">
+            <Tag className="w-4 h-4 text-emerald-600 dark:text-emerald-500 flex-shrink-0" />
             <div className="flex-1 min-w-0">
-              <span className="text-xs sm:text-sm text-slate-600 block sm:inline">
+              <span className="text-xs sm:text-sm text-slate-600 dark:text-slate-400 block sm:inline">
                 <span className="hidden sm:inline">Menampilkan pertanyaan dengan tag </span>
                 <span className="sm:hidden">Tag: </span>
               </span>
-              <span className="inline-flex items-center px-2.5 py-1 bg-emerald-100 text-emerald-700 rounded-full text-xs sm:text-sm font-semibold ml-1">
+              <span className="inline-flex items-center px-2.5 py-1 bg-emerald-100 dark:bg-emerald-900/40 text-emerald-700 dark:text-emerald-400 rounded-full text-xs sm:text-sm font-semibold ml-1">
                 #{currentTag.name}
               </span>
             </div>
             <Link
               href="/"
-              className="p-1.5 hover:bg-slate-100 rounded-lg transition-colors flex-shrink-0 group"
+              className="p-1.5 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg transition-colors flex-shrink-0 group"
               title="Hapus filter"
             >
-              <X className="w-4 h-4 text-slate-400 group-hover:text-slate-600" />
+              <X className="w-4 h-4 text-slate-400 dark:text-slate-500 group-hover:text-slate-600 dark:group-hover:text-slate-300" />
             </Link>
           </div>
         )}
 
         {/* Filter & Sort Section - Clean & Minimal */}
-        <div className="bg-white rounded-2xl shadow-md sm:shadow-xl border border-slate-100 p-2 mb-8 flex flex-col sm:flex-row items-center justify-between gap-4">
-          <div className="flex items-center gap-1 p-1 bg-slate-100/50 rounded-xl w-full sm:w-auto overflow-x-auto no-scrollbar">
+        <div className="bg-white dark:bg-slate-900 rounded-2xl shadow-md sm:shadow-xl border border-slate-100 dark:border-slate-800 p-2 mb-8 flex flex-col sm:flex-row items-center justify-between gap-4">
+          <div className="flex items-center gap-1 p-1 bg-slate-100/50 dark:bg-slate-800/50 rounded-xl w-full sm:w-auto overflow-x-auto no-scrollbar">
             {sortOptions.map((option) => {
               const Icon = option.icon;
               const isActive = sortBy === option.value;
@@ -318,19 +318,19 @@ export default function HomePage() {
                   key={option.value}
                   onClick={() => setSortBy(option.value as 'newest' | 'popular' | 'unanswered')}
                   className={`inline-flex items-center gap-1.5 px-4 py-2 rounded-lg text-xs sm:text-sm font-semibold whitespace-nowrap transition-all duration-200 flex-1 sm:flex-none justify-center ${isActive
-                    ? 'bg-white text-emerald-600 shadow-sm ring-1 ring-black/5'
-                    : 'text-slate-500 hover:text-slate-700 hover:bg-white/50'
+                    ? 'bg-white dark:bg-slate-800 text-emerald-600 dark:text-emerald-400 shadow-sm ring-1 ring-black/5 dark:ring-white/5'
+                    : 'text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-300 hover:bg-white/50 dark:hover:bg-slate-700/50'
                     }`}
                   title={option.label}
                 >
-                  <Icon className={`w-3.5 h-3.5 ${isActive ? 'text-emerald-500' : 'text-slate-400'}`} />
+                  <Icon className={`w-3.5 h-3.5 ${isActive ? 'text-emerald-500' : 'text-slate-400 dark:text-slate-500'}`} />
                   <span>{option.label}</span>
                 </button>
               );
             })}
           </div>
 
-          <div className="hidden sm:flex items-center gap-2 px-3 py-2 text-xs font-medium text-slate-400">
+          <div className="hidden sm:flex items-center gap-2 px-3 py-2 text-xs font-medium text-slate-400 dark:text-slate-500">
             <TrendingUp className="w-3.5 h-3.5" />
             <span>Urutkan diskusi</span>
           </div>
