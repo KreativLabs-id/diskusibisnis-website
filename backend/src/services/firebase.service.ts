@@ -1,21 +1,44 @@
 import admin from 'firebase-admin';
 import path from 'path';
+import fs from 'fs';
 
 // Initialize Firebase Admin SDK
-// Note: In TS/ES modules, require might need createRequire or just use typical import if json.
-// But since this is checking for a file, we can keep using require or fs.
-// However, 'firebase-admin-sdk.json' location might be different in build.
-// Let's assume the current path logic works for dev.
-const serviceAccount = require(path.join(__dirname, '../../config/firebase-admin-sdk.json'));
+// Priority: 1. FIREBASE_ADMIN_SDK_JSON env var (for Railway)
+//           2. Local file (for development)
+let serviceAccount: admin.ServiceAccount | null = null;
 
-if (admin.apps.length === 0) {
+// Try environment variable first (Railway deployment)
+if (process.env.FIREBASE_ADMIN_SDK_JSON) {
+    try {
+        serviceAccount = JSON.parse(process.env.FIREBASE_ADMIN_SDK_JSON);
+        console.log('✅ Firebase: Using credentials from environment variable');
+    } catch (e) {
+        console.error('❌ Firebase: Failed to parse FIREBASE_ADMIN_SDK_JSON env var');
+    }
+}
+
+// Fallback to local file (development)
+if (!serviceAccount) {
+    const configPath = path.join(__dirname, '../../config/firebase-admin-sdk.json');
+    if (fs.existsSync(configPath)) {
+        serviceAccount = require(configPath);
+        console.log('✅ Firebase: Using credentials from local file');
+    } else {
+        console.warn('⚠️ Firebase: No credentials found. Push notifications will not work.');
+    }
+}
+
+// Initialize Firebase only if credentials are available
+if (serviceAccount && admin.apps.length === 0) {
     admin.initializeApp({
         credential: admin.credential.cert(serviceAccount),
         projectId: 'diskusi-bisnis',
     });
+    console.log('✅ Firebase Admin SDK initialized');
 }
 
-const messaging = admin.messaging();
+// Only get messaging instance if Firebase is initialized
+const messaging = admin.apps.length > 0 ? admin.messaging() : null;
 
 interface NotificationPayload {
     title: string;
@@ -93,6 +116,11 @@ export const sendNotificationToDevice = async (
             }
         };
 
+        if (!messaging) {
+            console.warn('Firebase messaging not initialized. Skipping notification.');
+            return { success: false, error: 'Firebase not initialized' };
+        }
+
         const response = await messaging.send(message);
         console.log('Successfully sent notification:', response);
         return { success: true, messageId: response };
@@ -124,6 +152,11 @@ export const sendNotificationToMultipleDevices = async (
                 },
             },
         };
+
+        if (!messaging) {
+            console.warn('Firebase messaging not initialized. Skipping notifications.');
+            return { success: false, successCount: 0, failureCount: fcmTokens.length };
+        }
 
         const response = await messaging.sendEachForMulticast(message); // sendMulticast is deprecated
         console.log(`Successfully sent ${response.successCount} notifications`);

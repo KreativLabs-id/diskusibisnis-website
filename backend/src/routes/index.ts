@@ -13,6 +13,7 @@ import adminRoutes from './admin.routes';
 import mentionsRoutes from './mentions.routes';
 import supportRoutes from './support.routes';
 import newsletterRoutes from './newsletter.routes';
+import appRoutes from './app.routes';
 
 const router = Router();
 
@@ -31,6 +32,7 @@ router.use('/admin', adminRoutes);
 router.use('/mentions', mentionsRoutes);
 router.use('/support', supportRoutes);
 router.use('/admin/newsletter', newsletterRoutes);
+router.use('/app', appRoutes);
 
 export default router;
 
