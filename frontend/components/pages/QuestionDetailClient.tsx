@@ -189,14 +189,14 @@ export default function QuestionDetailClient({ initialQuestion, questionId }: Qu
     };
 
     useEffect(() => {
+        // Always fetch fresh data when user is logged in to get vote status
+        // Or if we don't have initial data
         if (!initialQuestion && questionId) {
             fetchQuestion();
-        } else {
-            // If we have initial data but user lands here, we might want to refresh for auth state
-            // Optional: fetchQuestion() logic for when user is logged in to get vote status
-            if (user && initialQuestion && initialQuestion.user_vote === undefined) {
-                fetchQuestion();
-            }
+        } else if (user && questionId) {
+            // User is logged in - always refresh to get user_vote status
+            // This ensures vote state persists after page reload
+            fetchQuestion();
         }
 
         // Record view
@@ -207,7 +207,7 @@ export default function QuestionDetailClient({ initialQuestion, questionId }: Qu
             questionAPI.incrementView(questionId).catch(console.error);
         }
         // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [questionId, user]);
+    }, [questionId, user?.id]);
 
     useEffect(() => {
         if (question) {
