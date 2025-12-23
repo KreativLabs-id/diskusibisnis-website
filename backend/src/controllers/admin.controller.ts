@@ -389,17 +389,35 @@ export const sendNotificationToUser = async (req: AuthRequest, res: Response): P
 
     const { fcm_token } = userResult.rows[0];
 
-    // Create notification in database
-    await pool.query(
-      `INSERT INTO public.notifications (id, user_id, type, message, is_read)
-       VALUES (gen_random_uuid(), $1, 'admin_message', $2, false)`,
-      [userId, message]
+    // Create notification in database with all required columns
+    const notifResult = await pool.query(
+      `INSERT INTO public.notifications (user_id, type, title, message, link, is_read)
+       VALUES ($1, 'admin_message', $2, $3, '/', false)
+       RETURNING *`,
+      [userId, title, message]
     );
+
+    // Emit real-time notification via WebSocket
+    try {
+      const { emitToUser } = await import('../services/socket.service');
+      const notification = notifResult.rows[0];
+      emitToUser(userId, 'notification:new', {
+        id: notification.id,
+        type: notification.type,
+        title: notification.title,
+        message: notification.message,
+        link: notification.link,
+        is_read: notification.is_read,
+        created_at: notification.created_at
+      });
+    } catch (socketError) {
+      console.log('Socket emit failed (non-critical):', socketError);
+    }
 
     // Send push notification if token exists
     if (fcm_token) {
       const { sendNotificationToDevice } = await import('../services/firebase.service');
-      await sendNotificationToDevice(
+      const result = await sendNotificationToDevice(
         fcm_token,
         {
           title: title,
@@ -410,7 +428,21 @@ export const sendNotificationToUser = async (req: AuthRequest, res: Response): P
           link: '/',
         }
       );
-      successResponse(res, null, 'Notification sent successfully');
+
+      // Handle invalid/expired FCM token
+      if (!result.success && (
+        result.errorCode === 'messaging/registration-token-not-registered' ||
+        result.errorCode === 'messaging/invalid-registration-token'
+      )) {
+        // Remove invalid token from database
+        await pool.query('UPDATE public.users SET fcm_token = NULL WHERE id = $1', [userId]);
+        console.log(`Removed invalid FCM token for user ${userId}`);
+        successResponse(res, null, 'Notification saved (push token was expired and removed)');
+      } else if (result.success) {
+        successResponse(res, null, 'Notification sent successfully');
+      } else {
+        successResponse(res, null, 'Notification saved to database');
+      }
     } else {
       successResponse(res, null, 'Notification saved to database (User has no push token)');
     }

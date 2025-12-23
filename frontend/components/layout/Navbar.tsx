@@ -114,15 +114,20 @@ export default function Navbar({ onMenuClick }: NavbarProps) {
                               <p className="text-xs sm:text-sm font-bold text-slate-900 dark:text-slate-100 truncate">{user.displayName || 'User'}</p>
                               <VerifiedBadge isVerified={user.isVerified} size="sm" />
                             </div>
-                            <div className="flex items-center gap-1.5 sm:gap-2 mt-0.5 sm:mt-1">
+                            <div className="flex items-center gap-1 sm:gap-1.5 mt-0.5 sm:mt-1 flex-wrap">
                               {(user.reputationPoints || 0) >= 10 && (
-                                <span className="px-1.5 sm:px-2 py-0.5 bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400 rounded-full text-[10px] sm:text-xs font-semibold">
+                                <span className="px-1.5 py-0.5 bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400 rounded-full text-[10px] font-semibold whitespace-nowrap">
                                   {user.reputationPoints} poin
                                 </span>
                               )}
-                              {user.reputationPoints >= 250 && (
-                                <span className="px-1.5 sm:px-2 py-0.5 bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-400 rounded-full text-[10px] sm:text-xs font-semibold">
-                                  Expert
+                              {(user.reputationPoints || 0) >= 250 && (
+                                <span className={`px-1.5 py-0.5 rounded-full text-[10px] font-semibold whitespace-nowrap ${(user.reputationPoints || 0) >= 5000
+                                  ? 'bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-400'
+                                  : (user.reputationPoints || 0) >= 1000
+                                    ? 'bg-purple-100 dark:bg-purple-900/30 text-purple-700 dark:text-purple-400'
+                                    : 'bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400'
+                                  }`}>
+                                  {(user.reputationPoints || 0) >= 5000 ? 'Legend' : (user.reputationPoints || 0) >= 1000 ? 'Master' : 'Expert'}
                                 </span>
                               )}
                             </div>

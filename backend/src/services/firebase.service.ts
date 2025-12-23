@@ -125,8 +125,15 @@ export const sendNotificationToDevice = async (
         console.log('Successfully sent notification:', response);
         return { success: true, messageId: response };
     } catch (error: any) {
-        console.error('Error sending notification:', error);
-        return { success: false, error: error.message };
+        // Don't log full error for common token issues (expired, unregistered)
+        const errorCode = error?.errorInfo?.code;
+        if (errorCode === 'messaging/registration-token-not-registered' ||
+            errorCode === 'messaging/invalid-registration-token') {
+            console.log('FCM token expired or invalid (will be cleaned up)');
+        } else {
+            console.error('Error sending notification:', error);
+        }
+        return { success: false, error: error.message, errorCode };
     }
 };
 
