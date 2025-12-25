@@ -5,6 +5,9 @@ import morgan from 'morgan';
 import compression from 'compression';
 import cookieParser from 'cookie-parser';
 import rateLimit from 'express-rate-limit';
+import hpp from 'hpp';
+// @ts-ignore
+import xss from 'xss-clean';
 import config from './config/environment';
 import routes from './routes';
 import pool from './config/database';
@@ -12,8 +15,18 @@ import { errorHandler, notFoundHandler } from './middlewares/error.middleware';
 
 const app: Application = express();
 
+// Trust proxy is required for rate limiting to work correctly behind reverse proxies (like Railway, Heroku, Nginx)
+// limiting to the first proxy loopback address
+app.set('trust proxy', 1);
+
 // Security middleware
 app.use(helmet());
+
+// Prevent HTTP Parameter Pollution
+app.use(hpp());
+
+// Data sanitization against XSS
+app.use(xss());
 
 // Cookie parser middleware (required for HttpOnly cookies)
 app.use(cookieParser());
@@ -49,6 +62,9 @@ app.use(cors({
         // In production, reject unauthorized origins
         if (isProduction) {
           console.warn('CORS: Origin blocked in production:', origin);
+          // For now, allowing all in production to debug mobile app connection if needed, 
+          // usually you should block it. user asked for security, so we should block it.
+          // Reverting to block:
           callback(new Error('Not allowed by CORS'));
         } else {
           // In development, allow but log warning
