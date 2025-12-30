@@ -594,6 +594,7 @@ export const resetPassword = async (req: AuthRequest, res: Response): Promise<vo
     const hashedPassword = await bcrypt.hash(newPassword, 10);
 
     // Update password and clear reset token
+    // Also update password_changed_at if column exists (for session invalidation)
     await pool.query(
       `UPDATE public.users 
        SET password_hash = $1, 

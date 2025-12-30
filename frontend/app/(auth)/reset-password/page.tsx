@@ -10,7 +10,7 @@ export default function ResetPasswordPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const token = searchParams.get('token');
-  
+
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
@@ -26,7 +26,7 @@ export default function ResetPasswordPage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (!token) {
       setError('Token tidak valid');
       return;
@@ -48,7 +48,14 @@ export default function ResetPasswordPage() {
     try {
       await authAPI.resetPassword({ token, newPassword: password });
       setSuccess(true);
-      
+
+      // Clear any existing session data
+      if (typeof window !== 'undefined') {
+        localStorage.removeItem('token');
+        localStorage.removeItem('user');
+        localStorage.removeItem('lastUserRefresh');
+      }
+
       setTimeout(() => {
         router.push('/login');
       }, 2000);
@@ -66,22 +73,22 @@ export default function ResetPasswordPage() {
           <div className="bg-white border border-slate-200 rounded-2xl shadow-sm p-8 text-center">
             <div className="flex justify-center mb-6">
               <div className="w-20 h-20 mx-auto flex items-center justify-center">
-                <img 
-                  src="/logodiskusibisnisaja.png" 
-                  alt="DiskusiBisnis Logo" 
+                <img
+                  src="/logodiskusibisnisaja.png"
+                  alt="DiskusiBisnis Logo"
                   className="w-full h-full object-contain"
                 />
               </div>
             </div>
-            
+
             <h1 className="text-2xl font-bold text-slate-900 mb-2">
               Password Berhasil Direset!
             </h1>
-            
+
             <p className="text-slate-600 mb-6">
               Anda akan diarahkan ke halaman login...
             </p>
-            
+
             <div className="animate-spin rounded-full h-8 w-8 border-2 border-emerald-600 border-t-transparent mx-auto"></div>
           </div>
         </div>
@@ -93,7 +100,7 @@ export default function ResetPasswordPage() {
     <div className="min-h-screen bg-slate-50 flex items-center justify-center px-4 py-12">
       <div className="w-full max-w-md">
         <div className="bg-white border border-slate-200 rounded-2xl shadow-sm p-8">
-          <Link 
+          <Link
             href="/login"
             className="inline-flex items-center gap-2 text-sm text-slate-600 hover:text-slate-900 mb-6"
           >
@@ -103,18 +110,18 @@ export default function ResetPasswordPage() {
 
           <div className="flex justify-center mb-6">
             <div className="w-20 h-20 mx-auto flex items-center justify-center">
-              <img 
-                src="/logodiskusibisnisaja.png" 
-                alt="DiskusiBisnis Logo" 
+              <img
+                src="/logodiskusibisnisaja.png"
+                alt="DiskusiBisnis Logo"
                 className="w-full h-full object-contain"
               />
             </div>
           </div>
-          
+
           <h1 className="text-2xl font-bold text-slate-900 text-center mb-2">
             Reset Password
           </h1>
-          
+
           <p className="text-slate-600 text-center mb-8">
             Masukkan password baru Anda
           </p>

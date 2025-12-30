@@ -167,10 +167,10 @@ export default function Navbar({ onMenuClick }: NavbarProps) {
                         </Link>
                       )}
 
-                      <div className="border-t border-slate-100 dark:border-slate-700 mt-1.5 sm:mt-2 pt-1.5 sm:pt-2">
+                      <div className="border-t border-slate-100 dark:border-slate-700 mt-1.5 sm:mt-2 pt-1.5 sm:pt-2 px-1.5 sm:px-2">
                         <button
                           onClick={logout}
-                          className="flex items-center space-x-2 sm:space-x-3 w-full px-3 sm:px-5 py-2 sm:py-3 text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 transition-all duration-200 rounded-lg mx-1.5 sm:mx-2"
+                          className="flex items-center space-x-2 sm:space-x-3 w-full px-3 sm:px-5 py-2 sm:py-3 text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 transition-all duration-200 rounded-lg"
                         >
                           <div className="p-1 sm:p-1.5 bg-red-100 dark:bg-red-900/30 rounded-lg">
                             <LogOut className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-red-600 dark:text-red-400" />

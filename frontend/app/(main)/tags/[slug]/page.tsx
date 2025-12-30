@@ -193,7 +193,8 @@ export default function TagDetailPage() {
     );
   }
 
-  const displayedQuestionCount = tag.questionCount ?? questions.length;
+  // Use actual questions count after data is loaded, fallback to tag count while loading
+  const displayedQuestionCount = questionsLoading ? (tag.questionCount ?? 0) : questions.length;
 
   return (
     <div className="min-h-screen bg-white sm:bg-slate-50 pb-20">
@@ -290,8 +291,8 @@ export default function TagDetailPage() {
                       <span
                         key={questionTag.id}
                         className={`px-2 py-0.5 text-xs rounded ${questionTag.slug === tag.slug
-                            ? 'bg-emerald-100 text-emerald-700 font-medium'
-                            : 'bg-slate-100 text-slate-600'
+                          ? 'bg-emerald-100 text-emerald-700 font-medium'
+                          : 'bg-slate-100 text-slate-600'
                           }`}
                       >
                         {questionTag.name}

@@ -309,6 +309,30 @@ export default function SettingsPage() {
                 </div>
               </div>
 
+              {/* Google Account Indicator */}
+              {user.googleId && (
+                <div className="flex items-center justify-between py-4 border-b border-slate-50 dark:border-slate-800 -mx-4 px-4 rounded-xl">
+                  <div className="flex items-center gap-4">
+                    <div className="p-2 bg-white dark:bg-slate-700 rounded-lg shadow-sm border border-slate-100 dark:border-slate-600">
+                      <svg className="w-5 h-5" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4" />
+                        <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853" />
+                        <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05" />
+                        <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335" />
+                      </svg>
+                    </div>
+                    <div>
+                      <p className="text-sm font-medium text-slate-900 dark:text-slate-100">Login dengan Google</p>
+                      <p className="text-xs text-emerald-600 dark:text-emerald-400 font-medium">Terhubung</p>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-1 px-2 py-1 bg-emerald-50 dark:bg-emerald-900/20 rounded-full">
+                    <div className="w-2 h-2 bg-emerald-500 rounded-full"></div>
+                    <span className="text-xs text-emerald-700 dark:text-emerald-400 font-medium">Aktif</span>
+                  </div>
+                </div>
+              )}
+
               <div className="flex items-center justify-between py-4 border-b border-slate-50 dark:border-slate-800 hover:bg-slate-50/50 dark:hover:bg-slate-800/50 transition-colors -mx-4 px-4 rounded-xl cursor-pointer"
                 onClick={() => user.googleId && !user.hasPassword ? setShowSetPasswordModal(true) : setShowPasswordModal(true)}>
                 <div className="flex items-center gap-4">
@@ -318,7 +342,7 @@ export default function SettingsPage() {
                   <div>
                     <p className="text-sm font-medium text-slate-900 dark:text-slate-100">Password</p>
                     <p className="text-xs text-slate-500 dark:text-slate-400">
-                      {user.googleId && !user.hasPassword ? 'Belum diset (Login Google)' : '••••••••'}
+                      {user.googleId && !user.hasPassword ? 'Belum diset (opsional)' : '••••••••'}
                     </p>
                   </div>
                 </div>
@@ -449,7 +473,7 @@ export default function SettingsPage() {
       </div>
 
       {/* Modals - Clean & Minimal */}
-      {showPasswordModal && <PasswordChangeModal userId={user.id} onClose={() => setShowPasswordModal(false)} />}
+      {showPasswordModal && <PasswordChangeModal email={user.email} onClose={() => setShowPasswordModal(false)} />}
       {showDeleteModal && <DeleteAccountModal user={user} onClose={() => setShowDeleteModal(false)} onSuccess={async () => { await logout(); router.push('/'); }} />}
       {showSetPasswordModal && (
         <SetPasswordModal
@@ -466,79 +490,101 @@ export default function SettingsPage() {
 }
 
 // ... Modals code remains similar but simplified ...
-function PasswordChangeModal({ userId, onClose }: { userId: string; onClose: () => void }) {
-  const [currentPassword, setCurrentPassword] = useState('');
-  const [newPassword, setNewPassword] = useState('');
-  const [confirmPassword, setConfirmPassword] = useState('');
-  const [showCurrentPassword, setShowCurrentPassword] = useState(false);
-  const [showNewPassword, setShowNewPassword] = useState(false);
+function PasswordChangeModal({ email, onClose }: { email: string; onClose: () => void }) {
+  const { logout } = useAuth();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
-  const [success, setSuccess] = useState('');
+  const [success, setSuccess] = useState(false);
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (newPassword !== confirmPassword) { setError('Password baru tidak cocok'); return; }
-    if (newPassword.length < 6) { setError('Password minimal 6 karakter'); return; }
-
-    setLoading(true); setError(''); setSuccess('');
+  const handleSendResetEmail = async () => {
+    setLoading(true);
+    setError('');
     try {
-      await authAPI.changePassword({ userId, currentPassword, newPassword });
-      setSuccess('Password berhasil diubah!');
-      setTimeout(() => onClose(), 1500);
+      await authAPI.forgotPassword(email);
+      setSuccess(true);
     } catch (err: any) {
-      setError(err.response?.data?.message || err.message || 'Gagal mengubah password');
+      setError(err.response?.data?.message || 'Gagal mengirim email. Coba lagi.');
     } finally {
       setLoading(false);
     }
   };
 
+  const handleLogoutAfterReset = async () => {
+    await logout();
+  };
+
   return (
     <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50 p-4 backdrop-blur-sm">
-      <div className="bg-white rounded-2xl max-w-sm w-full p-6 shadow-2xl animate-in zoom-in-95">
+      <div className="bg-white dark:bg-slate-800 rounded-2xl max-w-sm w-full p-6 shadow-2xl animate-in zoom-in-95">
         <div className="flex items-center justify-between mb-6">
-          <h2 className="text-lg font-bold text-slate-900">Ubah Password</h2>
-          <button onClick={onClose} className="text-slate-400 hover:text-slate-600"><X className="w-5 h-5" /></button>
+          <h2 className="text-lg font-bold text-slate-900 dark:text-slate-100">
+            {success ? 'Email Terkirim!' : 'Ubah Password'}
+          </h2>
+          <button onClick={onClose} className="text-slate-400 hover:text-slate-600 dark:hover:text-slate-300">
+            <X className="w-5 h-5" />
+          </button>
         </div>
 
-        {error && <div className="p-3 mb-4 bg-red-50 text-red-600 rounded-lg text-xs font-medium">{error}</div>}
-        {success && <div className="p-3 mb-4 bg-emerald-50 text-emerald-600 rounded-lg text-xs font-medium">{success}</div>}
+        {error && <div className="p-3 mb-4 bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400 rounded-lg text-xs font-medium">{error}</div>}
 
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <div className="space-y-1">
-            <input
-              type={showCurrentPassword ? 'text' : 'password'}
-              value={currentPassword}
-              onChange={(e) => setCurrentPassword(e.target.value)}
-              className="w-full px-4 py-3 bg-slate-50 border border-transparent focus:bg-white focus:border-emerald-500 rounded-xl outline-none text-sm transition-all"
-              placeholder="Password Lama"
-              required
-            />
+        {success ? (
+          <div className="space-y-4">
+            <div className="p-4 bg-emerald-50 dark:bg-emerald-900/20 text-emerald-700 dark:text-emerald-400 rounded-xl text-sm">
+              <div className="flex items-start gap-3">
+                <CheckCircle className="w-5 h-5 flex-shrink-0 mt-0.5" />
+                <div>
+                  <p className="font-medium mb-1">Link reset password telah dikirim!</p>
+                  <p className="text-xs text-emerald-600 dark:text-emerald-500">
+                    Cek email <span className="font-semibold">{email}</span> untuk mereset password Anda.
+                    Link berlaku selama 1 jam.
+                  </p>
+                </div>
+              </div>
+            </div>
+            <div className="p-3 bg-amber-50 dark:bg-amber-900/20 text-amber-700 dark:text-amber-400 rounded-lg text-xs">
+              <p className="flex items-center gap-2">
+                <AlertTriangle className="w-4 h-4 flex-shrink-0" />
+                Setelah mengganti password, Anda akan otomatis logout dari semua perangkat.
+              </p>
+            </div>
+            <button
+              onClick={onClose}
+              className="w-full py-3 bg-emerald-600 text-white rounded-xl hover:bg-emerald-700 transition-colors font-medium text-sm shadow-lg shadow-emerald-600/20"
+            >
+              Tutup
+            </button>
           </div>
-          <div className="space-y-1">
-            <input
-              type={showNewPassword ? 'text' : 'password'}
-              value={newPassword}
-              onChange={(e) => setNewPassword(e.target.value)}
-              className="w-full px-4 py-3 bg-slate-50 border border-transparent focus:bg-white focus:border-emerald-500 rounded-xl outline-none text-sm transition-all"
-              placeholder="Password Baru"
-              required
-            />
+        ) : (
+          <div className="space-y-4">
+            <div className="p-3 bg-slate-50 dark:bg-slate-700 text-slate-600 dark:text-slate-300 rounded-xl text-sm">
+              <p>Kami akan mengirim link untuk mereset password ke email:</p>
+              <p className="font-semibold mt-1 text-slate-900 dark:text-slate-100">{email}</p>
+            </div>
+            <div className="p-3 bg-blue-50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-400 rounded-lg text-xs">
+              <p className="flex items-start gap-2">
+                <Info className="w-4 h-4 flex-shrink-0 mt-0.5" />
+                <span>Link reset password akan berlaku selama 1 jam. Setelah password diganti, Anda akan otomatis logout.</span>
+              </p>
+            </div>
+            <button
+              onClick={handleSendResetEmail}
+              disabled={loading}
+              className="w-full py-3 bg-emerald-600 text-white rounded-xl hover:bg-emerald-700 transition-colors font-medium text-sm shadow-lg shadow-emerald-600/20 disabled:opacity-50 flex items-center justify-center gap-2"
+            >
+              {loading ? (
+                <>
+                  <div className="animate-spin rounded-full h-4 w-4 border-2 border-white border-t-transparent"></div>
+                  <span>Mengirim...</span>
+                </>
+              ) : (
+                <>
+                  <Mail className="w-4 h-4" />
+                  <span>Kirim Link Reset Password</span>
+                </>
+              )}
+            </button>
           </div>
-          <div className="space-y-1">
-            <input
-              type={showNewPassword ? 'text' : 'password'}
-              value={confirmPassword}
-              onChange={(e) => setConfirmPassword(e.target.value)}
-              className="w-full px-4 py-3 bg-slate-50 border border-transparent focus:bg-white focus:border-emerald-500 rounded-xl outline-none text-sm transition-all"
-              placeholder="Konfirmasi Password Baru"
-              required
-            />
-          </div>
-          <button type="submit" className="w-full py-3 bg-emerald-600 text-white rounded-xl hover:bg-emerald-700 transition-colors font-medium text-sm shadow-lg shadow-emerald-600/20 disabled:opacity-50" disabled={loading}>
-            {loading ? 'Menyimpan...' : 'Simpan Password'}
-          </button>
-        </form>
+        )}
       </div>
     </div>
   );
