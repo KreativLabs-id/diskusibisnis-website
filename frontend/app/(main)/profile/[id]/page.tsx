@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { useAuth } from '@/contexts/AuthContext';
-import { User, Mail, Calendar, Award, MessageSquare, CheckCircle, Edit, ArrowLeft, MapPin, Link as LinkIcon, TrendingUp, Settings } from 'lucide-react';
+import { User, Mail, Calendar, Award, MessageSquare, CheckCircle, Edit, ArrowLeft, MapPin, Link as LinkIcon, TrendingUp } from 'lucide-react';
 import { userAPI } from '@/lib/api';
 import Link from 'next/link';
 import VerifiedBadge from '@/components/ui/VerifiedBadge';
@@ -209,17 +209,6 @@ export default function ProfilePage() {
           <div className="h-32 sm:h-48 bg-gradient-to-r from-slate-800 to-slate-900 relative overflow-hidden">
             <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] opacity-10"></div>
             <div className="absolute top-0 right-0 w-64 h-64 bg-emerald-500/20 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2"></div>
-
-            {/* Settings Button - Absolute Top Right */}
-            {isOwnProfile && (
-              <Link
-                href="/settings"
-                className="absolute top-3 right-3 sm:top-4 sm:right-4 p-2 bg-black/20 hover:bg-black/40 text-white rounded-full backdrop-blur-md transition-all border border-white/10 shadow-sm z-20 group"
-                title="Pengaturan"
-              >
-                <Settings className="w-5 h-5 group-hover:rotate-90 transition-transform" />
-              </Link>
-            )}
           </div>
 
           <div className="px-6 sm:px-10 pb-8">

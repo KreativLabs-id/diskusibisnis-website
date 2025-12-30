@@ -9,6 +9,7 @@ interface User {
   displayName: string;
   username?: string;
   avatarUrl?: string;
+  bio?: string;
   role: string;
   reputationPoints: number;
   isVerified: boolean;
@@ -71,6 +72,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
                 displayName: userData.displayName || userData.display_name,
                 username: userData.username,
                 avatarUrl: userData.avatarUrl || userData.avatar_url,
+                bio: userData.bio || '',
                 role: userData.role || parsedUser.role,
                 reputationPoints: userData.reputationPoints || userData.reputation_points || 0,
                 isVerified: userData.isVerified || userData.is_verified || (userData.role === 'admin'),
@@ -188,6 +190,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         displayName: userData.displayName || userData.display_name,
         username: userData.username,
         avatarUrl: userData.avatarUrl || userData.avatar_url,
+        bio: userData.bio || '',
         role: userData.role,
         reputationPoints: userData.reputationPoints || userData.reputation_points || 0,
         isVerified: userData.isVerified || userData.is_verified || (userData.role === 'admin'),
@@ -214,6 +217,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         displayName: userData.displayName || userData.display_name,
         username: userData.username,
         avatarUrl: userData.avatarUrl || userData.avatar_url,
+        bio: userData.bio || '',
         role: userData.role,
         reputationPoints: userData.reputationPoints || userData.reputation_points || 0,
         isVerified: userData.isVerified || userData.is_verified || (userData.role === 'admin'),

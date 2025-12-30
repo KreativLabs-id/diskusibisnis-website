@@ -47,7 +47,7 @@ export default function SettingsPage() {
     if (user) {
       setFormData({
         displayName: user.displayName || '',
-        bio: '',
+        bio: user.bio || '',
         avatarUrl: user.avatarUrl || '',
       });
       setAvatarPreview(user.avatarUrl || '');
@@ -134,6 +134,7 @@ export default function SettingsPage() {
           ...user,
           displayName: updatedUserData.displayName || updatedUserData.display_name || formData.displayName,
           avatarUrl: updatedUserData.avatarUrl || updatedUserData.avatar_url || avatarUrl,
+          bio: updatedUserData.bio || formData.bio,
         });
         setSuccess('Profil berhasil diperbarui!');
         setTimeout(() => router.push(`/profile/${user.username || user.id}`), 2000);
