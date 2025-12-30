@@ -11,7 +11,7 @@ import AlertModal from '@/components/ui/AlertModal';
 
 export default function SettingsPage() {
   const router = useRouter();
-  const { user, updateUser, logout, loading: authLoading } = useAuth();
+  const { user, updateUser, logout, loading: authLoading, forceRefreshUser } = useAuth();
   const { theme, setTheme } = useTheme();
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [formData, setFormData] = useState({
@@ -39,11 +39,26 @@ export default function SettingsPage() {
     setAlertModal({ isOpen: true, type, title, message });
   };
 
+  // Track if initial data load has been done
+  const initialLoadDone = useRef(false);
+
+  // Redirect if not authenticated
   useEffect(() => {
     if (!authLoading && !user) {
       router.push('/login');
     }
+  }, [authLoading, user, router]);
 
+  // Force refresh user data on mount to get fresh bio (only once)
+  useEffect(() => {
+    if (!authLoading && user && !initialLoadDone.current) {
+      initialLoadDone.current = true;
+      forceRefreshUser();
+    }
+  }, [authLoading, user, forceRefreshUser]);
+
+  // Update form data when user changes (after refresh)
+  useEffect(() => {
     if (user) {
       setFormData({
         displayName: user.displayName || '',
@@ -52,7 +67,7 @@ export default function SettingsPage() {
       });
       setAvatarPreview(user.avatarUrl || '');
     }
-  }, [user, authLoading, router]);
+  }, [user]);
 
   const handleAvatarChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];

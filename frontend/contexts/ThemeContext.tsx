@@ -69,10 +69,6 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
         return () => media.removeEventListener('change', listener);
     }, [theme]);
 
-    if (!mounted) {
-        return <>{children}</>;
-    }
-
     return (
         <ThemeContext.Provider value={{ theme, setTheme, resolvedTheme }}>
             {children}
