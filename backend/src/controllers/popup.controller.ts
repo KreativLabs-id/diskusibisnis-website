@@ -142,7 +142,7 @@ export const getAllPopups = async (
     req: Request,
     res: Response,
     next: NextFunction
-) => {
+): Promise<void> => {
     try {
         const { page = 1, limit = 20, status } = req.query;
         const offset = (Number(page) - 1) * Number(limit);
@@ -212,7 +212,7 @@ export const getPopupById = async (
     req: Request,
     res: Response,
     next: NextFunction
-) => {
+): Promise<void> => {
     try {
         const { id } = req.params;
 
@@ -230,10 +230,11 @@ export const getPopupById = async (
         const result = await pool.query(query, [id]);
 
         if (result.rows.length === 0) {
-            return res.status(404).json({
+            res.status(404).json({
                 status: 'error',
                 message: 'Popup not found'
             });
+            return;
         }
 
         res.json({
@@ -252,7 +253,7 @@ export const createPopup = async (
     req: Request,
     res: Response,
     next: NextFunction
-) => {
+): Promise<void> => {
     try {
         const userId = (req as any).userId;
         const {
@@ -270,10 +271,11 @@ export const createPopup = async (
         } = req.body;
 
         if (!title || !imageUrl) {
-            return res.status(400).json({
+            res.status(400).json({
                 status: 'error',
                 message: 'Title and image URL are required'
             });
+            return;
         }
 
         const query = `
@@ -318,7 +320,7 @@ export const updatePopup = async (
     req: Request,
     res: Response,
     next: NextFunction
-) => {
+): Promise<void> => {
     try {
         const { id } = req.params;
         const {
@@ -342,10 +344,11 @@ export const updatePopup = async (
         );
 
         if (existing.rows.length === 0) {
-            return res.status(404).json({
+            res.status(404).json({
                 status: 'error',
                 message: 'Popup not found'
             });
+            return;
         }
 
         const query = `
@@ -397,7 +400,7 @@ export const deletePopup = async (
     req: Request,
     res: Response,
     next: NextFunction
-) => {
+): Promise<void> => {
     try {
         const { id } = req.params;
 
@@ -407,10 +410,11 @@ export const deletePopup = async (
         );
 
         if (result.rows.length === 0) {
-            return res.status(404).json({
+            res.status(404).json({
                 status: 'error',
                 message: 'Popup not found'
             });
+            return;
         }
 
         res.json({
@@ -429,7 +433,7 @@ export const togglePopupStatus = async (
     req: Request,
     res: Response,
     next: NextFunction
-) => {
+): Promise<void> => {
     try {
         const { id } = req.params;
 
@@ -442,10 +446,11 @@ export const togglePopupStatus = async (
         );
 
         if (result.rows.length === 0) {
-            return res.status(404).json({
+            res.status(404).json({
                 status: 'error',
                 message: 'Popup not found'
             });
+            return;
         }
 
         res.json({
@@ -465,7 +470,7 @@ export const getPopupStats = async (
     req: Request,
     res: Response,
     next: NextFunction
-) => {
+): Promise<void> => {
     try {
         const { id } = req.params;
 
@@ -484,10 +489,11 @@ export const getPopupStats = async (
         const result = await pool.query(query, [id]);
 
         if (result.rows.length === 0) {
-            return res.status(404).json({
+            res.status(404).json({
                 status: 'error',
                 message: 'Popup not found'
             });
+            return;
         }
 
         const popup = result.rows[0];
