@@ -4,7 +4,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { adminAPI } from '@/lib/api';
-import { Users, MessageSquare, BarChart3, Shield, AlertTriangle, CheckCircle, Mail, Bell } from 'lucide-react';
+import { Users, MessageSquare, BarChart3, Shield, AlertTriangle, CheckCircle, Mail, Bell, Image as ImageIcon, Megaphone } from 'lucide-react';
 import Link from 'next/link';
 
 interface AdminStats {
@@ -240,6 +240,36 @@ export default function AdminDashboard() {
             <div>
               <h3 className="font-semibold text-slate-900">Broadcast</h3>
               <p className="text-sm text-slate-600">Kirim notifikasi sistem ke semua pengguna</p>
+            </div>
+          </div>
+        </Link>
+
+        <Link
+          href="/admin/popups"
+          className="bg-white rounded-xl border border-slate-200 p-6 hover:border-pink-300 hover:shadow-md transition-all duration-200 group"
+        >
+          <div className="flex items-center gap-4">
+            <div className="p-3 bg-gradient-to-br from-pink-100 to-rose-100 rounded-lg group-hover:from-pink-200 group-hover:to-rose-200 transition-colors">
+              <ImageIcon className="w-6 h-6 text-pink-600" />
+            </div>
+            <div>
+              <h3 className="font-semibold text-slate-900">Popup Promo</h3>
+              <p className="text-sm text-slate-600">Kelola popup promosi yang muncul saat buka app</p>
+            </div>
+          </div>
+        </Link>
+
+        <Link
+          href="/admin/announcements"
+          className="bg-white rounded-xl border border-slate-200 p-6 hover:border-cyan-300 hover:shadow-md transition-all duration-200 group"
+        >
+          <div className="flex items-center gap-4">
+            <div className="p-3 bg-gradient-to-br from-cyan-100 to-blue-100 rounded-lg group-hover:from-cyan-200 group-hover:to-blue-200 transition-colors">
+              <Megaphone className="w-6 h-6 text-cyan-600" />
+            </div>
+            <div>
+              <h3 className="font-semibold text-slate-900">Pengumuman</h3>
+              <p className="text-sm text-slate-600">Kelola banner pengumuman dan peringatan</p>
             </div>
           </div>
         </Link>

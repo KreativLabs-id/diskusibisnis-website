@@ -168,7 +168,7 @@ export default function ExplorePage() {
                         </div>
 
                         <div className="text-xs text-slate-400 dark:text-slate-500 max-w-xs leading-relaxed">
-                            © 2025 DiskusiBisnis. Platform Q&A untuk UMKM Indonesia.
+                            © 2026 DiskusiBisnis. Platform Q&A untuk UMKM Indonesia.
                         </div>
                     </div>
                 </section>

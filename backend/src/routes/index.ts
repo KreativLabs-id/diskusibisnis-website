@@ -14,6 +14,8 @@ import mentionsRoutes from './mentions.routes';
 import supportRoutes from './support.routes';
 import newsletterRoutes from './newsletter.routes';
 import appRoutes from './app.routes';
+import popupRoutes from './popup.routes';
+import announcementRoutes from './announcement.routes';
 
 const router = Router();
 
@@ -33,6 +35,7 @@ router.use('/mentions', mentionsRoutes);
 router.use('/support', supportRoutes);
 router.use('/admin/newsletter', newsletterRoutes);
 router.use('/app', appRoutes);
+router.use('/popups', popupRoutes);
+router.use('/announcements', announcementRoutes);
 
 export default router;
-

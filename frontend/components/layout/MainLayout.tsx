@@ -4,7 +4,8 @@ import React, { useState } from 'react';
 import Navbar from './Navbar';
 import Sidebar from './Sidebar';
 import MobileBottomNav from './MobileBottomNav';
-
+import AnnouncementBanner from '@/components/AnnouncementBanner';
+import PromoPopupModal from '@/components/PromoPopupModal';
 
 interface MainLayoutProps {
   children: React.ReactNode;
@@ -40,6 +41,11 @@ export default function MainLayout({ children }: MainLayoutProps) {
 
       {/* Main Content Area - Adjusted for fixed sidebar on desktop */}
       <div className="flex flex-col flex-1 mt-14 sm:mt-16 lg:ml-64">
+        {/* Announcement Banner */}
+        <div className="px-3 sm:px-4 lg:px-6 pt-4">
+          <AnnouncementBanner showOn="all" />
+        </div>
+
         {/* Main Content */}
         <main className="flex-1 w-full overflow-y-auto">
           <div className="w-full">
@@ -51,7 +57,7 @@ export default function MainLayout({ children }: MainLayoutProps) {
         <footer className="hidden lg:block bg-white dark:bg-slate-900 border-t border-slate-200 dark:border-slate-800 py-6 px-3 sm:px-4 lg:px-6 mt-8 transition-colors duration-200">
           <div className="max-w-6xl mx-auto text-center">
             <p className="text-sm text-slate-600 dark:text-slate-400">
-              © 2025 DiskusiBisnis. Platform Q&A untuk UMKM Indonesia.
+              © 2026 DiskusiBisnis. Platform Q&A untuk UMKM Indonesia.
             </p>
             <div className="flex flex-wrap justify-center gap-3 sm:gap-4 mt-3">
               <a href="/about" className="text-xs text-slate-500 dark:text-slate-400 hover:text-emerald-600 dark:hover:text-emerald-400 transition-colors">
@@ -79,6 +85,9 @@ export default function MainLayout({ children }: MainLayoutProps) {
 
       {/* Mobile Bottom Navigation */}
       <MobileBottomNav />
+
+      {/* Promo Popup Modal */}
+      <PromoPopupModal />
     </div>
   );
 }
