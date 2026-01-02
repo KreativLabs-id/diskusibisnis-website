@@ -243,6 +243,7 @@ export const getPopupById = async (
         });
     } catch (err) {
         next(err);
+        return;
     }
 };
 
@@ -310,6 +311,7 @@ export const createPopup = async (
         });
     } catch (err) {
         next(err);
+        return;
     }
 };
 
@@ -390,6 +392,7 @@ export const updatePopup = async (
         });
     } catch (err) {
         next(err);
+        return;
     }
 };
 
@@ -423,6 +426,7 @@ export const deletePopup = async (
         });
     } catch (err) {
         next(err);
+        return;
     }
 };
 
@@ -460,6 +464,7 @@ export const togglePopupStatus = async (
         });
     } catch (err) {
         next(err);
+        return;
     }
 };
 
@@ -512,5 +517,6 @@ export const getPopupStats = async (
         });
     } catch (err) {
         next(err);
+        return;
     }
 };
