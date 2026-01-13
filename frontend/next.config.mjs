@@ -78,7 +78,7 @@ const nextConfig = {
       // Fonts
       "font-src 'self' https://fonts.gstatic.com data:",
       // Connect (API, WebSocket)
-      `connect-src 'self' ${process.env.NEXT_PUBLIC_API_URL || ''} https://humble-solace-production-4650.up.railway.app https://*.supabase.co wss://*.supabase.co https://accounts.google.com https://www.googleapis.com https://www.google-analytics.com https://www.googletagmanager.com ws: wss: ${isDev ? 'ws://localhost:* http://localhost:*' : ''}`,
+      `connect-src 'self' ${process.env.NEXT_PUBLIC_API_URL || ''} https://humble-solace-production-4650.up.railway.app https://*.supabase.co wss://*.supabase.co https://accounts.google.com https://www.googleapis.com https://www.google-analytics.com https://www.googletagmanager.com https://*.googleusercontent.com ws: wss: ${isDev ? 'ws://localhost:* http://localhost:*' : ''}`,
       // Frames
       "frame-src 'self' https://accounts.google.com https://www.youtube.com",
       // Objects (disable Flash, Java, etc.)

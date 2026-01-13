@@ -100,6 +100,11 @@ export const contentSecurityPolicy = {
             // Analytics
             'https://www.google-analytics.com',
             'https://analytics.google.com',
+            'https://www.googletagmanager.com', // Added from instruction
+            'https://*.googleusercontent.com', // Added from instruction
+            // Allow WebSockets (from instruction)
+            'ws:',
+            'wss:',
             // Development
             ...(isProduction ? [] : ['ws://localhost:*', 'http://localhost:*']),
         ],
