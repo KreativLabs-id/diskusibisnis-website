@@ -73,18 +73,29 @@ export default function AdminAnnouncementsPage() {
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         try {
+            // Convert datetime-local values to ISO8601 format for proper backend validation
+            const payload = {
+                ...formData,
+                startDate: formData.startDate ? new Date(formData.startDate).toISOString() : undefined,
+                endDate: formData.endDate ? new Date(formData.endDate).toISOString() : undefined,
+                // Remove empty values to avoid sending empty strings
+                linkUrl: formData.linkUrl || undefined,
+                linkText: formData.linkText || undefined,
+            };
+
             if (editingAnnouncement) {
-                await api.put(`/announcements/admin/${editingAnnouncement.id}`, formData);
+                await api.put(`/announcements/admin/${editingAnnouncement.id}`, payload);
             } else {
-                await api.post('/announcements/admin', formData);
+                await api.post('/announcements/admin', payload);
             }
             setShowCreateModal(false);
             setEditingAnnouncement(null);
             resetForm();
             fetchAnnouncements();
-        } catch (error) {
+        } catch (error: any) {
             console.error('Error saving announcement:', error);
-            alert('Gagal menyimpan pengumuman');
+            const errorMessage = error.response?.data?.message || error.response?.data?.errors?.[0]?.msg || 'Gagal menyimpan pengumuman';
+            alert(errorMessage);
         }
     };
 
@@ -285,8 +296,8 @@ export default function AdminAnnouncementsPage() {
                                             <button
                                                 onClick={() => handleToggle(announcement.id)}
                                                 className={`flex items-center gap-2 px-3 py-1.5 rounded-lg text-sm font-medium transition-colors ${announcement.is_active
-                                                        ? 'bg-yellow-100 text-yellow-700 hover:bg-yellow-200'
-                                                        : 'bg-green-100 text-green-700 hover:bg-green-200'
+                                                    ? 'bg-yellow-100 text-yellow-700 hover:bg-yellow-200'
+                                                    : 'bg-green-100 text-green-700 hover:bg-green-200'
                                                     }`}
                                             >
                                                 {announcement.is_active ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}

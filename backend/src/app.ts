@@ -88,7 +88,7 @@ app.use(cors({
   },
   credentials: true, // Required for cookies to work cross-origin
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With'],
+  allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With', 'X-Device-Id'],
 }));
 
 // Body parser middleware
