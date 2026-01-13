@@ -41,12 +41,9 @@ export const contentSecurityPolicy = {
             // Google Analytics (if used)
             'https://www.googletagmanager.com',
             'https://www.google-analytics.com',
-            // Allow inline scripts for Next.js hydration
-            // Note: Using 'unsafe-inline' weakens CSP but is needed for many frameworks
-            // In production, consider using nonces instead
-            ...(isProduction ? [] : ["'unsafe-inline'"]),
-            // For development hot reload
-            ...(isProduction ? [] : ["'unsafe-eval'"]),
+            // Google Analytics
+            'https://www.googletagmanager.com',
+            'https://www.google-analytics.com',
         ],
 
         // CSS sources
@@ -75,6 +72,9 @@ export const contentSecurityPolicy = {
             // Gravatar
             'https://www.gravatar.com',
             'https://gravatar.com',
+            // Google Analytics
+            'https://www.googletagmanager.com',
+            'https://www.google-analytics.com'
         ],
 
         // Font sources

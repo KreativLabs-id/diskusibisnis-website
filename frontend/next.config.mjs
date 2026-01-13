@@ -70,15 +70,15 @@ const nextConfig = {
     const cspDirectives = [
       "default-src 'self'",
       // Scripts - allow self, Google, and inline for Next.js
-      `script-src 'self' ${isDev ? "'unsafe-inline' 'unsafe-eval'" : "'unsafe-inline'"} https://accounts.google.com https://apis.google.com https://www.googletagmanager.com`,
+      `script-src 'self' ${isDev ? "'unsafe-inline' 'unsafe-eval'" : "'unsafe-inline'"} https://accounts.google.com https://apis.google.com https://www.googletagmanager.com https://www.google-analytics.com`,
       // Styles - allow self and inline (needed for styled-jsx, emotion, etc.)
       "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
       // Images - allow various sources
-      "img-src 'self' data: blob: https://*.supabase.co https://*.googleusercontent.com https://www.gravatar.com https://res.cloudinary.com",
+      "img-src 'self' data: blob: https://*.supabase.co https://*.googleusercontent.com https://www.gravatar.com https://res.cloudinary.com https://www.googletagmanager.com https://www.google-analytics.com",
       // Fonts
       "font-src 'self' https://fonts.gstatic.com data:",
       // Connect (API, WebSocket)
-      `connect-src 'self' ${process.env.NEXT_PUBLIC_API_URL || ''} https://*.supabase.co wss://*.supabase.co https://accounts.google.com https://www.googleapis.com ${isDev ? 'ws://localhost:* http://localhost:*' : ''}`,
+      `connect-src 'self' ${process.env.NEXT_PUBLIC_API_URL || ''} https://humble-solace-production-4650.up.railway.app https://*.supabase.co wss://*.supabase.co https://accounts.google.com https://www.googleapis.com https://www.google-analytics.com https://www.googletagmanager.com ws: wss: ${isDev ? 'ws://localhost:* http://localhost:*' : ''}`,
       // Frames
       "frame-src 'self' https://accounts.google.com https://www.youtube.com",
       // Objects (disable Flash, Java, etc.)
