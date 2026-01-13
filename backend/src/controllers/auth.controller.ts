@@ -164,8 +164,8 @@ export const verifyRegisterOTP = async (req: AuthRequest, res: Response): Promis
       { expiresIn: config.jwt.expiresIn } as jwt.SignOptions
     );
 
-    // Set HttpOnly cookie for security
-    setTokenCookie(res, token);
+    // Set HttpOnly cookie for security + user_role cookie for middleware
+    setTokenCookie(res, token, user.role);
 
     successResponse(
       res,
@@ -341,8 +341,8 @@ export const login = async (req: AuthRequest, res: Response): Promise<void> => {
       { expiresIn: config.jwt.expiresIn } as jwt.SignOptions
     );
 
-    // Set HttpOnly cookie for security
-    setTokenCookie(res, token);
+    // Set HttpOnly cookie for security + user_role cookie for middleware
+    setTokenCookie(res, token, user.role);
 
     successResponse(res, {
       user: {
@@ -440,7 +440,7 @@ export const googleLogin = async (req: AuthRequest, res: Response): Promise<void
     }
 
     // Check if user exists
-    let userResult = await pool.query(
+    const userResult = await pool.query(
       'SELECT * FROM public.users WHERE email = $1 OR google_id = $2',
       [email, googleId]
     );
@@ -455,14 +455,18 @@ export const googleLogin = async (req: AuthRequest, res: Response): Promise<void
       let counter = 1;
 
       // Check if username exists and generate unique one
-      while (true) {
+      let usernameExists = true;
+      while (usernameExists) {
         const usernameCheck = await pool.query(
           'SELECT id FROM public.users WHERE username = $1',
           [username]
         );
-        if (usernameCheck.rows.length === 0) break;
-        username = `${baseUsername}${counter}`;
-        counter++;
+        if (usernameCheck.rows.length === 0) {
+          usernameExists = false;
+        } else {
+          username = `${baseUsername}${counter}`;
+          counter++;
+        }
       }
 
       const result = await pool.query(
@@ -498,8 +502,8 @@ export const googleLogin = async (req: AuthRequest, res: Response): Promise<void
       { expiresIn: config.jwt.expiresIn } as jwt.SignOptions
     );
 
-    // Set HttpOnly cookie for security
-    setTokenCookie(res, token);
+    // Set HttpOnly cookie for security + user_role cookie for middleware
+    setTokenCookie(res, token, user.role);
 
     successResponse(res, {
       user: {

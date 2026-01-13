@@ -17,6 +17,15 @@ export const cookieOptions: CookieOptions = {
     path: '/',
 };
 
+// Cookie options for user_role (non-HttpOnly so middleware can read it)
+export const userRoleCookieOptions: CookieOptions = {
+    httpOnly: false, // Middleware needs to read this
+    secure: isProduction, // Only HTTPS in production
+    sameSite: isProduction ? 'none' : 'lax',
+    maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days in milliseconds
+    path: '/',
+};
+
 // Cookie options for clearing
 export const clearCookieOptions: CookieOptions = {
     httpOnly: true,
@@ -25,18 +34,31 @@ export const clearCookieOptions: CookieOptions = {
     path: '/',
 };
 
-/**
- * Set JWT token as HttpOnly cookie
- */
-export const setTokenCookie = (res: Response, token: string): void => {
-    res.cookie('auth_token', token, cookieOptions);
+// Cookie options for clearing user_role
+export const clearUserRoleCookieOptions: CookieOptions = {
+    httpOnly: false,
+    secure: isProduction,
+    sameSite: isProduction ? 'none' : 'lax',
+    path: '/',
 };
 
 /**
- * Clear JWT token cookie
+ * Set JWT token as HttpOnly cookie and user_role cookie for middleware
+ */
+export const setTokenCookie = (res: Response, token: string, role?: string): void => {
+    res.cookie('auth_token', token, cookieOptions);
+    // Also set user_role cookie for Next.js middleware to check admin access
+    if (role) {
+        res.cookie('user_role', role, userRoleCookieOptions);
+    }
+};
+
+/**
+ * Clear JWT token cookie and user_role cookie
  */
 export const clearTokenCookie = (res: Response): void => {
     res.clearCookie('auth_token', clearCookieOptions);
+    res.clearCookie('user_role', clearUserRoleCookieOptions);
 };
 
 /**

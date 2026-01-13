@@ -3,6 +3,22 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { authAPI, userAPI } from '@/lib/api';
 
+// Helper function to set user_role cookie for middleware access
+const setUserRoleCookie = (role: string) => {
+  if (typeof document !== 'undefined') {
+    // Set cookie that expires in 7 days
+    const expires = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toUTCString();
+    document.cookie = `user_role=${role}; path=/; expires=${expires}; SameSite=Lax`;
+  }
+};
+
+// Helper function to clear user_role cookie
+const clearUserRoleCookie = () => {
+  if (typeof document !== 'undefined') {
+    document.cookie = 'user_role=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT; SameSite=Lax';
+  }
+};
+
 interface User {
   id: string;
   email: string;
@@ -54,7 +70,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         if (mounted) setToken(savedToken);
         try {
           const parsedUser = JSON.parse(savedUser);
-          if (mounted) setUser(parsedUser);
+          if (mounted) {
+            setUser(parsedUser);
+            // Ensure user_role cookie is set for middleware
+            setUserRoleCookie(parsedUser.role);
+          }
 
           // Debounce user refresh to avoid duplicate requests (React Strict Mode)
           const lastRefresh = localStorage.getItem('lastUserRefresh');
@@ -84,6 +104,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
                 setUser(updatedUser);
                 localStorage.setItem('user', JSON.stringify(updatedUser));
                 localStorage.setItem('lastUserRefresh', now.toString());
+                // Update user_role cookie for middleware
+                setUserRoleCookie(updatedUser.role);
               }
             } catch (error) {
               console.error('Error refreshing user on init:', error);
@@ -93,6 +115,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           console.error('Error parsing user data:', error);
           localStorage.removeItem('token');
           localStorage.removeItem('user');
+          clearUserRoleCookie();
         }
       }
 
@@ -113,6 +136,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     if (typeof window !== 'undefined') {
       localStorage.setItem('token', newToken);
       localStorage.setItem('user', JSON.stringify(user));
+      // Set user_role cookie for middleware to check admin access
+      setUserRoleCookie(user.role);
     }
     setUser(user);
     setToken(newToken);
@@ -130,6 +155,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     if (typeof window !== 'undefined') {
       localStorage.setItem('token', newToken);
       localStorage.setItem('user', JSON.stringify(user));
+      // Set user_role cookie for middleware to check admin access
+      setUserRoleCookie(user.role);
     }
     setUser(user);
     setToken(newToken);
@@ -147,6 +174,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     if (typeof window !== 'undefined') {
       localStorage.setItem('token', newToken);
       localStorage.setItem('user', JSON.stringify(user));
+      // Set user_role cookie for middleware to check admin access
+      setUserRoleCookie(user.role);
     }
     setUser(user);
     setToken(newToken);
@@ -164,6 +193,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       localStorage.removeItem('token');
       localStorage.removeItem('user');
       localStorage.removeItem('lastUserRefresh');
+      // Clear user_role cookie
+      clearUserRoleCookie();
       setUser(null);
       setToken(null);
       window.location.href = '/';
@@ -174,6 +205,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     setUser(updatedUser);
     if (typeof window !== 'undefined') {
       localStorage.setItem('user', JSON.stringify(updatedUser));
+      // Update user_role cookie for middleware to check admin access
+      setUserRoleCookie(updatedUser.role);
     }
   };
 
