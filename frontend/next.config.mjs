@@ -61,23 +61,83 @@ const nextConfig = {
   },
 
   // Headers for security
+  // Based on OWASP Security Headers recommendations
   async headers() {
+    const isDev = process.env.NODE_ENV === 'development';
+    
+    // Build CSP directive
+    // Note: CSP is complex, test thoroughly before strict enforcement
+    const cspDirectives = [
+      "default-src 'self'",
+      // Scripts - allow self, Google, and inline for Next.js
+      `script-src 'self' ${isDev ? "'unsafe-inline' 'unsafe-eval'" : "'unsafe-inline'"} https://accounts.google.com https://apis.google.com https://www.googletagmanager.com`,
+      // Styles - allow self and inline (needed for styled-jsx, emotion, etc.)
+      "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
+      // Images - allow various sources
+      "img-src 'self' data: blob: https://*.supabase.co https://*.googleusercontent.com https://www.gravatar.com https://res.cloudinary.com",
+      // Fonts
+      "font-src 'self' https://fonts.gstatic.com data:",
+      // Connect (API, WebSocket)
+      `connect-src 'self' ${process.env.NEXT_PUBLIC_API_URL || ''} https://*.supabase.co wss://*.supabase.co https://accounts.google.com https://www.googleapis.com ${isDev ? 'ws://localhost:* http://localhost:*' : ''}`,
+      // Frames
+      "frame-src 'self' https://accounts.google.com https://www.youtube.com",
+      // Objects (disable Flash, Java, etc.)
+      "object-src 'none'",
+      // Base URI
+      "base-uri 'self'",
+      // Form targets
+      "form-action 'self'",
+      // Frame ancestors
+      "frame-ancestors 'self'",
+      // Upgrade to HTTPS in production
+      ...(isDev ? [] : ["upgrade-insecure-requests"]),
+    ];
+
     return [
       {
         source: "/(.*)",
         headers: [
+          // Prevent clickjacking
           {
             key: "X-Frame-Options",
-            value: "DENY",
+            value: "SAMEORIGIN",
           },
+          // Prevent MIME type sniffing
           {
             key: "X-Content-Type-Options",
             value: "nosniff",
           },
+          // Control referrer information
           {
             key: "Referrer-Policy",
-            value: "origin-when-cross-origin",
+            value: "strict-origin-when-cross-origin",
           },
+          // XSS Protection (legacy but still useful)
+          {
+            key: "X-XSS-Protection",
+            value: "1; mode=block",
+          },
+          // DNS prefetch
+          {
+            key: "X-DNS-Prefetch-Control",
+            value: "on",
+          },
+          // Permissions Policy (formerly Feature-Policy)
+          {
+            key: "Permissions-Policy",
+            value: "camera=(), microphone=(), geolocation=(), payment=()",
+          },
+          // Content Security Policy
+          // Using Report-Only in development for testing
+          {
+            key: isDev ? "Content-Security-Policy-Report-Only" : "Content-Security-Policy",
+            value: cspDirectives.join('; '),
+          },
+          // HSTS - only in production
+          ...(isDev ? [] : [{
+            key: "Strict-Transport-Security",
+            value: "max-age=63072000; includeSubDomains; preload",
+          }]),
         ],
       },
     ];

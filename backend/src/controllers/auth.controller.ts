@@ -11,6 +11,11 @@ import { successResponse, errorResponse, unauthorizedResponse } from '../utils/r
 import { sendPasswordResetEmail, sendOTPEmail, sendPasswordChangeOTPEmail } from '../utils/email.service';
 import { setTokenCookie, clearTokenCookie } from '../utils/cookie.utils';
 import { resetLoginRateLimit } from '../middlewares/rate-limit.middleware';
+import {
+  recordFailedLogin,
+  clearLoginLockout,
+  isAccountLocked
+} from '../lib/account-lockout';
 
 const googleClient = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
 
@@ -273,6 +278,15 @@ export const login = async (req: AuthRequest, res: Response): Promise<void> => {
     const { email, password } = req.body;
     const ip = req.ip || req.socket.remoteAddress || 'unknown';
 
+    // 1. Check if account is locked BEFORE processing
+    // This prevents expensive bcrypt operations if user is already locked
+    const lockoutCheck = await isAccountLocked(email, 'email');
+    if (lockoutCheck.isLocked) {
+      const remainingMinutes = Math.ceil((lockoutCheck.remainingMs || 0) / 60000);
+      errorResponse(res, `Account locked due to too many failed attempts. Try again in ${remainingMinutes} minutes.`, 429);
+      return;
+    }
+
     // Find user
     const result = await pool.query(
       `SELECT id, email, password_hash, display_name, avatar_url, 
@@ -282,6 +296,9 @@ export const login = async (req: AuthRequest, res: Response): Promise<void> => {
     );
 
     if (result.rows.length === 0) {
+      // Record failed attempt (even for non-existent users to prevent enumeration)
+      // but don't clear lockout if it exists
+      await recordFailedLogin(email, ip);
       unauthorizedResponse(res, 'Invalid email or password');
       return;
     }
@@ -298,9 +315,21 @@ export const login = async (req: AuthRequest, res: Response): Promise<void> => {
     const isValidPassword = await bcrypt.compare(password, user.password_hash);
 
     if (!isValidPassword) {
-      unauthorizedResponse(res, 'Invalid email or password');
+      // 2. Record failed login attempt
+      const lockoutResult = await recordFailedLogin(email, ip);
+
+      if (lockoutResult.isLocked) {
+        // If this attempt triggered a lock
+        errorResponse(res, lockoutResult.message, 429);
+      } else {
+        // Just invalid password
+        unauthorizedResponse(res, 'Invalid email or password');
+      }
       return;
     }
+
+    // 3. Login successful - clear any existing lockout/attempts
+    await clearLoginLockout(email, ip);
 
     // Reset rate limit on successful login
     await resetLoginRateLimit(ip, email);

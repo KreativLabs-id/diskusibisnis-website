@@ -44,7 +44,8 @@
     "pg": "^8.11.3",
     "resend": "^6.5.2",
     "socket.io": "^4.8.1",
-    "xss-clean": "^0.1.4"
+    "xss-clean": "^0.1.4",
+    "zod": "^4.3.5"
   },
   "devDependencies": {
     "@types/bcryptjs": "^2.4.6",

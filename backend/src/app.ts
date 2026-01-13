@@ -12,15 +12,50 @@ import config from './config/environment';
 import routes from './routes';
 import pool from './config/database';
 import { errorHandler, notFoundHandler } from './middlewares/error.middleware';
+import {
+  blockSuspiciousUserAgents,
+  blockSuspiciousPaths,
+  detectSQLInjection,
+  detectXSS,
+  detectPathTraversal,
+  securityHeaders
+} from './middlewares/security.middleware';
+import { auditAuthMiddleware, auditAdminMiddleware } from './middlewares/audit.middleware';
+import { validateEnvironment } from './lib/env';
+import { csrfTokenGenerator, getCSRFToken } from './middlewares/csrf.middleware';
+import { honeypotMiddleware } from './middlewares/honeypot.middleware';
+import { helmetConfig } from './config/csp.config';
 
 const app: Application = express();
+
+// Validate environment variables on startup (non-blocking warning in development)
+try {
+  validateEnvironment();
+} catch (error) {
+  if (config.nodeEnv === 'production') {
+    console.error('❌ Environment validation failed:', error);
+    process.exit(1);
+  } else {
+    console.warn('⚠️ Environment validation warning:', (error as Error).message);
+  }
+}
 
 // Trust proxy is required for rate limiting to work correctly behind reverse proxies (like Railway, Heroku, Nginx)
 // limiting to the first proxy loopback address
 app.set('trust proxy', 1);
 
-// Security middleware
-app.use(helmet());
+// Security middleware - Order matters!
+// 1. Add additional security headers
+app.use(securityHeaders);
+
+// 2. Helmet for comprehensive security headers (including CSP)
+app.use(helmet(helmetConfig));
+
+// 3. Block suspicious user agents (security scanners, bots)
+app.use(blockSuspiciousUserAgents);
+
+// 4. Block suspicious paths (path traversal, common attack paths)
+app.use(blockSuspiciousPaths);
 
 // Prevent HTTP Parameter Pollution
 app.use(hpp());
@@ -145,8 +180,29 @@ app.get('/health', async (_req, res) => {
   // Always return 200 OK for Railway healthcheck
   res.status(200).json(health);
 });
+// API routes with security middleware
+// Apply additional security checks to all API routes
+app.use('/api', detectPathTraversal);
+app.use('/api', detectSQLInjection);
+app.use('/api', detectXSS);
 
-// API routes
+// CSRF token generation for all API requests
+app.use('/api', csrfTokenGenerator);
+
+// CSRF token endpoint for frontend to fetch token
+app.get('/api/csrf-token', getCSRFToken);
+
+// Honeypot anti-spam for registration and support forms
+app.use('/api/auth/register', honeypotMiddleware);
+app.use('/api/support', honeypotMiddleware);
+
+// Audit logging for auth-related routes
+app.use('/api/auth', auditAuthMiddleware);
+
+// Audit logging for admin routes
+app.use('/api/admin', auditAdminMiddleware);
+
+// Main API routes
 app.use('/api', routes);
 
 // 404 handler

@@ -35,3 +35,26 @@ Thumbs.db
 # Testing
 coverage/
 .nyc_output/
+
+# Security - NEVER commit these
+*.pem
+*.key
+*.crt
+*.p12
+*.pfx
+firebase-admin-sdk*.json
+service-account*.json
+secrets/
+credentials/
+
+# Backup files
+*.bak
+*.backup
+*.sql
+*.sql.gz
+dump.sql
+backup.sql
+
+# Debug artifacts
+.clinic/
+.v8flags*
