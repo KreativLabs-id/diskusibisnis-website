@@ -82,7 +82,9 @@ export function middleware(request: NextRequest) {
     // Check if this is an admin route
     if (matchesPath(ADMIN_ROUTES, pathname)) {
         // For admin routes, we need both authentication AND admin role
-        if (!authToken) {
+        // We accept user_role cookie as proof of auth for routing purposes (handled by client)
+        // This solves issues where HttpOnly auth_token is not visible to middleware (cross-domain)
+        if (!authToken && !userCookie) {
             // Not authenticated - redirect to login
             const loginUrl = new URL('/login', request.url);
             loginUrl.searchParams.set('callbackUrl', pathname);
@@ -106,7 +108,8 @@ export function middleware(request: NextRequest) {
 
     // Check if this is a protected route (requires authentication)
     if (matchesPath(PROTECTED_ROUTES, pathname)) {
-        if (!authToken) {
+        // We accept user_role cookie as proof of auth for routing purposes
+        if (!authToken && !userCookie) {
             // Not authenticated - redirect to login with callback
             const loginUrl = new URL('/login', request.url);
             loginUrl.searchParams.set('callbackUrl', pathname);

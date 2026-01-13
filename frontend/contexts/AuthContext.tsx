@@ -8,7 +8,8 @@ const setUserRoleCookie = (role: string) => {
   if (typeof document !== 'undefined') {
     // Set cookie that expires in 7 days
     const expires = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toUTCString();
-    document.cookie = `user_role=${role}; path=/; expires=${expires}; SameSite=Lax`;
+    const secure = window.location.protocol === 'https:' ? '; Secure' : '';
+    document.cookie = `user_role=${role}; path=/; expires=${expires}; SameSite=Lax${secure}`;
   }
 };
 
