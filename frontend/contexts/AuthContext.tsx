@@ -16,7 +16,8 @@ const setUserRoleCookie = (role: string) => {
 // Helper function to clear user_role cookie
 const clearUserRoleCookie = () => {
   if (typeof document !== 'undefined') {
-    document.cookie = 'user_role=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT; SameSite=Lax';
+    const secure = window.location.protocol === 'https:' ? '; Secure' : '';
+    document.cookie = `user_role=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT; SameSite=Lax${secure}`;
   }
 };
 
