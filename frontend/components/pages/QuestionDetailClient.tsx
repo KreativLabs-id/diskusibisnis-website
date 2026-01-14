@@ -222,10 +222,63 @@ export default function QuestionDetailClient({ initialQuestion, questionId }: Qu
             return;
         }
 
+        // Store previous state for rollback on error
+        const previousQuestion = question;
+
+        // ✅ OPTIMISTIC UPDATE: Only update user_vote status (for instant color change)
+        // Don't update count - let server provide the accurate count to avoid +11 bug
+        setQuestion(prevQuestion => {
+            if (!prevQuestion) return null;
+
+            if (votableType === 'question') {
+                const currentVote = prevQuestion.user_vote;
+                let newUserVote: 'upvote' | 'downvote' | null;
+
+                if (currentVote === voteType) {
+                    // Clicking same vote type = remove vote
+                    newUserVote = null;
+                } else {
+                    // New vote or switching vote type
+                    newUserVote = voteType as 'upvote' | 'downvote';
+                }
+
+                return {
+                    ...prevQuestion,
+                    user_vote: newUserVote
+                    // Note: count will be updated when server responds
+                };
+            } else {
+                // Handle answer votes
+                return {
+                    ...prevQuestion,
+                    answers: prevQuestion.answers.map(answer => {
+                        if (answer.id !== votableId) return answer;
+
+                        const currentVote = answer.user_vote;
+                        let newUserVote: 'upvote' | 'downvote' | null;
+
+                        if (currentVote === voteType) {
+                            newUserVote = null;
+                        } else {
+                            newUserVote = voteType as 'upvote' | 'downvote';
+                        }
+
+                        return {
+                            ...answer,
+                            user_vote: newUserVote
+                            // Note: count will be updated when server responds
+                        };
+                    })
+                };
+            }
+        });
+
+        // Make API call in background
         try {
             const response = await voteAPI.cast({ votableType, votableId, voteType });
             const voteData = response.data.data;
 
+            // ✅ Update with actual server state (including accurate count)
             setQuestion(prevQuestion => {
                 if (!prevQuestion) return null;
 
@@ -253,8 +306,9 @@ export default function QuestionDetailClient({ initialQuestion, questionId }: Qu
                 }
             });
         } catch (error) {
-            showAlert('error', 'Voting Gagal', 'Gagal melakukan voting');
-            fetchQuestion();
+            // ❌ Rollback on error - restore previous state
+            setQuestion(previousQuestion);
+            showAlert('error', 'Voting Gagal', 'Gagal melakukan voting. Silakan coba lagi.');
         }
     };
 

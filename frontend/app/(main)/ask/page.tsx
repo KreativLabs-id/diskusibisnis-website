@@ -225,8 +225,10 @@ export default function AskPage() {
               <label htmlFor="title" className="block text-sm font-medium text-slate-700 dark:text-slate-300">
                 Judul Pertanyaan <span className="text-red-500">*</span>
               </label>
-              <span className={`text-xs ${title.length < 10 ? 'text-red-500' : 'text-slate-500'}`}>
-                {title.length}/10 karakter
+              <span className={`text-xs ${title.length < 10 ? 'text-red-500' : 'text-emerald-600'}`}>
+                {title.length < 10
+                  ? `${title.length}/10 karakter`
+                  : `${title.length}/200 karakter`}
               </span>
             </div>
             <input
@@ -246,8 +248,10 @@ export default function AskPage() {
               <label htmlFor="content" className="block text-sm font-medium text-slate-700">
                 Detail Pertanyaan <span className="text-red-500">*</span>
               </label>
-              <span className={`text-xs ${content.length < 20 ? 'text-red-500' : 'text-slate-500'}`}>
-                {content.length}/20 karakter
+              <span className={`text-xs ${content.length < 20 ? 'text-red-500' : 'text-emerald-600'}`}>
+                {content.length < 20
+                  ? `${content.length}/20 karakter`
+                  : `${content.length}/5000 karakter`}
               </span>
             </div>
             <MentionInput
@@ -355,10 +359,10 @@ export default function AskPage() {
                     onClick={() => toggleTag(tag)}
                     disabled={!selectedTags.includes(tag) && selectedTags.length >= 5}
                     className={`inline-flex items-center gap-2 px-3 py-1.5 rounded-full border text-sm font-medium transition-colors ${selectedTags.includes(tag)
-                        ? 'bg-emerald-600 text-white border-emerald-600'
-                        : !selectedTags.includes(tag) && selectedTags.length >= 5
-                          ? 'bg-slate-100 text-slate-400 border-slate-200 cursor-not-allowed'
-                          : 'bg-white text-slate-600 border-slate-200 hover:border-emerald-400 hover:text-emerald-600'
+                      ? 'bg-emerald-600 text-white border-emerald-600'
+                      : !selectedTags.includes(tag) && selectedTags.length >= 5
+                        ? 'bg-slate-100 text-slate-400 border-slate-200 cursor-not-allowed'
+                        : 'bg-white text-slate-600 border-slate-200 hover:border-emerald-400 hover:text-emerald-600'
                       }`}
                   >
                     <Tag className="w-3.5 h-3.5" />

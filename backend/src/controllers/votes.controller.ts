@@ -144,43 +144,46 @@ export const createOrUpdateVote = async (req: AuthRequest, res: Response): Promi
 
       await client.query('COMMIT');
 
-      // Send notification for upvotes (optional)
-      try {
-        if (voteType === 'upvote') {
-          const targetData = await pool.query(
-            targetType === 'question'
-              ? `SELECT q.author_id, q.title, u.display_name 
-                 FROM questions q, users u 
-                 WHERE q.id = $1 AND u.id = $2`
-              : `SELECT a.author_id, q.title, u.display_name 
-                 FROM answers a, questions q, users u 
-                 WHERE a.id = $1 AND a.question_id = q.id AND u.id = $2`,
-            [targetId, user.id]
-          );
-
-          if (targetData.rows.length > 0 && targetData.rows[0].author_id !== user.id) {
-            await createVoteNotification(
-              targetData.rows[0].author_id,
-              targetData.rows[0].display_name,
-              targetData.rows[0].title,
-              targetId,
-              voteType,
-              targetType
-            );
-          }
-        }
-      } catch (notifError) {
-        console.error('Error creating vote notification:', notifError);
-      }
-
       const currentUserVote = userVoteResult.rows.length > 0 ? userVoteResult.rows[0].vote_type : null;
 
+      // ✅ Send response IMMEDIATELY - don't wait for notification
       successResponse(res, {
         action: existingVoteResult.rows.length > 0 ? 'updated' : 'created',
         userVote: currentUserVote,
         upvotes_count: parseInt(countsResult.rows[0].upvotes_count),
         downvotes_count: parseInt(countsResult.rows[0].downvotes_count)
       }, 'Vote recorded successfully');
+
+      // 🔔 Send notification asynchronously (fire-and-forget - don't block response)
+      if (voteType === 'upvote') {
+        setImmediate(async () => {
+          try {
+            const targetData = await pool.query(
+              targetType === 'question'
+                ? `SELECT q.author_id, q.title, u.display_name 
+                   FROM questions q, users u 
+                   WHERE q.id = $1 AND u.id = $2`
+                : `SELECT a.author_id, q.title, u.display_name 
+                   FROM answers a, questions q, users u 
+                   WHERE a.id = $1 AND a.question_id = q.id AND u.id = $2`,
+              [targetId, user.id]
+            );
+
+            if (targetData.rows.length > 0 && targetData.rows[0].author_id !== user.id) {
+              await createVoteNotification(
+                targetData.rows[0].author_id,
+                targetData.rows[0].display_name,
+                targetData.rows[0].title,
+                targetId,
+                voteType,
+                targetType
+              );
+            }
+          } catch (notifError) {
+            console.error('Error creating vote notification:', notifError);
+          }
+        });
+      }
     } catch (error) {
       await client.query('ROLLBACK');
       throw error;

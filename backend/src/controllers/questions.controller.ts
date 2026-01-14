@@ -4,6 +4,7 @@ import { AuthRequest } from '../types';
 import { successResponse, errorResponse, notFoundResponse, forbiddenResponse } from '../utils/response.utils';
 import { generateUniqueSlug } from '../utils/slug.utils';
 import { createMentions } from './mentions.controller';
+import { apiCache, cacheKeys, invalidateCache } from '../utils/cache';
 
 /**
  * Get all questions with filters
@@ -24,6 +25,17 @@ export const getQuestions = async (req: AuthRequest, res: Response): Promise<voi
     } else if (sort === 'unanswered') {
       status = 'unanswered';
       sort = 'newest';
+    }
+
+    // ✅ Check cache first for non-search requests (30 second cache)
+    const cacheKey = cacheKeys.questions(sort + status, tag, page);
+    if (!search) {
+      const cached = apiCache.get<any>(cacheKey);
+      if (cached) {
+        console.log(`[Cache HIT] ${cacheKey}`);
+        successResponse(res, cached);
+        return;
+      }
     }
 
     const offset = (page - 1) * limit;
@@ -162,7 +174,7 @@ export const getQuestions = async (req: AuthRequest, res: Response): Promise<voi
     const countResult = await pool.query(countQuery, countParams);
     const total = parseInt(countResult.rows[0].total);
 
-    successResponse(res, {
+    const responseData = {
       questions: questionsWithTags,
       pagination: {
         page,
@@ -170,7 +182,15 @@ export const getQuestions = async (req: AuthRequest, res: Response): Promise<voi
         total,
         totalPages: Math.ceil(total / limit)
       }
-    });
+    };
+
+    // ✅ Cache results for 30 seconds (non-search requests only)
+    if (!search) {
+      apiCache.set(cacheKey, responseData, 30000);
+      console.log(`[Cache SET] ${cacheKey}`);
+    }
+
+    successResponse(res, responseData);
   } catch (error) {
     console.error('Get questions error:', error);
     errorResponse(res, 'Server error');
@@ -252,6 +272,9 @@ export const createQuestion = async (req: AuthRequest, res: Response): Promise<v
 
       // Create mentions after successful question creation
       await createMentions(user.id, 'question', question.id, content);
+
+      // ✅ Invalidate questions cache so new question appears immediately
+      invalidateCache.questions();
 
       successResponse(res, { question }, 'Question created successfully', 201);
     } catch (error) {
@@ -493,6 +516,9 @@ export const updateQuestion = async (req: AuthRequest, res: Response): Promise<v
 
       await client.query('COMMIT');
 
+      // ✅ Invalidate cache
+      invalidateCache.allQuestions();
+
       successResponse(res, { question: updateResult.rows[0] }, 'Question updated successfully');
     } catch (error) {
       await client.query('ROLLBACK');
@@ -545,6 +571,9 @@ export const deleteQuestion = async (req: AuthRequest, res: Response): Promise<v
     );
 
     await pool.query('DELETE FROM public.questions WHERE id = $1', [questionId]);
+
+    // ✅ Invalidate cache
+    invalidateCache.allQuestions();
 
     successResponse(res, null, 'Question deleted successfully');
   } catch (error) {

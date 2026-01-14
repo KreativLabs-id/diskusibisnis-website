@@ -55,22 +55,69 @@ export default function HomePage() {
   }>({ isOpen: false, questionId: '', title: '' });
   const [loginPrompt, setLoginPrompt] = useState(false);
 
-  const fetchQuestions = useCallback(async () => {
+  // ✅ Client-side cache helper (stale-while-revalidate pattern)
+  const getCacheKey = (sort: string, tag: string | null) => `questions_cache_${sort}_${tag || 'all'}`;
+
+  const getFromCache = (key: string) => {
     try {
+      const cached = sessionStorage.getItem(key);
+      if (!cached) return null;
+      const { data, timestamp } = JSON.parse(cached);
+      // Cache valid for 30 seconds
+      if (Date.now() - timestamp < 30000) {
+        return { data, fresh: true };
+      }
+      // Return stale data but mark as not fresh
+      return { data, fresh: false };
+    } catch {
+      return null;
+    }
+  };
+
+  const setCache = (key: string, data: Question[]) => {
+    try {
+      sessionStorage.setItem(key, JSON.stringify({ data, timestamp: Date.now() }));
+    } catch {
+      // Ignore cache errors
+    }
+  };
+
+  const fetchQuestions = useCallback(async (showLoading = true) => {
+    const cacheKey = getCacheKey(sortBy, tagParam);
+
+    // ✅ Show cached data immediately if available (stale-while-revalidate)
+    const cached = getFromCache(cacheKey);
+    if (cached) {
+      setQuestions(cached.data);
+      if (cached.fresh) {
+        setLoading(false);
+        return; // Cache is fresh, no need to fetch
+      }
+      // Cache is stale, show it but fetch in background
+      setLoading(false);
+    } else if (showLoading) {
       setLoading(true);
+    }
+
+    try {
       const params: { sort: string; tag?: string; limit?: number } = {
         sort: sortBy,
-        limit: 20 // Increase limit to reduce pagination requests
+        limit: 20
       };
       if (tagParam) {
         params.tag = tagParam;
       }
       const response = await questionAPI.getAll(params);
-      const questions = response.data.data?.questions || response.data.questions || [];
-      setQuestions(questions);
+      const fetchedQuestions = response.data.data?.questions || response.data.questions || [];
+      setQuestions(fetchedQuestions);
+
+      // ✅ Update cache with fresh data
+      setCache(cacheKey, fetchedQuestions);
     } catch (error) {
       console.error('Error fetching questions:', error);
-      setQuestions([]);
+      if (!cached) {
+        setQuestions([]);
+      }
     } finally {
       setLoading(false);
     }

@@ -68,9 +68,23 @@ export default function SavedPage() {
     const fetchBookmarks = async () => {
         try {
             setLoading(true);
-            const response = await bookmarkAPI.getBookmarks();
-            const data = response.data?.data || response.data?.bookmarks || response.data || [];
-            setBookmarks(Array.isArray(data) ? data : []);
+            const response = await bookmarkAPI.getAll();
+            console.log('Bookmarks API response:', response.data);
+
+            // Backend returns: { success: true, data: { bookmarks: [...], pagination: {...} } }
+            // Handle different response structures
+            let bookmarksData = [];
+            if (response.data?.data?.bookmarks) {
+                bookmarksData = response.data.data.bookmarks;
+            } else if (response.data?.bookmarks) {
+                bookmarksData = response.data.bookmarks;
+            } else if (Array.isArray(response.data?.data)) {
+                bookmarksData = response.data.data;
+            } else if (Array.isArray(response.data)) {
+                bookmarksData = response.data;
+            }
+
+            setBookmarks(Array.isArray(bookmarksData) ? bookmarksData : []);
         } catch (error) {
             console.error('Error fetching bookmarks:', error);
             setBookmarks([]);
@@ -85,7 +99,7 @@ export default function SavedPage() {
 
         try {
             setRemoving(questionId);
-            await bookmarkAPI.removeBookmark(questionId);
+            await bookmarkAPI.remove(questionId);
             setBookmarks(prev => prev.filter(b => b.id !== questionId));
             showAlert('success', 'Berhasil', 'Bookmark dihapus');
         } catch (error) {

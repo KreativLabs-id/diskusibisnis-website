@@ -4,6 +4,7 @@ import { AuthRequest } from '../types';
 import { successResponse, errorResponse, notFoundResponse, forbiddenResponse } from '../utils/response.utils';
 import { createAnswerNotification } from '../utils/notification.service';
 import { createMentions } from './mentions.controller';
+import { invalidateCache } from '../utils/cache';
 
 /**
  * Create new answer
@@ -18,7 +19,7 @@ export const createAnswer = async (req: AuthRequest, res: Response): Promise<voi
     }
 
     const { questionId, content } = req.body;
-    
+
     console.log('Create answer request:', { questionId, contentLength: content?.length, userId: user.id });
 
     // Additional validation
@@ -93,6 +94,9 @@ export const createAnswer = async (req: AuthRequest, res: Response): Promise<voi
 
     // Create mentions after successful answer creation
     await createMentions(user.id, 'answer', answer.id, content);
+
+    // ✅ Invalidate questions cache so answer count updates
+    invalidateCache.questions();
 
     successResponse(res, { answer }, 'Answer created successfully', 201);
   } catch (error) {
@@ -240,7 +244,7 @@ export const deleteAnswer = async (req: AuthRequest, res: Response): Promise<voi
  */
 export const acceptAnswer = async (req: AuthRequest, res: Response): Promise<void> => {
   let client;
-  
+
   try {
     const user = req.user;
     if (!user) {
