@@ -13,7 +13,7 @@ export interface NotificationContextType {
   notifications: Notification[];
   unreadCount: number;
   loading: boolean;
-  fetchNotifications: () => Promise<void>;
+  fetchNotifications: (isBackground?: boolean) => Promise<void>;
   markAsRead: (id: string) => Promise<void>;
   markAllAsRead: () => Promise<void>;
   addNotification: (notification: Notification) => void;

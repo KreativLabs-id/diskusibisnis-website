@@ -180,7 +180,8 @@ export default function NotificationDropdown() {
   const handleToggle = () => {
     setIsOpen(!isOpen);
     if (!isOpen) {
-      fetchNotifications();
+      // Use background fetch (stale-while-revalidate) to avoid blocking spinner
+      fetchNotifications(true);
     }
   };
 
