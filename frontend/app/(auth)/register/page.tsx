@@ -78,7 +78,7 @@ export default function RegisterPage() {
       localStorage.setItem('token', token);
       localStorage.setItem('user', JSON.stringify(userData));
       updateUser(userData);
-      
+
       router.push('/');
     } catch (err: any) {
       const message = err.response?.data?.message || 'Kode OTP salah';
@@ -90,7 +90,7 @@ export default function RegisterPage() {
 
   const handleResendOTP = async () => {
     if (resendCooldown > 0) return;
-    
+
     setError('');
     setLoading(true);
 
@@ -283,7 +283,7 @@ export default function RegisterPage() {
                   required
                   value={formData.displayName}
                   onChange={(e) => setFormData({ ...formData, displayName: e.target.value })}
-                  className="w-full pl-10 pr-4 py-3 border border-slate-200 rounded-xl bg-slate-50 focus:bg-white focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
+                  className="w-full pl-10 pr-4 py-3 border border-slate-200 rounded-xl bg-slate-50 text-slate-900 placeholder:text-slate-400 focus:bg-white focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
                   placeholder="John Doe"
                 />
               </div>
@@ -298,7 +298,7 @@ export default function RegisterPage() {
                   required
                   value={formData.username}
                   onChange={(e) => setFormData({ ...formData, username: e.target.value.toLowerCase().replace(/[^a-z0-9_]/g, '') })}
-                  className="w-full pl-8 pr-4 py-3 border border-slate-200 rounded-xl bg-slate-50 focus:bg-white focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
+                  className="w-full pl-8 pr-4 py-3 border border-slate-200 rounded-xl bg-slate-50 text-slate-900 placeholder:text-slate-400 focus:bg-white focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
                   placeholder="username"
                   minLength={3}
                   maxLength={30}
@@ -316,7 +316,7 @@ export default function RegisterPage() {
                   required
                   value={formData.email}
                   onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                  className="w-full pl-10 pr-4 py-3 border border-slate-200 rounded-xl bg-slate-50 focus:bg-white focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
+                  className="w-full pl-10 pr-4 py-3 border border-slate-200 rounded-xl bg-slate-50 text-slate-900 placeholder:text-slate-400 focus:bg-white focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
                   placeholder="nama@email.com"
                 />
               </div>
@@ -332,7 +332,7 @@ export default function RegisterPage() {
                   minLength={6}
                   value={formData.password}
                   onChange={(e) => setFormData({ ...formData, password: e.target.value })}
-                  className="w-full pl-10 pr-10 py-3 border border-slate-200 rounded-xl bg-slate-50 focus:bg-white focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
+                  className="w-full pl-10 pr-10 py-3 border border-slate-200 rounded-xl bg-slate-50 text-slate-900 placeholder:text-slate-400 focus:bg-white focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
                   placeholder="Minimal 6 karakter"
                 />
                 <button
@@ -375,7 +375,7 @@ export default function RegisterPage() {
             </div>
 
             <div className="mt-6">
-              <GoogleLoginButton 
+              <GoogleLoginButton
                 onSuccess={handleGoogleSuccess}
                 onError={() => setError('Gagal daftar dengan Google')}
                 text="Daftar dengan Google"
