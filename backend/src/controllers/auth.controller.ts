@@ -90,15 +90,22 @@ export const requestRegisterOTP = async (req: AuthRequest, res: Response): Promi
       expiresAt
     }, 600); // 10 minutes TTL
 
-    // Send OTP email
-    const emailSent = await sendOTPEmail(email, otp, displayName);
-
-    if (!emailSent) {
-      errorResponse(res, 'Gagal mengirim email OTP. Coba lagi.', 500);
-      return;
-    }
-
+    // ✅ Send response immediately (don't wait for email)
     successResponse(res, { email }, 'Kode OTP telah dikirim ke email Anda');
+
+    // ✅ Send OTP email asynchronously (fire-and-forget)
+    setImmediate(async () => {
+      try {
+        const emailSent = await sendOTPEmail(email, otp, displayName);
+        if (!emailSent) {
+          console.error(`Failed to send OTP email to ${email}`);
+        } else {
+          console.log(`OTP email sent successfully to ${email}`);
+        }
+      } catch (error) {
+        console.error(`Error sending OTP email to ${email}:`, error);
+      }
+    });
   } catch (error) {
     console.error('Request register OTP error:', error);
     errorResponse(res, 'Server error');
@@ -570,22 +577,30 @@ export const forgotPassword = async (req: AuthRequest, res: Response): Promise<v
       [resetTokenHash, resetTokenExpiry, user.id]
     );
 
-    // Send email with reset link
-    const emailSent = await sendPasswordResetEmail(
-      user.email,
-      resetToken,
-      user.display_name || 'User'
-    );
-
-    if (!emailSent) {
-      console.error(`Failed to send reset email to ${email}`);
-    }
-
+    // ✅ Send response immediately
     successResponse(
       res,
       config.nodeEnv === 'development' ? { devToken: resetToken } : null,
       'Jika email terdaftar, link reset password akan dikirim'
     );
+
+    // ✅ Send email asynchronously (fire-and-forget)
+    setImmediate(async () => {
+      try {
+        const emailSent = await sendPasswordResetEmail(
+          user.email,
+          resetToken,
+          user.display_name || 'User'
+        );
+        if (!emailSent) {
+          console.error(`Failed to send reset email to ${email}`);
+        } else {
+          console.log(`Password reset email sent to ${email}`);
+        }
+      } catch (error) {
+        console.error(`Error sending reset email to ${email}:`, error);
+      }
+    });
   } catch (error) {
     console.error('Forgot password error:', error);
     errorResponse(res, 'Server error');
@@ -682,15 +697,22 @@ export const requestChangePasswordOTP = async (req: AuthRequest, res: Response):
       expiresAt
     }, 600); // 10 minutes TTL
 
-    // Send OTP email
-    const emailSent = await sendPasswordChangeOTPEmail(user.email, otp, user.display_name || 'User');
-
-    if (!emailSent) {
-      errorResponse(res, 'Gagal mengirim email OTP. Coba lagi.', 500);
-      return;
-    }
-
+    // ✅ Send response immediately
     successResponse(res, { email: user.email }, 'Kode OTP telah dikirim ke email Anda');
+
+    // ✅ Send OTP email asynchronously (fire-and-forget)
+    setImmediate(async () => {
+      try {
+        const emailSent = await sendPasswordChangeOTPEmail(user.email, otp, user.display_name || 'User');
+        if (!emailSent) {
+          console.error(`Failed to send password change OTP email to ${user.email}`);
+        } else {
+          console.log(`Password change OTP email sent to ${user.email}`);
+        }
+      } catch (error) {
+        console.error(`Error sending password change OTP email to ${user.email}:`, error);
+      }
+    });
   } catch (error) {
     console.error('Request change password OTP error:', error);
     errorResponse(res, 'Server error');
