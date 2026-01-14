@@ -123,18 +123,18 @@ export default function LoginPage() {
       <div className="mt-6 sm:mt-8 sm:mx-auto sm:w-full sm:max-w-md relative z-10">
         <div className="bg-white dark:bg-slate-900 py-6 sm:py-8 px-4 shadow-xl shadow-slate-200/50 dark:shadow-slate-950/50 rounded-2xl sm:px-10 border border-slate-100 dark:border-slate-800">
           {error && (
-            <div className="mb-6 p-4 bg-red-50 border border-red-100 rounded-xl flex items-start gap-3 animate-in fade-in slide-in-from-top-2">
-              <AlertCircle className="w-5 h-5 text-red-600 flex-shrink-0 mt-0.5" />
+            <div className="mb-6 p-4 bg-red-50 dark:bg-red-900/20 border border-red-100 dark:border-red-900/50 rounded-xl flex items-start gap-3 animate-in fade-in slide-in-from-top-2">
+              <AlertCircle className="w-5 h-5 text-red-600 dark:text-red-400 flex-shrink-0 mt-0.5" />
               <div className="flex-1">
-                <h3 className="text-sm font-medium text-red-800">Gagal Masuk</h3>
-                <p className="text-sm text-red-600 mt-1">{error}</p>
+                <h3 className="text-sm font-medium text-red-800 dark:text-red-300">Gagal Masuk</h3>
+                <p className="text-sm text-red-600 dark:text-red-400 mt-1">{error}</p>
               </div>
             </div>
           )}
 
           <form className="space-y-5 sm:space-y-6" onSubmit={handleSubmit}>
             <div>
-              <label htmlFor="email" className="block text-sm font-semibold text-slate-700 mb-2">
+              <label htmlFor="email" className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2">
                 Email Address
               </label>
               <div className="relative group">
@@ -149,14 +149,14 @@ export default function LoginPage() {
                   required
                   value={formData.email}
                   onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                  className="block w-full pl-10 pr-3 py-3 border border-slate-200 rounded-xl leading-5 bg-slate-50 text-slate-900 placeholder-slate-400 focus:outline-none focus:bg-white focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition-all duration-200 sm:text-sm"
+                  className="block w-full pl-10 pr-3 py-3 border border-slate-200 dark:border-slate-700 rounded-xl leading-5 bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-slate-100 placeholder-slate-400 focus:outline-none focus:bg-white dark:focus:bg-slate-700 focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition-all duration-200 sm:text-sm"
                   placeholder="nama@email.com"
                 />
               </div>
             </div>
 
             <div>
-              <label htmlFor="password" className="block text-sm font-semibold text-slate-700 mb-2">
+              <label htmlFor="password" className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2">
                 Password
               </label>
               <div className="relative group">
@@ -171,13 +171,13 @@ export default function LoginPage() {
                   required
                   value={formData.password}
                   onChange={(e) => setFormData({ ...formData, password: e.target.value })}
-                  className="block w-full pl-10 pr-10 py-3 border border-slate-200 rounded-xl leading-5 bg-slate-50 text-slate-900 placeholder-slate-400 focus:outline-none focus:bg-white focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition-all duration-200 sm:text-sm"
+                  className="block w-full pl-10 pr-10 py-3 border border-slate-200 dark:border-slate-700 rounded-xl leading-5 bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-slate-100 placeholder-slate-400 focus:outline-none focus:bg-white dark:focus:bg-slate-700 focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition-all duration-200 sm:text-sm"
                   placeholder="••••••••"
                 />
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
-                  className="absolute inset-y-0 right-0 pr-3 flex items-center text-slate-400 hover:text-slate-600 focus:outline-none"
+                  className="absolute inset-y-0 right-0 pr-3 flex items-center text-slate-400 hover:text-slate-600 dark:hover:text-slate-300 focus:outline-none"
                 >
                   {showPassword ? (
                     <EyeOff className="h-5 w-5" />
@@ -194,15 +194,15 @@ export default function LoginPage() {
                   id="remember-me"
                   name="remember-me"
                   type="checkbox"
-                  className="h-4 w-4 text-emerald-600 focus:ring-emerald-500 border-slate-300 rounded cursor-pointer"
+                  className="h-4 w-4 text-emerald-600 focus:ring-emerald-500 border-slate-300 dark:border-slate-600 rounded cursor-pointer"
                 />
-                <label htmlFor="remember-me" className="ml-2 block text-sm text-slate-600 cursor-pointer select-none">
+                <label htmlFor="remember-me" className="ml-2 block text-sm text-slate-600 dark:text-slate-400 cursor-pointer select-none">
                   Ingat saya
                 </label>
               </div>
 
               <div className="text-sm">
-                <Link href="/forgot-password" className="font-medium text-emerald-600 hover:text-emerald-500 transition-colors">
+                <Link href="/forgot-password" className="font-medium text-emerald-600 dark:text-emerald-400 hover:text-emerald-500 transition-colors">
                   Lupa password?
                 </Link>
               </div>
@@ -233,10 +233,10 @@ export default function LoginPage() {
           <div className="mt-6">
             <div className="relative">
               <div className="absolute inset-0 flex items-center">
-                <div className="w-full border-t border-slate-200" />
+                <div className="w-full border-t border-slate-200 dark:border-slate-700" />
               </div>
               <div className="relative flex justify-center text-sm">
-                <span className="px-4 bg-white text-slate-500">atau</span>
+                <span className="px-4 bg-white dark:bg-slate-900 text-slate-500 dark:text-slate-400">atau</span>
               </div>
             </div>
 
@@ -253,17 +253,17 @@ export default function LoginPage() {
           <div className="mt-8">
             <div className="relative">
               <div className="absolute inset-0 flex items-center">
-                <div className="w-full border-t border-slate-200" />
+                <div className="w-full border-t border-slate-200 dark:border-slate-700" />
               </div>
               <div className="relative flex justify-center text-sm">
-                <span className="px-4 bg-white text-slate-500">Belum punya akun?</span>
+                <span className="px-4 bg-white dark:bg-slate-900 text-slate-500 dark:text-slate-400">Belum punya akun?</span>
               </div>
             </div>
 
             <div className="mt-6">
               <Link
                 href="/register"
-                className="w-full flex justify-center items-center gap-2 py-3 px-4 border border-slate-200 rounded-xl shadow-sm text-sm font-semibold text-slate-700 bg-white hover:bg-slate-50 hover:text-emerald-600 hover:border-emerald-200 transition-all duration-200"
+                className="w-full flex justify-center items-center gap-2 py-3 px-4 border border-slate-200 dark:border-slate-700 rounded-xl shadow-sm text-sm font-semibold text-slate-700 dark:text-slate-300 bg-white dark:bg-slate-800 hover:bg-slate-50 dark:hover:bg-slate-700 hover:text-emerald-600 dark:hover:text-emerald-400 hover:border-emerald-200 dark:hover:border-emerald-700 transition-all duration-200"
               >
                 Daftar Akun Baru
               </Link>
@@ -272,12 +272,12 @@ export default function LoginPage() {
         </div>
 
         {/* Footer Links */}
-        <div className="mt-8 text-center text-xs text-slate-500 space-x-4">
-          <Link href="/privacy" className="hover:text-emerald-600 transition-colors">Kebijakan Privasi</Link>
+        <div className="mt-8 text-center text-xs text-slate-500 dark:text-slate-400 space-x-4">
+          <Link href="/privacy" className="hover:text-emerald-600 dark:hover:text-emerald-400 transition-colors">Kebijakan Privasi</Link>
           <span>•</span>
-          <Link href="/terms" className="hover:text-emerald-600 transition-colors">Syarat & Ketentuan</Link>
+          <Link href="/terms" className="hover:text-emerald-600 dark:hover:text-emerald-400 transition-colors">Syarat & Ketentuan</Link>
           <span>•</span>
-          <Link href="/help" className="hover:text-emerald-600 transition-colors">Bantuan</Link>
+          <Link href="/help" className="hover:text-emerald-600 dark:hover:text-emerald-400 transition-colors">Bantuan</Link>
         </div>
       </div>
     </div>
