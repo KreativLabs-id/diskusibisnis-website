@@ -184,9 +184,9 @@ export const getQuestions = async (req: AuthRequest, res: Response): Promise<voi
       }
     };
 
-    // ✅ Cache results for 30 seconds (non-search requests only)
+    // ✅ Cache results for 10 seconds (reduced for faster vote updates)
     if (!search) {
-      apiCache.set(cacheKey, responseData, 30000);
+      apiCache.set(cacheKey, responseData, 10000);
       console.log(`[Cache SET] ${cacheKey}`);
     }
 

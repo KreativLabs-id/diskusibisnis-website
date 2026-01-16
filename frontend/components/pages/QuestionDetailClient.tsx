@@ -225,27 +225,33 @@ export default function QuestionDetailClient({ initialQuestion, questionId }: Qu
         // Store previous state for rollback on error
         const previousQuestion = question;
 
-        // ✅ OPTIMISTIC UPDATE: Only update user_vote status (for instant color change)
-        // Don't update count - let server provide the accurate count to avoid +11 bug
+        // ✅ OPTIMISTIC UPDATE: Update user_vote status AND count immediately for instant feedback
         setQuestion(prevQuestion => {
             if (!prevQuestion) return null;
 
             if (votableType === 'question') {
                 const currentVote = prevQuestion.user_vote;
                 let newUserVote: 'upvote' | 'downvote' | null;
+                let countDelta = 0;
 
                 if (currentVote === voteType) {
                     // Clicking same vote type = remove vote
                     newUserVote = null;
-                } else {
-                    // New vote or switching vote type
+                    countDelta = voteType === 'upvote' ? -1 : 0;
+                } else if (currentVote === null) {
+                    // New vote
                     newUserVote = voteType as 'upvote' | 'downvote';
+                    countDelta = voteType === 'upvote' ? 1 : 0;
+                } else {
+                    // Switching vote type
+                    newUserVote = voteType as 'upvote' | 'downvote';
+                    countDelta = voteType === 'upvote' ? 2 : -2; // Remove old downvote (-1) + add upvote (+1) = +2
                 }
 
                 return {
                     ...prevQuestion,
-                    user_vote: newUserVote
-                    // Note: count will be updated when server responds
+                    user_vote: newUserVote,
+                    upvotes_count: Math.max(0, (prevQuestion.upvotes_count || 0) + countDelta)
                 };
             } else {
                 // Handle answer votes
@@ -256,17 +262,23 @@ export default function QuestionDetailClient({ initialQuestion, questionId }: Qu
 
                         const currentVote = answer.user_vote;
                         let newUserVote: 'upvote' | 'downvote' | null;
+                        let countDelta = 0;
 
                         if (currentVote === voteType) {
                             newUserVote = null;
+                            countDelta = voteType === 'upvote' ? -1 : 0;
+                        } else if (currentVote === null) {
+                            newUserVote = voteType as 'upvote' | 'downvote';
+                            countDelta = voteType === 'upvote' ? 1 : 0;
                         } else {
                             newUserVote = voteType as 'upvote' | 'downvote';
+                            countDelta = voteType === 'upvote' ? 2 : -2;
                         }
 
                         return {
                             ...answer,
-                            user_vote: newUserVote
-                            // Note: count will be updated when server responds
+                            user_vote: newUserVote,
+                            upvotes_count: Math.max(0, (answer.upvotes_count || 0) + countDelta)
                         };
                     })
                 };
@@ -501,7 +513,7 @@ export default function QuestionDetailClient({ initialQuestion, questionId }: Qu
                 <div className="text-center">
                     <p className="text-slate-600 dark:text-slate-400 font-medium">Pertanyaan tidak ditemukan</p>
                     <button
-                        onClick={() => router.back()}
+                        onClick={() => router.push('/')}
                         className="mt-4 text-emerald-600 dark:text-emerald-400 hover:text-emerald-700 dark:hover:text-emerald-300 font-medium"
                     >
                         Kembali
@@ -517,7 +529,7 @@ export default function QuestionDetailClient({ initialQuestion, questionId }: Qu
             <div className="sticky top-0 z-30 bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800 px-4 py-3 sm:hidden flex items-center justify-between">
                 <div className="flex items-center gap-3">
                     <button
-                        onClick={() => router.back()}
+                        onClick={() => router.push('/')}
                         className="p-1 -ml-1 text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-100"
                     >
                         <ArrowLeft className="w-5 h-5" />
@@ -536,11 +548,11 @@ export default function QuestionDetailClient({ initialQuestion, questionId }: Qu
             <div className="hidden sm:block border-b border-slate-200 dark:border-slate-800">
                 <div className="max-w-5xl mx-auto px-6 py-3">
                     <button
-                        onClick={() => router.back()}
+                        onClick={() => router.push('/')}
                         className="flex items-center gap-2 text-slate-600 dark:text-slate-400 hover:text-emerald-600 dark:hover:text-emerald-400 transition-colors group text-sm"
                     >
                         <ArrowLeft className="w-4 h-4 group-hover:-translate-x-1 transition-transform" />
-                        <span className="font-medium">Kembali</span>
+                        <span className="font-medium">Kembali ke Beranda</span>
                     </button>
                 </div>
             </div>

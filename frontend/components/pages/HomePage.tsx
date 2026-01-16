@@ -63,8 +63,8 @@ export default function HomePage() {
       const cached = sessionStorage.getItem(key);
       if (!cached) return null;
       const { data, timestamp } = JSON.parse(cached);
-      // Cache valid for 30 seconds
-      if (Date.now() - timestamp < 30000) {
+      // Cache valid for 10 seconds (reduced for faster vote updates)
+      if (Date.now() - timestamp < 10000) {
         return { data, fresh: true };
       }
       // Return stale data but mark as not fresh
@@ -134,8 +134,16 @@ export default function HomePage() {
 
     loadQuestions();
 
+    // ✅ Auto-refresh every 15 seconds for realtime vote updates
+    const pollInterval = setInterval(() => {
+      if (mounted) {
+        fetchQuestions(false); // Silent refresh without showing loading
+      }
+    }, 15000);
+
     return () => {
       mounted = false;
+      clearInterval(pollInterval);
     };
   }, [fetchQuestions]);
 
@@ -303,10 +311,10 @@ export default function HomePage() {
                 }
               </p>
 
-              <div className="flex flex-wrap items-center gap-3">
+              <div className="flex flex-wrap items-center gap-3 relative z-30">
                 <Link
                   href="/ask"
-                  className="inline-flex items-center gap-2 px-5 py-2.5 bg-white dark:bg-slate-800 text-emerald-600 dark:text-emerald-400 rounded-xl font-bold hover:bg-emerald-50 dark:hover:bg-slate-700 transition-all shadow-lg hover:shadow-xl hover:-translate-y-0.5 text-sm"
+                  className="inline-flex items-center gap-2 px-5 py-2.5 bg-white dark:bg-slate-800 text-emerald-600 dark:text-emerald-400 rounded-xl font-bold hover:bg-emerald-50 dark:hover:bg-slate-700 transition-all shadow-lg hover:shadow-xl hover:-translate-y-0.5 text-sm cursor-pointer"
                 >
                   <Plus className="w-4 h-4" />
                   Buat Pertanyaan

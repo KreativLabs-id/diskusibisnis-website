@@ -3,6 +3,7 @@ import pool from '../config/database';
 import { AuthRequest } from '../types';
 import { successResponse, errorResponse, notFoundResponse, forbiddenResponse } from '../utils/response.utils';
 import { createVoteNotification } from '../utils/notification.service';
+import { invalidateCache } from '../utils/cache';
 
 /**
  * Create or update vote
@@ -91,6 +92,9 @@ export const createOrUpdateVote = async (req: AuthRequest, res: Response): Promi
 
           await client.query('COMMIT');
 
+          // ✅ Invalidate cache so the homepage shows updated vote counts
+          invalidateCache.questions();
+
           successResponse(res, {
             action: 'removed',
             userVote: null,
@@ -145,6 +149,9 @@ export const createOrUpdateVote = async (req: AuthRequest, res: Response): Promi
       await client.query('COMMIT');
 
       const currentUserVote = userVoteResult.rows.length > 0 ? userVoteResult.rows[0].vote_type : null;
+
+      // ✅ Invalidate cache so the homepage shows updated vote counts
+      invalidateCache.questions();
 
       // ✅ Send response IMMEDIATELY - don't wait for notification
       successResponse(res, {

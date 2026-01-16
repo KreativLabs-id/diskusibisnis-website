@@ -173,7 +173,7 @@ export default function AskPage() {
       <div className="max-w-4xl mx-auto px-4 py-10">
         {/* Back Button */}
         <button
-          onClick={() => router.back()}
+          onClick={() => router.push('/')}
           className="flex items-center gap-2 text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200 mb-6 transition-colors"
         >
           <ArrowLeft className="w-5 h-5" />
@@ -391,7 +391,7 @@ export default function AskPage() {
           <div className="flex items-center justify-between pt-4 border-t border-slate-200">
             <button
               type="button"
-              onClick={() => router.back()}
+              onClick={() => router.push('/')}
               className="px-6 py-2.5 text-slate-700 hover:bg-slate-100 rounded-lg transition-colors font-medium"
               disabled={loading}
             >
@@ -399,7 +399,7 @@ export default function AskPage() {
             </button>
             <button
               type="submit"
-              disabled={loading || selectedTags.length === 0}
+              disabled={loading || title.trim().length < 10 || content.trim().length < 20}
               className="px-6 py-2.5 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 transition-colors font-medium disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
             >
               {loading ? (
