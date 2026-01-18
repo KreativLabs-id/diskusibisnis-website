@@ -8,7 +8,7 @@ const nextConfig = {
   compress: true,
   poweredByHeader: false,
 
-  // Image optimization
+  // Image optimization - ENHANCED for faster loading
   images: {
     remotePatterns: [
       {
@@ -24,6 +24,11 @@ const nextConfig = {
     formats: ["image/webp", "image/avif"],
     deviceSizes: [640, 750, 828, 1080, 1200, 1920],
     imageSizes: [16, 32, 48, 64, 96, 128, 256, 384],
+    // Increased cache TTL for better performance
+    minimumCacheTTL: 60 * 60 * 24 * 30, // 30 days
+    // Enable unoptimized as fallback for external images not in remotePatterns
+    dangerouslyAllowSVG: true,
+    contentSecurityPolicy: "default-src 'self'; script-src 'none'; sandbox;",
   },
 
   // Environment variables
@@ -214,24 +219,24 @@ const pwaConfig = withPWA({
       }
     },
     {
-      urlPattern: /\.(?:jpg|jpeg|gif|png|svg|ico|webp)$/i,
-      handler: 'StaleWhileRevalidate',
+      urlPattern: /\.(?:jpg|jpeg|gif|png|svg|ico|webp|avif)$/i,
+      handler: 'CacheFirst', // Changed to CacheFirst for faster image loading
       options: {
         cacheName: 'static-image-assets',
         expiration: {
-          maxEntries: 64,
-          maxAgeSeconds: 24 * 60 * 60 // 24 hours
+          maxEntries: 200, // Increased from 64 to 200
+          maxAgeSeconds: 30 * 24 * 60 * 60 // 30 days (increased from 24 hours)
         }
       }
     },
     {
       urlPattern: /\/_next\/image\?url=.+$/i,
-      handler: 'StaleWhileRevalidate',
+      handler: 'CacheFirst', // Changed to CacheFirst for faster image loading
       options: {
         cacheName: 'next-image',
         expiration: {
-          maxEntries: 64,
-          maxAgeSeconds: 24 * 60 * 60 // 24 hours
+          maxEntries: 200, // Increased from 64 to 200
+          maxAgeSeconds: 30 * 24 * 60 * 60 // 30 days (increased from 24 hours)
         }
       }
     },

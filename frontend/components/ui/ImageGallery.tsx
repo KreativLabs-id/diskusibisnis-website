@@ -4,6 +4,9 @@ import React, { useState } from 'react';
 import { X, ZoomIn, ChevronLeft, ChevronRight } from 'lucide-react';
 import Image from 'next/image';
 
+// Generic blur placeholder - a light gray SVG
+const shimmerBlur = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciPjxyZWN0IHdpZHRoPSIxMDAlIiBoZWlnaHQ9IjEwMCUiIGZpbGw9IiNlMmU4ZjAiLz48L3N2Zz4=';
+
 interface ImageGalleryProps {
   images: string[];
   className?: string;
@@ -11,6 +14,7 @@ interface ImageGalleryProps {
 
 const ImageGallery: React.FC<ImageGalleryProps> = ({ images, className = '' }) => {
   const [selectedImageIndex, setSelectedImageIndex] = useState<number | null>(null);
+  const [loadedImages, setLoadedImages] = useState<Set<number>>(new Set());
 
   if (!images || images.length === 0) {
     return null;
@@ -47,15 +51,18 @@ const ImageGallery: React.FC<ImageGalleryProps> = ({ images, className = '' }) =
       {/* Image Grid */}
       <div className={`grid gap-3 ${className}`}>
         {images.length === 1 && (
-          <div className="relative aspect-video w-full max-w-2xl rounded-lg overflow-hidden border border-gray-200 cursor-pointer group bg-white"
-               onClick={() => openLightbox(0)}>
+          <div className="relative aspect-video w-full max-w-2xl rounded-lg overflow-hidden border border-gray-200 cursor-pointer group bg-slate-100"
+            onClick={() => openLightbox(0)}>
             <Image
               src={images[0]}
               alt="Question image"
               fill
-              className="object-contain"
+              className={`object-contain transition-opacity duration-300 ${loadedImages.has(0) ? 'opacity-100' : 'opacity-0'}`}
               sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-              loading="lazy"
+              priority /* First image should load with priority */
+              placeholder="blur"
+              blurDataURL={shimmerBlur}
+              onLoad={() => setLoadedImages(prev => new Set(prev).add(0))}
             />
             <div className="absolute inset-0 bg-transparent group-hover:bg-black/20 transition-all flex items-center justify-center z-10">
               <ZoomIn className="w-8 h-8 text-white opacity-0 group-hover:opacity-100 transition-opacity" />
@@ -67,15 +74,18 @@ const ImageGallery: React.FC<ImageGalleryProps> = ({ images, className = '' }) =
           <div className="grid grid-cols-2 gap-3">
             {images.map((image, index) => (
               <div key={index}
-                   className="relative aspect-video rounded-lg overflow-hidden border border-gray-200 cursor-pointer group bg-white"
-                   onClick={() => openLightbox(index)}>
+                className="relative aspect-video rounded-lg overflow-hidden border border-gray-200 cursor-pointer group bg-slate-100"
+                onClick={() => openLightbox(index)}>
                 <Image
                   src={image}
                   alt={`Question image ${index + 1}`}
                   fill
-                  className="object-contain"
+                  className={`object-contain transition-opacity duration-300 ${loadedImages.has(index) ? 'opacity-100' : 'opacity-0'}`}
                   sizes="(max-width: 768px) 100vw, 50vw"
-                  loading="lazy"
+                  priority={index === 0}
+                  placeholder="blur"
+                  blurDataURL={shimmerBlur}
+                  onLoad={() => setLoadedImages(prev => new Set(prev).add(index))}
                 />
                 <div className="absolute inset-0 bg-transparent group-hover:bg-black/20 transition-all flex items-center justify-center z-10">
                   <ZoomIn className="w-6 h-6 text-white opacity-0 group-hover:opacity-100 transition-opacity" />
@@ -87,15 +97,18 @@ const ImageGallery: React.FC<ImageGalleryProps> = ({ images, className = '' }) =
 
         {images.length === 3 && (
           <div className="grid grid-cols-2 gap-3">
-            <div className="relative aspect-video col-span-2 rounded-lg overflow-hidden border border-gray-200 cursor-pointer group bg-white"
-                 onClick={() => openLightbox(0)}>
+            <div className="relative aspect-video col-span-2 rounded-lg overflow-hidden border border-gray-200 cursor-pointer group bg-slate-100"
+              onClick={() => openLightbox(0)}>
               <Image
                 src={images[0]}
                 alt="Question image 1"
                 fill
-                className="object-contain"
+                className={`object-contain transition-opacity duration-300 ${loadedImages.has(0) ? 'opacity-100' : 'opacity-0'}`}
                 sizes="(max-width: 768px) 100vw, 66vw"
-                loading="lazy"
+                priority
+                placeholder="blur"
+                blurDataURL={shimmerBlur}
+                onLoad={() => setLoadedImages(prev => new Set(prev).add(0))}
               />
               <div className="absolute inset-0 bg-transparent group-hover:bg-black/20 transition-all flex items-center justify-center z-10">
                 <ZoomIn className="w-7 h-7 text-white opacity-0 group-hover:opacity-100 transition-opacity" />
@@ -103,15 +116,17 @@ const ImageGallery: React.FC<ImageGalleryProps> = ({ images, className = '' }) =
             </div>
             {images.slice(1).map((image, index) => (
               <div key={index + 1}
-                   className="relative aspect-video rounded-lg overflow-hidden border border-gray-200 cursor-pointer group bg-white"
-                   onClick={() => openLightbox(index + 1)}>
+                className="relative aspect-video rounded-lg overflow-hidden border border-gray-200 cursor-pointer group bg-slate-100"
+                onClick={() => openLightbox(index + 1)}>
                 <Image
                   src={image}
                   alt={`Question image ${index + 2}`}
                   fill
-                  className="object-contain"
+                  className={`object-contain transition-opacity duration-300 ${loadedImages.has(index + 1) ? 'opacity-100' : 'opacity-0'}`}
                   sizes="(max-width: 768px) 100vw, 33vw"
-                  loading="lazy"
+                  placeholder="blur"
+                  blurDataURL={shimmerBlur}
+                  onLoad={() => setLoadedImages(prev => new Set(prev).add(index + 1))}
                 />
                 <div className="absolute inset-0 bg-transparent group-hover:bg-black/20 transition-all flex items-center justify-center z-10">
                   <ZoomIn className="w-6 h-6 text-white opacity-0 group-hover:opacity-100 transition-opacity" />
@@ -125,15 +140,18 @@ const ImageGallery: React.FC<ImageGalleryProps> = ({ images, className = '' }) =
           <div className="grid grid-cols-2 gap-3">
             {images.slice(0, 4).map((image, index) => (
               <div key={index}
-                   className="relative aspect-video rounded-lg overflow-hidden border border-gray-200 cursor-pointer group bg-white"
-                   onClick={() => openLightbox(index)}>
+                className="relative aspect-video rounded-lg overflow-hidden border border-gray-200 cursor-pointer group bg-slate-100"
+                onClick={() => openLightbox(index)}>
                 <Image
                   src={image}
                   alt={`Question image ${index + 1}`}
                   fill
-                  className="object-contain"
+                  className={`object-contain transition-opacity duration-300 ${loadedImages.has(index) ? 'opacity-100' : 'opacity-0'}`}
                   sizes="(max-width: 768px) 50vw, 33vw"
-                  loading="lazy"
+                  priority={index === 0}
+                  placeholder="blur"
+                  blurDataURL={shimmerBlur}
+                  onLoad={() => setLoadedImages(prev => new Set(prev).add(index))}
                 />
                 {index === 3 && images.length > 4 && (
                   <div className="absolute inset-0 bg-black/60 flex items-center justify-center z-10">
@@ -153,7 +171,7 @@ const ImageGallery: React.FC<ImageGalleryProps> = ({ images, className = '' }) =
 
       {/* Lightbox Modal */}
       {selectedImageIndex !== null && (
-        <div 
+        <div
           className="fixed inset-0 z-50 bg-black bg-opacity-95 flex items-center justify-center p-4"
           onClick={closeLightbox}
           onKeyDown={handleKeyDown}
@@ -198,7 +216,7 @@ const ImageGallery: React.FC<ImageGalleryProps> = ({ images, className = '' }) =
           </div>
 
           {/* Image */}
-          <div 
+          <div
             className="relative max-w-7xl max-h-[90vh] w-full"
             onClick={(e) => e.stopPropagation()}
           >

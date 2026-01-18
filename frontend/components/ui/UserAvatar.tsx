@@ -1,6 +1,7 @@
 'use client';
 
 import React from 'react';
+import Image from 'next/image';
 import { User } from 'lucide-react';
 
 interface UserAvatarProps {
@@ -27,6 +28,18 @@ const iconSizes = {
   xl: 'w-12 h-12',
 };
 
+// Pixel sizes for next/image optimization
+const pixelSizes = {
+  xs: 24,
+  sm: 32,
+  md: 40,
+  lg: 64,
+  xl: 96,
+};
+
+// Blur placeholder for loading
+const shimmerBlur = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciPjxyZWN0IHdpZHRoPSIxMDAlIiBoZWlnaHQ9IjEwMCUiIGZpbGw9IiNkMWZhZTUiLz48L3N2Zz4=';
+
 const UserAvatar: React.FC<UserAvatarProps> = ({
   src,
   alt = 'User',
@@ -39,6 +52,7 @@ const UserAvatar: React.FC<UserAvatarProps> = ({
   const showFallback = !src || imageError;
   const sizeClass = sizeClasses[size];
   const iconSize = iconSizes[size];
+  const pixelSize = pixelSizes[size];
 
   // Get first letter of name for fallback
   const fallbackLetter = fallbackName?.charAt(0)?.toUpperCase() || alt?.charAt(0)?.toUpperCase() || 'U';
@@ -59,13 +73,19 @@ const UserAvatar: React.FC<UserAvatarProps> = ({
   }
 
   return (
-    <img
-      src={src}
-      alt={alt}
-      className={`${sizeClass} rounded-full object-cover flex-shrink-0 ${className}`}
-      onError={() => setImageError(true)}
-      loading="lazy"
-    />
+    <div className={`${sizeClass} relative rounded-full flex-shrink-0 overflow-hidden ${className}`}>
+      <Image
+        src={src}
+        alt={alt}
+        width={pixelSize}
+        height={pixelSize}
+        className="rounded-full object-cover"
+        onError={() => setImageError(true)}
+        placeholder="blur"
+        blurDataURL={shimmerBlur}
+        sizes={`${pixelSize}px`}
+      />
+    </div>
   );
 };
 

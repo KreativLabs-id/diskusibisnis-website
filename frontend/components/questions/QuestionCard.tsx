@@ -1,6 +1,7 @@
 'use client';
 
 import Link from 'next/link';
+import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import { formatDate, formatNumber } from '@/lib/utils';
 import { Eye, MessageCircle, ThumbsUp, Clock, User, Award, Flag, MoreHorizontal } from 'lucide-react';
@@ -8,6 +9,9 @@ import { useState } from 'react';
 import VerifiedBadge from '@/components/ui/VerifiedBadge';
 import UserAvatar from '@/components/ui/UserAvatar';
 import { getReputationRingColor } from '@/components/ui/ReputationBadge';
+
+// Blur placeholder for loading
+const shimmerBlur = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciPjxyZWN0IHdpZHRoPSIxMDAlIiBoZWlnaHQ9IjEwMCUiIGZpbGw9IiNlMmU4ZjAiLz48L3N2Zz4=';
 
 interface Question {
   id: string;
@@ -87,15 +91,15 @@ export default function QuestionCard({ question, onReport, currentUserId }: Ques
         {/* Question Image Thumbnail */}
         {question.images && question.images.length > 0 && (
           <div className="mt-2">
-            <div className="relative aspect-video max-w-xl rounded-lg overflow-hidden border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900">
-              <img
+            <div className="relative aspect-video max-w-xl rounded-lg overflow-hidden border border-slate-200 dark:border-slate-700 bg-slate-100 dark:bg-slate-900">
+              <Image
                 src={question.images[0]}
                 alt={question.title}
-                className="w-full h-full object-cover"
-                onError={(e) => {
-                  const target = e.target as HTMLImageElement;
-                  target.style.display = 'none';
-                }}
+                fill
+                className="object-cover"
+                sizes="(max-width: 768px) 100vw, 576px"
+                placeholder="blur"
+                blurDataURL={shimmerBlur}
               />
             </div>
           </div>

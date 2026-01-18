@@ -6,6 +6,9 @@ import api from '@/lib/api';
 import Link from 'next/link';
 import Image from 'next/image';
 
+// Generic blur placeholder for loading
+const shimmerBlur = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iODAwIiBoZWlnaHQ9IjYwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWxsPSIjZjFmNWY5Ii8+PC9zdmc+';
+
 interface PromoPopup {
     id: string;
     title: string;
@@ -99,12 +102,18 @@ export default function PromoPopupModal() {
             {/* Popup content */}
             <div className="bg-white rounded-2xl overflow-hidden shadow-2xl">
                 <div className="relative w-full aspect-[4/3]">
-                    <img
+                    <Image
                         src={popup.image_url}
                         alt={popup.title}
-                        className="w-full h-full object-cover"
-                        onError={(e) => {
-                            (e.target as HTMLImageElement).src = 'https://via.placeholder.com/800x600?text=Promo';
+                        fill
+                        className="object-cover"
+                        sizes="(max-width: 768px) 95vw, 512px"
+                        priority
+                        placeholder="blur"
+                        blurDataURL={shimmerBlur}
+                        onError={(e: React.SyntheticEvent<HTMLImageElement>) => {
+                            const target = e.target as HTMLImageElement;
+                            target.src = 'https://via.placeholder.com/800x600?text=Promo';
                         }}
                     />
                 </div>
