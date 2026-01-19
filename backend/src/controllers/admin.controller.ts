@@ -504,7 +504,7 @@ export const broadcastNotification = async (req: AuthRequest, res: Response): Pr
       .filter(token => token && token.length > 10); // Basic validation
 
     // 4. Send Push Notifications
-    let pushResult = { success: true, successCount: 0, failureCount: 0 };
+    const pushResult = { success: true, successCount: 0, failureCount: 0 };
     if (tokens.length > 0) {
       const { sendNotificationToMultipleDevices } = await import('../services/firebase.service');
       // Batch tokens if > 500 (Firebase multicast limit)
