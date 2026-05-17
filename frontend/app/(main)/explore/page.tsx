@@ -11,168 +11,215 @@ import {
     Bookmark,
     Mail,
     Search,
-    ArrowRight
+    ChevronRight,
+    Sparkles,
+    LayoutGrid,
+    Globe
 } from 'lucide-react';
+import { cn } from '@/lib/utils';
 
 // Force dynamic rendering
 export const dynamic = 'force-dynamic';
 
 export default function ExplorePage() {
     return (
-        <div className="max-w-4xl mx-auto">
-
-            {/* Header */}
-            <div className="mb-8 p-6 bg-gradient-to-br from-emerald-600 to-teal-600 rounded-lg text-white shadow-lg relative overflow-hidden">
-                <div className="relative z-10">
-                    <h1 className="text-2xl font-bold mb-2">Jelajahi Forum</h1>
-                    <p className="text-emerald-50 text-sm">Temukan komunitas, topik menarik, dan diskusi yang relevan untuk bisnis Anda.</p>
+        <div className="min-h-screen bg-[#f8fafc] dark:bg-slate-950 pb-20 transition-colors duration-300">
+            <div className="max-w-5xl mx-auto px-4 py-8 sm:py-14">
+                {/* Professional Minimalist Header - Optimized for Mobile */}
+                <div className="mb-10 sm:mb-12">
+                    <h1 className="text-2xl sm:text-4xl font-bold text-slate-900 dark:text-white tracking-tight">
+                        Jelajahi Forum
+                    </h1>
+                    <p className="text-sm sm:text-lg text-slate-500 dark:text-slate-400 mt-1">
+                        Temukan ekosistem dan diskusi yang tepat untuk bisnis Anda.
+                    </p>
                 </div>
-            </div>
 
-            <div className="space-y-8 px-2 md:px-0">
+                <div className="space-y-12">
+                    {/* Main Menu Grid */}
+                    <section>
+                        <div className="flex items-center gap-2 mb-6 px-1">
+                            <div className="w-1.5 h-6 bg-emerald-500 rounded-full" />
+                            <h2 className="text-xs font-bold text-slate-400 dark:text-slate-500">
+                                Navigasi utama
+                            </h2>
+                        </div>
+                        
+                        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+                            <ExploreGridItem 
+                                href="/communities" 
+                                title="Komunitas" 
+                                description="Gabung grup diskusi" 
+                                icon={Globe} 
+                                color="blue"
+                            />
+                            <ExploreGridItem 
+                                href="/tags" 
+                                title="Topik" 
+                                description="Cari kategori bisnis" 
+                                icon={Hash} 
+                                color="purple"
+                            />
+                            <ExploreGridItem 
+                                href="/leaderboard" 
+                                title="Leaderboard" 
+                                description="Member teraktif" 
+                                icon={Trophy} 
+                                color="amber"
+                            />
+                            <ExploreGridItem 
+                                href="/users" 
+                                title="Pengguna" 
+                                description="Cari member lain" 
+                                icon={User} 
+                                color="rose"
+                            />
+                        </div>
+                    </section>
 
-                {/* Main Menu Grid */}
-                <section>
-                    <h2 className="text-sm font-bold text-slate-900 dark:text-slate-100 mb-4 px-1 uppercase tracking-wider flex items-center gap-2">
-                        <Search className="w-4 h-4" />
-                        Menu Utama
-                    </h2>
-                    <div className="grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4">
-                        <Link href="/communities" className="group p-4 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg hover:border-emerald-500 hover:shadow-md transition-all duration-200 flex flex-col justify-between h-32 relative overflow-hidden">
-                            <div className="absolute top-0 right-0 p-3 opacity-10 group-hover:opacity-20 transition-opacity">
-                                <Users className="w-16 h-16 text-emerald-600 dark:text-emerald-400" />
-                            </div>
-                            <div className="p-2 bg-blue-50 dark:bg-blue-900/30 w-fit rounded-lg group-hover:bg-blue-100 dark:group-hover:bg-blue-900/50 transition-colors">
-                                <Users className="w-5 h-5 text-blue-600 dark:text-blue-400" />
-                            </div>
-                            <div>
-                                <h3 className="font-bold text-slate-800 dark:text-slate-200 group-hover:text-emerald-700 dark:group-hover:text-emerald-400 transition-colors">Komunitas</h3>
-                                <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5 line-clamp-1">Gabung grup diskusi</p>
-                            </div>
-                        </Link>
-
-                        <Link href="/tags" className="group p-4 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg hover:border-emerald-500 hover:shadow-md transition-all duration-200 flex flex-col justify-between h-32 relative overflow-hidden">
-                            <div className="absolute top-0 right-0 p-3 opacity-10 group-hover:opacity-20 transition-opacity">
-                                <Hash className="w-16 h-16 text-emerald-600 dark:text-emerald-400" />
-                            </div>
-                            <div className="p-2 bg-purple-50 dark:bg-purple-900/30 w-fit rounded-lg group-hover:bg-purple-100 dark:group-hover:bg-purple-900/50 transition-colors">
-                                <Hash className="w-5 h-5 text-purple-600 dark:text-purple-400" />
-                            </div>
-                            <div>
-                                <h3 className="font-bold text-slate-800 dark:text-slate-200 group-hover:text-emerald-700 dark:group-hover:text-emerald-400 transition-colors">Topik / Tag</h3>
-                                <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5 line-clamp-1">Cari kategori</p>
-                            </div>
-                        </Link>
-
-                        <Link href="/reputation" className="group p-4 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg hover:border-emerald-500 hover:shadow-md transition-all duration-200 flex flex-col justify-between h-32 relative overflow-hidden">
-                            <div className="absolute top-0 right-0 p-3 opacity-10 group-hover:opacity-20 transition-opacity">
-                                <Trophy className="w-16 h-16 text-emerald-600 dark:text-emerald-400" />
-                            </div>
-                            <div className="p-2 bg-amber-50 dark:bg-amber-900/30 w-fit rounded-lg group-hover:bg-amber-100 dark:group-hover:bg-amber-900/50 transition-colors">
-                                <Trophy className="w-5 h-5 text-amber-600 dark:text-amber-400" />
-                            </div>
-                            <div>
-                                <h3 className="font-bold text-slate-800 dark:text-slate-200 group-hover:text-emerald-700 dark:group-hover:text-emerald-400 transition-colors">Leaderboard</h3>
-                                <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5 line-clamp-1">Member teraktif</p>
-                            </div>
-                        </Link>
-
-                        <Link href="/users" className="group p-4 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg hover:border-emerald-500 hover:shadow-md transition-all duration-200 flex flex-col justify-between h-32 relative overflow-hidden">
-                            <div className="absolute top-0 right-0 p-3 opacity-10 group-hover:opacity-20 transition-opacity">
-                                <User className="w-16 h-16 text-emerald-600 dark:text-emerald-400" />
-                            </div>
-                            <div className="p-2 bg-rose-50 dark:bg-rose-900/30 w-fit rounded-lg group-hover:bg-rose-100 dark:group-hover:bg-rose-900/50 transition-colors">
-                                <User className="w-5 h-5 text-rose-600 dark:text-rose-400" />
-                            </div>
-                            <div>
-                                <h3 className="font-bold text-slate-800 dark:text-slate-200 group-hover:text-emerald-700 dark:group-hover:text-emerald-400 transition-colors">Pengguna</h3>
-                                <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5 line-clamp-1">Cari member lain</p>
-                            </div>
-                        </Link>
-                    </div>
-                </section>
-
-                {/* Questions Navigation */}
-                <section>
-                    <h2 className="text-sm font-bold text-slate-900 dark:text-slate-100 mb-4 px-1 uppercase tracking-wider flex items-center gap-2">
-                        <MessageCircleQuestion className="w-4 h-4" />
-                        Diskusi
-                    </h2>
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
-                        <Link
-                            href="/questions"
-                            className="p-5 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg hover:border-emerald-500 hover:bg-emerald-50/30 dark:hover:bg-emerald-900/20 transition-all flex items-center justify-between group"
-                        >
-                            <div className="flex items-center gap-4">
-                                <div className="p-3 bg-emerald-100 dark:bg-emerald-900/30 text-emerald-600 dark:text-emerald-400 rounded-xl group-hover:scale-110 transition-transform">
-                                    <MessageCircleQuestion className="w-6 h-6" />
-                                </div>
-                                <div>
-                                    <div className="font-bold text-slate-900 dark:text-slate-100 group-hover:text-emerald-700 dark:group-hover:text-emerald-400">Semua Pertanyaan</div>
-                                    <div className="text-xs text-slate-500 dark:text-slate-400 mt-1">Lihat diskusi terbaru</div>
-                                </div>
-                            </div>
-                            <ArrowRight className="w-5 h-5 text-slate-300 dark:text-slate-600 group-hover:text-emerald-500 group-hover:translate-x-1 transition-all" />
-                        </Link>
-
-                        <Link href="/unanswered" className="p-5 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg hover:border-orange-500 hover:bg-orange-50/30 dark:hover:bg-orange-900/20 transition-all flex items-center justify-between group">
-                            <div className="flex items-center gap-4">
-                                <div className="p-3 bg-orange-100 dark:bg-orange-900/30 text-orange-600 dark:text-orange-400 rounded-xl group-hover:scale-110 transition-transform">
-                                    <HelpCircle className="w-6 h-6" />
-                                </div>
-                                <div>
-                                    <div className="font-bold text-slate-900 dark:text-slate-100 group-hover:text-orange-700 dark:group-hover:text-orange-400">Belum Terjawab</div>
-                                    <div className="text-xs text-slate-500 dark:text-slate-400 mt-1">Bantu jawab pertanyaan</div>
-                                </div>
-                            </div>
-                            <ArrowRight className="w-5 h-5 text-slate-300 dark:text-slate-600 group-hover:text-orange-500 group-hover:translate-x-1 transition-all" />
-                        </Link>
-
-                        <Link href="/saved" className="p-5 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg hover:border-sky-500 hover:bg-sky-50/30 dark:hover:bg-sky-900/20 transition-all flex items-center justify-between group">
-                            <div className="flex items-center gap-4">
-                                <div className="p-3 bg-sky-100 dark:bg-sky-900/30 text-sky-600 dark:text-sky-400 rounded-xl group-hover:scale-110 transition-transform">
-                                    <Bookmark className="w-6 h-6" />
-                                </div>
-                                <div>
-                                    <div className="font-bold text-slate-900 dark:text-slate-100 group-hover:text-sky-700 dark:group-hover:text-sky-400">Disimpan</div>
-                                    <div className="text-xs text-slate-500 dark:text-slate-400 mt-1">Koleksi diskusi Anda</div>
-                                </div>
-                            </div>
-                            <ArrowRight className="w-5 h-5 text-slate-300 dark:text-slate-600 group-hover:text-sky-500 group-hover:translate-x-1 transition-all" />
-                        </Link>
-
-                        <Link href="/contact" className="p-5 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg hover:border-slate-500 hover:bg-slate-50/50 dark:hover:bg-slate-700/50 transition-all flex items-center justify-between group">
-                            <div className="flex items-center gap-4">
-                                <div className="p-3 bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-400 rounded-xl group-hover:scale-110 transition-transform">
-                                    <Mail className="w-6 h-6" />
-                                </div>
-                                <div>
-                                    <div className="font-bold text-slate-900 dark:text-slate-100 group-hover:text-slate-700 dark:group-hover:text-slate-200">Bantuan / CS</div>
-                                    <div className="text-xs text-slate-500 dark:text-slate-400 mt-1">Hubungi dukungan</div>
-                                </div>
-                            </div>
-                            <ArrowRight className="w-5 h-5 text-slate-300 dark:text-slate-600 group-hover:text-slate-500 group-hover:translate-x-1 transition-all" />
-                        </Link>
-                    </div>
-                </section>
-
-                {/* Information & Legal */}
-                <section className="pt-4">
-                    <div className="flex flex-col items-center gap-4 text-center">
-                        <div className="flex flex-wrap justify-center gap-x-6 gap-y-2">
-                            <Link href="/about" className="text-sm text-slate-500 dark:text-slate-400 hover:text-emerald-600 dark:hover:text-emerald-400 font-medium">Tentang</Link>
-                            <Link href="/about-community" className="text-sm text-slate-500 dark:text-slate-400 hover:text-emerald-600 dark:hover:text-emerald-400 font-medium">Tentang Komunitas</Link>
-                            <Link href="/privacy" className="text-sm text-slate-500 dark:text-slate-400 hover:text-emerald-600 dark:hover:text-emerald-400 font-medium">Privasi</Link>
-                            <Link href="/terms" className="text-sm text-slate-500 dark:text-slate-400 hover:text-emerald-600 dark:hover:text-emerald-400 font-medium">Syarat & Ketentuan</Link>
-                            <Link href="/help" className="text-sm text-slate-500 dark:text-slate-400 hover:text-emerald-600 dark:hover:text-emerald-400 font-medium">Bantuan</Link>
+                    {/* Questions & Content section */}
+                    <section>
+                        <div className="flex items-center gap-2 mb-6 px-1">
+                            <div className="w-1.5 h-6 bg-emerald-500 rounded-full" />
+                            <h2 className="text-xs font-bold text-slate-400 dark:text-slate-500">
+                                Diskusi & bantuan
+                            </h2>
                         </div>
 
-                        <div className="text-xs text-slate-400 dark:text-slate-500 max-w-xs leading-relaxed">
-                            © 2026 DiskusiBisnis. Platform Q&A untuk UMKM Indonesia.
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <ExploreListItem 
+                                href="/questions" 
+                                title="Semua pertanyaan" 
+                                description="Lihat semua diskusi terbaru dari komunitas" 
+                                icon={MessageCircleQuestion} 
+                                color="emerald"
+                            />
+                            <ExploreListItem 
+                                href="/unanswered" 
+                                title="Belum terjawab" 
+                                description="Bantu sesama dengan menjawab pertanyaan" 
+                                icon={HelpCircle} 
+                                color="orange"
+                            />
+                            <ExploreListItem 
+                                href="/saved" 
+                                title="Disimpan" 
+                                description="Koleksi diskusi yang telah Anda simpan" 
+                                icon={Bookmark} 
+                                color="sky"
+                            />
+                            <ExploreListItem 
+                                href="/contact" 
+                                title="Bantuan / cs" 
+                                description="Hubungi tim dukungan kami" 
+                                icon={Mail} 
+                                color="slate"
+                            />
                         </div>
-                    </div>
-                </section>
+                    </section>
+
+                    {/* Premium CTA / Info */}
+                    <section className="pt-8">
+                        <div className="group relative bg-slate-900 dark:bg-white rounded-[2.5rem] p-8 sm:p-12 overflow-hidden shadow-2xl text-center sm:text-left">
+                            <div className="absolute top-0 right-0 w-64 h-64 bg-emerald-500/20 rounded-full blur-[100px]" />
+                            <div className="relative z-10 flex flex-col sm:flex-row items-center justify-between gap-8">
+                                <div className="max-w-xl">
+                                    <h3 className="text-2xl sm:text-3xl font-bold text-white dark:text-slate-900 mb-3">
+                                        Punya pertanyaan spesifik?
+                                    </h3>
+                                    <p className="text-slate-400 dark:text-slate-500 font-medium">
+                                        Jangan ragu untuk memulai diskusi baru. Ribuan pebisnis siap berbagi pengalaman mereka dengan Anda.
+                                    </p>
+                                </div>
+                                <Link
+                                    href="/ask"
+                                    className="px-8 py-4 bg-emerald-500 text-white rounded-full font-bold text-sm shadow-xl shadow-emerald-500/20 whitespace-nowrap transition-all hover:scale-105"
+                                >
+                                    Tanya sekarang
+                                </Link>
+                            </div>
+                        </div>
+                    </section>
+
+                    {/* Footer links - minimalist */}
+                    <footer className="pt-12 border-t border-slate-200 dark:border-slate-800/60 text-center">
+                        <div className="flex flex-wrap justify-center gap-x-8 gap-y-3 mb-6">
+                            {['Tentang', 'Komunitas', 'Privasi', 'Syarat', 'Bantuan'].map((item) => (
+                                <Link 
+                                    key={item} 
+                                    href={`/${item.toLowerCase()}`} 
+                                    className="text-xs font-bold text-slate-400 dark:text-slate-500 hover:text-emerald-500 transition-colors"
+                                >
+                                    {item}
+                                </Link>
+                            ))}
+                        </div>
+                        <p className="text-[10px] font-bold text-slate-300 dark:text-slate-700 uppercase tracking-[0.3em]">
+                            © 2026 DiskusiBisnis
+                        </p>
+                    </footer>
+                </div>
             </div>
         </div>
     );
 }
+
+function ExploreGridItem({ href, title, description, icon: Icon, color }: any) {
+    const colorVariants: any = {
+        blue: "text-blue-500 bg-blue-500/10",
+        purple: "text-purple-500 bg-purple-500/10",
+        amber: "text-amber-500 bg-amber-500/10",
+        rose: "text-rose-500 bg-rose-500/10",
+    };
+
+    return (
+        <Link 
+            href={href} 
+            className="group relative bg-white/60 dark:bg-slate-900/40 backdrop-blur-md border border-white dark:border-slate-800/60 rounded-[2rem] p-6 hover:bg-white dark:hover:bg-slate-800 transition-all duration-500 hover:shadow-xl hover:-translate-y-1 overflow-hidden"
+        >
+            <div className={cn("w-12 h-12 rounded-2xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-500", colorVariants[color])}>
+                <Icon className="w-6 h-6" />
+            </div>
+            <div>
+                <h3 className="text-lg font-black text-slate-900 dark:text-white group-hover:text-emerald-600 transition-colors">
+                    {title}
+                </h3>
+                <p className="text-xs font-medium text-slate-500 dark:text-slate-400 mt-1 line-clamp-1">
+                    {description}
+                </p>
+            </div>
+        </Link>
+    );
+}
+
+function ExploreListItem({ href, title, description, icon: Icon, color }: any) {
+    const colorVariants: any = {
+        emerald: "text-emerald-500 bg-emerald-500/10",
+        orange: "text-orange-500 bg-orange-500/10",
+        sky: "text-sky-500 bg-sky-500/10",
+        slate: "text-slate-500 bg-slate-500/10",
+    };
+
+    return (
+        <Link 
+            href={href} 
+            className="group flex items-center justify-between p-5 bg-white/60 dark:bg-slate-900/40 backdrop-blur-md border border-white dark:border-slate-800/60 rounded-[2rem] hover:bg-white dark:hover:bg-slate-800 transition-all duration-500 hover:shadow-lg"
+        >
+            <div className="flex items-center gap-4">
+                <div className={cn("w-12 h-12 rounded-2xl flex items-center justify-center group-hover:scale-110 transition-transform duration-500", colorVariants[color])}>
+                    <Icon className="w-5 h-5" />
+                </div>
+                <div>
+                    <h3 className="font-black text-slate-900 dark:text-white group-hover:text-emerald-600 transition-colors">
+                        {title}
+                    </h3>
+                    <p className="text-xs font-medium text-slate-500 dark:text-slate-400 mt-0.5">
+                        {description}
+                    </p>
+                </div>
+            </div>
+            <ChevronRight className="w-5 h-5 text-slate-300 group-hover:text-emerald-500 group-hover:translate-x-1 transition-all" />
+        </Link>
+    );
+}
+

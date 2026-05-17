@@ -47,3 +47,4 @@ coverage/
 
 # Secrets
 backend/config/firebase-admin-sdk.json
+.superpowers

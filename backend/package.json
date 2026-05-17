@@ -4,7 +4,8 @@
   "description": "Backend API untuk Diskusi Bisnis - Forum Q&A UMKM Indonesia",
   "main": "dist/server.js",
   "scripts": {
-    "dev": "ts-node-dev --respawn --transpile-only src/server.ts",
+    "dev": "ts-node --transpile-only src/server.ts",
+    "dev:watch": "ts-node-dev --respawn --transpile-only src/server.ts",
     "build": "tsc",
     "start": "node dist/server.js",
     "start:prod": "NODE_ENV=production node dist/server.js",

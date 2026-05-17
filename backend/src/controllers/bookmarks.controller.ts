@@ -2,6 +2,7 @@ import { Response } from 'express';
 import pool from '../config/database';
 import { AuthRequest } from '../types';
 import { successResponse, errorResponse, forbiddenResponse } from '../utils/response.utils';
+import { hasTableColumn } from '../utils/schema.utils';
 
 /**
  * Get user bookmarks
@@ -9,6 +10,7 @@ import { successResponse, errorResponse, forbiddenResponse } from '../utils/resp
  */
 export const getBookmarks = async (req: AuthRequest, res: Response): Promise<void> => {
   try {
+    const hasImagesColumn = await hasTableColumn('public', 'questions', 'images');
     const user = req.user;
     if (!user) {
       forbiddenResponse(res, 'Authentication required');
@@ -22,12 +24,13 @@ export const getBookmarks = async (req: AuthRequest, res: Response): Promise<voi
     const result = await pool.query(`
       SELECT 
         b.id as bookmark_id, b.created_at as bookmarked_at,
-        q.id, q.title, q.content, q.images, q.views_count, q.created_at,
-        u.id as author_id, u.display_name as author_name, u.avatar_url as author_avatar,
+        q.id, q.title, q.content, ${hasImagesColumn ? 'q.images' : 'NULL::jsonb AS images'}, q.views_count, q.created_at,
+        u.id as author_id, u.username as author_username, u.display_name as author_name, u.avatar_url as author_avatar,
         u.reputation_points as author_reputation,
         COALESCE(u.is_verified, false) as author_is_verified,
         COUNT(DISTINCT a.id) as answers_count,
         COUNT(DISTINCT CASE WHEN v.vote_type = 'upvote' THEN v.id END) as upvotes_count,
+        (SELECT user_vote.vote_type FROM public.votes user_vote WHERE user_vote.question_id = q.id AND user_vote.user_id = $1) as user_vote,
         CASE WHEN COUNT(DISTINCT a_accepted.id) > 0 THEN true ELSE false END as has_accepted_answer
       FROM public.bookmarks b
       JOIN public.questions q ON b.question_id = q.id

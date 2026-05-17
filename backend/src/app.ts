@@ -1,4 +1,4 @@
-import express, { Application } from 'express';
+import express, { Application, Response } from 'express';
 import cors from 'cors';
 import helmet from 'helmet';
 import morgan from 'morgan';
@@ -22,11 +22,32 @@ import {
 } from './middlewares/security.middleware';
 import { auditAuthMiddleware, auditAdminMiddleware } from './middlewares/audit.middleware';
 import { validateEnvironment } from './lib/env';
-import { csrfTokenGenerator, getCSRFToken } from './middlewares/csrf.middleware';
+import { conditionalCsrfTokenGenerator, getCSRFToken } from './middlewares/csrf.middleware';
 import { honeypotMiddleware } from './middlewares/honeypot.middleware';
 import { helmetConfig } from './config/csp.config';
 
 const app: Application = express();
+
+const healthCheckHandler = async (res: Response) => {
+  const health = {
+    status: 'OK',
+    timestamp: new Date().toISOString(),
+    uptime: process.uptime(),
+    environment: config.nodeEnv,
+    database: 'checking...' as string
+  };
+
+  try {
+    await pool.query('SELECT 1');
+    health.database = 'connected';
+  } catch (error) {
+    health.database = 'disconnected';
+    console.log('Health check: Database not available');
+  }
+
+  res.setHeader('Cache-Control', 'no-store');
+  res.status(200).json(health);
+};
 
 // Validate environment variables on startup (non-blocking warning in development)
 try {
@@ -71,17 +92,17 @@ app.use(cors({
   origin: (origin, callback) => {
     const allowedOrigins = config.cors.origin;
     const isProduction = config.nodeEnv === 'production';
+    const shouldLogCors = !isProduction && config.debug.cors;
 
     // Allow requests with no origin (like mobile apps, Postman, curl requests)
     if (!origin) {
-      if (!isProduction) {
+      if (shouldLogCors) {
         console.log('CORS: Request with no origin - allowing');
       }
       return callback(null, true);
     }
 
-    // Log incoming origin for debugging (only in development)
-    if (!isProduction) {
+    if (shouldLogCors) {
       console.log('CORS: Checking origin:', origin);
       console.log('CORS: Allowed origins:', allowedOrigins);
     }
@@ -89,7 +110,7 @@ app.use(cors({
     // Check if origin is allowed
     if (Array.isArray(allowedOrigins)) {
       if (allowedOrigins.includes(origin)) {
-        if (!isProduction) {
+        if (shouldLogCors) {
           console.log('CORS: Origin allowed (array match)');
         }
         callback(null, true);
@@ -97,19 +118,17 @@ app.use(cors({
         // In production, reject unauthorized origins
         if (isProduction) {
           console.warn('CORS: Origin blocked in production:', origin);
-          // For now, allowing all in production to debug mobile app connection if needed, 
-          // usually you should block it. user asked for security, so we should block it.
-          // Reverting to block:
           callback(new Error('Not allowed by CORS'));
         } else {
-          // In development, allow but log warning
-          console.log('CORS: Origin NOT in list, allowing for development');
+          if (shouldLogCors) {
+            console.log('CORS: Origin NOT in list, allowing for development');
+          }
           callback(null, true);
         }
       }
     } else {
       const isAllowed = origin === allowedOrigins || allowedOrigins === '*';
-      if (!isProduction) {
+      if (shouldLogCors) {
         console.log(`CORS: Origin ${isAllowed ? 'allowed' : 'NOT allowed'} (string match)`);
       }
       if (isAllowed) {
@@ -156,6 +175,8 @@ const limiter = rateLimit({
   },
 });
 
+app.get('/api/health', async (_req, res) => healthCheckHandler(res));
+
 app.use('/api/', limiter);
 
 // Health check endpoint - Always return 200 for Railway
@@ -186,8 +207,8 @@ app.use('/api', detectPathTraversal);
 app.use('/api', detectSQLInjection);
 app.use('/api', detectXSS);
 
-// CSRF token generation for all API requests
-app.use('/api', csrfTokenGenerator);
+// Only mint CSRF cookies for unsafe methods or the dedicated token endpoint.
+app.use('/api', conditionalCsrfTokenGenerator);
 
 // CSRF token endpoint for frontend to fetch token
 app.get('/api/csrf-token', getCSRFToken);

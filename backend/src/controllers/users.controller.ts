@@ -17,7 +17,7 @@ export const getUsers = async (req: AuthRequest, res: Response): Promise<void> =
 
     let query = `
       SELECT 
-        id, display_name, avatar_url, reputation_points, 
+        id, display_name, username, avatar_url, reputation_points, 
         role, is_verified, created_at
       FROM public.users
       WHERE is_banned = false
@@ -474,7 +474,7 @@ export const updateUserProfile = async (req: AuthRequest, res: Response): Promis
       UPDATE public.users
       SET ${updates.join(', ')}
       WHERE id = $${paramIndex}
-      RETURNING id, email, display_name, avatar_url, bio, reputation_points, role, is_verified, created_at, updated_at
+      RETURNING id, email, display_name, username, avatar_url, bio, reputation_points, role, is_verified, created_at, updated_at
     `;
 
     const result = await pool.query(query, values);
@@ -515,7 +515,7 @@ export const deleteUserAvatar = async (req: AuthRequest, res: Response): Promise
       UPDATE public.users
       SET avatar_url = NULL, updated_at = CURRENT_TIMESTAMP
       WHERE id = $1
-      RETURNING id, email, display_name, avatar_url, bio, reputation_points, role, is_verified
+      RETURNING id, email, display_name, username, avatar_url, bio, reputation_points, role, is_verified
     `, [userId]);
 
     if (result.rows.length === 0) {

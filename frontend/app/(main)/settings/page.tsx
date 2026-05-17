@@ -8,6 +8,8 @@ import { User, Mail, Lock, Save, AlertCircle, Trash2, Camera, X, CheckCircle, Al
 import { userAPI, authAPI } from '@/lib/api';
 import { uploadAvatar, deleteAvatar } from '@/lib/image-upload';
 import AlertModal from '@/components/ui/AlertModal';
+import UserAvatar from '@/components/ui/UserAvatar';
+import { getProfileHref } from '@/lib/profile';
 
 export default function SettingsPage() {
   const router = useRouter();
@@ -152,7 +154,7 @@ export default function SettingsPage() {
           bio: updatedUserData.bio || formData.bio,
         });
         setSuccess('Profil berhasil diperbarui!');
-        setTimeout(() => router.push(`/profile/${user.username || user.id}`), 2000);
+        setTimeout(() => router.push(getProfileHref(user)), 2000);
       }
     } catch (err: any) {
       setError(err.response?.data?.message || 'Gagal memperbarui profil');
@@ -197,30 +199,30 @@ export default function SettingsPage() {
             <h2 className="text-sm font-bold text-slate-900 dark:text-slate-100 uppercase tracking-wider mb-6">Profil</h2>
 
             <form onSubmit={handleSubmit}>
-              <div className="flex flex-col gap-6">
+              <div className="flex flex-col gap-8">
 
-                {/* Avatar Row */}
-                <div className="flex items-center gap-5">
+                {/* Avatar Section - Centered & Premium */}
+                <div className="flex flex-col items-center justify-center py-8 bg-slate-50/50 dark:bg-slate-900/30 rounded-3xl border border-dashed border-slate-200 dark:border-slate-800">
                   <div className="relative group">
-                    {avatarPreview ? (
-                      <img
+                    <div className="w-24 h-24 sm:w-28 sm:h-28 rounded-full p-1 bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800 shadow-sm relative z-10 overflow-hidden">
+                      <UserAvatar
                         src={avatarPreview}
                         alt="Avatar"
-                        className="w-20 h-20 rounded-full object-cover border-2 border-slate-100 dark:border-slate-700"
+                        size="xl"
+                        fallbackName={formData.displayName}
+                        className="w-full h-full"
                       />
-                    ) : (
-                      <div className="w-20 h-20 rounded-full bg-slate-100 dark:bg-slate-800 flex items-center justify-center text-slate-300 dark:text-slate-600">
-                        <User className="w-8 h-8" />
-                      </div>
-                    )}
+                    </div>
+                    
                     <button
                       type="button"
                       onClick={() => fileInputRef.current?.click()}
                       disabled={uploadingAvatar || loading}
-                      className="absolute bottom-0 right-0 p-1.5 bg-slate-900 dark:bg-slate-100 text-white dark:text-slate-900 rounded-full hover:bg-slate-700 dark:hover:bg-slate-300 transition-colors border-2 border-white dark:border-slate-700 shadow-sm"
+                      className="absolute bottom-1 right-1 z-20 p-2 bg-emerald-600 text-white rounded-full hover:bg-emerald-700 transition-all border-2 border-white dark:border-slate-900 shadow-lg"
                     >
-                      <Camera className="w-3.5 h-3.5" />
+                      <Camera className="w-4 h-4" />
                     </button>
+                    
                     <input
                       ref={fileInputRef}
                       type="file"
@@ -229,21 +231,22 @@ export default function SettingsPage() {
                       onChange={handleAvatarChange}
                     />
                   </div>
-                  <div>
-                    <h3 className="text-base font-semibold text-slate-900 dark:text-slate-100">Foto Profil</h3>
-                    <div className="flex items-center gap-3 mt-1">
+                  
+                  <div className="mt-4 text-center">
+                    <h3 className="text-sm font-bold text-slate-900 dark:text-slate-100 uppercase tracking-tight">Foto Profil</h3>
+                    <div className="flex items-center justify-center gap-4 mt-2">
                       <button
                         type="button"
                         onClick={() => fileInputRef.current?.click()}
-                        className="text-sm font-medium text-emerald-600 dark:text-emerald-400 hover:text-emerald-700 dark:hover:text-emerald-300"
+                        className="text-xs font-semibold px-3 py-1.5 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors shadow-sm"
                       >
-                        Ubah
+                        Pilih Foto
                       </button>
                       {avatarPreview && (
                         <button
                           type="button"
                           onClick={handleRemoveAvatar}
-                          className="text-sm font-medium text-red-600 dark:text-red-400 hover:text-red-700 dark:hover:text-red-300"
+                          className="text-xs font-semibold px-3 py-1.5 text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-colors"
                         >
                           Hapus
                         </button>
@@ -253,9 +256,9 @@ export default function SettingsPage() {
                 </div>
 
                 {/* Form Fields - Minimalist, underline/clean style */}
-                <div className="space-y-6 mt-2">
+                <div className="space-y-6">
                   <div className="group">
-                    <label className="block text-xs font-semibold text-slate-500 dark:text-slate-400 mb-1.5 uppercase">Display Name</label>
+                    <label className="block text-xs font-semibold text-slate-500 dark:text-slate-400 mb-1.5 uppercase tracking-wide">Display Name</label>
                     <input
                       type="text"
                       value={formData.displayName}
@@ -266,7 +269,7 @@ export default function SettingsPage() {
                   </div>
 
                   <div className="group">
-                    <label className="block text-xs font-semibold text-slate-500 dark:text-slate-400 mb-1.5 uppercase">Bio</label>
+                    <label className="block text-xs font-semibold text-slate-500 dark:text-slate-400 mb-1.5 uppercase tracking-wide">Bio</label>
                     <textarea
                       rows={2}
                       value={formData.bio}
@@ -530,7 +533,7 @@ function PasswordChangeModal({ email, onClose }: { email: string; onClose: () =>
 
   return (
     <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50 p-4 backdrop-blur-sm">
-      <div className="bg-white dark:bg-slate-800 rounded-2xl max-w-sm w-full p-6 shadow-2xl animate-in zoom-in-95">
+      <div className="bg-white dark:bg-slate-900 rounded-2xl max-w-sm w-full p-6 shadow-2xl animate-in zoom-in-95 border border-slate-200 dark:border-slate-800">
         <div className="flex items-center justify-between mb-6">
           <h2 className="text-lg font-bold text-slate-900 dark:text-slate-100">
             {success ? 'Email Terkirim!' : 'Ubah Password'}
@@ -540,7 +543,7 @@ function PasswordChangeModal({ email, onClose }: { email: string; onClose: () =>
           </button>
         </div>
 
-        {error && <div className="p-3 mb-4 bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400 rounded-lg text-xs font-medium">{error}</div>}
+        {error && <div className="p-3 mb-4 bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400 rounded-lg text-xs font-medium border border-red-100 dark:border-red-900/30">{error}</div>}
 
         {success ? (
           <div className="space-y-4">
@@ -571,7 +574,7 @@ function PasswordChangeModal({ email, onClose }: { email: string; onClose: () =>
           </div>
         ) : (
           <div className="space-y-4">
-            <div className="p-3 bg-slate-50 dark:bg-slate-700 text-slate-600 dark:text-slate-300 rounded-xl text-sm">
+            <div className="p-3 bg-slate-50 dark:bg-slate-800 text-slate-600 dark:text-slate-300 rounded-xl text-sm">
               <p>Kami akan mengirim link untuk mereset password ke email:</p>
               <p className="font-semibold mt-1 text-slate-900 dark:text-slate-100">{email}</p>
             </div>
@@ -628,21 +631,21 @@ function SetPasswordModal({ onClose, onSuccess }: { onClose: () => void; onSucce
 
   return (
     <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50 p-4 backdrop-blur-sm">
-      <div className="bg-white rounded-2xl max-w-sm w-full p-6 shadow-2xl animate-in zoom-in-95">
+      <div className="bg-white dark:bg-slate-900 rounded-2xl max-w-sm w-full p-6 shadow-2xl animate-in zoom-in-95 border border-slate-200 dark:border-slate-800">
         <div className="flex items-center justify-between mb-6">
-          <h2 className="text-lg font-bold text-slate-900">Buat Password</h2>
-          <button onClick={onClose} className="text-slate-400 hover:text-slate-600"><X className="w-5 h-5" /></button>
+          <h2 className="text-lg font-bold text-slate-900 dark:text-slate-100">Buat Password</h2>
+          <button onClick={onClose} className="text-slate-400 hover:text-slate-600 dark:hover:text-slate-300"><X className="w-5 h-5" /></button>
         </div>
-        <div className="mb-4 text-xs text-slate-500 bg-slate-50 p-3 rounded-lg">
+        <div className="mb-4 text-xs text-slate-500 dark:text-slate-400 bg-slate-50 dark:bg-slate-800 p-3 rounded-lg">
           Buat password untuk login menggunakan email.
         </div>
-        {error && <div className="p-3 mb-4 bg-red-50 text-red-600 rounded-lg text-xs font-medium">{error}</div>}
+        {error && <div className="p-3 mb-4 bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400 rounded-lg text-xs font-medium">{error}</div>}
         <form onSubmit={handleSubmit} className="space-y-4">
           <input
             type="password"
             value={newPassword}
             onChange={(e) => setNewPassword(e.target.value)}
-            className="w-full px-4 py-3 bg-slate-50 border border-transparent focus:bg-white focus:border-emerald-500 rounded-xl outline-none text-sm transition-all"
+            className="w-full px-4 py-3 bg-slate-50 dark:bg-slate-800 border border-transparent focus:bg-white dark:focus:bg-slate-950 focus:border-emerald-500 rounded-xl outline-none text-sm transition-all text-slate-900 dark:text-slate-100"
             placeholder="Password Baru"
             required
           />
@@ -650,7 +653,7 @@ function SetPasswordModal({ onClose, onSuccess }: { onClose: () => void; onSucce
             type="password"
             value={confirmPassword}
             onChange={(e) => setConfirmPassword(e.target.value)}
-            className="w-full px-4 py-3 bg-slate-50 border border-transparent focus:bg-white focus:border-emerald-500 rounded-xl outline-none text-sm transition-all"
+            className="w-full px-4 py-3 bg-slate-50 dark:bg-slate-800 border border-transparent focus:bg-white dark:focus:bg-slate-950 focus:border-emerald-500 rounded-xl outline-none text-sm transition-all text-slate-900 dark:text-slate-100"
             placeholder="Konfirmasi Password"
             required
           />
@@ -688,16 +691,16 @@ function DeleteAccountModal({ user, onClose, onSuccess }: { user: any; onClose: 
 
   return (
     <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50 p-4 backdrop-blur-sm">
-      <div className="bg-white rounded-2xl max-w-sm w-full p-6 shadow-2xl animate-in zoom-in-95">
+      <div className="bg-white dark:bg-slate-900 rounded-2xl max-w-sm w-full p-6 shadow-2xl animate-in zoom-in-95 border border-slate-200 dark:border-slate-800">
         <div className="flex items-center justify-between mb-4">
-          <h2 className="text-lg font-bold text-slate-900">Hapus Akun</h2>
-          <button onClick={onClose} className="text-slate-400 hover:text-slate-600"><X className="w-5 h-5" /></button>
+          <h2 className="text-lg font-bold text-slate-900 dark:text-slate-100">Hapus Akun</h2>
+          <button onClick={onClose} className="text-slate-400 hover:text-slate-600 dark:hover:text-slate-300"><X className="w-5 h-5" /></button>
         </div>
-        <p className="text-xs text-red-600 mb-6 bg-red-50 p-3 rounded-lg">
+        <p className="text-xs text-red-600 dark:text-red-400 mb-6 bg-red-50 dark:bg-red-900/20 p-3 rounded-lg">
           Permanen. Semua data akan hilang.
         </p>
 
-        {error && <div className="p-3 mb-4 bg-red-50 text-red-600 rounded-lg text-xs font-medium">{error}</div>}
+        {error && <div className="p-3 mb-4 bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400 rounded-lg text-xs font-medium">{error}</div>}
 
         <form onSubmit={handleDelete} className="space-y-4">
           {!isGoogleUser && (
@@ -705,7 +708,7 @@ function DeleteAccountModal({ user, onClose, onSuccess }: { user: any; onClose: 
               type="password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              className="w-full px-4 py-3 bg-slate-50 border border-transparent focus:bg-white focus:border-red-500 rounded-xl outline-none text-sm transition-all"
+              className="w-full px-4 py-3 bg-slate-50 dark:bg-slate-800 border border-transparent focus:bg-white dark:focus:bg-slate-950 focus:border-red-500 rounded-xl outline-none text-sm transition-all text-slate-900 dark:text-slate-100"
               placeholder="Password Anda"
               required={!isGoogleUser}
             />
@@ -714,7 +717,7 @@ function DeleteAccountModal({ user, onClose, onSuccess }: { user: any; onClose: 
             type="text"
             value={confirmText}
             onChange={(e) => setConfirmText(e.target.value)}
-            className="w-full px-4 py-3 bg-slate-50 border border-transparent focus:bg-white focus:border-red-500 rounded-xl outline-none text-sm transition-all"
+            className="w-full px-4 py-3 bg-slate-50 dark:bg-slate-800 border border-transparent focus:bg-white dark:focus:bg-slate-950 focus:border-red-500 rounded-xl outline-none text-sm transition-all text-slate-900 dark:text-slate-100"
             placeholder="Ketik 'HAPUS AKUN SAYA'"
             required
           />

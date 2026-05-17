@@ -19,24 +19,24 @@ export const getNotifications = async (req: AuthRequest, res: Response): Promise
     const limit = parseInt(req.query.limit as string) || 20;
     const offset = (page - 1) * limit;
 
-    const result = await pool.query(`
-      SELECT 
-        id, type, title, message, link, is_read, created_at
-      FROM public.notifications
-      WHERE user_id = $1
-      ORDER BY created_at DESC
-      LIMIT $2 OFFSET $3
-    `, [user.id, limit, offset]);
-
-    const countResult = await pool.query(
-      'SELECT COUNT(*) as total FROM public.notifications WHERE user_id = $1',
-      [user.id]
-    );
-
-    const unreadCount = await pool.query(
-      'SELECT COUNT(*) as unread FROM public.notifications WHERE user_id = $1 AND is_read = false',
-      [user.id]
-    );
+    const [result, countResult, unreadCount] = await Promise.all([
+      pool.query(`
+        SELECT 
+          id, type, title, message, link, is_read, created_at
+        FROM public.notifications
+        WHERE user_id = $1
+        ORDER BY created_at DESC
+        LIMIT $2 OFFSET $3
+      `, [user.id, limit, offset]),
+      pool.query(
+        'SELECT COUNT(*) as total FROM public.notifications WHERE user_id = $1',
+        [user.id]
+      ),
+      pool.query(
+        'SELECT COUNT(*) as unread FROM public.notifications WHERE user_id = $1 AND is_read = false',
+        [user.id]
+      )
+    ]);
 
     const total = parseInt(countResult.rows[0].total);
 

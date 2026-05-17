@@ -47,7 +47,7 @@ router.post('/:slug/join', requireAuth, joinCommunity);
 router.post('/:slug/leave', requireAuth, leaveCommunity);
 
 // Get community questions
-router.get('/:slug/questions', getCommunityQuestions);
+router.get('/:slug/questions', optionalAuth, getCommunityQuestions);
 
 // Get community members
 router.get('/:slug/members', getCommunityMembers);

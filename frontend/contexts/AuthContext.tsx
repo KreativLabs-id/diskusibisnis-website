@@ -50,6 +50,20 @@ interface AuthContextType {
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
+const normalizeUser = (userData: any, fallback?: Partial<User>): User => ({
+  id: userData.id ?? fallback?.id ?? '',
+  email: userData.email ?? fallback?.email ?? '',
+  displayName: userData.displayName || userData.display_name || fallback?.displayName || 'User',
+  username: userData.username ?? fallback?.username,
+  avatarUrl: userData.avatarUrl || userData.avatar_url || fallback?.avatarUrl,
+  bio: userData.bio ?? fallback?.bio ?? '',
+  role: userData.role ?? fallback?.role ?? 'member',
+  reputationPoints: userData.reputationPoints || userData.reputation_points || fallback?.reputationPoints || 0,
+  isVerified: userData.isVerified ?? userData.is_verified ?? fallback?.isVerified ?? userData.role === 'admin',
+  googleId: userData.googleId || userData.google_id || fallback?.googleId,
+  hasPassword: userData.hasPassword ?? userData.has_password ?? fallback?.hasPassword,
+});
+
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [token, setToken] = useState<string | null>(null);
@@ -88,19 +102,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
               const response = await userAPI.getProfile(parsedUser.id);
               const userData = response.data.data.user || response.data.user;
 
-              const updatedUser = {
-                id: userData.id,
-                email: userData.email || parsedUser.email,
-                displayName: userData.displayName || userData.display_name,
-                username: userData.username,
-                avatarUrl: userData.avatarUrl || userData.avatar_url,
-                bio: userData.bio || '',
-                role: userData.role || parsedUser.role,
-                reputationPoints: userData.reputationPoints || userData.reputation_points || 0,
-                isVerified: userData.isVerified || userData.is_verified || (userData.role === 'admin'),
-                googleId: userData.googleId || userData.google_id || parsedUser.googleId,
-                hasPassword: userData.hasPassword ?? userData.has_password ?? parsedUser.hasPassword
-              };
+              const updatedUser = normalizeUser(userData, parsedUser);
 
               if (mounted) {
                 setUser(updatedUser);
@@ -141,7 +143,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       // Set user_role cookie for middleware to check admin access
       setUserRoleCookie(user.role);
     }
-    setUser(user);
+    const normalizedUser = normalizeUser(user);
+    localStorage.setItem('user', JSON.stringify(normalizedUser));
+    setUser(normalizedUser);
     setToken(newToken);
 
     // Refresh user data from server to get latest role
@@ -160,7 +164,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       // Set user_role cookie for middleware to check admin access
       setUserRoleCookie(user.role);
     }
-    setUser(user);
+    const normalizedUser = normalizeUser(user);
+    localStorage.setItem('user', JSON.stringify(normalizedUser));
+    setUser(normalizedUser);
     setToken(newToken);
 
     // Refresh user data from server to get latest info
@@ -179,7 +185,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       // Set user_role cookie for middleware to check admin access
       setUserRoleCookie(user.role);
     }
-    setUser(user);
+    const normalizedUser = normalizeUser(user);
+    localStorage.setItem('user', JSON.stringify(normalizedUser));
+    setUser(normalizedUser);
     setToken(newToken);
   };
 
@@ -204,11 +212,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   };
 
   const updateUser = (updatedUser: User) => {
-    setUser(updatedUser);
+    const normalizedUser = normalizeUser(updatedUser, user ?? undefined);
+    setUser(normalizedUser);
     if (typeof window !== 'undefined') {
-      localStorage.setItem('user', JSON.stringify(updatedUser));
+      localStorage.setItem('user', JSON.stringify(normalizedUser));
       // Update user_role cookie for middleware to check admin access
-      setUserRoleCookie(updatedUser.role);
+      setUserRoleCookie(normalizedUser.role);
     }
   };
 
@@ -219,19 +228,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       const response = await userAPI.getProfile(user.id);
       const userData = response.data.data.user || response.data.user;
 
-      const updatedUser = {
-        id: userData.id,
-        email: userData.email,
-        displayName: userData.displayName || userData.display_name,
-        username: userData.username,
-        avatarUrl: userData.avatarUrl || userData.avatar_url,
-        bio: userData.bio || '',
-        role: userData.role,
-        reputationPoints: userData.reputationPoints || userData.reputation_points || 0,
-        isVerified: userData.isVerified || userData.is_verified || (userData.role === 'admin'),
-        googleId: userData.googleId || userData.google_id,
-        hasPassword: userData.hasPassword ?? userData.has_password
-      };
+      const updatedUser = normalizeUser(userData, user);
 
       updateUser(updatedUser);
     } catch (error) {
@@ -246,19 +243,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       const response = await userAPI.getProfile(user.id);
       const userData = response.data.data.user || response.data.user;
 
-      const updatedUser = {
-        id: userData.id,
-        email: userData.email,
-        displayName: userData.displayName || userData.display_name,
-        username: userData.username,
-        avatarUrl: userData.avatarUrl || userData.avatar_url,
-        bio: userData.bio || '',
-        role: userData.role,
-        reputationPoints: userData.reputationPoints || userData.reputation_points || 0,
-        isVerified: userData.isVerified || userData.is_verified || (userData.role === 'admin'),
-        googleId: userData.googleId || userData.google_id,
-        hasPassword: userData.hasPassword ?? userData.has_password
-      };
+      const updatedUser = normalizeUser(userData, user);
 
       updateUser(updatedUser);
     } catch (error) {

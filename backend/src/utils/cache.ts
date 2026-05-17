@@ -86,6 +86,9 @@ export const cacheKeys = {
     questions: (sort: string, tag: string, page: number) => `questions:${sort}:${tag}:${page}`,
     questionDetail: (id: string) => `question:${id}`,
     tags: () => 'tags:all',
+    tagsSearch: (search: string, limit: number) => `tags:${search}:${limit}`,
+    popupActive: (deviceScope: string) => `popup:active:${deviceScope}`,
+    announcementActive: (showOn: string, deviceScope: string) => `announcement:active:${showOn}:${deviceScope}`,
     userProfile: (id: string) => `user:${id}`,
 };
 
@@ -97,6 +100,8 @@ export const invalidateCache = {
         apiCache.deletePattern('^questions:');
         apiCache.deletePattern('^question:');
     },
-    tags: () => apiCache.delete(cacheKeys.tags()),
+    tags: () => apiCache.deletePattern('^tags:'),
     user: (id: string) => apiCache.delete(cacheKeys.userProfile(id)),
+    popups: () => apiCache.deletePattern('^popup:active:'),
+    announcements: () => apiCache.deletePattern('^announcement:active:'),
 };

@@ -7,15 +7,16 @@ import {
   Eye,
   MessageSquare,
   Plus,
-  Filter,
-  ChevronDown,
-  Sparkles,
-  TrendingUp
+  TrendingUp,
+  Search,
+  ChevronRight,
+  Sparkles
 } from 'lucide-react';
 import Link from 'next/link';
 
 import { questionAPI } from '@/lib/api';
 import QuestionCard from '@/components/questions/QuestionCard';
+import { cn, formatNumber } from '@/lib/utils';
 
 interface Question {
   id: string;
@@ -50,15 +51,8 @@ export default function UnansweredPage() {
         status: 'unanswered',
         limit: 20
       });
-      const questionsData = response.data.data;
-
-      if (Array.isArray(questionsData)) {
-        setQuestions(questionsData);
-      } else if (questionsData && Array.isArray(questionsData.questions)) {
-        setQuestions(questionsData.questions);
-      } else {
-        setQuestions([]);
-      }
+      const questionsData = response.data?.data?.questions || response.data?.questions || [];
+      setQuestions(Array.isArray(questionsData) ? questionsData : []);
     } catch (error) {
       console.error('Error fetching unanswered questions:', error);
       setQuestions([]);
@@ -73,163 +67,114 @@ export default function UnansweredPage() {
 
   const sortOptions = [
     { value: 'newest', label: 'Terbaru', icon: Clock },
-    { value: 'votes', label: 'Vote Terbanyak', icon: TrendingUp },
-    { value: 'views', label: 'Paling Dilihat', icon: Eye },
+    { value: 'votes', label: 'Populer', icon: TrendingUp },
+    { value: 'views', label: 'Dilihat', icon: Eye },
   ];
 
-  const renderSkeleton = (
-    <div className="space-y-4">
-      {[1, 2, 3, 4, 5].map((i) => (
-        <div
-          key={i}
-          className="bg-white dark:bg-slate-800 rounded-2xl border border-slate-200 dark:border-slate-700 p-6 animate-pulse"
-        >
-          <div className="flex gap-6">
-            <div className="hidden sm:flex flex-col items-center gap-3">
-              <div className="w-16 h-12 bg-slate-100 dark:bg-slate-700 rounded-xl" />
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-[#f8fafc] dark:bg-slate-950 px-4 py-12">
+        <div className="max-w-4xl mx-auto">
+          <div className="animate-pulse space-y-8">
+            <div className="flex flex-col items-center gap-4 text-center">
+              <div className="w-12 h-12 bg-slate-200 dark:bg-slate-800 rounded-2xl"></div>
+              <div className="h-10 bg-slate-200 dark:bg-slate-800 rounded-lg w-64"></div>
+              <div className="h-4 bg-slate-200 dark:bg-slate-800 rounded-lg w-96"></div>
             </div>
-            <div className="flex-1 space-y-3">
-              <div className="h-6 bg-slate-100 dark:bg-slate-700 rounded w-3/4" />
-              <div className="space-y-2">
-                <div className="h-4 bg-slate-100 dark:bg-slate-700 rounded w-full" />
-                <div className="h-4 bg-slate-100 dark:bg-slate-700 rounded w-5/6" />
-              </div>
-              <div className="flex gap-2 pt-2">
-                <div className="h-6 w-16 bg-slate-100 dark:bg-slate-700 rounded-full" />
-                <div className="h-6 w-20 bg-slate-100 dark:bg-slate-700 rounded-full" />
-              </div>
+            <div className="space-y-4 pt-10">
+              {[1, 2, 3, 4].map(i => (
+                <div key={i} className="h-48 bg-slate-200 dark:bg-slate-800 rounded-[2.5rem]"></div>
+              ))}
             </div>
           </div>
         </div>
-      ))}
-    </div>
-  );
-
-  const renderEmptyState = (
-    <div className="bg-white dark:bg-slate-800 rounded-3xl border border-slate-200 dark:border-slate-700 p-12 text-center relative overflow-hidden">
-      <div className="absolute top-0 left-0 w-full h-2 bg-gradient-to-r from-emerald-400 to-emerald-600"></div>
-      <div className="w-20 h-20 bg-emerald-50 dark:bg-emerald-900/30 rounded-2xl flex items-center justify-center mx-auto mb-6 rotate-3">
-        <Sparkles className="w-10 h-10 text-emerald-500 dark:text-emerald-400" />
       </div>
-      <h3 className="text-xl font-bold text-slate-900 dark:text-slate-100 mb-3">
-        Semua Pertanyaan Sudah Terjawab!
-      </h3>
-      <p className="text-slate-500 dark:text-slate-400 mb-8 max-w-md mx-auto leading-relaxed">
-        Luar biasa! Komunitas sangat aktif dan semua pertanyaan telah mendapatkan jawaban. Jadilah yang pertama bertanya lagi!
-      </p>
-      <Link
-        href="/ask"
-        className="inline-flex items-center gap-2 px-8 py-3 bg-emerald-600 text-white rounded-xl hover:bg-emerald-700 transition-all font-semibold shadow-lg shadow-emerald-600/20 hover:-translate-y-1"
-      >
-        <Plus className="w-5 h-5" />
-        Buat Pertanyaan Baru
-      </Link>
-    </div>
-  );
+    );
+  }
 
   return (
-    <div className="min-h-screen bg-slate-50 dark:bg-slate-950 transition-colors duration-200">
-      <div className="max-w-6xl mx-auto px-4 py-6 sm:py-8">
-        {/* Header Section */}
-        <div className="relative rounded-3xl bg-gradient-to-br from-emerald-600 via-emerald-500 to-teal-600 p-6 sm:p-10 mb-8 overflow-hidden shadow-xl">
-          {/* Background Accents */}
-          <div className="absolute top-0 right-0 w-96 h-96 bg-white/10 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2"></div>
-          <div className="absolute bottom-0 left-0 w-64 h-64 bg-teal-400/20 rounded-full blur-3xl translate-y-1/2 -translate-x-1/2"></div>
-
-          <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-6">
-            <div>
-              <div className="flex items-center gap-3 mb-3">
-                <div className="px-3 py-1 rounded-full bg-white/20 border border-white/30 text-white text-xs font-semibold uppercase tracking-wider">
-                  Komunitas
-                </div>
-                <div className="px-3 py-1 rounded-full bg-white/10 border border-white/20 text-emerald-50 text-xs font-semibold">
-                  {questions.length} Pertanyaan
-                </div>
-              </div>
-              <h1 className="text-2xl sm:text-4xl font-bold text-white mb-2 leading-tight">
-                Bantu Jawab Pertanyaan
-              </h1>
-              <p className="text-emerald-50 text-sm sm:text-base max-w-xl leading-relaxed">
-                Temukan pertanyaan yang belum terjawab dan bagikan pengetahuan Anda.
-                Setiap jawaban membantu komunitas tumbuh bersama.
-              </p>
-            </div>
-
-            <Link
-              href="/ask"
-              className="inline-flex items-center justify-center gap-2 px-6 py-3 bg-white dark:bg-slate-800 text-emerald-600 dark:text-emerald-400 rounded-xl hover:bg-emerald-50 dark:hover:bg-slate-700 transition-all font-semibold shadow-lg hover:shadow-xl group whitespace-nowrap"
-            >
-              <Plus className="w-5 h-5 group-hover:rotate-90 transition-transform" />
-              Tanya Sesuatu
-            </Link>
-          </div>
+    <div className="min-h-screen bg-[#f8fafc] dark:bg-slate-950 pb-20 transition-colors duration-300">
+      <div className="max-w-4xl mx-auto px-4 py-8 sm:py-14">
+        {/* Professional Minimalist Header - Optimized for Mobile */}
+        <div className="mb-8 sm:mb-10">
+          <h1 className="text-2xl sm:text-4xl font-bold text-slate-900 dark:text-white tracking-tight">
+            Belum Terjawab
+          </h1>
+          <p className="text-sm sm:text-lg text-slate-500 dark:text-slate-400 mt-1">
+            Bantu sesama pebisnis dengan membagikan wawasan dan solusi Anda.
+          </p>
         </div>
 
-        {/* Filter & Sort Bar - Clean & Minimal */}
-        <div className="bg-white dark:bg-slate-900 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-800 p-2 mb-8 flex flex-col sm:flex-row items-center justify-between gap-4 sticky top-[70px] z-20">
-          <div className="flex items-center gap-1 p-1 bg-slate-100/50 dark:bg-slate-800/50 rounded-xl w-full sm:w-auto overflow-x-auto no-scrollbar">
-            {sortOptions.map((option) => {
-              const Icon = option.icon;
-              const isActive = sortBy === option.value;
-              return (
+        {/* Integrated Filter - Glassmorphism */}
+        <div className="sticky top-4 z-40 mb-12">
+          <div className="bg-white/70 dark:bg-slate-900/70 backdrop-blur-xl border border-white dark:border-slate-800/50 rounded-2xl p-2 shadow-xl shadow-slate-200/50 dark:shadow-none flex items-center justify-center">
+            <div className="flex gap-1 p-1 bg-slate-100/50 dark:bg-slate-800/50 rounded-xl overflow-x-auto scrollbar-hide w-full max-w-md">
+              {sortOptions.map((option) => (
                 <button
                   key={option.value}
                   onClick={() => setSortBy(option.value as any)}
-                  className={`inline-flex items-center gap-1.5 px-4 py-2 rounded-lg text-xs sm:text-sm font-semibold whitespace-nowrap transition-all duration-200 flex-1 sm:flex-none justify-center ${isActive
-                    ? 'bg-white dark:bg-slate-800 text-emerald-600 dark:text-emerald-400 shadow-sm ring-1 ring-black/5 dark:ring-white/5'
-                    : 'text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-300 hover:bg-white/50 dark:hover:bg-slate-700/50'
-                    }`}
+                  className={cn(
+                    "px-6 py-2.5 rounded-lg text-xs font-black uppercase tracking-wider transition-all whitespace-nowrap flex-1 flex items-center justify-center gap-2",
+                    sortBy === option.value
+                      ? "bg-white dark:bg-slate-700 text-slate-900 dark:text-white shadow-sm"
+                      : "text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200"
+                  )}
                 >
-                  <Icon className={`w-3.5 h-3.5 ${isActive ? 'text-emerald-500' : 'text-slate-400 dark:text-slate-500'}`} />
-                  <span>{option.label}</span>
+                  <option.icon className="w-3.5 h-3.5" />
+                  {option.label}
                 </button>
-              )
-            })}
-          </div>
-
-          <div className="hidden sm:flex items-center gap-2 px-3 py-2 text-xs font-medium text-slate-400 dark:text-slate-500">
-            <TrendingUp className="w-3.5 h-3.5" />
-            <span>Urutkan berdasarkan</span>
+              ))}
+            </div>
           </div>
         </div>
 
-        {/* Questions Grid */}
-        <div className="space-y-4">
-          {loading ? (
-            renderSkeleton
-          ) : questions.length === 0 ? (
-            renderEmptyState
+        {/* Questions List */}
+        <div className="space-y-6">
+          {questions.length === 0 ? (
+            <div className="py-20 text-center bg-white/40 dark:bg-slate-900/40 backdrop-blur-md rounded-[2.5rem] border border-white dark:border-slate-800/60 p-12 overflow-hidden relative">
+              <div className="absolute top-0 right-0 w-64 h-64 bg-emerald-500/5 rounded-full blur-[80px]" />
+              <div className="relative z-10">
+                <div className="inline-flex w-20 h-20 bg-emerald-500/10 dark:bg-emerald-400/10 rounded-full items-center justify-center mb-6">
+                  <Sparkles className="w-10 h-10 text-emerald-500" />
+                </div>
+                <h3 className="text-xl font-bold text-slate-900 dark:text-white">Semua Pertanyaan Terjawab!</h3>
+                <p className="text-slate-500 mt-2 mb-8">Luar biasa! Komunitas sangat aktif dan tidak ada pertanyaan yang menggantung.</p>
+                <Link
+                  href="/ask"
+                  className="px-8 py-3 bg-emerald-600 text-white rounded-full font-black text-xs uppercase tracking-widest shadow-lg shadow-emerald-500/25 inline-flex items-center gap-2"
+                >
+                  <Plus className="w-4 h-4" /> Mulai Tanya Sesuatu
+                </Link>
+              </div>
+            </div>
           ) : (
             questions.map((question) => (
-              <div key={question.id} className="relative">
-                {/* Mobile Badge - Positioned statically to avoid overlap */}
-                <div className="sm:hidden px-4 pt-4 -mb-2 relative z-10">
-                  <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-50 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400 text-xs font-bold border border-emerald-100 dark:border-emerald-800 shadow-sm">
-                    <HelpCircle className="w-3.5 h-3.5" />
-                    Butuh Jawaban
+              <div key={question.id} className="relative group">
+                <div className="absolute -top-3 left-8 z-10">
+                  <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-500 text-white text-[10px] font-black uppercase tracking-widest shadow-lg shadow-emerald-500/20">
+                    <Sparkles className="w-3 h-3" /> Butuh Jawaban
                   </span>
                 </div>
-
                 <QuestionCard question={question} />
-
-                {/* Desktop Badge - Absolute positioning */}
-                <div className="hidden sm:block absolute top-6 right-6 pointer-events-none">
-                  <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-50 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400 text-xs font-bold border border-emerald-100 dark:border-emerald-800 shadow-sm">
-                    <HelpCircle className="w-3.5 h-3.5" />
-                    Butuh Jawaban
-                  </span>
-                </div>
               </div>
             ))
           )}
         </div>
 
-        {/* Load More */}
-        {questions.length > 0 && questions.length >= 20 && (
-          <div className="mt-10 text-center">
-            <button className="px-8 py-3 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300 rounded-xl hover:bg-slate-50 dark:hover:bg-slate-700 hover:border-slate-300 dark:hover:border-slate-600 transition-all font-medium shadow-sm">
-              Muat Lebih Banyak
-            </button>
+        {/* Bottom Action */}
+        {questions.length > 0 && (
+          <div className="mt-20 p-8 sm:p-12 rounded-[3rem] bg-slate-900 dark:bg-white text-white dark:text-slate-900 relative overflow-hidden flex flex-col sm:flex-row items-center justify-between gap-8 text-center sm:text-left">
+            <div className="absolute top-0 right-0 w-64 h-64 bg-emerald-500/20 rounded-full blur-[100px]" />
+            <div className="relative z-10 max-w-xl">
+              <h3 className="text-2xl sm:text-3xl font-black mb-3">Jadilah Kontributor Terbaik</h3>
+              <p className="text-slate-400 dark:text-slate-500 font-medium">Setiap jawaban yang Anda berikan membangun reputasi dan membantu ekosistem UMKM Indonesia semakin kuat.</p>
+            </div>
+            <Link
+              href="/leaderboard"
+              className="relative z-10 px-8 py-4 bg-emerald-500 text-white dark:text-white rounded-full font-black text-sm uppercase tracking-widest hover:scale-105 hover:bg-emerald-400 transition-all shadow-xl shadow-emerald-500/20 flex items-center gap-2 whitespace-nowrap"
+            >
+              Lihat Leaderboard <ChevronRight className="w-4 h-4" />
+            </Link>
           </div>
         )}
       </div>

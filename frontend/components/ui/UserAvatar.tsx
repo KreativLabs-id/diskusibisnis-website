@@ -79,11 +79,11 @@ const UserAvatar: React.FC<UserAvatarProps> = ({
         alt={alt}
         width={pixelSize}
         height={pixelSize}
-        className="rounded-full object-cover"
+        className="w-full h-full rounded-full object-cover"
         onError={() => setImageError(true)}
         placeholder="blur"
         blurDataURL={shimmerBlur}
-        sizes={`${pixelSize}px`}
+        sizes={className.includes('w-full') ? '100vw' : `${pixelSize}px`}
       />
     </div>
   );

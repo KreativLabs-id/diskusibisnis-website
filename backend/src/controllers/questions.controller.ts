@@ -5,6 +5,8 @@ import { successResponse, errorResponse, notFoundResponse, forbiddenResponse } f
 import { generateUniqueSlug } from '../utils/slug.utils';
 import { createMentions } from './mentions.controller';
 import { apiCache, cacheKeys, invalidateCache } from '../utils/cache';
+import { hasTableColumn } from '../utils/schema.utils';
+import config from '../config/environment';
 
 /**
  * Get all questions with filters
@@ -12,6 +14,8 @@ import { apiCache, cacheKeys, invalidateCache } from '../utils/cache';
  */
 export const getQuestions = async (req: AuthRequest, res: Response): Promise<void> => {
   try {
+    const hasImagesColumn = await hasTableColumn('public', 'questions', 'images');
+    const currentUserId = req.user?.id || null;
     const page = parseInt(req.query.page as string) || 1;
     const limit = parseInt(req.query.limit as string) || 10;
     let sort = (req.query.sort as string) || 'newest';
@@ -28,11 +32,13 @@ export const getQuestions = async (req: AuthRequest, res: Response): Promise<voi
     }
 
     // ✅ Check cache first for non-search requests (30 second cache)
-    const cacheKey = cacheKeys.questions(sort + status, tag, page);
+    const cacheKey = `${cacheKeys.questions(sort + status, tag, page)}:user:${currentUserId || 'guest'}`;
     if (!search) {
       const cached = apiCache.get<any>(cacheKey);
       if (cached) {
-        console.log(`[Cache HIT] ${cacheKey}`);
+        if (config.debug.cache) {
+          console.log(`[Cache HIT] ${cacheKey}`);
+        }
         successResponse(res, cached);
         return;
       }
@@ -42,14 +48,19 @@ export const getQuestions = async (req: AuthRequest, res: Response): Promise<voi
 
     let baseQuery = `
       SELECT 
-        q.id, q.title, q.content, q.images,
+        q.id, q.title, q.content, ${hasImagesColumn ? 'q.images' : 'NULL::jsonb AS images'},
         COALESCE(q.views_count, 0) as views_count, 
         q.is_closed, q.created_at, q.updated_at,
-        u.id as author_id, u.display_name as author_name, u.avatar_url as author_avatar,
+        u.id as author_id, u.username as author_username, u.display_name as author_name, u.avatar_url as author_avatar,
         u.reputation_points as author_reputation, 
         COALESCE(u.is_verified, false) as author_is_verified,
         COUNT(DISTINCT a.id) as answers_count,
         COUNT(DISTINCT CASE WHEN v.vote_type = 'upvote' THEN v.id END) as upvotes_count,
+        CASE 
+          WHEN $1::uuid IS NOT NULL THEN 
+            (SELECT user_vote.vote_type FROM public.votes user_vote WHERE user_vote.question_id = q.id AND user_vote.user_id = $1)
+          ELSE NULL 
+        END as user_vote,
         CASE WHEN COUNT(DISTINCT a_accepted.id) > 0 THEN true ELSE false END as has_accepted_answer
       FROM public.questions q
       LEFT JOIN public.users u ON q.author_id = u.id
@@ -61,8 +72,8 @@ export const getQuestions = async (req: AuthRequest, res: Response): Promise<voi
       WHERE q.community_id IS NULL
     `;
 
-    const queryParams: any[] = [];
-    let paramIndex = 1;
+    const queryParams: any[] = [currentUserId];
+    let paramIndex = 2;
 
     if (search) {
       baseQuery += ` AND (q.title ILIKE $${paramIndex} OR q.content ILIKE $${paramIndex})`;
@@ -187,7 +198,9 @@ export const getQuestions = async (req: AuthRequest, res: Response): Promise<voi
     // ✅ Cache results for 10 seconds (reduced for faster vote updates)
     if (!search) {
       apiCache.set(cacheKey, responseData, 10000);
-      console.log(`[Cache SET] ${cacheKey}`);
+      if (config.debug.cache) {
+        console.log(`[Cache SET] ${cacheKey}`);
+      }
     }
 
     successResponse(res, responseData);
@@ -203,6 +216,7 @@ export const getQuestions = async (req: AuthRequest, res: Response): Promise<voi
  */
 export const createQuestion = async (req: AuthRequest, res: Response): Promise<void> => {
   try {
+    const hasImagesColumn = await hasTableColumn('public', 'questions', 'images');
     const user = req.user;
     if (!user) {
       forbiddenResponse(res, 'Authentication required');
@@ -230,13 +244,22 @@ export const createQuestion = async (req: AuthRequest, res: Response): Promise<v
 
       // Prepare images JSON (store as JSONB array)
       const imagesJson = images && images.length > 0 ? JSON.stringify(images) : null;
+      const insertColumns = hasImagesColumn
+        ? '(title, content, author_id, community_id, images)'
+        : '(title, content, author_id, community_id)';
+      const insertValues = hasImagesColumn
+        ? '($1, $2, $3, $4, $5)'
+        : '($1, $2, $3, $4)';
+      const returningImages = hasImagesColumn ? 'images' : 'NULL::jsonb as images';
+      const insertParams = hasImagesColumn
+        ? [title, content, user.id, communityId, imagesJson]
+        : [title, content, user.id, communityId];
 
-      // Create question with images
       const questionResult = await client.query(
-        `INSERT INTO public.questions (title, content, author_id, community_id, images) 
-         VALUES ($1, $2, $3, $4, $5) 
-         RETURNING id, title, content, images, views_count, is_closed, created_at, updated_at`,
-        [title, content, user.id, communityId, imagesJson]
+        `INSERT INTO public.questions ${insertColumns}
+         VALUES ${insertValues}
+         RETURNING id, title, content, ${returningImages}, views_count, is_closed, created_at, updated_at`,
+        insertParams
       );
 
       const question = questionResult.rows[0];
@@ -275,6 +298,7 @@ export const createQuestion = async (req: AuthRequest, res: Response): Promise<v
 
       // ✅ Invalidate questions cache so new question appears immediately
       invalidateCache.questions();
+      invalidateCache.tags();
 
       successResponse(res, { question }, 'Question created successfully', 201);
     } catch (error) {
@@ -295,15 +319,16 @@ export const createQuestion = async (req: AuthRequest, res: Response): Promise<v
  */
 export const getQuestionById = async (req: AuthRequest, res: Response): Promise<void> => {
   try {
+    const hasImagesColumn = await hasTableColumn('public', 'questions', 'images');
     const questionId = req.params.id;
     const currentUserId = req.user?.id || null;
 
     const result = await pool.query(`
       SELECT 
-        q.id, q.title, q.content, q.images,
+        q.id, q.title, q.content, ${hasImagesColumn ? 'q.images' : 'NULL::jsonb AS images'},
         COALESCE(q.views_count, 0) as views_count, 
         q.is_closed, q.created_at, q.updated_at,
-        u.id as author_id, u.display_name as author_name, u.avatar_url as author_avatar,
+        u.id as author_id, u.username as author_username, u.display_name as author_name, u.avatar_url as author_avatar,
         u.reputation_points as author_reputation, 
         COALESCE(u.is_verified, false) as author_is_verified,
         COALESCE(
@@ -364,7 +389,7 @@ export const getQuestionById = async (req: AuthRequest, res: Response): Promise<
     const answersResult = await pool.query(`
       SELECT 
         a.id, a.content, a.is_accepted, a.created_at, a.updated_at,
-        u.id as author_id, u.display_name as author_name, u.avatar_url as author_avatar,
+        u.id as author_id, u.username as author_username, u.display_name as author_name, u.avatar_url as author_avatar,
         u.reputation_points as author_reputation, 
         COALESCE(u.is_verified, false) as author_is_verified,
         COALESCE(
@@ -392,7 +417,7 @@ export const getQuestionById = async (req: AuthRequest, res: Response): Promise<
     const questionCommentsResult = await pool.query(`
       SELECT 
         c.id, c.content, c.created_at, c.updated_at,
-        u.id as author_id, u.display_name as author_name, u.avatar_url as author_avatar,
+        u.id as author_id, u.username as author_username, u.display_name as author_name, u.avatar_url as author_avatar,
         u.reputation_points as author_reputation, 
         COALESCE(u.is_verified, false) as author_is_verified
       FROM public.comments c
@@ -408,7 +433,7 @@ export const getQuestionById = async (req: AuthRequest, res: Response): Promise<
       const answerCommentsResult = await pool.query(`
         SELECT 
           c.id, c.content, c.commentable_id, c.created_at, c.updated_at,
-          u.id as author_id, u.display_name as author_name, u.avatar_url as author_avatar,
+          u.id as author_id, u.username as author_username, u.display_name as author_name, u.avatar_url as author_avatar,
           u.reputation_points as author_reputation, 
           COALESCE(u.is_verified, false) as author_is_verified
         FROM public.comments c
@@ -518,6 +543,7 @@ export const updateQuestion = async (req: AuthRequest, res: Response): Promise<v
 
       // ✅ Invalidate cache
       invalidateCache.allQuestions();
+      invalidateCache.tags();
 
       successResponse(res, { question: updateResult.rows[0] }, 'Question updated successfully');
     } catch (error) {
@@ -574,6 +600,7 @@ export const deleteQuestion = async (req: AuthRequest, res: Response): Promise<v
 
     // ✅ Invalidate cache
     invalidateCache.allQuestions();
+    invalidateCache.tags();
 
     successResponse(res, null, 'Question deleted successfully');
   } catch (error) {

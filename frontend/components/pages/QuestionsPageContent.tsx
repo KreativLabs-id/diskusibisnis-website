@@ -1,27 +1,28 @@
 'use client';
 
-import React, { useEffect, useState, useCallback } from 'react';
+import React, { useEffect, useLayoutEffect, useState, useCallback } from 'react';
+const useIsomorphicLayoutEffect = typeof window !== 'undefined' ? useLayoutEffect : useEffect;
 import { useSearchParams } from 'next/navigation';
 import {
   TrendingUp,
   Clock,
   MessageCircleQuestion,
   Plus,
-  Filter,
   Search,
-  Users,
   Hash,
   Trophy,
-  User,
-  Bookmark,
   HelpCircle,
-  Mail,
+  Sparkles,
+  X,
+  ChevronRight,
+  Filter
 } from 'lucide-react';
 import Link from 'next/link';
 
 import { questionAPI } from '@/lib/api';
 import QuestionCard from '@/components/questions/QuestionCard';
 import { useAuth } from '@/contexts/AuthContext';
+import { cn, formatNumber } from '@/lib/utils';
 
 interface Question {
   id: string;
@@ -47,33 +48,67 @@ interface Question {
 export default function QuestionsPageContent() {
   const [questions, setQuestions] = useState<Question[]>([]);
   const [loading, setLoading] = useState(true);
-  const [sortBy, setSortBy] = useState<'newest' | 'popular' | 'unanswered'>('newest');
+  const [sortByState, setSortByState] = useState<'newest' | 'popular' | 'unanswered'>('newest');
+
+  useEffect(() => {
+    const savedSort = sessionStorage.getItem('questions_sortBy');
+    if (savedSort === 'popular' || savedSort === 'unanswered' || savedSort === 'newest') {
+      setSortByState(savedSort as any);
+    }
+  }, []);
+
+  const setSortBy = (val: 'newest' | 'popular' | 'unanswered') => {
+    sessionStorage.setItem('questions_sortBy', val);
+    setSortByState(val);
+  };
+
   const [searchQuery, setSearchQuery] = useState('');
+  const [showUmkmBanner, setShowUmkmBanner] = useState(true);
   const { user } = useAuth();
   const searchParams = useSearchParams();
 
   const fetchQuestions = useCallback(async () => {
     try {
       setLoading(true);
-      const sort = searchParams.get('sort') || sortBy;
+      const sort = searchParams.get('sort') || sortByState;
       const response = await questionAPI.getAll({
         sort,
-        limit: 20 // Increase limit for better performance
+        limit: 20
       });
-      setQuestions(response.data.data?.questions || response.data.questions || []);
+      setQuestions(response.data?.data?.questions || response.data?.questions || []);
     } catch (error) {
       console.error('Error fetching questions:', error);
       setQuestions([]);
     } finally {
       setLoading(false);
     }
-  }, [sortBy, searchParams]);
+  }, [sortByState, searchParams]);
 
   useEffect(() => {
     fetchQuestions();
   }, [fetchQuestions]);
 
-  // Filter questions based on search query
+  useIsomorphicLayoutEffect(() => {
+    const routeKey = `${window.location.pathname}${window.location.search}`;
+    const restoreTarget = sessionStorage.getItem('list_scroll_restore_target');
+    if (restoreTarget !== routeKey) return;
+    const key = `list_scroll:${routeKey}`;
+    const raw = sessionStorage.getItem(key);
+    if (!raw) return;
+    const y = Number(raw);
+    if (!Number.isFinite(y)) return;
+
+    if (loading || questions.length === 0) return;
+
+    const handleRestore = () => {
+      window.scrollTo({ top: y, behavior: 'instant' });
+      sessionStorage.removeItem(key);
+      sessionStorage.removeItem('list_scroll_restore_target');
+    };
+
+    handleRestore();
+  }, [questions.length, sortByState, searchQuery, loading]);
+
   const filteredQuestions = questions.filter((question) => {
     if (!searchQuery.trim()) return true;
 
@@ -94,42 +129,37 @@ export default function QuestionsPageContent() {
     { value: 'unanswered', label: 'Belum Terjawab', icon: MessageCircleQuestion },
   ];
 
+  const topTags = Array.from(
+    filteredQuestions
+      .flatMap((question) => question.tags || [])
+      .reduce((acc, tag) => {
+        const current = acc.get(tag.slug) || { ...tag, count: 0 };
+        current.count += 1;
+        acc.set(tag.slug, current);
+        return acc;
+      }, new Map<string, { id: string; name: string; slug: string; count: number }>())
+      .values()
+  )
+    .sort((a, b) => b.count - a.count)
+    .slice(0, 6);
+
   const renderSkeleton = (
     <div className="space-y-4">
       {[1, 2, 3, 4, 5].map((i) => (
         <div
           key={i}
-          className="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 p-6 animate-pulse"
+          className="bg-white/60 dark:bg-slate-900/40 backdrop-blur-md border border-white dark:border-slate-800/60 rounded-[2rem] p-6 animate-pulse"
         >
           <div className="flex gap-6">
-            {/* Vote section skeleton */}
-            <div className="flex flex-col items-center gap-3">
-              <div className="w-16 h-10 bg-slate-200 dark:bg-slate-700 rounded-lg" />
-              <div className="w-16 h-10 bg-slate-200 dark:bg-slate-700 rounded-lg" />
-            </div>
-
-            {/* Content skeleton */}
             <div className="flex-1 space-y-3">
-              {/* Title */}
-              <div className="h-6 bg-slate-200 dark:bg-slate-700 rounded w-3/4" />
-
-              {/* Description */}
+              <div className="h-6 bg-slate-200 dark:bg-slate-800 rounded w-3/4" />
               <div className="space-y-2">
-                <div className="h-4 bg-slate-200 dark:bg-slate-700 rounded w-full" />
-                <div className="h-4 bg-slate-200 dark:bg-slate-700 rounded w-5/6" />
+                <div className="h-4 bg-slate-200 dark:bg-slate-800 rounded w-full" />
+                <div className="h-4 bg-slate-200 dark:bg-slate-800 rounded w-5/6" />
               </div>
-
-              {/* Tags and meta */}
               <div className="flex flex-wrap items-center gap-2">
-                <div className="h-6 w-20 bg-slate-200 dark:bg-slate-700 rounded-full" />
-                <div className="h-6 w-24 bg-slate-200 dark:bg-slate-700 rounded-full" />
-                <div className="h-6 w-16 bg-slate-200 dark:bg-slate-700 rounded-full" />
-              </div>
-
-              {/* Footer */}
-              <div className="flex items-center gap-4 pt-3">
-                <div className="h-8 w-8 bg-slate-200 dark:bg-slate-700 rounded-full" />
-                <div className="h-4 w-32 bg-slate-200 dark:bg-slate-700 rounded" />
+                <div className="h-6 w-20 bg-slate-200 dark:bg-slate-800 rounded-full" />
+                <div className="h-6 w-24 bg-slate-200 dark:bg-slate-800 rounded-full" />
               </div>
             </div>
           </div>
@@ -138,133 +168,165 @@ export default function QuestionsPageContent() {
     </div>
   );
 
-  const renderEmptyState = (
-    <div className="text-center py-16">
-      <MessageCircleQuestion className="w-16 h-16 text-slate-300 dark:text-slate-600 mx-auto mb-4" />
-      <h3 className="text-xl font-semibold text-slate-900 dark:text-slate-100 mb-2">
-        Belum ada pertanyaan
-      </h3>
-      <p className="text-slate-600 dark:text-slate-400 mb-6">
-        Jadilah yang pertama bertanya di komunitas kami!
-      </p>
-      <Link
-        href="/ask"
-        className="inline-flex items-center gap-2 px-6 py-3 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 transition-colors font-medium"
-      >
-        <Plus className="w-4 h-4" />
-        Tanya Pertanyaan
-      </Link>
-    </div>
-  );
-
   return (
-    <div className="w-full max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 pb-12">
-      {/* Modern Header with Gradient Background */}
-      <div className="relative mb-6 px-6 sm:px-8 lg:px-10 py-8 sm:py-10 bg-gradient-to-br from-emerald-600 via-emerald-500 to-teal-600 rounded-3xl shadow-xl overflow-hidden">
-        {/* Decorative Elements */}
-        <div className="absolute top-0 right-0 w-64 h-64 bg-white/10 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2"></div>
-        <div className="absolute bottom-0 left-0 w-48 h-48 bg-teal-400/20 rounded-full blur-2xl translate-y-1/2 -translate-x-1/2"></div>
-
-        <div className="relative z-10">
-          {/* Title Section */}
-          <div className="flex flex-col sm:flex-row sm:items-center gap-4 mb-4">
-            <div className="p-3 bg-white/20 backdrop-blur-sm rounded-2xl w-fit">
-              <MessageCircleQuestion className="w-8 h-8 text-white" />
-            </div>
-            <div>
-              <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-white mb-1">
-                Semua Pertanyaan
-              </h1>
-              <p className="text-emerald-50 text-sm sm:text-base max-w-xl">
-                Temukan jawaban, bagikan pengalaman, dan diskusikan tantangan bisnis Anda bersama komunitas UMKM Indonesia.
-              </p>
-            </div>
-          </div>
-
-          {/* Stats Badge */}
-          <div className="inline-flex items-center gap-2 mt-2 px-4 py-1.5 bg-white/10 backdrop-blur-md rounded-full border border-white/20">
-            <div className="w-2 h-2 bg-emerald-300 rounded-full animate-pulse shadow-[0_0_8px_rgba(110,231,183,0.8)]"></div>
-            <span className="text-white/90 font-medium text-sm">
-              {filteredQuestions.length} diskusi {searchQuery ? 'ditemukan' : 'aktif'}
-            </span>
-          </div>
+    <div className="w-full max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 pb-12 pt-6 sm:pt-14">
+      {/* Professional Minimalist Header - Optimized for Mobile */}
+      <div className="mb-8 sm:mb-10 flex flex-col sm:flex-row sm:items-end justify-between gap-4 sm:gap-6">
+        <div className="space-y-1">
+          <h1 className="text-2xl sm:text-4xl font-bold text-slate-900 dark:text-white tracking-tight">
+            Semua Pertanyaan
+          </h1>
+          <p className="text-sm sm:text-lg text-slate-500 dark:text-slate-400">
+            Temukan wawasan dari {filteredQuestions.length} diskusi aktif UMKM.
+          </p>
         </div>
+        <Link
+          href="/ask"
+          className="inline-flex items-center justify-center gap-2 px-5 py-2.5 bg-emerald-600 dark:bg-emerald-500 text-white rounded-xl font-bold text-sm hover:bg-emerald-700 dark:hover:bg-emerald-400 transition-all shadow-sm shadow-emerald-500/20 active:scale-95 w-full sm:w-auto"
+        >
+          <Plus className="w-4 h-4" />
+          <span>Tanya Sesuatu</span>
+        </Link>
       </div>
 
-      {/* Search Bar - Modern Design */}
-      <div className="mb-6">
-        <h2 className="text-sm font-bold text-slate-900 dark:text-slate-100 mb-3 px-1 uppercase tracking-wider">Cari Diskusi</h2>
-        <div className="relative group">
-          <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-            <Search className="h-5 w-5 text-slate-400 group-focus-within:text-emerald-500 transition-colors" />
+      {/* Integrated Search & Filter - Clean UI */}
+      <div className="sticky top-4 z-40 mb-12">
+        <div className="bg-white/70 dark:bg-slate-900/70 backdrop-blur-xl border border-white dark:border-slate-800/50 rounded-2xl p-2 shadow-xl shadow-slate-200/50 dark:shadow-none flex flex-col lg:flex-row gap-2">
+          <div className="relative flex-1">
+            <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" />
+            <input
+              type="text"
+              placeholder="Cari pertanyaan, topik, atau kata kunci..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="w-full bg-transparent pl-12 pr-4 py-3 text-slate-900 dark:text-white placeholder:text-slate-400 outline-none"
+            />
           </div>
-          <input
-            type="text"
-            placeholder="Cari pertanyaan berdasarkan judul, konten, atau tag..."
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            className="block w-full pl-11 pr-4 py-4 border-2 border-slate-100 dark:border-slate-700 rounded-2xl leading-5 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/10 transition-all duration-200 shadow-sm hover:shadow-md"
-          />
-        </div>
-      </div>
-
-      {/* Simple Filter Tabs */}
-      <div className="bg-white dark:bg-slate-800 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700 p-2 mb-6 flex flex-col sm:flex-row items-center justify-between gap-4">
-        <div className="flex items-center gap-1 p-1 bg-slate-100/50 dark:bg-slate-700/50 rounded-xl w-full sm:w-auto overflow-x-auto no-scrollbar">
-          {sortOptions.map((option) => {
-            const Icon = option.icon;
-            const isActive = sortBy === option.value;
-            return (
+          <div className="flex gap-1 p-1 bg-slate-100/50 dark:bg-slate-800/50 rounded-xl overflow-x-auto scrollbar-hide">
+            {sortOptions.map((option) => (
               <button
                 key={option.value}
-                onClick={() => setSortBy(option.value as 'newest' | 'popular' | 'unanswered')}
-                className={`inline-flex items-center gap-1.5 px-4 py-2 rounded-lg text-xs sm:text-sm font-semibold whitespace-nowrap transition-all duration-200 flex-1 sm:flex-none justify-center ${isActive
-                  ? 'bg-white dark:bg-slate-700 text-emerald-600 dark:text-emerald-400 shadow-sm ring-1 ring-black/5 dark:ring-white/10'
-                  : 'text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 hover:bg-white/50 dark:hover:bg-slate-600/50'
-                  }`}
-                title={option.label}
+                onClick={() => setSortBy(option.value as any)}
+                className={cn(
+                  "px-5 py-2.5 rounded-lg text-xs font-black uppercase tracking-wider transition-all whitespace-nowrap flex items-center gap-2",
+                  sortByState === option.value
+                    ? "bg-white dark:bg-slate-700 text-slate-900 dark:text-white shadow-sm"
+                    : "text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200"
+                )}
               >
-                <Icon className={`w-3.5 h-3.5 ${isActive ? 'text-emerald-500' : 'text-slate-400 dark:text-slate-500'}`} />
-                <span>{option.label}</span>
+                <option.icon className="w-3.5 h-3.5" />
+                {option.label}
               </button>
-            );
-          })}
+            ))}
+          </div>
         </div>
       </div>
 
-      {/* Questions List */}
-      <div className="space-y-4">
-        {loading
-          ? renderSkeleton
-          : !filteredQuestions || filteredQuestions.length === 0
-            ? searchQuery ? (
-              <div className="text-center py-16 bg-white dark:bg-slate-800 rounded-2xl border border-slate-200 dark:border-slate-700">
-                <Search className="w-16 h-16 text-slate-300 dark:text-slate-600 mx-auto mb-4" />
-                <h3 className="text-xl font-semibold text-slate-900 dark:text-slate-100 mb-2">
-                  Tidak ada hasil untuk "{searchQuery}"
-                </h3>
-                <p className="text-slate-600 dark:text-slate-400 mb-6">
-                  Coba gunakan kata kunci yang berbeda atau buat pertanyaan baru.
-                </p>
-                <button
-                  onClick={() => setSearchQuery('')}
-                  className="inline-flex items-center gap-2 px-6 py-3 bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-slate-200 rounded-lg hover:bg-slate-200 dark:hover:bg-slate-600 transition-colors font-medium mr-3"
-                >
-                  Hapus Pencarian
-                </button>
-                <Link
-                  href="/ask"
-                  className="inline-flex items-center gap-2 px-6 py-3 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 transition-colors font-medium"
-                >
-                  <Plus className="w-4 h-4" />
-                  Tanya Pertanyaan
-                </Link>
+      <div className="grid grid-cols-1 gap-8 lg:grid-cols-[minmax(0,1fr)_320px]">
+        {/* Questions List */}
+        <div className="space-y-6">
+          {loading ? (
+            renderSkeleton
+          ) : filteredQuestions.length === 0 ? (
+            <div className="py-20 text-center bg-white/40 dark:bg-slate-900/40 backdrop-blur-md rounded-[2.5rem] border border-white dark:border-slate-800/60 p-12">
+              <div className="inline-flex w-20 h-20 bg-slate-100 dark:bg-slate-800 rounded-full items-center justify-center mb-6">
+                <Search className="w-10 h-10 text-slate-300" />
               </div>
-            ) : renderEmptyState
-            : filteredQuestions.map((question) => (
+              <h3 className="text-xl font-bold text-slate-900 dark:text-white">Tidak ada diskusi ditemukan</h3>
+              <p className="text-slate-500 mt-2 mb-8">Coba gunakan kata kunci lain atau bersihkan filter.</p>
+              <button
+                onClick={() => { setSearchQuery(''); setSortBy('newest'); }}
+                className="px-6 py-2 bg-slate-900 dark:bg-white text-white dark:text-slate-900 rounded-full font-bold text-sm"
+              >
+                Reset Filter
+              </button>
+            </div>
+          ) : (
+            filteredQuestions.map((question) => (
               <QuestionCard key={question.id} question={question} />
             ))
-        }
+          )}
+        </div>
+
+        {/* Desktop Right Sidebar */}
+        <aside className="hidden lg:block space-y-8">
+          {/* Topik Populer - Premium Card */}
+          <div className="group relative bg-white/60 dark:bg-slate-900/40 backdrop-blur-md border border-white dark:border-slate-800/60 rounded-[2rem] p-8 hover:bg-white dark:hover:bg-slate-800/60 transition-all duration-500 overflow-hidden shadow-sm">
+            <div className="absolute -top-12 -right-12 w-32 h-32 bg-emerald-500/5 rounded-full blur-3xl group-hover:bg-emerald-500/10 transition-colors" />
+            <div className="relative z-10">
+              <div className="flex items-center gap-2 mb-6">
+                <Hash className="h-5 w-5 text-emerald-600" />
+                <h3 className="text-xs font-bold text-slate-900 dark:text-slate-100">
+                  Topik Populer
+                </h3>
+              </div>
+              <div className="flex flex-wrap gap-2">
+                {topTags.map((tag) => (
+                  <Link
+                    key={tag.slug}
+                    href={`/tags/${tag.slug}`}
+                    className="inline-flex items-center gap-1.5 rounded-full bg-slate-100 dark:bg-slate-800 px-4 py-2 text-[10px] font-bold text-slate-500 dark:text-slate-400 transition-all hover:bg-emerald-500 hover:text-white dark:hover:bg-emerald-600"
+                  >
+                    <span>#{tag.name}</span>
+                    <span className="opacity-50">· {tag.count}</span>
+                  </Link>
+                ))}
+              </div>
+            </div>
+          </div>
+
+          {/* Tips Bertanya - Premium Card */}
+          <div className="group relative bg-slate-900 dark:bg-white rounded-[2rem] p-8 overflow-hidden shadow-xl">
+            <div className="absolute top-0 right-0 w-64 h-64 bg-emerald-500/20 rounded-full blur-[80px]" />
+            <div className="relative z-10">
+              <div className="flex items-center gap-2 mb-6">
+                <Sparkles className="h-5 w-5 text-emerald-400" />
+                <h3 className="text-xs font-bold text-white dark:text-slate-900">
+                  Tips bertanya
+                </h3>
+              </div>
+              <ul className="space-y-4">
+                {[
+                  { title: "Judul spesifik", text: "Gunakan 1 kalimat padat." },
+                  { title: "Konteks detail", text: "Apa yang sudah dicoba?" },
+                  { title: "Tag relevan", text: "Agar lebih cepat dijawab." }
+                ].map((item, i) => (
+                  <li key={i} className="flex gap-3">
+                    <span className="flex-shrink-0 w-6 h-6 rounded-full bg-emerald-500/20 flex items-center justify-center text-[10px] font-bold text-emerald-400">
+                      {i + 1}
+                    </span>
+                    <div>
+                      <div className="text-[11px] font-bold text-white dark:text-slate-900">{item.title}</div>
+                      <div className="text-[12px] text-slate-400 dark:text-slate-500 font-medium">{item.text}</div>
+                    </div>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          </div>
+
+          {/* Leaderboard/Stats Mini Card */}
+          <div className="group relative bg-white/60 dark:bg-slate-900/40 backdrop-blur-md border border-white dark:border-slate-800/60 rounded-[2rem] p-8 hover:bg-white dark:hover:bg-slate-800/60 transition-all duration-500 overflow-hidden shadow-sm">
+            <div className="relative z-10">
+              <div className="flex items-center gap-2 mb-6">
+                <Trophy className="h-5 w-5 text-amber-500" />
+                <h3 className="text-xs font-bold text-slate-900 dark:text-slate-100">
+                  Aksi cepat
+                </h3>
+              </div>
+              <div className="space-y-3">
+                <Link href="/unanswered" className="group/item flex items-center justify-between p-4 rounded-2xl bg-slate-100/50 dark:bg-slate-800/50 hover:bg-emerald-500 hover:text-white transition-all duration-300">
+                  <span className="text-xs font-bold">Belum terjawab</span>
+                  <ChevronRight className="w-4 h-4 group-hover/item:translate-x-1 transition-transform" />
+                </Link>
+                <Link href="/leaderboard" className="group/item flex items-center justify-between p-4 rounded-2xl bg-slate-100/50 dark:bg-slate-800/50 hover:bg-emerald-500 hover:text-white transition-all duration-300">
+                  <span className="text-xs font-bold">Kontributor top</span>
+                  <ChevronRight className="w-4 h-4 group-hover/item:translate-x-1 transition-transform" />
+                </Link>
+              </div>
+            </div>
+          </div>
+        </aside>
       </div>
     </div>
   );

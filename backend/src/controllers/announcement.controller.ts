@@ -1,5 +1,6 @@
 import { Request, Response, NextFunction } from 'express';
 import pool from '../config/database';
+import { apiCache, cacheKeys, invalidateCache } from '../utils/cache';
 
 // ============================================
 // PUBLIC ENDPOINTS (for mobile/web apps)
@@ -18,6 +19,17 @@ export const getActiveAnnouncements = async (
         const userId = (req as any).user?.id;
         const deviceId = req.headers['x-device-id'] as string;
         const showOn = req.query.showOn as string || 'all';
+        const cacheScope = userId || deviceId || 'public';
+        const cacheKey = cacheKeys.announcementActive(showOn, cacheScope);
+        const cached = apiCache.get<{ announcements: any[] }>(cacheKey);
+
+        if (cached) {
+            res.json({
+                status: 'success',
+                data: cached
+            });
+            return;
+        }
 
         // Simplified query - just get active announcements
         const query = `
@@ -52,6 +64,7 @@ export const getActiveAnnouncements = async (
             status: 'success',
             data: { announcements }
         });
+        apiCache.set(cacheKey, { announcements }, 30000);
     } catch (err) {
         next(err);
     }
@@ -118,6 +131,7 @@ export const dismissAnnouncement = async (
             status: 'success',
             message: 'Announcement dismissed'
         });
+        invalidateCache.announcements();
     } catch (err) {
         next(err);
     }

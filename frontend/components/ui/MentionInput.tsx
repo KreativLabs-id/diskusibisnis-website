@@ -198,7 +198,7 @@ const MentionInput: React.FC<MentionInputProps> = ({
         onKeyDown={handleKeyDown}
         placeholder={placeholder}
         disabled={disabled}
-        className={`w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none ${className}`}
+        className={`w-full px-4 py-3 border-0 rounded-lg focus:outline-none focus:ring-0 resize-none bg-transparent ${className}`}
         style={{
           minHeight: `${minRows * 24}px`,
           maxHeight: `${maxRows * 24}px`,
@@ -209,7 +209,7 @@ const MentionInput: React.FC<MentionInputProps> = ({
       {showMentionDropdown && (
         <div
           ref={dropdownRef}
-          className="absolute z-50 mt-1 w-80 bg-white border border-gray-200 rounded-lg shadow-lg max-h-60 overflow-y-auto"
+          className="absolute left-0 z-[100] mt-1 w-80 bg-white border border-gray-200 rounded-lg shadow-lg max-h-60 overflow-y-auto"
           style={{
             top: textareaRef.current ? textareaRef.current.offsetHeight : 0,
           }}

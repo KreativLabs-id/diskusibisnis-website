@@ -2,6 +2,7 @@ import { Response } from 'express';
 import pool from '../config/database';
 import { AuthRequest } from '../types';
 import { successResponse, errorResponse, notFoundResponse } from '../utils/response.utils';
+import { apiCache, cacheKeys } from '../utils/cache';
 
 /**
  * Get all tags
@@ -10,7 +11,15 @@ import { successResponse, errorResponse, notFoundResponse } from '../utils/respo
 export const getTags = async (req: AuthRequest, res: Response): Promise<void> => {
   try {
     const search = (req.query.search as string) || '';
-    const limit = parseInt(req.query.limit as string) || 50;
+    const limit = Math.min(parseInt(req.query.limit as string) || 50, 100);
+    const normalizedSearch = search.trim().toLowerCase();
+    const cacheKey = cacheKeys.tagsSearch(normalizedSearch, limit);
+    const cached = apiCache.get<{ tags: any[] }>(cacheKey);
+
+    if (cached) {
+      successResponse(res, cached);
+      return;
+    }
 
     let query = `
       SELECT 
@@ -33,8 +42,10 @@ export const getTags = async (req: AuthRequest, res: Response): Promise<void> =>
     queryParams.push(limit);
 
     const result = await pool.query(query, queryParams);
+    const responseData = { tags: result.rows };
 
-    successResponse(res, { tags: result.rows });
+    apiCache.set(cacheKey, responseData, normalizedSearch ? 15000 : 60000);
+    successResponse(res, responseData);
   } catch (error) {
     console.error('Get tags error:', error);
     errorResponse(res, 'Server error');
@@ -48,6 +59,13 @@ export const getTags = async (req: AuthRequest, res: Response): Promise<void> =>
 export const getTagBySlug = async (req: AuthRequest, res: Response): Promise<void> => {
   try {
     const slug = req.params.slug;
+    const cacheKey = `tag:${slug}`;
+    const cached = apiCache.get<{ tag: any }>(cacheKey);
+
+    if (cached) {
+      successResponse(res, cached);
+      return;
+    }
 
     const result = await pool.query(`
       SELECT 
@@ -64,7 +82,9 @@ export const getTagBySlug = async (req: AuthRequest, res: Response): Promise<voi
       return;
     }
 
-    successResponse(res, { tag: result.rows[0] });
+    const responseData = { tag: result.rows[0] };
+    apiCache.set(cacheKey, responseData, 60000);
+    successResponse(res, responseData);
   } catch (error) {
     console.error('Get tag error:', error);
     errorResponse(res, 'Server error');

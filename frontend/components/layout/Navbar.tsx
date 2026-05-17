@@ -8,6 +8,7 @@ import NotificationDropdown from '@/components/ui/NotificationDropdown';
 import LoadingSpinner from '@/components/ui/LoadingSpinner';
 import VerifiedBadge from '@/components/ui/VerifiedBadge';
 import UserAvatar from '@/components/ui/UserAvatar';
+import { getProfileHref } from '@/lib/profile';
 
 interface NavbarProps {
   onMenuClick?: () => void;
@@ -65,10 +66,10 @@ export default function Navbar({ onMenuClick }: NavbarProps) {
                 {/* Desktop: Full Tanya Button */}
                 <Link
                   href="/ask"
-                  className="hidden md:flex items-center gap-2 px-4 py-2 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 transition-colors font-semibold text-sm shadow-sm"
+                  className="hidden md:flex items-center gap-2 px-4 py-2 bg-emerald-600 text-white rounded-xl hover:bg-emerald-700 transition-all font-bold text-sm shadow-sm active:scale-95"
                 >
                   <Plus className="w-4 h-4" />
-                  <span>Tanya</span>
+                  <span>Tanya Sesuatu</span>
                 </Link>
 
                 {/* Notification - All devices (Hidden on mobile) */}
@@ -80,102 +81,73 @@ export default function Navbar({ onMenuClick }: NavbarProps) {
                 <div className="relative" ref={userMenuRef}>
                   <button
                     onClick={() => setShowUserMenu(!showUserMenu)}
-                    className="hidden lg:flex items-center gap-2 p-1.5 sm:p-2 hover:bg-slate-50 dark:hover:bg-slate-800 rounded-lg transition-colors group"
+                    className="flex items-center gap-2 p-1.5 sm:p-2 hover:bg-slate-50 dark:hover:bg-slate-800 rounded-xl transition-colors group"
                   >
                     <UserAvatar
                       src={user.avatarUrl}
                       alt={user.displayName || 'User'}
                       size="sm"
                       fallbackName={user.displayName}
-                      className="border-2 border-slate-200 dark:border-slate-700 group-hover:border-emerald-300 transition-colors"
+                      className="border-2 border-slate-100 dark:border-slate-700 group-hover:border-emerald-500 transition-colors"
                     />
                     <div className="text-left hidden lg:block">
-                      <span className="text-sm font-semibold text-slate-900 dark:text-slate-100 block leading-tight">{user.displayName || 'User'}</span>
+                      <span className="text-sm font-bold text-slate-900 dark:text-slate-100 block leading-tight">{user.displayName || 'User'}</span>
                       {(user.reputationPoints || 0) >= 10 && (
-                        <span className="text-xs text-emerald-600 dark:text-emerald-400 font-medium">{user.reputationPoints} poin</span>
+                        <span className="text-[10px] font-bold text-emerald-600 dark:text-emerald-400">
+                        {user.reputationPoints} poin
+                      </span>
                       )}
                     </div>
                     <ChevronDown className="w-4 h-4 text-slate-400 dark:text-slate-500 hidden lg:block" />
                   </button>
 
                   {showUserMenu && (
-                    <div className="absolute right-0 mt-3 w-52 sm:w-64 bg-white dark:bg-slate-800 rounded-xl sm:rounded-2xl shadow-2xl border border-slate-200 dark:border-slate-700 py-1.5 sm:py-2 backdrop-blur-sm">
-                      <div className="px-3 sm:px-5 py-2.5 sm:py-4 border-b border-slate-100 dark:border-slate-700">
-                        <div className="flex items-center gap-2 sm:gap-3">
+                    <div className="absolute right-0 mt-3 w-52 sm:w-64 bg-white/90 dark:bg-slate-800/90 rounded-2xl shadow-2xl border border-slate-200 dark:border-slate-700 py-2 backdrop-blur-xl z-50">
+                      <div className="px-5 py-4 border-b border-slate-100 dark:border-slate-700">
+                        <div className="flex items-center gap-3">
                           <UserAvatar
                             src={user.avatarUrl}
                             alt={user.displayName || 'User'}
                             size="md"
                             fallbackName={user.displayName}
-                            className="ring-2 ring-slate-200 dark:ring-slate-600"
+                            className="ring-2 ring-slate-100 dark:ring-slate-700"
                           />
                           <div className="min-w-0 flex-1">
-                            <div className="flex items-center gap-1.5 sm:gap-2">
-                              <p className="text-xs sm:text-sm font-bold text-slate-900 dark:text-slate-100 truncate">{user.displayName || 'User'}</p>
+                            <div className="flex items-center gap-2">
+                              <p className="text-sm font-black text-slate-900 dark:text-slate-100 truncate">{user.displayName || 'User'}</p>
                               <VerifiedBadge isVerified={user.isVerified} size="sm" />
                             </div>
-                            <div className="flex items-center gap-1 sm:gap-1.5 mt-0.5 sm:mt-1 flex-wrap">
-                              {(user.reputationPoints || 0) >= 10 && (
-                                <span className="px-1.5 py-0.5 bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400 rounded-full text-[10px] font-semibold whitespace-nowrap">
-                                  {user.reputationPoints} poin
-                                </span>
-                              )}
-                              {(user.reputationPoints || 0) >= 250 && (
-                                <span className={`px-1.5 py-0.5 rounded-full text-[10px] font-semibold whitespace-nowrap ${(user.reputationPoints || 0) >= 5000
-                                  ? 'bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-400'
-                                  : (user.reputationPoints || 0) >= 1000
-                                    ? 'bg-purple-100 dark:bg-purple-900/30 text-purple-700 dark:text-purple-400'
-                                    : 'bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400'
-                                  }`}>
-                                  {(user.reputationPoints || 0) >= 5000 ? 'Legend' : (user.reputationPoints || 0) >= 1000 ? 'Master' : 'Expert'}
-                                </span>
-                              )}
+                            <div className="flex items-center gap-1.5 mt-1 flex-wrap">
+                            <span className="px-2 py-0.5 bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 rounded-full text-[9px] font-bold">
+                                {user.reputationPoints || 0} poin
+                              </span>
                             </div>
                           </div>
                         </div>
                       </div>
                       <Link
-                        href={`/profile/${user.username || user.id}`}
-                        className="flex items-center space-x-2 sm:space-x-3 px-3 sm:px-5 py-2 sm:py-3 text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-700 transition-all duration-200 rounded-lg mx-1.5 sm:mx-2"
+                        href={getProfileHref(user)}
+                        className="flex items-center space-x-3 px-4 py-3 text-slate-700 dark:text-slate-200 hover:bg-emerald-500 hover:text-white transition-all duration-200 rounded-xl mx-2 mt-2"
                         onClick={() => setShowUserMenu(false)}
                       >
-                        <div className="p-1 sm:p-1.5 bg-emerald-100 dark:bg-emerald-900/30 rounded-lg">
-                          <User className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-emerald-600 dark:text-emerald-400" />
-                        </div>
-                        <span className="text-xs sm:text-sm font-medium">Profil Saya</span>
+                        <User className="w-4 h-4" />
+                        <span className="text-sm font-bold">Profil Saya</span>
                       </Link>
                       <Link
                         href="/settings"
-                        className="flex items-center space-x-2 sm:space-x-3 px-3 sm:px-5 py-2 sm:py-3 text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-700 transition-all duration-200 rounded-lg mx-1.5 sm:mx-2"
+                        className="flex items-center space-x-3 px-4 py-3 text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-700 transition-all duration-200 rounded-xl mx-2"
                         onClick={() => setShowUserMenu(false)}
                       >
-                        <div className="p-1 sm:p-1.5 bg-slate-100 dark:bg-slate-700 rounded-lg">
-                          <Settings className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-slate-600 dark:text-slate-300" />
-                        </div>
-                        <span className="text-xs sm:text-sm font-medium">Pengaturan</span>
+                        <Settings className="w-4 h-4" />
+                        <span className="text-sm font-bold">Pengaturan</span>
                       </Link>
-                      {user.role === 'admin' && (
-                        <Link
-                          href="/admin"
-                          className="flex items-center space-x-2 sm:space-x-3 px-3 sm:px-5 py-2 sm:py-3 text-emerald-600 dark:text-emerald-400 hover:bg-emerald-50 dark:hover:bg-emerald-900/20 transition-all duration-200 rounded-lg mx-1.5 sm:mx-2"
-                          onClick={() => setShowUserMenu(false)}
-                        >
-                          <div className="p-1 sm:p-1.5 bg-emerald-100 dark:bg-emerald-900/30 rounded-lg">
-                            <Settings className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-emerald-600 dark:text-emerald-400" />
-                          </div>
-                          <span className="text-xs sm:text-sm font-medium">Admin Dashboard</span>
-                        </Link>
-                      )}
-
-                      <div className="border-t border-slate-100 dark:border-slate-700 mt-1.5 sm:mt-2 pt-1.5 sm:pt-2 px-1.5 sm:px-2">
+                      <div className="border-t border-slate-100 dark:border-slate-700 mt-2 pt-2 px-2">
                         <button
                           onClick={logout}
-                          className="flex items-center space-x-2 sm:space-x-3 w-full px-3 sm:px-5 py-2 sm:py-3 text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 transition-all duration-200 rounded-lg"
+                          className="flex items-center space-x-3 w-full px-4 py-3 text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 transition-all duration-200 rounded-xl"
                         >
-                          <div className="p-1 sm:p-1.5 bg-red-100 dark:bg-red-900/30 rounded-lg">
-                            <LogOut className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-red-600 dark:text-red-400" />
-                          </div>
-                          <span className="text-xs sm:text-sm font-medium">Keluar</span>
+                          <LogOut className="w-4 h-4" />
+                          <span className="text-sm font-bold">Keluar</span>
                         </button>
                       </div>
                     </div>
@@ -184,30 +156,21 @@ export default function Navbar({ onMenuClick }: NavbarProps) {
               </>
             ) : (
               <>
-                {/* Desktop: Both buttons */}
-                <div className="hidden md:flex items-center space-x-4">
+                {/* Desktop: Login/Register buttons - Hidden on mobile as they are in bottom nav */}
+                <div className="hidden md:flex items-center gap-2 sm:gap-4">
                   <Link
                     href="/login"
-                    className="px-5 py-2.5 text-slate-700 hover:text-emerald-600 transition-all duration-200 font-semibold hover:bg-white/80 rounded-xl"
+                    className="px-4 py-2 sm:px-5 sm:py-2.5 text-slate-600 dark:text-slate-300 hover:text-emerald-600 dark:hover:text-emerald-400 transition-all duration-200 font-bold text-xs sm:text-sm rounded-xl hover:bg-slate-50 dark:hover:bg-slate-800"
                   >
                     Masuk
                   </Link>
                   <Link
                     href="/register"
-                    className="px-5 py-2.5 bg-gradient-to-r from-emerald-600 to-emerald-700 text-white rounded-xl hover:from-emerald-700 hover:to-emerald-800 transition-all duration-200 font-semibold shadow-lg hover:shadow-xl transform hover:-translate-y-0.5"
+                    className="px-4 py-2 sm:px-5 sm:py-2.5 bg-emerald-600 dark:bg-emerald-500 text-white rounded-xl hover:bg-emerald-700 dark:hover:bg-emerald-400 transition-all duration-200 font-bold text-xs sm:text-sm shadow-md shadow-emerald-500/20 active:scale-95"
                   >
                     Daftar
                   </Link>
                 </div>
-
-                {/* Mobile: Single consolidated button - Hidden on mobile to keep header clean */}
-                <Link
-                  href="/login"
-                  className="hidden md:hidden p-2.5 text-slate-700 hover:text-emerald-600 transition-colors rounded-xl hover:bg-white/80"
-                  title="Masuk / Daftar"
-                >
-                  <User className="w-5 h-5" />
-                </Link>
               </>
             )}
           </div>

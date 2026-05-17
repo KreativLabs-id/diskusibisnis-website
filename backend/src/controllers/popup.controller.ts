@@ -1,5 +1,6 @@
 import { Request, Response, NextFunction } from 'express';
 import pool from '../config/database';
+import { apiCache, cacheKeys, invalidateCache } from '../utils/cache';
 
 // ============================================
 // PUBLIC ENDPOINTS (for mobile/web apps)
@@ -18,6 +19,17 @@ export const getActivePopup = async (
     try {
         const userId = (req as any).userId; // May be null for guests
         const deviceId = req.headers['x-device-id'] as string; // For guests
+        const cacheScope = userId || deviceId || 'public';
+        const cacheKey = cacheKeys.popupActive(cacheScope);
+        const cached = apiCache.get<{ popup: any }>(cacheKey);
+
+        if (cached) {
+            res.json({
+                status: 'success',
+                data: cached
+            });
+            return;
+        }
 
         // Simplified query - just get active popups
         const query = `
@@ -63,6 +75,7 @@ export const getActivePopup = async (
             status: 'success',
             data: { popup }
         });
+        apiCache.set(cacheKey, { popup }, 30000);
     } catch (err) {
         next(err);
     }
@@ -126,6 +139,7 @@ export const recordPopupView = async (
             status: 'success',
             message: 'Popup view recorded'
         });
+        invalidateCache.popups();
     } catch (err) {
         next(err);
     }

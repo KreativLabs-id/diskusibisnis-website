@@ -4,6 +4,9 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { Home, Compass, Plus, Bell, User, LogIn } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
+import { getProfileHref } from '@/lib/profile';
+import { cn } from '@/lib/utils';
+import UserAvatar from '@/components/ui/UserAvatar';
 
 export default function MobileBottomNav() {
     const pathname = usePathname();
@@ -60,20 +63,32 @@ export default function MobileBottomNav() {
                     <span className="text-[10px] font-medium">Notifikasi</span>
                 </Link>
 
-                {/* Profile */}
+                {/* Profile / Login */}
                 <Link
-                    href={user ? `/profile/${user.username || user.id}` : "/login"}
-                    className={`flex flex-col items-center justify-center w-full h-full space-y-1 ${isActive('/profile') ? 'text-emerald-600 dark:text-emerald-500' : 'text-slate-500 hover:text-slate-900 dark:text-slate-400 dark:hover:text-slate-200'
-                        }`}
+                    href={user ? getProfileHref(user) : "/login"}
+                    className={cn(
+                        "flex flex-col items-center justify-center w-full h-full space-y-1 transition-all duration-300",
+                        isActive('/profile') || isActive('/login') ? "text-emerald-600 dark:text-emerald-400" : "text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200"
+                    )}
                 >
                     {user ? (
-                        <div className={`p-0.5 rounded-full border ${isActive('/profile') ? 'border-emerald-600 dark:border-emerald-500' : 'border-transparent'}`}>
-                            <User className="w-5 h-5" strokeWidth={isActive('/profile') ? 2.5 : 2} />
+                        <div className={cn(
+                            "p-0.5 rounded-full border transition-all",
+                            isActive('/profile') ? "border-emerald-600 dark:border-emerald-400 scale-110" : "border-transparent"
+                        )}>
+                            <UserAvatar
+                                src={user.avatarUrl}
+                                alt={user.displayName || 'User'}
+                                size="xs"
+                                fallbackName={user.displayName}
+                            />
                         </div>
                     ) : (
-                        <User className="w-6 h-6" />
+                        <LogIn className={cn("w-6 h-6", isActive('/login') && "scale-110")} />
                     )}
-                    <span className="text-[10px] font-medium">{user ? 'Profil' : 'Masuk'}</span>
+                    <span className="text-[10px] font-bold uppercase tracking-widest">
+                        {user ? 'Profil' : 'Masuk'}
+                    </span>
                 </Link>
             </div>
         </div>

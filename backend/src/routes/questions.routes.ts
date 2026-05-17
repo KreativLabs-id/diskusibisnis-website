@@ -15,7 +15,7 @@ import { requireAuth, optionalAuth } from '../middlewares/auth.middleware';
 const router = Router();
 
 // Get all questions
-router.get('/', getQuestions);
+router.get('/', optionalAuth, getQuestions);
 
 // Create question
 router.post(

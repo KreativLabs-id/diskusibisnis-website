@@ -193,6 +193,19 @@ export const csrfTokenGenerator = (
     next();
 };
 
+export const conditionalCsrfTokenGenerator = (
+    req: AuthRequest,
+    res: Response,
+    next: NextFunction
+): void => {
+    if (CSRF_EXEMPT_METHODS.includes(req.method) && req.path !== '/csrf-token') {
+        next();
+        return;
+    }
+
+    csrfTokenGenerator(req, res, next);
+};
+
 /**
  * CSRF Validation Middleware
  * Validates the signed token from header/body against cookie
@@ -326,6 +339,7 @@ export const getCSRFToken = (
 
 export default {
     csrfTokenGenerator,
+    conditionalCsrfTokenGenerator,
     csrfValidator,
     csrfProtection,
     getCSRFToken,

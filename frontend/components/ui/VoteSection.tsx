@@ -43,82 +43,71 @@ export default function VoteSection({
 
   return (
     <div className={`
-      flex items-center justify-center gap-1.5
+      flex items-center justify-center gap-2
       ${orientation === 'vertical' ? 'flex-col' : 'flex-row sm:flex-col'}
     `}>
       {/* Upvote Button */}
       <button
         onClick={onUpvote}
         className={`
-          ${buttonSizeClasses[size]} rounded-xl flex items-center justify-center transition-all duration-200 font-bold
+          flex items-center justify-center transition-colors p-1 rounded-full
           ${userVote === 'upvote'
-            ? 'bg-emerald-500 text-white shadow-lg shadow-emerald-500/30 scale-105 ring-2 ring-emerald-400/50'
-            : disabled
-              ? 'bg-slate-100 dark:bg-slate-800 text-slate-400 dark:text-slate-500 hover:bg-emerald-50 dark:hover:bg-emerald-900/30 hover:text-emerald-500 cursor-pointer'
-              : 'bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400 hover:bg-emerald-100 dark:hover:bg-emerald-900/30 hover:text-emerald-600 dark:hover:text-emerald-400 cursor-pointer hover:scale-105'
+            ? 'text-emerald-600 bg-emerald-50 dark:bg-emerald-900/30'
+            : 'text-gray-400 hover:text-emerald-600 hover:bg-emerald-50 dark:hover:bg-emerald-900/20'
           }
+          ${disabled ? 'cursor-not-allowed opacity-50' : 'cursor-pointer'}
         `}
         title={disabled ? 'Login untuk voting' : userVote === 'upvote' ? 'Batalkan upvote' : 'Upvote'}
+        disabled={disabled && !showLoginHint}
       >
         <ChevronUp
           className={iconSizeClasses[size]}
-          strokeWidth={userVote === 'upvote' ? 3 : 2.5}
+          strokeWidth={userVote === 'upvote' ? 3 : 2}
         />
       </button>
 
       {/* Vote Count */}
       <div className={`
-        flex items-center gap-1.5 py-1
-        ${orientation === 'vertical' ? 'flex-col' : 'flex-row sm:flex-col'}
+        flex flex-col items-center justify-center
+        ${orientation === 'horizontal' ? 'mx-2' : 'my-1'}
       `}>
         <div className={`
-          ${sizeClasses[size]} font-bold tabular-nums
+          text-xl sm:text-2xl font-medium
           ${userVote === 'upvote'
             ? 'text-emerald-600 dark:text-emerald-400'
             : userVote === 'downvote'
-              ? 'text-red-600 dark:text-red-400'
-              : voteCount > 0
-                ? 'text-emerald-600 dark:text-emerald-400'
-                : voteCount < 0
-                  ? 'text-red-600 dark:text-red-400'
-                  : 'text-slate-700 dark:text-slate-300'
+              ? 'text-red-500 dark:text-red-400'
+              : 'text-gray-700 dark:text-gray-300'
           }
         `}>
-          {voteCount > 0 ? `+${voteCount}` : voteCount}
+          {voteCount}
         </div>
-        <span className={`
-          text-[10px] text-slate-400 dark:text-slate-500 font-medium uppercase tracking-wide
-          ${orientation === 'horizontal' ? 'sm:hidden' : 'hidden sm:block'}
-        `}>
-          votes
-        </span>
       </div>
 
       {/* Downvote Button */}
       <button
         onClick={onDownvote}
         className={`
-          ${buttonSizeClasses[size]} rounded-xl flex items-center justify-center transition-all duration-200 font-bold
+          flex items-center justify-center transition-colors p-1 rounded-full
           ${userVote === 'downvote'
-            ? 'bg-red-500 text-white shadow-lg shadow-red-500/30 scale-105 ring-2 ring-red-400/50'
-            : disabled
-              ? 'bg-slate-100 dark:bg-slate-800 text-slate-400 dark:text-slate-500 hover:bg-red-50 dark:hover:bg-red-900/30 hover:text-red-500 cursor-pointer'
-              : 'bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400 hover:bg-red-100 dark:hover:bg-red-900/30 hover:text-red-600 dark:hover:text-red-400 cursor-pointer hover:scale-105'
+            ? 'text-red-500 bg-red-50 dark:bg-red-900/30'
+            : 'text-gray-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20'
           }
+          ${disabled ? 'cursor-not-allowed opacity-50' : 'cursor-pointer'}
         `}
         title={disabled ? 'Login untuk voting' : userVote === 'downvote' ? 'Batalkan downvote' : 'Downvote'}
+        disabled={disabled && !showLoginHint}
       >
         <ChevronDown
           className={iconSizeClasses[size]}
-          strokeWidth={userVote === 'downvote' ? 3 : 2.5}
+          strokeWidth={userVote === 'downvote' ? 3 : 2}
         />
       </button>
 
       {/* Login hint for guests */}
       {disabled && showLoginHint && orientation === 'vertical' && (
-        <div className="mt-2 flex items-center gap-1 text-xs text-slate-400 dark:text-slate-500 whitespace-nowrap">
-          <LogIn className="w-3 h-3" />
-          <span>Login to vote</span>
+        <div className="mt-2 text-[11px] text-gray-400 dark:text-gray-500 truncate">
+          login to vote
         </div>
       )}
     </div>

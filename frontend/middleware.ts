@@ -121,11 +121,14 @@ export function middleware(request: NextRequest) {
     }
 
     // Check if user is already authenticated and trying to access auth pages
+    // We only redirect if we have a very strong indication of active session
     if (matchesPath(AUTH_ROUTES, pathname)) {
-        if (authToken) {
-            // Already authenticated - redirect to home
+        if (authToken && userCookie) {
+            // Already fully authenticated - redirect to home
             return NextResponse.redirect(new URL('/', request.url));
         }
+        // Allow access to login/register if not fully authenticated
+        return response;
     }
 
     return response;

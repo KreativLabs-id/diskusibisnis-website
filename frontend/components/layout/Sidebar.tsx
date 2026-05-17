@@ -23,6 +23,7 @@ import {
 } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import LoadingSpinner from '@/components/ui/LoadingSpinner';
+import { getProfileHref } from '@/lib/profile';
 import { pwaInstaller } from '@/lib/pwa-installer';
 
 interface SidebarItemProps {
@@ -127,7 +128,7 @@ export default function Sidebar({ onItemClick }: SidebarProps) {
   ] : [];
 
   const profileItems = user ? [
-    { href: `/profile/${user.username || user.id}`, icon: User, label: 'Profil Saya' },
+    { href: getProfileHref(user), icon: User, label: 'Profil Saya' },
     { href: '/settings', icon: Settings, label: 'Pengaturan' },
   ] : [];
 

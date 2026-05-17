@@ -357,6 +357,7 @@ export const leaveCommunity = async (req: AuthRequest, res: Response): Promise<v
 export const getCommunityQuestions = async (req: AuthRequest, res: Response): Promise<void> => {
   try {
     const slug = req.params.slug;
+    const currentUserId = req.user?.id || null;
     const page = parseInt(req.query.page as string) || 1;
     const limit = parseInt(req.query.limit as string) || 10;
     const offset = (page - 1) * limit;
@@ -377,9 +378,14 @@ export const getCommunityQuestions = async (req: AuthRequest, res: Response): Pr
     const result = await pool.query(`
       SELECT 
         q.id, q.title, q.content, q.views_count, q.is_closed, q.created_at,
-        u.id as author_id, u.display_name as author_name, u.avatar_url as author_avatar,
+        u.id as author_id, u.username as author_username, u.display_name as author_name, u.avatar_url as author_avatar,
         COUNT(DISTINCT a.id) as answers_count,
-        COUNT(DISTINCT CASE WHEN v.vote_type = 'upvote' THEN v.id END) as upvotes_count
+        COUNT(DISTINCT CASE WHEN v.vote_type = 'upvote' THEN v.id END) as upvotes_count,
+        CASE 
+          WHEN $4::uuid IS NOT NULL THEN 
+            (SELECT user_vote.vote_type FROM public.votes user_vote WHERE user_vote.question_id = q.id AND user_vote.user_id = $4)
+          ELSE NULL 
+        END as user_vote
       FROM public.questions q
       LEFT JOIN public.users u ON q.author_id = u.id
       LEFT JOIN public.answers a ON q.id = a.question_id
@@ -388,7 +394,7 @@ export const getCommunityQuestions = async (req: AuthRequest, res: Response): Pr
       GROUP BY q.id, u.id
       ORDER BY q.created_at DESC
       LIMIT $2 OFFSET $3
-    `, [communityId, limit, offset]);
+    `, [communityId, limit, offset, currentUserId]);
 
     const countResult = await pool.query(
       'SELECT COUNT(*) as total FROM public.questions WHERE community_id = $1',

@@ -21,35 +21,37 @@ const useSsl = isCloudDatabase || forceSsl;
 const rejectUnauthorized = process.env.DB_SSL_REJECT_UNAUTHORIZED === 'true';
 
 if (useSsl && !rejectUnauthorized) {
-  console.log('⚠️ SSL certificate validation is disabled. For production, set DB_SSL_REJECT_UNAUTHORIZED=true');
+  console.log('SSL certificate validation is disabled. For production, set DB_SSL_REJECT_UNAUTHORIZED=true');
 }
 
 console.log(`Cloud database detected: ${isCloudDatabase}, Force SSL: ${forceSsl}, Reject unauthorized: ${rejectUnauthorized}`);
 
 const pool = new Pool({
   connectionString: config.database.url,
-  ssl: useSsl ? {
-    rejectUnauthorized: false // Explicitly set to false to allow self-signed certificates from cloud providers
-  } : false,
-  connectionTimeoutMillis: 60000, // 60 seconds timeout for initial connection (increased for slow networks)
-  idleTimeoutMillis: 30000, // Close idle clients after 30 seconds
-  max: 20, // Maximum number of clients in the pool (increased for production)
-  allowExitOnIdle: false, // Don't exit when all clients are idle
-  // Add query timeout
-  query_timeout: 30000, // 30 seconds for queries
-  // Keep connection alive
+  ssl: useSsl ? { rejectUnauthorized } : false,
+  connectionTimeoutMillis: config.database.connectionTimeoutMillis,
+  idleTimeoutMillis: config.database.idleTimeoutMillis,
+  max: config.database.max,
+  min: config.database.min,
+  allowExitOnIdle: false,
+  query_timeout: config.database.queryTimeoutMillis,
   keepAlive: true,
-  keepAliveInitialDelayMillis: 10000, // 10 seconds
+  keepAliveInitialDelayMillis: 10000,
+  maxUses: config.database.maxUses,
+  maxLifetimeSeconds: config.database.maxLifetimeSeconds,
 });
 
+let hasLoggedInitialConnection = false;
+
 pool.on('connect', () => {
-  console.log('✅ Connected to PostgreSQL database');
+  if (!hasLoggedInitialConnection || config.debug.db) {
+    console.log('Connected to PostgreSQL database');
+    hasLoggedInitialConnection = true;
+  }
 });
 
 pool.on('error', (err: Error) => {
-  console.error('❌ Database pool error:', err.message);
-  // Don't exit the process, let the application handle reconnection
+  console.error('Database pool error:', err.message);
 });
 
 export default pool;
-

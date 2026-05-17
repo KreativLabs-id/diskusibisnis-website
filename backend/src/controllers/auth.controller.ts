@@ -11,6 +11,7 @@ import { successResponse, errorResponse, unauthorizedResponse } from '../utils/r
 import { sendPasswordResetEmail, sendOTPEmail, sendPasswordChangeOTPEmail } from '../utils/email.service';
 import { setTokenCookie, clearTokenCookie } from '../utils/cookie.utils';
 import { resetLoginRateLimit } from '../middlewares/rate-limit.middleware';
+import { generateUniqueUsername, normalizeUsername } from '../utils/username.utils';
 import {
   recordFailedLogin,
   clearLoginLockout,
@@ -181,6 +182,7 @@ export const verifyRegisterOTP = async (req: AuthRequest, res: Response): Promis
           id: user.id,
           email: user.email,
           displayName: user.display_name,
+          username: user.username,
           role: user.role,
           reputationPoints: user.reputation_points,
           isVerified: user.is_verified,
@@ -204,7 +206,7 @@ export const verifyRegisterOTP = async (req: AuthRequest, res: Response): Promis
  */
 export const register = async (req: AuthRequest, res: Response): Promise<void> => {
   try {
-    const { email, password, displayName } = req.body;
+    const { email, password, displayName, username: requestedUsername } = req.body;
 
     // Check if user exists
     const existingUser = await pool.query(
@@ -220,13 +222,16 @@ export const register = async (req: AuthRequest, res: Response): Promise<void> =
     // Hash password
     const salt = await bcrypt.genSalt(10);
     const passwordHash = await bcrypt.hash(password, salt);
+    const username = await generateUniqueUsername(
+      normalizeUsername(requestedUsername || email.split('@')[0])
+    );
 
     // Create user
     const result = await pool.query(
-      `INSERT INTO public.users (email, password_hash, display_name, role) 
-       VALUES ($1, $2, $3, 'member') 
-       RETURNING id, email, display_name, role, reputation_points, created_at`,
-      [email, passwordHash, displayName]
+      `INSERT INTO public.users (email, password_hash, display_name, username, role) 
+       VALUES ($1, $2, $3, $4, 'member') 
+       RETURNING id, email, display_name, username, role, reputation_points, created_at`,
+      [email, passwordHash, displayName, username]
     );
 
     const user = result.rows[0];
@@ -245,6 +250,7 @@ export const register = async (req: AuthRequest, res: Response): Promise<void> =
           id: user.id,
           email: user.email,
           displayName: user.display_name,
+          username: user.username,
           role: user.role,
           reputationPoints: user.reputation_points,
           authProvider: 'email',
@@ -296,7 +302,7 @@ export const login = async (req: AuthRequest, res: Response): Promise<void> => {
 
     // Find user
     const result = await pool.query(
-      `SELECT id, email, password_hash, display_name, avatar_url, 
+      `SELECT id, email, password_hash, display_name, username, avatar_url, 
               role, reputation_points, is_banned 
        FROM public.users WHERE email = $1`,
       [email]
@@ -356,6 +362,7 @@ export const login = async (req: AuthRequest, res: Response): Promise<void> => {
         id: user.id,
         email: user.email,
         displayName: user.display_name,
+        username: user.username,
         avatarUrl: user.avatar_url,
         role: user.role,
         reputationPoints: user.reputation_points,
@@ -457,24 +464,9 @@ export const googleLogin = async (req: AuthRequest, res: Response): Promise<void
 
     if (userResult.rows.length === 0) {
       // Create new user - generate a unique username from email
-      const baseUsername = email!.split('@')[0].toLowerCase().replace(/[^a-z0-9_]/g, '_');
-      let username = baseUsername;
-      let counter = 1;
-
-      // Check if username exists and generate unique one
-      let usernameExists = true;
-      while (usernameExists) {
-        const usernameCheck = await pool.query(
-          'SELECT id FROM public.users WHERE username = $1',
-          [username]
-        );
-        if (usernameCheck.rows.length === 0) {
-          usernameExists = false;
-        } else {
-          username = `${baseUsername}${counter}`;
-          counter++;
-        }
-      }
+      const username = await generateUniqueUsername(
+        normalizeUsername(email!.split('@')[0])
+      );
 
       const result = await pool.query(
         `INSERT INTO public.users (email, display_name, username, avatar_url, google_id, role, is_verified) 

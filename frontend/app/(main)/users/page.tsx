@@ -2,10 +2,12 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { Users, Search, Award, MessageSquare, CheckCircle } from 'lucide-react';
+import { Users, Search, Award, ChevronRight, UserPlus } from 'lucide-react';
 import { userAPI } from '@/lib/api';
 import UserAvatar from '@/components/ui/UserAvatar';
 import VerifiedBadge from '@/components/ui/VerifiedBadge';
+import { getProfileHref } from '@/lib/profile';
+import { cn, formatNumber } from '@/lib/utils';
 
 interface User {
   id: string;
@@ -52,164 +54,162 @@ export default function UsersPage() {
     user.display_name.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
-  const renderSkeleton = (
-    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-      {[1, 2, 3, 4, 5, 6].map((i) => (
-        <div
-          key={i}
-          className="bg-white rounded-xl border border-slate-200 p-6 animate-pulse"
-        >
-          <div className="flex flex-col items-center space-y-4">
-            <div className="w-20 h-20 rounded-full bg-slate-200" />
-            <div className="w-32 h-5 bg-slate-200 rounded" />
-            <div className="w-24 h-4 bg-slate-200 rounded" />
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-[#f8fafc] dark:bg-slate-950 px-4 py-12">
+        <div className="max-w-6xl mx-auto">
+          <div className="animate-pulse space-y-8">
+            <div className="flex items-center gap-4">
+              <div className="w-12 h-12 bg-slate-200 dark:bg-slate-800 rounded-2xl"></div>
+              <div className="space-y-2">
+                <div className="h-8 bg-slate-200 dark:bg-slate-800 rounded-lg w-48"></div>
+                <div className="h-4 bg-slate-200 dark:bg-slate-800 rounded-lg w-64"></div>
+              </div>
+            </div>
+            <div className="h-14 bg-slate-200 dark:bg-slate-800 rounded-2xl w-full"></div>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+              {[1, 2, 3, 4, 5, 6, 7, 8].map(i => (
+                <div key={i} className="h-72 bg-slate-200 dark:bg-slate-800 rounded-[2.5rem]"></div>
+              ))}
+            </div>
           </div>
         </div>
-      ))}
-    </div>
-  );
+      </div>
+    );
+  }
 
   return (
-    <div className="min-h-screen bg-slate-50 dark:bg-slate-950 pb-20 transition-colors duration-200">
-      {/* Mobile Header - Sticky */}
-      <div className="sticky top-0 z-30 bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800 px-4 py-3 sm:hidden flex items-center justify-between shadow-sm">
-        <div className="flex items-center gap-2">
-          <div className="w-8 h-8 bg-emerald-100 dark:bg-emerald-900/30 rounded-lg flex items-center justify-center">
-            <Users className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
-          </div>
-          <h1 className="text-lg font-bold text-slate-900 dark:text-slate-100">Pengguna</h1>
-        </div>
-        <span className="text-xs font-medium text-slate-500 bg-slate-100 dark:bg-slate-800 dark:text-slate-400 px-2 py-1 rounded-full">
-          {users.length}
-        </span>
-      </div>
-
-      <div className="max-w-7xl mx-auto px-4 py-6 sm:py-10">
-        {/* Desktop Header */}
-        <div className="hidden sm:block mb-8">
-          <div className="flex items-center gap-3 mb-2">
-            <div className="w-10 h-10 bg-emerald-100 dark:bg-emerald-900/30 rounded-xl flex items-center justify-center">
-              <Users className="w-5 h-5 text-emerald-600 dark:text-emerald-400" />
-            </div>
-            <h1 className="text-3xl font-bold text-slate-900 dark:text-slate-100">Pengguna</h1>
-          </div>
-          <p className="text-slate-600 dark:text-slate-400 text-lg">
-            Temukan dan terhubung dengan {users.length} pebisnis lainnya
+    <div className="min-h-screen bg-[#f8fafc] dark:bg-slate-950 pb-20 transition-colors duration-300">
+      <div className="max-w-6xl mx-auto px-4 py-8 sm:py-14">
+        {/* Professional Minimalist Header - Optimized for Mobile */}
+        <div className="mb-8 sm:mb-10">
+          <h1 className="text-2xl sm:text-4xl font-bold text-slate-900 dark:text-white tracking-tight">
+            Pebisnis & Ahli
+          </h1>
+          <p className="text-sm sm:text-lg text-slate-500 dark:text-slate-400 mt-1">
+            Terhubung dengan {users.length} pebisnis aktif di komunitas kami.
           </p>
         </div>
 
-        {/* Search Bar - Sticky on Mobile */}
-        <div className="sticky sm:static top-[60px] z-20 bg-slate-50 dark:bg-slate-950 pt-2 pb-4 sm:py-0 mb-4 sm:mb-8">
-          <div className="relative max-w-2xl">
-            <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-slate-400" />
-            <input
-              type="text"
-              placeholder="Cari pengguna berdasarkan nama..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full pl-12 pr-4 py-3.5 rounded-xl border-2 border-slate-200 dark:border-slate-700 focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/10 transition-all bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 shadow-sm text-sm sm:text-base"
-            />
+        {/* Integrated Search - Clean UI */}
+        <div className="sticky top-4 z-40 mb-12">
+          <div className="bg-white/70 dark:bg-slate-900/70 backdrop-blur-xl border border-white dark:border-slate-800/50 rounded-2xl p-2 shadow-xl shadow-slate-200/50 dark:shadow-none">
+            <div className="relative flex-1">
+              <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" />
+              <input
+                type="text"
+                placeholder="Cari pengguna berdasarkan nama..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="w-full bg-transparent pl-12 pr-4 py-3 text-slate-900 dark:text-white placeholder:text-slate-400 outline-none"
+              />
+            </div>
           </div>
         </div>
 
         {/* Users Grid */}
-        {loading ? (
-          renderSkeleton
-        ) : filteredUsers.length === 0 ? (
-          <div className="bg-white dark:bg-slate-800 rounded-2xl border-2 border-dashed border-slate-200 dark:border-slate-700 p-12 text-center">
-            <div className="w-16 h-16 bg-slate-50 dark:bg-slate-700 rounded-full flex items-center justify-center mx-auto mb-4">
-              <Search className="w-8 h-8 text-slate-300 dark:text-slate-500" />
+        {filteredUsers.length === 0 ? (
+          <div className="py-20 text-center">
+            <div className="inline-flex w-20 h-20 bg-slate-100 dark:bg-slate-800 rounded-full items-center justify-center mb-6">
+              <Search className="w-10 h-10 text-slate-300" />
             </div>
-            <h3 className="text-lg font-bold text-slate-900 dark:text-slate-100 mb-2">
-              Pengguna tidak ditemukan
-            </h3>
-            <p className="text-slate-500 dark:text-slate-400 max-w-xs mx-auto">
-              {searchQuery
-                ? `Tidak dapat menemukan pengguna dengan nama "${searchQuery}"`
-                : 'Belum ada pengguna terdaftar saat ini'}
-            </p>
+            <h3 className="text-xl font-bold text-slate-900 dark:text-white">Pengguna tidak ditemukan</h3>
+            <p className="text-slate-500 mt-2">Coba gunakan nama lain untuk pencarian kamu.</p>
           </div>
         ) : (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6">
-            {filteredUsers.map((user) => {
-              const profileLink = user.username || user.id;
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+            {filteredUsers.map((user) => (
+              <Link
+                key={user.id}
+                href={getProfileHref({ username: user.username, display_name: user.display_name })}
+                className="group relative bg-white/60 dark:bg-slate-900/40 backdrop-blur-md border border-white dark:border-slate-800/60 rounded-[2.5rem] p-6 hover:bg-white dark:hover:bg-slate-800/60 transition-all duration-500 hover:shadow-2xl hover:shadow-emerald-500/10 hover:-translate-y-1 overflow-hidden flex flex-col items-center text-center"
+              >
+                {/* Decorative Blur Object */}
+                <div className="absolute -top-12 -right-12 w-32 h-32 bg-emerald-500/5 rounded-full blur-3xl group-hover:bg-emerald-500/10 transition-colors" />
 
-              return (
-                <Link
-                  key={user.id}
-                  href={`/profile/${profileLink}`}
-                  className="bg-white dark:bg-slate-800 rounded-2xl border border-slate-200 dark:border-slate-700 p-5 hover:border-emerald-500/50 hover:shadow-xl hover:shadow-emerald-500/5 transition-all duration-300 group relative overflow-hidden"
-                >
-                  {/* Decorative Background */}
-                  <div className="absolute top-0 left-0 w-full h-20 bg-gradient-to-br from-slate-50 to-slate-100/50 dark:from-slate-700 dark:to-slate-800 border-b border-slate-100 dark:border-slate-700"></div>
-
-                  <div className="relative flex flex-col items-center">
-                    {/* Avatar with Ring */}
-                    <div className="mb-3 p-1 bg-white dark:bg-slate-800 rounded-full ring-1 ring-slate-100 dark:ring-slate-600 shadow-sm group-hover:ring-emerald-100 dark:group-hover:ring-emerald-800 group-hover:scale-105 transition-all duration-300">
-                      <UserAvatar
-                        src={user.avatar_url}
-                        alt={user.display_name}
-                        size="lg"
-                        fallbackName={user.display_name}
-                      />
+                {/* Avatar with Ring */}
+                <div className="relative mb-4">
+                  <div className="p-1.5 bg-white dark:bg-slate-800 rounded-full ring-1 ring-slate-100 dark:ring-slate-700 shadow-sm group-hover:ring-emerald-500/30 transition-all duration-500 group-hover:scale-105">
+                    <UserAvatar
+                      src={user.avatar_url}
+                      alt={user.display_name}
+                      size="xl"
+                      fallbackName={user.display_name}
+                    />
+                  </div>
+                  {user.is_verified && (
+                    <div className="absolute -bottom-1 -right-1">
+                      <VerifiedBadge isVerified={true} size="md" />
                     </div>
+                  )}
+                </div>
 
-                    {/* Name & Badge */}
-                    <div className="text-center mb-4 w-full">
-                      <div className="flex items-center justify-center gap-1.5 mb-1">
-                        <h3 className="text-base font-bold text-slate-900 dark:text-slate-100 group-hover:text-emerald-600 dark:group-hover:text-emerald-400 transition-colors truncate max-w-[180px]">
-                          {user.display_name}
-                        </h3>
-                        <VerifiedBadge isVerified={user.is_verified} size="sm" />
-                      </div>
-
-                      <div className="flex items-center justify-center gap-2 min-h-[24px]">
+                {/* User Info */}
+                <div className="mb-6 w-full px-2">
+                  <h3 className="text-lg font-black text-slate-900 dark:text-white group-hover:text-emerald-600 dark:group-hover:text-emerald-400 transition-colors truncate">
+                    {user.display_name}
+                  </h3>
+                  <div className="mt-1 flex items-center justify-center">
                         {user.role === 'admin' ? (
-                          <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-purple-50 dark:bg-purple-900/30 text-purple-700 dark:text-purple-400 border border-purple-100 dark:border-purple-800 text-[10px] font-bold uppercase tracking-wider rounded-full">
-                            Admin
+                          <span className="px-3 py-1 bg-purple-500/10 text-purple-600 dark:text-purple-400 text-[10px] font-bold rounded-full ring-1 ring-purple-500/20">
+                            Administrator
                           </span>
                         ) : user.role === 'moderator' ? (
-                          <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-blue-50 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400 border border-blue-100 dark:border-blue-800 text-[10px] font-bold uppercase tracking-wider rounded-full">
-                            Mod
+                          <span className="px-3 py-1 bg-blue-500/10 text-blue-600 dark:text-blue-400 text-[10px] font-bold rounded-full ring-1 ring-blue-500/20">
+                            Moderator
                           </span>
                         ) : (
-                          <span className="text-xs text-slate-500 dark:text-slate-400">Anggota</span>
+                          <span className="text-xs font-bold text-slate-400 dark:text-slate-500">
+                            Anggota Komunitas
+                          </span>
                         )}
+                  </div>
+                </div>
+
+                {/* Stats Container */}
+                <div className="w-full grid grid-cols-2 gap-2 mb-6">
+                  <div className="bg-slate-50/50 dark:bg-slate-800/50 rounded-2xl p-3 border border-slate-100/50 dark:border-slate-700/50 group-hover:bg-emerald-50/50 dark:group-hover:bg-emerald-900/20 group-hover:border-emerald-500/20 transition-all duration-500">
+                    <div className="flex flex-col items-center">
+                      <span className="text-[10px] font-bold text-slate-400 dark:text-slate-500 mb-1">Reputasi</span>
+                      <div className="flex items-center gap-1 text-emerald-600 dark:text-emerald-400 font-bold text-sm">
+                        <Award className="w-3.5 h-3.5" />
+                        {formatNumber(user.reputation_points)}
                       </div>
                     </div>
-
-                    {/* Stats Card */}
-                    <div className="w-full bg-slate-50 dark:bg-slate-700 rounded-xl p-3 border border-slate-100 dark:border-slate-600 flex items-center justify-between mb-4 group-hover:bg-emerald-50/30 dark:group-hover:bg-emerald-900/20 group-hover:border-emerald-100 dark:group-hover:border-emerald-800 transition-colors">
-                      <div className="flex flex-col items-center flex-1 border-r border-slate-200/60 dark:border-slate-600">
-                        <span className="text-xs text-slate-500 dark:text-slate-400 font-medium uppercase tracking-wide">Reputasi</span>
-                        <div className="flex items-center gap-1 text-emerald-600 dark:text-emerald-400 font-bold">
-                          <Award className="w-3.5 h-3.5" />
-                          {user.reputation_points}
-                        </div>
-                      </div>
-                      <div className="flex flex-col items-center flex-1">
-                        <span className="text-xs text-slate-500 dark:text-slate-400 font-medium uppercase tracking-wide">Bergabung</span>
-                        <span className="text-slate-700 dark:text-slate-300 font-semibold text-xs">
-                          {new Date(user.created_at).toLocaleDateString('id-ID', { month: 'short', year: 'numeric' })}
-                        </span>
-                      </div>
-                    </div>
-
-                    {/* Action Hint */}
-                    <div className="w-full text-center">
-                      <span className="text-xs font-medium text-slate-400 dark:text-slate-500 group-hover:text-emerald-600 dark:group-hover:text-emerald-400 transition-colors flex items-center justify-center gap-1">
-                        Lihat Profil
-                        <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                        </svg>
+                  </div>
+                  <div className="bg-slate-50/50 dark:bg-slate-800/50 rounded-2xl p-3 border border-slate-100/50 dark:border-slate-700/50 group-hover:bg-emerald-50/50 dark:group-hover:bg-emerald-900/20 group-hover:border-emerald-500/20 transition-all duration-500">
+                    <div className="flex flex-col items-center">
+                      <span className="text-[10px] font-bold text-slate-400 dark:text-slate-500 mb-1">Bergabung</span>
+                      <span className="text-slate-700 dark:text-slate-200 font-bold text-sm">
+                        {new Date(user.created_at).toLocaleDateString('id-ID', { month: 'short', year: 'numeric' })}
                       </span>
                     </div>
                   </div>
-                </Link>
-              );
-            })}
+                </div>
+
+                {/* Action Link */}
+                <div className="flex items-center gap-1.5 text-emerald-600 dark:text-emerald-400 font-black text-xs opacity-0 group-hover:opacity-100 group-hover:translate-y-0 translate-y-2 transition-all duration-300">
+                  Lihat Profil Lengkap <ChevronRight className="w-4 h-4" />
+                </div>
+              </Link>
+            ))}
           </div>
         )}
+
+        {/* Minimalist Sub-info */}
+        <div className="mt-20 pt-10 border-t border-slate-200/50 dark:border-slate-800/50 flex flex-col sm:flex-row items-center justify-between gap-6 text-center sm:text-left">
+          <div>
+            <h4 className="text-slate-900 dark:text-white font-bold">Ingin membangun reputasi?</h4>
+            <p className="text-slate-500 text-sm mt-1">Bantu sesama pebisnis dengan menjawab pertanyaan mereka.</p>
+          </div>
+          <Link 
+            href="/" 
+            className="px-8 py-4 bg-emerald-600 dark:bg-emerald-500 text-white rounded-full font-bold text-sm shadow-lg shadow-emerald-500/25 flex items-center gap-2"
+          >
+            <UserPlus className="w-4 h-4" />
+            Mulai Berkontribusi
+          </Link>
+        </div>
       </div>
     </div>
   );

@@ -18,12 +18,13 @@ export default function LoginPage() {
   const { login, googleLogin, user, loading: authLoading } = useAuth();
   const router = useRouter();
 
-  // Redirect if already logged in
+  /* Client-side redirect disabled to fix access issues
   useEffect(() => {
     if (!authLoading && user) {
       router.push('/');
     }
   }, [user, authLoading, router]);
+  */
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -92,192 +93,161 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="min-h-screen flex flex-col justify-center py-8 sm:py-12 px-4 sm:px-6 lg:px-8 bg-slate-50 dark:bg-slate-950 relative overflow-hidden transition-colors duration-200">
-      {/* Decorative Background Elements */}
+    <div className="min-h-screen flex flex-col justify-center py-12 px-4 sm:px-6 lg:px-8 bg-[#f8fafc] dark:bg-slate-950 relative overflow-hidden transition-colors duration-300">
+      {/* Decorative Background Elements - Subtle Spotlight */}
       <div className="absolute top-0 left-0 w-full h-full overflow-hidden pointer-events-none">
-        <div className="absolute -top-24 -left-24 w-96 h-96 bg-emerald-500/10 rounded-full blur-3xl"></div>
-        <div className="absolute top-1/2 right-0 w-64 h-64 bg-blue-500/10 rounded-full blur-3xl"></div>
-        <div className="absolute bottom-0 left-1/3 w-80 h-80 bg-teal-500/10 rounded-full blur-3xl"></div>
+        <div className="absolute top-[-10%] right-[-10%] w-[40%] h-[40%] bg-emerald-500/5 rounded-full blur-[120px]"></div>
+        <div className="absolute bottom-[-10%] left-[-10%] w-[40%] h-[40%] bg-blue-500/5 rounded-full blur-[120px]"></div>
       </div>
 
       <div className="sm:mx-auto sm:w-full sm:max-w-md relative z-10">
-        <div className="text-center">
+        <div className="text-center mb-8">
           <Link href="/" className="inline-block group">
-            <div className="w-16 h-16 sm:w-20 sm:h-20 mx-auto mb-4 sm:mb-6 bg-white rounded-2xl shadow-lg p-3 sm:p-4 flex items-center justify-center group-hover:scale-105 transition-transform duration-300">
+            <div className="w-16 h-16 mx-auto mb-6 bg-white dark:bg-slate-900 rounded-[1.5rem] shadow-xl shadow-emerald-500/10 p-4 flex items-center justify-center group-hover:scale-105 transition-all duration-500 ring-1 ring-slate-100 dark:ring-slate-800">
               <img
                 src="/logodiskusibisnisaja.png"
-                alt="DiskusiBisnis Logo"
+                alt="Logo"
                 className="w-full h-full object-contain"
               />
             </div>
           </Link>
-          <h2 className="text-2xl sm:text-3xl font-bold tracking-tight text-slate-900 dark:text-slate-100">
+          <h1 className="text-3xl font-bold tracking-tight text-slate-900 dark:text-white">
             Selamat Datang Kembali
-          </h2>
-          <p className="mt-2 text-sm text-slate-600 dark:text-slate-400">
-            Masuk untuk melanjutkan diskusi dengan komunitas
+          </h1>
+          <p className="mt-2 text-slate-500 dark:text-slate-400 font-medium">
+            Silakan masuk untuk melanjutkan diskusi.
           </p>
         </div>
-      </div>
 
-      <div className="mt-6 sm:mt-8 sm:mx-auto sm:w-full sm:max-w-md relative z-10">
-        <div className="bg-white dark:bg-slate-900 py-6 sm:py-8 px-4 shadow-xl shadow-slate-200/50 dark:shadow-slate-950/50 rounded-2xl sm:px-10 border border-slate-100 dark:border-slate-800">
+        <div className="bg-white/70 dark:bg-slate-900/70 backdrop-blur-xl py-10 px-6 sm:px-10 shadow-2xl shadow-slate-200/50 dark:shadow-none rounded-[2.5rem] border border-white dark:border-slate-800/50">
           {error && (
-            <div className="mb-6 p-4 bg-red-50 dark:bg-red-900/20 border border-red-100 dark:border-red-900/50 rounded-xl flex items-start gap-3 animate-in fade-in slide-in-from-top-2">
-              <AlertCircle className="w-5 h-5 text-red-600 dark:text-red-400 flex-shrink-0 mt-0.5" />
-              <div className="flex-1">
-                <h3 className="text-sm font-medium text-red-800 dark:text-red-300">Gagal Masuk</h3>
-                <p className="text-sm text-red-600 dark:text-red-400 mt-1">{error}</p>
-              </div>
+            <div className="mb-6 p-4 bg-red-500/5 border border-red-500/20 rounded-2xl flex items-start gap-3 animate-in fade-in slide-in-from-top-2">
+              <AlertCircle className="w-5 h-5 text-red-500 flex-shrink-0 mt-0.5" />
+              <p className="text-sm font-bold text-red-600 dark:text-red-400">{error}</p>
             </div>
           )}
 
-          <form className="space-y-5 sm:space-y-6" onSubmit={handleSubmit}>
+          <form className="space-y-6" onSubmit={handleSubmit}>
             <div>
-              <label htmlFor="email" className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2">
-                Email Address
+              <label htmlFor="email" className="block text-sm font-bold text-slate-700 dark:text-slate-300 mb-2 ml-1">
+                Alamat Email
               </label>
               <div className="relative group">
-                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
                   <Mail className="h-5 w-5 text-slate-400 group-focus-within:text-emerald-500 transition-colors" />
                 </div>
                 <input
                   id="email"
-                  name="email"
                   type="email"
-                  autoComplete="email"
                   required
                   value={formData.email}
                   onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                  className="block w-full pl-10 pr-3 py-3 border border-slate-200 dark:border-slate-700 rounded-xl leading-5 bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-slate-100 placeholder-slate-400 focus:outline-none focus:bg-white dark:focus:bg-slate-700 focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition-all duration-200 sm:text-sm"
+                  className="block w-full pl-12 pr-4 py-4 border border-slate-100 dark:border-slate-800 rounded-2xl bg-slate-50/50 dark:bg-slate-800/50 text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500/50 focus:bg-white dark:focus:bg-slate-800 transition-all duration-300 font-medium"
                   placeholder="nama@email.com"
                 />
               </div>
             </div>
 
             <div>
-              <label htmlFor="password" className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2">
-                Password
-              </label>
+              <div className="flex items-center justify-between mb-2 ml-1">
+                <label htmlFor="password" className="block text-sm font-bold text-slate-700 dark:text-slate-300">
+                  Kata Sandi
+                </label>
+                <Link href="/forgot-password" size="sm" className="text-xs font-bold text-emerald-600 dark:text-emerald-400 hover:text-emerald-700 transition-colors">
+                  Lupa sandi?
+                </Link>
+              </div>
               <div className="relative group">
-                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
                   <Lock className="h-5 w-5 text-slate-400 group-focus-within:text-emerald-500 transition-colors" />
                 </div>
                 <input
                   id="password"
-                  name="password"
                   type={showPassword ? 'text' : 'password'}
-                  autoComplete="current-password"
                   required
                   value={formData.password}
                   onChange={(e) => setFormData({ ...formData, password: e.target.value })}
-                  className="block w-full pl-10 pr-10 py-3 border border-slate-200 dark:border-slate-700 rounded-xl leading-5 bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-slate-100 placeholder-slate-400 focus:outline-none focus:bg-white dark:focus:bg-slate-700 focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition-all duration-200 sm:text-sm"
+                  className="block w-full pl-12 pr-12 py-4 border border-slate-100 dark:border-slate-800 rounded-2xl bg-slate-50/50 dark:bg-slate-800/50 text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500/50 focus:bg-white dark:focus:bg-slate-800 transition-all duration-300 font-medium"
                   placeholder="••••••••"
                 />
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
-                  className="absolute inset-y-0 right-0 pr-3 flex items-center text-slate-400 hover:text-slate-600 dark:hover:text-slate-300 focus:outline-none"
+                  className="absolute inset-y-0 right-0 pr-4 flex items-center text-slate-400 hover:text-slate-600 dark:hover:text-slate-300 transition-colors"
                 >
-                  {showPassword ? (
-                    <EyeOff className="h-5 w-5" />
-                  ) : (
-                    <Eye className="h-5 w-5" />
-                  )}
+                  {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
                 </button>
               </div>
             </div>
 
-            <div className="flex items-center justify-between">
-              <div className="flex items-center">
-                <input
-                  id="remember-me"
-                  name="remember-me"
-                  type="checkbox"
-                  className="h-4 w-4 text-emerald-600 focus:ring-emerald-500 border-slate-300 dark:border-slate-600 rounded cursor-pointer"
-                />
-                <label htmlFor="remember-me" className="ml-2 block text-sm text-slate-600 dark:text-slate-400 cursor-pointer select-none">
-                  Ingat saya
-                </label>
-              </div>
-
-              <div className="text-sm">
-                <Link href="/forgot-password" className="font-medium text-emerald-600 dark:text-emerald-400 hover:text-emerald-500 transition-colors">
-                  Lupa password?
-                </Link>
-              </div>
+            <div className="flex items-center">
+              <input
+                id="remember-me"
+                type="checkbox"
+                className="h-4 w-4 text-emerald-600 focus:ring-emerald-500/20 border-slate-200 dark:border-slate-700 rounded-lg cursor-pointer transition-all"
+              />
+              <label htmlFor="remember-me" className="ml-2 block text-sm text-slate-500 dark:text-slate-400 font-bold cursor-pointer select-none">
+                Ingat saya di perangkat ini
+              </label>
             </div>
 
-            <div>
-              <button
-                type="submit"
-                disabled={loading}
-                className="w-full flex justify-center items-center gap-2 py-3 px-4 border border-transparent rounded-xl shadow-lg shadow-emerald-600/20 text-sm font-semibold text-white bg-emerald-600 hover:bg-emerald-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 hover:-translate-y-0.5"
-              >
-                {loading ? (
-                  <>
-                    <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                    <span>Memproses...</span>
-                  </>
-                ) : (
-                  <>
-                    Masuk Sekarang
-                    <ArrowRight className="w-4 h-4" />
-                  </>
-                )}
-              </button>
-            </div>
+            <button
+              type="submit"
+              disabled={loading}
+              className="w-full flex justify-center items-center gap-2 py-4 px-4 bg-emerald-600 dark:bg-emerald-500 text-white rounded-2xl font-bold text-base shadow-xl shadow-emerald-500/25 hover:bg-emerald-700 dark:hover:bg-emerald-400 hover:scale-[1.02] active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-300"
+            >
+              {loading ? (
+                <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+              ) : (
+                <>
+                  Masuk Sekarang
+                  <ArrowRight className="w-4 h-4" />
+                </>
+              )}
+            </button>
           </form>
 
-          {/* Google Login */}
-          <div className="mt-6">
+          <div className="mt-8">
             <div className="relative">
               <div className="absolute inset-0 flex items-center">
-                <div className="w-full border-t border-slate-200 dark:border-slate-700" />
+                <div className="w-full border-t border-slate-100 dark:border-slate-800" />
               </div>
               <div className="relative flex justify-center text-sm">
-                <span className="px-4 bg-white dark:bg-slate-900 text-slate-500 dark:text-slate-400">atau</span>
+                <span className="px-4 bg-white dark:bg-slate-900 text-slate-500 font-medium">Atau masuk dengan</span>
               </div>
             </div>
 
-            <div className="mt-6">
+            <div className="mt-8">
               <GoogleLoginButton
                 onSuccess={handleGoogleSuccess}
                 onError={() => setError('Gagal login dengan Google')}
-                text="Masuk dengan Google"
+                text="Lanjutkan dengan Google"
                 disabled={loading}
               />
             </div>
           </div>
 
-          <div className="mt-8">
-            <div className="relative">
-              <div className="absolute inset-0 flex items-center">
-                <div className="w-full border-t border-slate-200 dark:border-slate-700" />
-              </div>
-              <div className="relative flex justify-center text-sm">
-                <span className="px-4 bg-white dark:bg-slate-900 text-slate-500 dark:text-slate-400">Belum punya akun?</span>
-              </div>
-            </div>
-
-            <div className="mt-6">
-              <Link
-                href="/register"
-                className="w-full flex justify-center items-center gap-2 py-3 px-4 border border-slate-200 dark:border-slate-700 rounded-xl shadow-sm text-sm font-semibold text-slate-700 dark:text-slate-300 bg-white dark:bg-slate-800 hover:bg-slate-50 dark:hover:bg-slate-700 hover:text-emerald-600 dark:hover:text-emerald-400 hover:border-emerald-200 dark:hover:border-emerald-700 transition-all duration-200"
-              >
+          <div className="mt-10 text-center">
+            <p className="text-sm text-slate-500 dark:text-slate-400 font-medium">
+              Belum memiliki akun?{' '}
+              <Link href="/register" className="text-emerald-600 dark:text-emerald-400 font-black hover:text-emerald-700 transition-colors ml-1">
                 Daftar Akun Baru
               </Link>
-            </div>
+            </p>
           </div>
         </div>
 
         {/* Footer Links */}
-        <div className="mt-8 text-center text-xs text-slate-500 dark:text-slate-400 space-x-4">
-          <Link href="/privacy" className="hover:text-emerald-600 dark:hover:text-emerald-400 transition-colors">Kebijakan Privasi</Link>
-          <span>•</span>
-          <Link href="/terms" className="hover:text-emerald-600 dark:hover:text-emerald-400 transition-colors">Syarat & Ketentuan</Link>
-          <span>•</span>
-          <Link href="/help" className="hover:text-emerald-600 dark:hover:text-emerald-400 transition-colors">Bantuan</Link>
+        <div className="mt-12 flex justify-center gap-8">
+          {['Privasi', 'Syarat', 'Bantuan'].map((item) => (
+            <Link 
+              key={item} 
+              href={`/${item.toLowerCase()}`} 
+              className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 dark:text-slate-500 hover:text-emerald-500 transition-colors"
+            >
+              {item}
+            </Link>
+          ))}
         </div>
       </div>
     </div>

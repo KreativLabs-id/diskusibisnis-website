@@ -30,27 +30,27 @@ export default function AlertModal({ isOpen, onClose, type = 'info', title, mess
   const typeConfig = {
     success: {
       icon: CheckCircle,
-      bgColor: 'bg-emerald-50',
-      iconColor: 'text-emerald-600',
-      borderColor: 'border-emerald-200'
+      iconBg: 'bg-emerald-100',
+      iconColor: 'text-emerald-700',
+      borderColor: 'border-slate-200 dark:border-slate-700'
     },
     error: {
       icon: XCircle,
-      bgColor: 'bg-red-50',
-      iconColor: 'text-red-600',
-      borderColor: 'border-red-200'
+      iconBg: 'bg-red-100',
+      iconColor: 'text-red-700',
+      borderColor: 'border-slate-200 dark:border-slate-700'
     },
     warning: {
       icon: AlertCircle,
-      bgColor: 'bg-amber-50',
-      iconColor: 'text-amber-600',
-      borderColor: 'border-amber-200'
+      iconBg: 'bg-amber-100',
+      iconColor: 'text-amber-700',
+      borderColor: 'border-slate-200 dark:border-slate-700'
     },
     info: {
       icon: Info,
-      bgColor: 'bg-blue-50',
-      iconColor: 'text-blue-600',
-      borderColor: 'border-blue-200'
+      iconBg: 'bg-blue-100',
+      iconColor: 'text-blue-700',
+      borderColor: 'border-slate-200 dark:border-slate-700'
     }
   };
 
@@ -58,32 +58,32 @@ export default function AlertModal({ isOpen, onClose, type = 'info', title, mess
   const Icon = config.icon;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-start justify-center pt-20 px-4 pointer-events-none">
+    <div className="fixed inset-0 z-50 flex items-start justify-center pt-16 px-4 pointer-events-none">
       {/* Alert Modal */}
-      <div className={`relative bg-white rounded-xl shadow-xl max-w-sm w-full border ${config.borderColor} animate-in slide-in-from-top duration-300 pointer-events-auto`}>
-        <div className="p-5">
+      <div className={`relative bg-white dark:bg-slate-900 rounded-lg shadow-lg max-w-md w-full border ${config.borderColor} animate-in slide-in-from-top duration-300 pointer-events-auto`}>
+        <div className="p-4">
           <div className="flex items-start gap-4">
-            <div className={`${config.bgColor} p-2 rounded-lg shrink-0`}>
-              <Icon className={`w-5 h-5 ${config.iconColor}`} />
+            <div className={`${config.iconBg} dark:bg-slate-800 p-2 rounded-md shrink-0`}>
+              <Icon className={`w-4 h-4 ${config.iconColor}`} />
             </div>
             
             <div className="flex-1 min-w-0">
-              <h3 className="font-semibold text-slate-900 mb-1">{title}</h3>
-              <p className="text-sm text-slate-600">{message}</p>
+              <h3 className="font-semibold text-slate-900 dark:text-slate-100 mb-0.5">{title}</h3>
+              <p className="text-sm text-slate-600 dark:text-slate-300">{message}</p>
             </div>
 
             <button
               onClick={onClose}
-              className="p-1 rounded-lg hover:bg-slate-100 transition-colors shrink-0"
+              className="p-1 rounded-md hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors shrink-0"
             >
-              <X className="w-4 h-4 text-slate-400" />
+              <X className="w-4 h-4 text-slate-400 dark:text-slate-500" />
             </button>
           </div>
         </div>
         
         {/* Progress bar */}
-        <div className="h-1 bg-slate-100 rounded-b-xl overflow-hidden">
-          <div className={`h-full ${config.iconColor.replace('text', 'bg')} animate-progress`} />
+        <div className="h-[2px] bg-slate-100 dark:bg-slate-800 rounded-b-lg overflow-hidden">
+          <div className="h-full bg-slate-700 dark:bg-slate-300 animate-progress" />
         </div>
       </div>
       

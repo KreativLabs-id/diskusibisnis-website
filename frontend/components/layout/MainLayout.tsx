@@ -15,7 +15,7 @@ export default function MainLayout({ children }: MainLayoutProps) {
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
   return (
-    <div className="min-h-screen bg-slate-50 dark:bg-slate-950 flex flex-col pb-20 lg:pb-0 transition-colors duration-200">
+    <div className="min-h-screen bg-white dark:bg-slate-950 flex flex-col pb-20 lg:pb-0 transition-colors duration-200">
       {/* Mobile Sidebar Overlay with blur effect */}
       {sidebarOpen && (
         <div
@@ -40,23 +40,24 @@ export default function MainLayout({ children }: MainLayoutProps) {
       </aside>
 
       {/* Main Content Area - Adjusted for fixed sidebar on desktop */}
-      <div className="flex flex-col flex-1 mt-14 sm:mt-16 lg:ml-64">
+      <div className="flex flex-col flex-1 mt-14 sm:mt-16 lg:ml-64 bg-white dark:bg-slate-950">
         {/* Announcement Banner */}
-        <div className="px-3 sm:px-4 lg:px-6 pt-4">
+        <div className="w-full">
           <AnnouncementBanner showOn="all" />
         </div>
 
         {/* Main Content */}
-        <main className="flex-1 w-full overflow-y-auto">
+        <main className="flex-1 w-full bg-white dark:bg-slate-950">
           <div className="w-full">
             {children}
           </div>
         </main>
 
         {/* Footer - Separate from sidebar */}
-        <footer className="hidden lg:block bg-white dark:bg-slate-900 border-t border-slate-200 dark:border-slate-800 py-6 px-3 sm:px-4 lg:px-6 mt-8 transition-colors duration-200">
+        <footer className="hidden lg:block bg-white dark:bg-slate-900 py-6 px-3 sm:px-4 lg:px-6 transition-colors duration-200">
           <div className="max-w-6xl mx-auto text-center">
             <p className="text-sm text-slate-600 dark:text-slate-400">
+              2026 DiskusiBisnis. Platform Q&A untuk UMKM Indonesia.
               © 2026 DiskusiBisnis. Platform Q&A untuk UMKM Indonesia.
             </p>
             <div className="flex flex-wrap justify-center gap-3 sm:gap-4 mt-3">
