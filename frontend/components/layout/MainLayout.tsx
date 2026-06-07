@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import Navbar from './Navbar';
 import Sidebar from './Sidebar';
 import MobileBottomNav from './MobileBottomNav';
@@ -13,9 +13,28 @@ interface MainLayoutProps {
 
 export default function MainLayout({ children }: MainLayoutProps) {
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [headerHeight, setHeaderHeight] = useState(64); // default for sm:h-16
+  const headerRef = useRef<HTMLElement>(null);
+
+  useEffect(() => {
+    if (!headerRef.current) return;
+    const observer = new ResizeObserver((entries) => {
+      for (let entry of entries) {
+        if (entry.contentBoxSize) {
+          // Adjust for header's actual height
+          setHeaderHeight(entry.target.getBoundingClientRect().height);
+        }
+      }
+    });
+    observer.observe(headerRef.current);
+    return () => observer.disconnect();
+  }, []);
 
   return (
-    <div className="min-h-screen bg-white dark:bg-slate-950 flex flex-col pb-20 lg:pb-0 transition-colors duration-200">
+    <div 
+      className="min-h-screen bg-white dark:bg-slate-950 flex flex-col pb-20 lg:pb-0 transition-colors duration-200"
+      style={{ '--header-height': `${headerHeight}px` } as React.CSSProperties}
+    >
       {/* Mobile Sidebar Overlay with blur effect */}
       {sidebarOpen && (
         <div
@@ -25,13 +44,18 @@ export default function MainLayout({ children }: MainLayoutProps) {
       )}
 
       {/* Top Navigation - Fixed */}
-      <header className="fixed top-0 left-0 right-0 z-50 bg-white dark:bg-slate-900 h-14 sm:h-16 transition-colors duration-200">
+      <header 
+        ref={headerRef}
+        className="fixed top-0 left-0 right-0 z-50 bg-white dark:bg-slate-900 transition-colors duration-200"
+      >
         <Navbar onMenuClick={() => setSidebarOpen(!sidebarOpen)} />
       </header>
 
       {/* Sidebar - Fixed position */}
-      <aside className={`
-        fixed left-0 top-14 sm:top-16 bottom-0 z-40 w-64 bg-white dark:bg-slate-900 border-r border-slate-200 dark:border-slate-800 overflow-y-auto transition-colors duration-200
+      <aside 
+        style={{ top: `${headerHeight}px` }}
+        className={`
+        fixed left-0 bottom-0 z-40 w-64 bg-white dark:bg-slate-900 border-r border-slate-200 dark:border-slate-800 overflow-y-auto transition-colors duration-200
         transform transition-transform duration-300 ease-in-out
         lg:translate-x-0 lg:z-30
         ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'}
@@ -40,7 +64,10 @@ export default function MainLayout({ children }: MainLayoutProps) {
       </aside>
 
       {/* Main Content Area - Adjusted for fixed sidebar on desktop */}
-      <div className="flex flex-col flex-1 mt-14 sm:mt-16 lg:ml-64 bg-white dark:bg-slate-950">
+      <div 
+        style={{ marginTop: `${headerHeight}px` }}
+        className="flex flex-col flex-1 lg:ml-64 bg-white dark:bg-slate-950"
+      >
         {/* Announcement Banner */}
         <div className="w-full">
           <AnnouncementBanner showOn="all" />

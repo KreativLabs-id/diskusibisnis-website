@@ -565,7 +565,10 @@ export default function QuestionDetailClient({ initialQuestion, questionId }: Qu
     return (
         <div className="min-h-screen bg-white dark:bg-slate-950 pb-20 transition-colors duration-200">
             {/* Mobile Header - Sticky */}
-            <div className="sticky top-0 z-30 bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800 px-4 py-3 sm:hidden flex items-center justify-between">
+            <div 
+                className="sticky z-30 bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800 px-4 py-3 sm:hidden flex items-center justify-between"
+                style={{ top: 'calc(var(--header-height, 64px))' }}
+            >
                 <div className="flex items-center gap-3">
                     <button
                         onClick={handleBack}

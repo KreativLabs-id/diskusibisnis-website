@@ -349,7 +349,10 @@ export default function HomePage() {
         </div>
 
         {/* Integrated Search & Sort - Glassmorphism */}
-        <div className="sticky top-4 z-40 mb-12">
+        <div 
+          className="sticky z-40 mb-12"
+          style={{ top: 'calc(var(--header-height, 64px) + 1rem)' }}
+        >
           <div className="bg-white/70 dark:bg-slate-900/70 backdrop-blur-xl border border-white dark:border-slate-800/50 rounded-2xl p-2 shadow-xl shadow-slate-200/50 dark:shadow-none flex flex-col lg:flex-row gap-2">
             <div className="relative flex-1">
               <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" />
