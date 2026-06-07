@@ -9,6 +9,7 @@ import LoadingSpinner from '@/components/ui/LoadingSpinner';
 import VerifiedBadge from '@/components/ui/VerifiedBadge';
 import UserAvatar from '@/components/ui/UserAvatar';
 import { getProfileHref } from '@/lib/profile';
+import TopBanner from '@/components/ui/TopBanner';
 
 interface NavbarProps {
   onMenuClick?: () => void;
@@ -37,8 +38,10 @@ export default function Navbar({ onMenuClick }: NavbarProps) {
   }, [showUserMenu]);
 
   return (
-    <nav className="w-full bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800 sticky top-0 z-40 transition-colors duration-200">
-      <div className="container mx-auto px-3 sm:px-4">
+    <header className="w-full sticky top-0 z-40 flex flex-col">
+      <TopBanner />
+      <nav className="w-full bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800 transition-colors duration-200 relative">
+        <div className="container mx-auto px-3 sm:px-4">
         <div className="flex items-center justify-between h-14 sm:h-16 gap-2">
           {/* Mobile Menu Button - Hidden as we use Bottom Nav & Discovery Page */}
           <button
@@ -189,6 +192,7 @@ export default function Navbar({ onMenuClick }: NavbarProps) {
 
       </div>
 
-    </nav>
+      </nav>
+    </header>
   );
 }

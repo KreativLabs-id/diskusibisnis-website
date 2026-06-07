@@ -318,6 +318,7 @@ export const createPopup = async (
             userId
         ]);
 
+        invalidateCache.popups();
         res.status(201).json({
             status: 'success',
             message: 'Popup created successfully',
@@ -399,6 +400,7 @@ export const updatePopup = async (
             id
         ]);
 
+        invalidateCache.popups();
         res.json({
             status: 'success',
             message: 'Popup updated successfully',
@@ -434,6 +436,7 @@ export const deletePopup = async (
             return;
         }
 
+        invalidateCache.popups();
         res.json({
             status: 'success',
             message: 'Popup deleted successfully'
@@ -471,6 +474,7 @@ export const togglePopupStatus = async (
             return;
         }
 
+        invalidateCache.popups();
         res.json({
             status: 'success',
             message: `Popup ${result.rows[0].is_active ? 'activated' : 'deactivated'}`,

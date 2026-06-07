@@ -58,7 +58,11 @@ export default function PromoPopupModal() {
         }
     };
 
-    const handleClose = async () => {
+    const handleClose = async (e?: React.MouseEvent) => {
+        if (e) {
+            e.preventDefault();
+            e.stopPropagation();
+        }
         setIsOpen(false);
         if (popup) {
             await recordView(popup.id, false);
@@ -89,55 +93,41 @@ export default function PromoPopupModal() {
     }
 
     const content = (
-        <div className="relative max-w-lg w-full mx-4">
-            {/* Close button */}
-            <button
-                onClick={handleClose}
-                className="absolute -top-3 -right-3 z-10 w-8 h-8 bg-white rounded-full shadow-lg flex items-center justify-center hover:bg-gray-100 transition-colors"
-                aria-label="Tutup popup"
-            >
-                <X className="w-5 h-5 text-gray-600" />
-            </button>
-
-            {/* Popup content */}
-            <div className="bg-white rounded-2xl overflow-hidden shadow-2xl">
-                <div className="relative w-full aspect-[4/3]">
-                    <Image
-                        src={popup.image_url}
-                        alt={popup.title}
-                        fill
-                        className="object-cover"
-                        sizes="(max-width: 768px) 95vw, 512px"
-                        priority
-                        placeholder="blur"
-                        blurDataURL={shimmerBlur}
-                        onError={(e: React.SyntheticEvent<HTMLImageElement>) => {
-                            const target = e.target as HTMLImageElement;
-                            target.src = 'https://via.placeholder.com/800x600?text=Promo';
-                        }}
-                    />
-                </div>
-                {popup.description && (
-                    <div className="p-4 text-center">
-                        <h3 className="font-semibold text-lg text-gray-900">{popup.title}</h3>
-                        <p className="text-gray-600 text-sm mt-1">{popup.description}</p>
-                    </div>
-                )}
-            </div>
+        <div className="relative rounded-2xl overflow-hidden shadow-2xl flex justify-center items-center bg-transparent">
+            <img
+                src={popup.image_url}
+                alt={popup.title}
+                className="w-auto h-auto max-w-[90vw] max-h-[85vh] object-contain rounded-2xl"
+                onError={(e: React.SyntheticEvent<HTMLImageElement>) => {
+                    const target = e.target as HTMLImageElement;
+                    target.src = 'https://via.placeholder.com/800x600?text=Promo';
+                }}
+            />
         </div>
     );
 
     return (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm animate-fadeIn">
-            {popup.link_url ? (
-                <Link href={popup.link_url} onClick={handleClick}>
-                    {content}
-                </Link>
-            ) : (
-                <div onClick={handleClick} className="cursor-pointer">
-                    {content}
-                </div>
-            )}
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm animate-fadeIn p-4 sm:p-6">
+            <div className="relative flex justify-center items-center max-w-[95vw] max-h-[90vh]">
+                {/* Close button strictly outside the link */}
+                <button
+                    onClick={handleClose}
+                    className="absolute -top-3 -right-3 sm:-top-4 sm:-right-4 z-20 w-10 h-10 bg-white rounded-full shadow-xl flex items-center justify-center hover:bg-gray-100 hover:scale-110 transition-all duration-200 border border-gray-200"
+                    aria-label="Tutup popup"
+                >
+                    <X className="w-5 h-5 text-gray-700" strokeWidth={2.5} />
+                </button>
+
+                {popup.link_url ? (
+                    <Link href={popup.link_url} onClick={handleClick} className="block rounded-2xl focus:outline-none focus:ring-4 focus:ring-green-500/50">
+                        {content}
+                    </Link>
+                ) : (
+                    <div onClick={handleClick} className="cursor-pointer block rounded-2xl">
+                        {content}
+                    </div>
+                )}
+            </div>
         </div>
     );
 }

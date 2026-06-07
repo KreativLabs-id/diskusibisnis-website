@@ -378,32 +378,29 @@ export const sendNewsletterEmail = async (
     <head>
       ${getEmailHead(subject)}
     </head>
-    <body style="margin: 0; padding: 0; font-family: ${FONT_FAMILY}; background-color: #f8fafc; -webkit-font-smoothing: antialiased;">
-      <table width="100%" cellpadding="0" cellspacing="0" style="background-color: #f8fafc; padding: 40px 20px; font-family: ${FONT_FAMILY};">
+    <body style="margin: 0; padding: 0; font-family: ${FONT_FAMILY}; background-color: #f4f4f5; -webkit-font-smoothing: antialiased;">
+      <table width="100%" cellpadding="0" cellspacing="0" style="background-color: #f4f4f5; padding: 60px 20px; font-family: ${FONT_FAMILY};">
         <tr>
           <td align="center">
-            <table width="100%" cellpadding="0" cellspacing="0" style="max-width: 600px; background-color: #ffffff; border-radius: 16px; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05); font-family: ${FONT_FAMILY};">
+            <table width="100%" cellpadding="0" cellspacing="0" style="max-width: 600px; background-color: #ffffff; border: 1px solid #e4e4e7; border-radius: 16px; margin: 0 auto; overflow: hidden;">
               <!-- Header -->
               <tr>
-                <td style="padding: 40px 40px 20px; text-align: center; background: linear-gradient(135deg, #059669 0%, #10b981 100%); border-radius: 16px 16px 0 0;">
-                  <h1 style="margin: 0; color: #ffffff; font-size: 28px; font-weight: 700; font-family: ${FONT_FAMILY};">📬 DiskusiBisnis</h1>
-                  <p style="margin: 10px 0 0; color: rgba(255,255,255,0.9); font-size: 14px; font-family: ${FONT_FAMILY};">Newsletter</p>
-                </td>
-              </tr>
-              
-              <!-- Greeting -->
-              <tr>
-                <td style="padding: 30px 40px 10px; font-family: ${FONT_FAMILY};">
-                  <p style="margin: 0; color: #64748b; font-size: 15px; line-height: 1.6; font-family: ${FONT_FAMILY};">
-                    Halo <strong style="color: #1e293b; font-weight: 600;">${recipientName}</strong>,
-                  </p>
+                <td style="padding: 48px 48px 32px; text-align: left; border-bottom: 1px solid #f4f4f5;">
+                  <div style="display: inline-block; padding: 8px 12px; background-color: #ecfdf5; border-radius: 8px; margin-bottom: 24px;">
+                    <span style="color: #059669; font-weight: 600; font-size: 12px; letter-spacing: 1px; text-transform: uppercase;">Newsletter</span>
+                  </div>
+                  <h1 style="margin: 0; color: #09090b; font-size: 28px; font-weight: 700; letter-spacing: -0.02em;">DiskusiBisnis</h1>
                 </td>
               </tr>
               
               <!-- Content -->
               <tr>
-                <td style="padding: 20px 40px; font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;">
-                  <div style="color: #374151; font-size: 15px; line-height: 1.8; font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;">
+                <td style="padding: 48px; font-family: ${FONT_FAMILY};">
+                  <p style="margin: 0 0 24px; color: #52525b; font-size: 16px; line-height: 1.6;">
+                    Halo <strong style="color: #09090b; font-weight: 600;">${recipientName}</strong>,
+                  </p>
+                  
+                  <div style="color: #3f3f46; font-size: 16px; line-height: 1.8;">
                     ${htmlContent}
                   </div>
                 </td>
@@ -411,11 +408,11 @@ export const sendNewsletterEmail = async (
               
               <!-- CTA Button -->
               <tr>
-                <td style="padding: 20px 40px 30px;">
+                <td style="padding: 0 48px 48px;">
                   <table width="100%" cellpadding="0" cellspacing="0">
                     <tr>
-                      <td align="center">
-                        <a href="${frontendUrl}" style="display: inline-block; padding: 14px 32px; background-color: #059669; color: #ffffff; text-decoration: none; font-size: 15px; font-weight: 600; border-radius: 10px; font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;">
+                      <td align="left">
+                        <a href="${frontendUrl}" style="display: inline-block; padding: 16px 32px; background-color: #09090b; color: #ffffff; text-decoration: none; font-size: 15px; font-weight: 500; border-radius: 8px; transition: background-color 0.2s;">
                           Kunjungi DiskusiBisnis
                         </a>
                       </td>
@@ -424,23 +421,16 @@ export const sendNewsletterEmail = async (
                 </td>
               </tr>
               
-              <!-- Divider -->
-              <tr>
-                <td style="padding: 0 40px;">
-                  <div style="border-top: 1px solid #e2e8f0;"></div>
-                </td>
-              </tr>
-              
               <!-- Footer -->
               <tr>
-                <td style="padding: 30px 40px; font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;">
-                  <p style="margin: 0 0 12px; color: #64748b; font-size: 14px; text-align: center; font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;">
-                    Terima kasih telah menjadi bagian dari komunitas DiskusiBisnis! 🙏
+                <td style="padding: 40px 48px; background-color: #fafafa; border-top: 1px solid #e4e4e7;">
+                  <p style="margin: 0 0 12px; color: #71717a; font-size: 14px; line-height: 1.6;">
+                    Terima kasih telah menjadi bagian dari komunitas DiskusiBisnis.
                   </p>
-                  <p style="margin: 0 0 20px; color: #94a3b8; font-size: 12px; text-align: center; font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;">
+                  <p style="margin: 0 0 24px; color: #a1a1aa; font-size: 13px;">
                     Email ini dikirim ke ${email}
                   </p>
-                  <p style="margin: 0; color: #94a3b8; font-size: 12px; text-align: center; font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;">
+                  <p style="margin: 0; color: #a1a1aa; font-size: 13px;">
                     © ${new Date().getFullYear()} DiskusiBisnis. All rights reserved.
                   </p>
                 </td>

@@ -4,6 +4,8 @@ import { useEffect, useState } from 'react';
 import { Shield, Plus, Trash2, Edit, Eye, EyeOff, BarChart2, Image as ImageIcon, ExternalLink, Calendar, X } from 'lucide-react';
 import Link from 'next/link';
 import api from '@/lib/api';
+import { useAuth } from '@/contexts/AuthContext';
+import ImageUpload from '@/components/ui/ImageUpload';
 
 interface PromoPopup {
     id: string;
@@ -25,6 +27,7 @@ interface PromoPopup {
 }
 
 export default function AdminPopupsPage() {
+    const { user } = useAuth();
     const [popups, setPopups] = useState<PromoPopup[]>([]);
     const [isLoading, setIsLoading] = useState(true);
     const [showCreateModal, setShowCreateModal] = useState(false);
@@ -62,10 +65,27 @@ export default function AdminPopupsPage() {
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         try {
+            const payload: any = {
+                ...formData
+            };
+
+            // Fix timezone issue by creating proper Date objects from the datetime-local input
+            if (payload.startDate) {
+                payload.startDate = new Date(payload.startDate).toISOString();
+            }
+            if (payload.endDate) {
+                payload.endDate = new Date(payload.endDate).toISOString();
+            }
+
+            // Remove optional fields if they are empty so backend validation doesn't fail
+            if (!payload.endDate) delete payload.endDate;
+            if (!payload.linkUrl) delete payload.linkUrl;
+            if (!payload.description) delete payload.description;
+
             if (editingPopup) {
-                await api.put(`/popups/admin/${editingPopup.id}`, formData);
+                await api.put(`/popups/admin/${editingPopup.id}`, payload);
             } else {
-                await api.post('/popups/admin', formData);
+                await api.post('/popups/admin', payload);
             }
             setShowCreateModal(false);
             setEditingPopup(null);
@@ -287,17 +307,41 @@ export default function AdminPopupsPage() {
                             </div>
 
                             <div>
-                                <label className="block text-sm font-medium text-slate-700 mb-1">URL Gambar *</label>
-                                <input
-                                    type="url"
-                                    value={formData.imageUrl}
-                                    onChange={(e) => setFormData({ ...formData, imageUrl: e.target.value })}
-                                    className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
-                                    placeholder="https://example.com/image.jpg"
-                                    required
-                                />
+                                <label className="block text-sm font-medium text-slate-700 mb-1">URL Gambar / Upload Gambar *</label>
+                                <div className="space-y-4">
+                                    <input
+                                        type="url"
+                                        value={formData.imageUrl}
+                                        onChange={(e) => setFormData({ ...formData, imageUrl: e.target.value })}
+                                        className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                                        placeholder="Atau masukkan URL gambar: https://example.com/image.jpg"
+                                        required
+                                    />
+                                    
+                                    <div className="relative">
+                                        <div className="absolute inset-0 flex items-center" aria-hidden="true">
+                                            <div className="w-full border-t border-slate-200"></div>
+                                        </div>
+                                        <div className="relative flex justify-center">
+                                            <span className="px-2 bg-white text-xs font-medium text-slate-500">ATAU UPLOAD DARI KOMPUTER</span>
+                                        </div>
+                                    </div>
+
+                                    <ImageUpload
+                                        maxImages={1}
+                                        userId={user?.id || 'admin'}
+                                        onImagesChange={(images) => {
+                                            if (images && images.length > 0 && images[0].url) {
+                                                setFormData({ ...formData, imageUrl: images[0].url });
+                                            }
+                                        }}
+                                    />
+                                </div>
                                 {formData.imageUrl && (
-                                    <img src={formData.imageUrl} alt="Preview" className="mt-2 w-32 h-32 object-cover rounded-lg border" />
+                                    <div className="mt-4">
+                                        <p className="text-xs text-slate-500 mb-2">Preview Gambar:</p>
+                                        <img src={formData.imageUrl} alt="Preview" className="w-full max-h-48 object-contain rounded-lg border border-slate-200 bg-slate-50" />
+                                    </div>
                                 )}
                             </div>
 
