@@ -226,12 +226,16 @@ export default function QuestionDetailClient({ initialQuestion, questionId }: Qu
             fetchQuestion();
         }
 
-        // Record view
-        const viewedQuestions = JSON.parse(localStorage.getItem('viewedQuestions') || '[]');
-        if (!viewedQuestions.includes(questionId)) {
-            viewedQuestions.push(questionId);
-            localStorage.setItem('viewedQuestions', JSON.stringify(viewedQuestions));
-            questionAPI.incrementView(questionId).catch(console.error);
+        // Record view — capped at 100 entries to prevent localStorage overflow
+        try {
+            const viewedQuestions: string[] = JSON.parse(localStorage.getItem('viewedQuestions') || '[]');
+            if (!viewedQuestions.includes(questionId)) {
+                const updated = [...viewedQuestions, questionId].slice(-100); // max 100
+                localStorage.setItem('viewedQuestions', JSON.stringify(updated));
+                questionAPI.incrementView(questionId).catch(console.error);
+            }
+        } catch {
+            // localStorage might be full or unavailable, ignore silently
         }
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [questionId, user?.id]);
@@ -761,7 +765,7 @@ export default function QuestionDetailClient({ initialQuestion, questionId }: Qu
                 <div className="bg-white dark:bg-slate-900">
                     <div className="max-w-5xl mx-auto px-4 sm:px-6 py-6 pb-2">
                         <h2 className="text-xl font-medium text-gray-900 dark:text-gray-100">
-                            {question.answers_count} Jawaban
+                        {(question.answers?.length ?? question.answers_count)} Jawaban
                         </h2>
                     </div>
                 </div>

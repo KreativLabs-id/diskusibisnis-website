@@ -19,7 +19,8 @@ import {
   LogOut,
   Download,
   Mail,
-  Inbox
+  Inbox,
+  Shield
 } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import LoadingSpinner from '@/components/ui/LoadingSpinner';
@@ -129,6 +130,7 @@ export default function Sidebar({ onItemClick }: SidebarProps) {
 
   const profileItems = user ? [
     { href: getProfileHref(user), icon: User, label: 'Profil Saya' },
+    ...(user.role === 'admin' ? [{ href: '/admin', icon: Shield, label: 'Panel Admin' }] : []),
     { href: '/settings', icon: Settings, label: 'Pengaturan' },
   ] : [];
 

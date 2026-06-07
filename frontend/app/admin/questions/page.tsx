@@ -1,10 +1,8 @@
 'use client';
 
-import { useAuth } from '@/contexts/AuthContext';
 import { useEffect, useState } from 'react';
-import { useRouter } from 'next/navigation';
 import { adminAPI } from '@/lib/api';
-import { MessageSquare, ArrowLeft, Search, Trash2, Eye, ThumbsUp, ThumbsDown, MessageCircle } from 'lucide-react';
+import { MessageSquare, Search, Trash2, Eye, ThumbsUp, ThumbsDown, MessageCircle } from 'lucide-react';
 import Link from 'next/link';
 import AlertModal from '@/components/ui/AlertModal';
 import ConfirmModal from '@/components/ui/ConfirmModal';
@@ -36,8 +34,6 @@ const formatDate = (dateString: string | null | undefined): string => {
 };
 
 export default function AdminQuestions() {
-  const { user, loading } = useAuth();
-  const router = useRouter();
   const [questions, setQuestions] = useState<Question[]>([]);
   const [questionsLoading, setQuestionsLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
@@ -59,15 +55,8 @@ export default function AdminQuestions() {
   };
 
   useEffect(() => {
-    if (!loading && (!user || user.role !== 'admin')) {
-      router.push('/');
-      return;
-    }
-
-    if (user && user.role === 'admin') {
-      fetchQuestions();
-    }
-  }, [user, loading, router]);
+    fetchQuestions();
+  }, []);
 
   const fetchQuestions = async () => {
     try {
@@ -110,37 +99,17 @@ export default function AdminQuestions() {
     return text.substring(0, maxLength) + '...';
   };
 
-  if (loading) {
-    return (
-      <div className="flex items-center justify-center min-h-screen">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-green-600"></div>
-      </div>
-    );
-  }
-
-  if (!user || user.role !== 'admin') {
-    return null;
-  }
-
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <div>
       {/* Header */}
       <div className="mb-8">
-        <div className="flex items-center gap-4 mb-4">
-          <Link
-            href="/admin"
-            className="p-2 hover:bg-slate-100 rounded-lg transition-colors"
-          >
-            <ArrowLeft className="w-5 h-5 text-slate-600" />
-          </Link>
-          <div className="flex items-center gap-3">
-            <div className="p-2 bg-green-100 rounded-lg">
-              <MessageSquare className="w-6 h-6 text-green-600" />
-            </div>
-            <h1 className="text-3xl font-bold text-slate-900">Kelola Pertanyaan</h1>
+        <div className="flex items-center gap-3 mb-2">
+          <div className="p-2 bg-green-100 dark:bg-green-900/30 rounded-lg">
+            <MessageSquare className="w-6 h-6 text-green-600" />
           </div>
+          <h1 className="text-2xl font-bold text-slate-900 dark:text-white">Kelola Pertanyaan</h1>
         </div>
-        <p className="text-slate-600">Tinjau dan moderasi pertanyaan yang diposting oleh pengguna</p>
+        <p className="text-slate-600 dark:text-slate-400">Tinjau dan moderasi pertanyaan yang diposting oleh pengguna</p>
       </div>
 
       {/* Search */}

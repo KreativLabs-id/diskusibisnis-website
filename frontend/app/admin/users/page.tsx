@@ -1,11 +1,8 @@
 'use client';
 
-import { useAuth } from '@/contexts/AuthContext';
 import { useEffect, useState } from 'react';
-import { useRouter } from 'next/navigation';
 import { adminAPI } from '@/lib/api';
-import { Users, Ban, UserX, ArrowLeft, Search, Filter, MoreVertical, CheckCircle, XCircle, Bell } from 'lucide-react';
-import Link from 'next/link';
+import { Users, Ban, UserX, Search, CheckCircle, XCircle, Bell } from 'lucide-react';
 import VerifiedBadge from '@/components/ui/VerifiedBadge';
 import AlertModal from '@/components/ui/AlertModal';
 import ConfirmModal from '@/components/ui/ConfirmModal';
@@ -22,8 +19,6 @@ interface User {
 }
 
 export default function AdminUsers() {
-  const { user, loading } = useAuth();
-  const router = useRouter();
   const [users, setUsers] = useState<User[]>([]);
   const [usersLoading, setUsersLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
@@ -54,15 +49,8 @@ export default function AdminUsers() {
   };
 
   useEffect(() => {
-    if (!loading && (!user || user.role !== 'admin')) {
-      router.push('/');
-      return;
-    }
-
-    if (user && user.role === 'admin') {
-      fetchUsers();
-    }
-  }, [user, loading, router]);
+    fetchUsers();
+  }, []);
 
   const fetchUsers = async () => {
     try {
@@ -145,37 +133,17 @@ export default function AdminUsers() {
     return matchesSearch && matchesRole && matchesStatus;
   });
 
-  if (loading) {
-    return (
-      <div className="flex items-center justify-center min-h-screen">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-green-600"></div>
-      </div>
-    );
-  }
-
-  if (!user || user.role !== 'admin') {
-    return null;
-  }
-
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <div>
       {/* Header */}
       <div className="mb-8">
-        <div className="flex items-center gap-4 mb-4">
-          <Link
-            href="/admin"
-            className="p-2 hover:bg-slate-100 rounded-lg transition-colors"
-          >
-            <ArrowLeft className="w-5 h-5 text-slate-600" />
-          </Link>
-          <div className="flex items-center gap-3">
-            <div className="p-2 bg-blue-100 rounded-lg">
-              <Users className="w-6 h-6 text-blue-600" />
-            </div>
-            <h1 className="text-3xl font-bold text-slate-900">User Management</h1>
+        <div className="flex items-center gap-3 mb-2">
+          <div className="p-2 bg-blue-100 dark:bg-blue-900/30 rounded-lg">
+            <Users className="w-6 h-6 text-blue-600" />
           </div>
+          <h1 className="text-2xl font-bold text-slate-900 dark:text-white">User Management</h1>
         </div>
-        <p className="text-slate-600">Manage user accounts, roles, and permissions</p>
+        <p className="text-slate-600 dark:text-slate-400">Manage user accounts, roles, and permissions</p>
       </div>
 
       {/* Filters */}

@@ -109,7 +109,7 @@ export default function AskPage() {
       return;
     }
 
-    // Tag is optional now, but if provided must be valid
+    // Tag is optional, but if provided must be valid (max 5)
     if (selectedTags.length > 5) {
       setError('Maksimal 5 tag');
       return;
@@ -324,7 +324,7 @@ export default function AskPage() {
                   type="text"
                   value={customTag}
                   onChange={(e) => setCustomTag(e.target.value)}
-                  onKeyPress={(e) => {
+                  onKeyDown={(e) => {
                     if (e.key === 'Enter') {
                       e.preventDefault();
                       addCustomTag();

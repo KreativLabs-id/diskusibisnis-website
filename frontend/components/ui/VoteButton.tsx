@@ -129,7 +129,7 @@ export default function VoteButton({
       />
 
       {/* Add custom animations to global CSS */}
-      <style jsx>{`
+      <style>{`
         @keyframes bounce-scale {
           0%, 100% { transform: scale(1) translateY(0); }
           25% { transform: scale(1.2) translateY(-4px); }

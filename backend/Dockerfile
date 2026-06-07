@@ -7,8 +7,8 @@ WORKDIR /app
 COPY backend/package.json ./
 COPY backend/package-lock.json* ./
 
-# Install dependencies (fallback ke npm install jika package-lock.json bermasalah)
-RUN if [ -f package-lock.json ]; then npm ci --only=production --no-audit || npm install --only=production --no-audit; else npm install --only=production --no-audit; fi
+# Install all dependencies for the build, including TypeScript from devDependencies.
+RUN if [ -f package-lock.json ]; then npm ci --no-audit || npm install --no-audit; else npm install --no-audit; fi
 
 # Copy source code
 COPY backend/ ./

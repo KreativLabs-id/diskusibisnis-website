@@ -1,53 +1,19 @@
 'use client';
 
-import { useAuth } from '@/contexts/AuthContext';
-import { useEffect } from 'react';
-import { useRouter } from 'next/navigation';
-import { AlertTriangle, ArrowLeft, Clock, CheckCircle, XCircle } from 'lucide-react';
-import Link from 'next/link';
+import { AlertTriangle, Clock, CheckCircle, XCircle } from 'lucide-react';
 
 export default function AdminReports() {
-  const { user, loading } = useAuth();
-  const router = useRouter();
-
-  useEffect(() => {
-    if (!loading && (!user || user.role !== 'admin')) {
-      router.push('/');
-      return;
-    }
-  }, [user, loading, router]);
-
-  if (loading) {
-    return (
-      <div className="flex items-center justify-center min-h-screen">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-green-600"></div>
-      </div>
-    );
-  }
-
-  if (!user || user.role !== 'admin') {
-    return null;
-  }
-
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <div>
       {/* Header */}
       <div className="mb-8">
-        <div className="flex items-center gap-4 mb-4">
-          <Link
-            href="/admin"
-            className="p-2 hover:bg-slate-100 rounded-lg transition-colors"
-          >
-            <ArrowLeft className="w-5 h-5 text-slate-600" />
-          </Link>
-          <div className="flex items-center gap-3">
-            <div className="p-2 bg-red-100 rounded-lg">
-              <AlertTriangle className="w-6 h-6 text-red-600" />
-            </div>
-            <h1 className="text-3xl font-bold text-slate-900">Reports & Moderation</h1>
+        <div className="flex items-center gap-3 mb-2">
+          <div className="p-2 bg-red-100 dark:bg-red-900/30 rounded-lg">
+            <AlertTriangle className="w-6 h-6 text-red-600" />
           </div>
+          <h1 className="text-2xl font-bold text-slate-900 dark:text-white">Reports & Moderation</h1>
         </div>
-        <p className="text-slate-600">Handle user reports and content moderation</p>
+        <p className="text-slate-600 dark:text-slate-400">Handle user reports and content moderation</p>
       </div>
 
       {/* Coming Soon Notice */}

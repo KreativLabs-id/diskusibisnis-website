@@ -1,12 +1,9 @@
 'use client';
 
-import { useAuth } from '@/contexts/AuthContext';
 import { useEffect, useState } from 'react';
-import { useRouter } from 'next/navigation';
 import { adminAPI } from '@/lib/api';
 import {
     Mail,
-    ArrowLeft,
     Send,
     Users,
     History,
@@ -18,7 +15,6 @@ import {
     Sparkles,
     Clock
 } from 'lucide-react';
-import Link from 'next/link';
 import AlertModal from '@/components/ui/AlertModal';
 import ConfirmModal from '@/components/ui/ConfirmModal';
 import SimpleRichEditor from '@/components/ui/SimpleRichEditor';
@@ -43,8 +39,6 @@ interface NewsletterHistoryItem {
 }
 
 export default function AdminNewsletter() {
-    const { user, loading } = useAuth();
-    const router = useRouter();
     const [stats, setStats] = useState<NewsletterStats | null>(null);
     const [history, setHistory] = useState<NewsletterHistoryItem[]>([]);
     const [statsLoading, setStatsLoading] = useState(true);
@@ -89,16 +83,9 @@ export default function AdminNewsletter() {
     } | null>(null);
 
     useEffect(() => {
-        if (!loading && (!user || user.role !== 'admin')) {
-            router.push('/');
-            return;
-        }
-
-        if (user && user.role === 'admin') {
-            fetchStats();
-            fetchHistory();
-        }
-    }, [user, loading, router]);
+        fetchStats();
+        fetchHistory();
+    }, []);
 
     const fetchStats = async () => {
         try {
@@ -229,36 +216,17 @@ export default function AdminNewsletter() {
         });
     };
 
-    if (loading) {
-        return (
-            <div className="flex items-center justify-center min-h-screen">
-                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-green-600"></div>
-            </div>
-        );
-    }
-
-    if (!user || user.role !== 'admin') {
-        return null;
-    }
-
     return (
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <div>
             {/* Header */}
             <div className="mb-8">
-                <Link
-                    href="/admin"
-                    className="inline-flex items-center gap-2 text-slate-600 hover:text-slate-800 mb-4 transition-colors"
-                >
-                    <ArrowLeft className="w-4 h-4" />
-                    <span>Kembali ke Dashboard</span>
-                </Link>
                 <div className="flex items-center gap-3">
                     <div className="p-3 bg-gradient-to-br from-purple-500 to-pink-500 rounded-xl shadow-lg">
                         <Mail className="w-7 h-7 text-white" />
                     </div>
                     <div>
-                        <h1 className="text-2xl font-bold text-slate-900">Newsletter</h1>
-                        <p className="text-slate-500">Kirim newsletter ke semua subscriber</p>
+                        <h1 className="text-2xl font-bold text-slate-900 dark:text-white">Newsletter</h1>
+                        <p className="text-slate-500 dark:text-slate-400">Kirim newsletter ke semua subscriber</p>
                     </div>
                 </div>
             </div>

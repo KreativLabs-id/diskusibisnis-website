@@ -137,56 +137,46 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     const response = await authAPI.login({ email, password });
     const { user, token: newToken } = response.data.data;
 
+    // Normalize user first, then save once
+    const normalizedUser = normalizeUser(user);
     if (typeof window !== 'undefined') {
       localStorage.setItem('token', newToken);
-      localStorage.setItem('user', JSON.stringify(user));
+      localStorage.setItem('user', JSON.stringify(normalizedUser));
       // Set user_role cookie for middleware to check admin access
-      setUserRoleCookie(user.role);
+      setUserRoleCookie(normalizedUser.role);
     }
-    const normalizedUser = normalizeUser(user);
-    localStorage.setItem('user', JSON.stringify(normalizedUser));
     setUser(normalizedUser);
     setToken(newToken);
-
-    // Refresh user data from server to get latest role
-    setTimeout(() => {
-      refreshUser();
-    }, 1000);
   };
 
   const googleLogin = async (credential: string) => {
     const response = await authAPI.googleLogin(credential);
     const { user, token: newToken } = response.data.data;
 
+    // Normalize user first, then save once
+    const normalizedUser = normalizeUser(user);
     if (typeof window !== 'undefined') {
       localStorage.setItem('token', newToken);
-      localStorage.setItem('user', JSON.stringify(user));
+      localStorage.setItem('user', JSON.stringify(normalizedUser));
       // Set user_role cookie for middleware to check admin access
-      setUserRoleCookie(user.role);
+      setUserRoleCookie(normalizedUser.role);
     }
-    const normalizedUser = normalizeUser(user);
-    localStorage.setItem('user', JSON.stringify(normalizedUser));
     setUser(normalizedUser);
     setToken(newToken);
-
-    // Refresh user data from server to get latest info
-    setTimeout(() => {
-      refreshUser();
-    }, 1000);
   };
 
   const register = async (email: string, password: string, displayName: string) => {
     const response = await authAPI.register({ email, password, displayName });
     const { user, token: newToken } = response.data.data;
 
+    // Normalize user first, then save once
+    const normalizedUser = normalizeUser(user);
     if (typeof window !== 'undefined') {
       localStorage.setItem('token', newToken);
-      localStorage.setItem('user', JSON.stringify(user));
+      localStorage.setItem('user', JSON.stringify(normalizedUser));
       // Set user_role cookie for middleware to check admin access
-      setUserRoleCookie(user.role);
+      setUserRoleCookie(normalizedUser.role);
     }
-    const normalizedUser = normalizeUser(user);
-    localStorage.setItem('user', JSON.stringify(normalizedUser));
     setUser(normalizedUser);
     setToken(newToken);
   };
@@ -236,19 +226,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
   };
 
+  // forceRefreshUser: same as refreshUser, kept for API compatibility
   const forceRefreshUser = async () => {
-    if (!user) return;
-
-    try {
-      const response = await userAPI.getProfile(user.id);
-      const userData = response.data.data.user || response.data.user;
-
-      const updatedUser = normalizeUser(userData, user);
-
-      updateUser(updatedUser);
-    } catch (error) {
-      console.error('Error force refreshing user data:', error);
-    }
+    return refreshUser();
   };
 
   return (

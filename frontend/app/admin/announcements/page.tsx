@@ -1,9 +1,7 @@
 'use client';
 
-import { useAuth } from '@/contexts/AuthContext';
 import { useEffect, useState } from 'react';
 import { Shield, Plus, Trash2, Edit, Eye, EyeOff, Megaphone, ExternalLink, Calendar, X, AlertTriangle, Info, CheckCircle, AlertCircle, Gift } from 'lucide-react';
-import Link from 'next/link';
 import api from '@/lib/api';
 
 interface Announcement {
@@ -33,8 +31,7 @@ const typeConfig = {
 };
 
 export default function AdminAnnouncementsPage() {
-    const { user, loading } = useAuth();
-    const [announcements, setAnnouncements] = useState<Announcement[]>([]);
+  const [announcements, setAnnouncements] = useState<Announcement[]>([]);
     const [isLoading, setIsLoading] = useState(true);
     const [showCreateModal, setShowCreateModal] = useState(false);
     const [editingAnnouncement, setEditingAnnouncement] = useState<Announcement | null>(null);
@@ -53,10 +50,8 @@ export default function AdminAnnouncementsPage() {
     });
 
     useEffect(() => {
-        if (!loading && user?.role === 'admin') {
-            fetchAnnouncements();
-        }
-    }, [user, loading]);
+        fetchAnnouncements();
+    }, []);
 
     const fetchAnnouncements = async () => {
         try {
@@ -162,28 +157,8 @@ export default function AdminAnnouncementsPage() {
         return badges[status] || badges.inactive;
     };
 
-    if (loading) {
-        return (
-            <div className="flex items-center justify-center min-h-screen">
-                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-green-600"></div>
-            </div>
-        );
-    }
-
-    if (!user || user.role !== 'admin') {
-        return (
-            <div className="max-w-2xl mx-auto px-4 py-16 text-center">
-                <div className="p-4 bg-red-100 rounded-full w-16 h-16 mx-auto mb-4 flex items-center justify-center">
-                    <Shield className="w-8 h-8 text-red-600" />
-                </div>
-                <h1 className="text-2xl font-bold text-slate-900 mb-2">Akses Ditolak</h1>
-                <Link href="/" className="text-green-600 hover:underline">Kembali ke Beranda</Link>
-            </div>
-        );
-    }
-
     return (
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <div>
             {/* Header */}
             <div className="flex items-center justify-between mb-8">
                 <div>

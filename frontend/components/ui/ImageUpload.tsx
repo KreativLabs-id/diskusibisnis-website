@@ -31,10 +31,10 @@ const ImageUpload: React.FC<ImageUploadProps> = ({
   const [error, setError] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  const handleImageUpload = async (files: FileList | null) => {
+  const handleImageUpload = useCallback(async (files: FileList | null) => {
     if (!files || files.length === 0) return;
 
-    // Check max images
+    // Check max images - use current state via functional update
     if (images.length + files.length > maxImages) {
       setError(`Maksimal ${maxImages} gambar`);
       return;
@@ -44,11 +44,10 @@ const ImageUpload: React.FC<ImageUploadProps> = ({
     setUploading(true);
     setUploadProgress(0);
 
-    const newImages: UploadedImage[] = [];
     const totalFiles = files.length;
     let completed = 0;
 
-    // Tampilkan preview IMMEDIATELY sebelum upload
+    // Buat preview sementara untuk file yang valid
     const tempPreviews: UploadedImage[] = [];
     for (let i = 0; i < files.length; i++) {
       const file = files[i];
@@ -62,24 +61,28 @@ const ImageUpload: React.FC<ImageUploadProps> = ({
         });
       }
     }
-    
-    // Set preview dulu biar langsung keliatan
-    setImages([...images, ...tempPreviews]);
 
+    // Simpan jumlah gambar yang sudah ada SEBELUM preview ditambah
+    const existingCount = images.length;
+
+    // Tambahkan preview ke state yang ADA (bukan replace)
+    setImages(prev => [...prev, ...tempPreviews]);
+
+    // Upload satu per satu
+    const newImages: UploadedImage[] = [];
     for (let i = 0; i < files.length; i++) {
       const file = files[i];
 
       try {
-        // Validate file
         const validation = validateImageFile(file);
         if (!validation.valid) {
           setError(validation.error || 'File tidak valid');
           continue;
         }
-        
+
         // Compress image before upload
         const compressedFile = await compressImage(file);
-        
+
         // Upload to Supabase
         const result = await uploadImage(compressedFile, userId);
 
@@ -90,7 +93,6 @@ const ImageUpload: React.FC<ImageUploadProps> = ({
           preview: URL.createObjectURL(file)
         });
 
-        // Update progress
         completed++;
         setUploadProgress((completed / totalFiles) * 100);
       } catch (err: any) {
@@ -99,13 +101,21 @@ const ImageUpload: React.FC<ImageUploadProps> = ({
       }
     }
 
-    // Update dengan hasil upload yang sebenarnya
-    const updatedImages = [...images.slice(0, images.length - tempPreviews.length), ...newImages];
-    setImages(updatedImages);
-    onImagesChange(updatedImages);
+    // Ganti temp previews dengan hasil upload yang sebenarnya
+    // Pertahankan gambar lama (existingCount), ganti temp dengan newImages
+    setImages(prev => {
+      const existingImages = prev.slice(0, existingCount);
+      const finalImages = [...existingImages, ...newImages];
+      // Notify parent langsung di sini dengan nilai final
+      onImagesChange(finalImages);
+      return finalImages;
+    });
+
     setUploading(false);
     setUploadProgress(0);
-  };
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [images, maxImages, userId, onImagesChange]);
+
 
   const handleRemoveImage = async (index: number) => {
     const imageToRemove = images[index];
@@ -146,7 +156,7 @@ const ImageUpload: React.FC<ImageUploadProps> = ({
     if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
       handleImageUpload(e.dataTransfer.files);
     }
-  }, [images, maxImages, userId]);
+  }, [handleImageUpload]);
 
   const handleButtonClick = () => {
     fileInputRef.current?.click();

@@ -17,13 +17,11 @@ export function formatDate(date: string | Date): string {
       return 'Tanggal tidak valid';
     }
     
-    // Get current time in Indonesia timezone (UTC+7)
+    // Calculate difference in milliseconds
+    // JavaScript's new Date() already handles UTC timestamps correctly,
+    // no need to manually add timezone offsets
     const now = new Date();
-    const nowIndonesia = new Date(now.getTime() + (7 * 60 * 60 * 1000)); // Add 7 hours for WIB
-    const dateIndonesia = new Date(d.getTime() + (7 * 60 * 60 * 1000)); // Add 7 hours for WIB
-    
-    // Calculate difference in milliseconds using Indonesia time
-    const diff = nowIndonesia.getTime() - dateIndonesia.getTime();
+    const diff = now.getTime() - d.getTime();
     
     // Convert to different units
     const seconds = Math.floor(diff / 1000);

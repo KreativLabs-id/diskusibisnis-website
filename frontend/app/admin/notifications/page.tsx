@@ -1,17 +1,11 @@
 'use client';
 
-import { useAuth } from '@/contexts/AuthContext';
 import { useEffect, useState } from 'react';
-import { useRouter } from 'next/navigation';
 import { adminAPI } from '@/lib/api';
-import { Bell, ArrowLeft, Send, AlertTriangle, CheckCircle, Info } from 'lucide-react';
-import Link from 'next/link';
+import { Bell, Send, AlertTriangle, CheckCircle, Info } from 'lucide-react';
 import AlertModal from '@/components/ui/AlertModal';
 
 export default function AdminNotifications() {
-    const { user, loading } = useAuth();
-    const router = useRouter();
-
     const [formData, setFormData] = useState({
         title: '',
         message: '',
@@ -26,12 +20,6 @@ export default function AdminNotifications() {
         title: string;
         message: string;
     }>({ isOpen: false, type: 'info', title: '', message: '' });
-
-    useEffect(() => {
-        if (!loading && (!user || user.role !== 'admin')) {
-            router.push('/');
-        }
-    }, [user, loading, router]);
 
     const showAlert = (type: 'success' | 'error' | 'warning' | 'info', title: string, message: string) => {
         setAlertModal({ isOpen: true, type, title, message });
@@ -220,29 +208,17 @@ export default function AdminNotifications() {
         }
     };
 
-    if (loading || !user || user.role !== 'admin') {
-        return null;
-    }
-
     return (
-        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <div>
             {/* Header */}
             <div className="mb-8">
-                <div className="flex items-center gap-4 mb-4">
-                    <Link
-                        href="/admin"
-                        className="p-2 hover:bg-slate-100 rounded-lg transition-colors"
-                    >
-                        <ArrowLeft className="w-5 h-5 text-slate-600" />
-                    </Link>
-                    <div className="flex items-center gap-3">
-                        <div className="p-2 bg-yellow-100 rounded-lg">
-                            <Bell className="w-6 h-6 text-yellow-600" />
-                        </div>
-                        <h1 className="text-3xl font-bold text-slate-900">Broadcast Notifications</h1>
+                <div className="flex items-center gap-3 mb-2">
+                    <div className="p-2 bg-yellow-100 dark:bg-yellow-900/30 rounded-lg">
+                        <Bell className="w-6 h-6 text-yellow-600" />
                     </div>
+                    <h1 className="text-2xl font-bold text-slate-900 dark:text-white">Broadcast Notifications</h1>
                 </div>
-                <p className="text-slate-600">Kirim notifikasi sistem ke seluruh pengguna aplikasi</p>
+                <p className="text-slate-600 dark:text-slate-400">Kirim notifikasi sistem ke seluruh pengguna aplikasi</p>
             </div>
 
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">

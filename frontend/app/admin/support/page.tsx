@@ -1,14 +1,12 @@
 'use client';
 
-import { useAuth } from '@/contexts/AuthContext';
 import { useEffect, useState } from 'react';
 import { supportAPI } from '@/lib/api';
 import { 
   Shield, Mail, Clock, CheckCircle, AlertCircle, 
-  MessageSquare, Send, Trash, ChevronLeft,
+  MessageSquare, Send, Trash, 
   Inbox, Reply, XCircle
 } from 'lucide-react';
-import Link from 'next/link';
 import AlertModal from '@/components/ui/AlertModal';
 import ConfirmModal from '@/components/ui/ConfirmModal';
 
@@ -205,7 +203,6 @@ Tim Support DiskusiBisnis`
 
 
 export default function AdminSupportPage() {
-  const { user, loading: authLoading } = useAuth();
   const [tickets, setTickets] = useState<Ticket[]>([]);
   const [stats, setStats] = useState<TicketStats | null>(null);
   const [loading, setLoading] = useState(true);
@@ -250,11 +247,9 @@ export default function AdminSupportPage() {
   };
 
   useEffect(() => {
-    if (!authLoading && user?.role === 'admin') {
-      fetchTickets();
-      fetchStats();
-    }
-  }, [user, authLoading, statusFilter]);
+    fetchTickets();
+    fetchStats();
+  }, [statusFilter]);
 
   const fetchTickets = async () => {
     try {
@@ -348,39 +343,17 @@ export default function AdminSupportPage() {
   };
 
 
-  if (authLoading) {
-    return (
-      <div className="flex items-center justify-center min-h-screen">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-green-600"></div>
-      </div>
-    );
-  }
-
-  if (!user || user.role !== 'admin') {
-    return (
-      <div className="max-w-2xl mx-auto px-4 py-16 text-center">
-        <Shield className="w-16 h-16 text-red-500 mx-auto mb-4" />
-        <h1 className="text-2xl font-bold text-slate-900 mb-2">Akses Ditolak</h1>
-        <p className="text-slate-600">Anda memerlukan hak akses admin.</p>
-      </div>
-    );
-  }
-
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <div>
       {/* Header */}
       <div className="mb-6">
-        <Link href="/admin" className="inline-flex items-center gap-2 text-slate-600 hover:text-emerald-600 mb-4">
-          <ChevronLeft className="w-4 h-4" />
-          Kembali ke Dashboard
-        </Link>
         <div className="flex items-center gap-3">
-          <div className="p-2 bg-emerald-100 rounded-lg">
+          <div className="p-2 bg-emerald-100 dark:bg-emerald-900/30 rounded-lg">
             <Mail className="w-6 h-6 text-emerald-600" />
           </div>
           <div>
-            <h1 className="text-2xl font-bold text-slate-900">Support Tickets</h1>
-            <p className="text-slate-600">Kelola tiket bantuan dari pengguna</p>
+            <h1 className="text-2xl font-bold text-slate-900 dark:text-white">Support Tickets</h1>
+            <p className="text-slate-600 dark:text-slate-400">Kelola tiket bantuan dari pengguna</p>
           </div>
         </div>
       </div>

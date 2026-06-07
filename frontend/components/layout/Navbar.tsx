@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { useAuth } from '@/contexts/AuthContext';
-import { Search, Bell, User, LogOut, Settings, Plus, Menu, X, ChevronDown } from 'lucide-react';
+import { Search, Bell, User, LogOut, Settings, Plus, Menu, X, ChevronDown, Shield } from 'lucide-react';
 import { useState, useEffect, useRef } from 'react';
 import NotificationDropdown from '@/components/ui/NotificationDropdown';
 import LoadingSpinner from '@/components/ui/LoadingSpinner';
@@ -133,6 +133,16 @@ export default function Navbar({ onMenuClick }: NavbarProps) {
                         <User className="w-4 h-4" />
                         <span className="text-sm font-bold">Profil Saya</span>
                       </Link>
+                      {user.role === 'admin' && (
+                        <Link
+                          href="/admin"
+                          className="flex items-center space-x-3 px-4 py-3 text-emerald-700 dark:text-emerald-400 hover:bg-emerald-500 hover:text-white transition-all duration-200 rounded-xl mx-2 bg-emerald-50 dark:bg-emerald-900/20"
+                          onClick={() => setShowUserMenu(false)}
+                        >
+                          <Shield className="w-4 h-4" />
+                          <span className="text-sm font-bold">Panel Admin</span>
+                        </Link>
+                      )}
                       <Link
                         href="/settings"
                         className="flex items-center space-x-3 px-4 py-3 text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-700 transition-all duration-200 rounded-xl mx-2"

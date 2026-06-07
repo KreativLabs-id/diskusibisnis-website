@@ -50,7 +50,7 @@ const RichTextParser: React.FC<RichTextParserProps> = ({ content, className = ''
             key={`mention-${keyIndex++}`}
             href={`/profile/${username}`}
             className="text-blue-600 hover:text-blue-800 hover:underline font-medium"
-            onClick={(e) => e.stopPropagation()}
+            onClick={(e: React.MouseEvent<HTMLAnchorElement>) => e.stopPropagation()}
           >
             {matchText}
           </Link>
@@ -64,7 +64,7 @@ const RichTextParser: React.FC<RichTextParserProps> = ({ content, className = ''
             target="_blank"
             rel="noopener noreferrer"
             className="text-blue-600 hover:text-blue-800 hover:underline break-all"
-            onClick={(e) => e.stopPropagation()}
+            onClick={(e: React.MouseEvent<HTMLAnchorElement>) => e.stopPropagation()}
           >
             {matchText}
           </a>

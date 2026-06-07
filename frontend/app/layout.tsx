@@ -1,6 +1,5 @@
 import type { Metadata, Viewport } from "next";
 import { Inter } from "next/font/google";
-import Script from "next/script";
 import { SpeedInsights } from "@vercel/speed-insights/next";
 import "./globals.css";
 import ClientProviders from "./components/ClientProviders";
@@ -165,18 +164,21 @@ export default function RootLayout({
           dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
         />
         {/* Google Analytics */}
-        <Script
+        <script
+          async
           src="https://www.googletagmanager.com/gtag/js?id=G-QJWXZ12286"
-          strategy="afterInteractive"
         />
-        <Script id="google-analytics" strategy="afterInteractive">
-          {`
+        <script
+          id="google-analytics"
+          dangerouslySetInnerHTML={{
+            __html: `
             window.dataLayer = window.dataLayer || [];
             function gtag(){dataLayer.push(arguments);}
             gtag('js', new Date());
             gtag('config', 'G-QJWXZ12286');
-          `}
-        </Script>
+          `,
+          }}
+        />
       </head>
       <body className={`${inter.variable} font-sans antialiased bg-slate-50 h-full`}>
         <ClientProviders>

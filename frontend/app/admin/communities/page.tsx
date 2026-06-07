@@ -1,10 +1,8 @@
 'use client';
 
-import { useAuth } from '@/contexts/AuthContext';
 import { useEffect, useState } from 'react';
-import { useRouter } from 'next/navigation';
 import { adminAPI } from '@/lib/api';
-import { Users, Ban, ArrowLeft, Search, Trash2, Eye, MessageSquare } from 'lucide-react';
+import { Users, Ban, Search, Eye, MessageSquare } from 'lucide-react';
 import Link from 'next/link';
 
 interface Community {
@@ -20,22 +18,13 @@ interface Community {
 }
 
 export default function AdminCommunities() {
-  const { user, loading } = useAuth();
-  const router = useRouter();
   const [communities, setCommunities] = useState<Community[]>([]);
   const [communitiesLoading, setCommunitiesLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
 
   useEffect(() => {
-    if (!loading && (!user || user.role !== 'admin')) {
-      router.push('/');
-      return;
-    }
-
-    if (user && user.role === 'admin') {
-      fetchCommunities();
-    }
-  }, [user, loading, router]);
+    fetchCommunities();
+  }, []);
 
   const fetchCommunities = async () => {
     try {
@@ -67,53 +56,17 @@ export default function AdminCommunities() {
     c.description.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
-  if (loading) {
-    return (
-      <div className="flex items-center justify-center min-h-screen">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-green-600"></div>
-      </div>
-    );
-  }
-
-  if (!user || user.role !== 'admin') {
-    return (
-      <div className="max-w-2xl mx-auto px-4 py-16 text-center">
-        <div className="p-4 bg-red-100 rounded-full w-16 h-16 mx-auto mb-4 flex items-center justify-center">
-          <Users className="w-8 h-8 text-red-600" />
-        </div>
-        <h1 className="text-2xl font-bold text-slate-900 mb-2">Access Denied</h1>
-        <p className="text-slate-600 mb-6">
-          You need admin privileges to access this page.
-        </p>
-        <Link
-          href="/"
-          className="inline-flex items-center px-6 py-3 bg-green-600 text-white rounded-lg font-medium hover:bg-green-700 transition-colors"
-        >
-          🏠 Back to Home
-        </Link>
-      </div>
-    );
-  }
-
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <div>
       {/* Header */}
       <div className="mb-8">
-        <div className="flex items-center gap-4 mb-4">
-          <Link
-            href="/admin"
-            className="p-2 hover:bg-slate-100 rounded-lg transition-colors"
-          >
-            <ArrowLeft className="w-5 h-5 text-slate-600" />
-          </Link>
-          <div className="flex items-center gap-3">
-            <div className="p-2 bg-purple-100 rounded-lg">
-              <Users className="w-6 h-6 text-purple-600" />
-            </div>
-            <h1 className="text-3xl font-bold text-slate-900">Community Management</h1>
+        <div className="flex items-center gap-3 mb-2">
+          <div className="p-2 bg-purple-100 dark:bg-purple-900/30 rounded-lg">
+            <Users className="w-6 h-6 text-purple-600" />
           </div>
+          <h1 className="text-2xl font-bold text-slate-900 dark:text-white">Community Management</h1>
         </div>
-        <p className="text-slate-600">Manage communities, ban/unban, and monitor activity</p>
+        <p className="text-slate-600 dark:text-slate-400">Manage communities, ban/unban, and monitor activity</p>
       </div>
 
       {/* Search */}
