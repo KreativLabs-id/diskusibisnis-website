@@ -202,7 +202,7 @@ export default function SettingsPage() {
               <div className="flex flex-col gap-8">
 
                 {/* Avatar Section - Centered & Premium */}
-                <div className="flex flex-col items-center justify-center py-8 bg-slate-50/50 dark:bg-slate-900/30 rounded-3xl border border-dashed border-slate-200 dark:border-slate-800">
+                <div className="flex flex-col items-center justify-center py-8 bg-slate-50/50 dark:bg-slate-900/30 rounded-2xl border border-dashed border-slate-200 dark:border-slate-800">
                   <div className="relative group">
                     <div className="w-24 h-24 sm:w-28 sm:h-28 rounded-full p-1 bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800 shadow-sm relative z-10 overflow-hidden">
                       <UserAvatar

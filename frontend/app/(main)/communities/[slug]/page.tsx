@@ -416,7 +416,7 @@ export default function CommunityDetailPage() {
         </button>
 
         {/* Community Header */}
-        <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-sm rounded-[2rem] overflow-hidden shadow-sm mb-8 relative transition-all duration-300">
+        <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-sm rounded-2xl overflow-hidden shadow-sm mb-8 relative transition-all duration-300">
           {/* Decorative Background */}
           <div className="h-32 sm:h-48 bg-gradient-to-r from-emerald-600 to-emerald-800 relative">
             <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] opacity-10"></div>
@@ -604,7 +604,7 @@ export default function CommunityDetailPage() {
                     <Link
                       key={question.id}
                       href={`/questions/${question.id}`}
-                      className="group relative block bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-sm rounded-[1.5rem] p-5 sm:p-6 hover:bg-white dark:hover:bg-slate-800 transition-all duration-500 hover:shadow-xl hover:shadow-emerald-500/5 cursor-pointer overflow-hidden"
+                      className="group relative block bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-sm rounded-2xl p-5 sm:p-6 hover:bg-white dark:hover:bg-slate-800 transition-all duration-500 hover:shadow-xl hover:shadow-emerald-500/5 cursor-pointer overflow-hidden"
                     >
                       <div className="flex items-start gap-4">
                         <div className="flex-1 min-w-0">
@@ -647,7 +647,7 @@ export default function CommunityDetailPage() {
           {activeTab === 'overview' && (
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
               <div className="lg:col-span-2 space-y-6">
-                <div className="bg-white/60 dark:bg-slate-900/40 backdrop-blur-md rounded-[2rem] border border-white dark:border-slate-800/60 p-6 sm:p-8 shadow-sm transition-colors">
+                <div className="bg-white/60 dark:bg-slate-900/40 backdrop-blur-md rounded-2xl border border-white dark:border-slate-800/60 p-6 sm:p-8 shadow-sm transition-colors">
                   <div className="flex items-center justify-between mb-4">
                     <h3 className="text-lg font-bold text-slate-900 dark:text-white">Tentang Komunitas</h3>
                     <Link
@@ -674,7 +674,7 @@ export default function CommunityDetailPage() {
               </div>
 
               <div className="space-y-6">
-                <div className="bg-white/60 dark:bg-slate-900/40 backdrop-blur-md rounded-[2rem] border border-white dark:border-slate-800/60 p-6 sm:p-8 shadow-sm transition-colors">
+                <div className="bg-white/60 dark:bg-slate-900/40 backdrop-blur-md rounded-2xl border border-white dark:border-slate-800/60 p-6 sm:p-8 shadow-sm transition-colors">
                   <h3 className="font-bold text-slate-900 dark:text-white mb-4">Informasi</h3>
                   <div className="space-y-4">
                     <div className="flex items-center gap-3">
@@ -723,7 +723,7 @@ export default function CommunityDetailPage() {
               ) : (
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
                   {members.map((member) => (
-                    <div key={member.id} className="bg-white/60 dark:bg-slate-900/40 backdrop-blur-md p-4 rounded-[1.5rem] border border-white dark:border-slate-800/60 flex items-center gap-3 hover:shadow-md transition-all group">
+                    <div key={member.id} className="bg-white/60 dark:bg-slate-900/40 backdrop-blur-md p-4 rounded-2xl border border-white dark:border-slate-800/60 flex items-center gap-3 hover:shadow-md transition-all group">
                       <UserAvatar
                         src={member.avatar_url}
                         alt={member.display_name}

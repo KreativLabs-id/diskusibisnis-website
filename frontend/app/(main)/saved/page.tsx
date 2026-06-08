@@ -4,7 +4,9 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { useAuth } from '@/contexts/AuthContext';
-import { bookmarkAPI } from '@/lib/api';
+import { bookmarkAPI, questionAPI } from '@/lib/api';
+import QuestionCard from '@/components/questions/QuestionCard';
+import QuestionCardSkeleton from '@/components/questions/QuestionCardSkeleton';
 import {
     Bookmark,
     MessageCircle,
@@ -173,15 +175,7 @@ export default function SavedPage() {
                 {loading ? (
                     <div className="space-y-4">
                         {[1, 2, 3].map((i) => (
-                            <div key={i} className="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 p-6 animate-pulse">
-                                <div className="h-6 bg-slate-200 dark:bg-slate-700 rounded w-3/4 mb-3" />
-                                <div className="h-4 bg-slate-200 dark:bg-slate-700 rounded w-full mb-2" />
-                                <div className="h-4 bg-slate-200 dark:bg-slate-700 rounded w-5/6 mb-4" />
-                                <div className="flex gap-3">
-                                    <div className="h-6 w-16 bg-slate-200 dark:bg-slate-700 rounded-full" />
-                                    <div className="h-6 w-20 bg-slate-200 dark:bg-slate-700 rounded-full" />
-                                </div>
-                            </div>
+                            <QuestionCardSkeleton key={i} />
                         ))}
                     </div>
                 ) : bookmarks.length === 0 ? (
@@ -215,7 +209,7 @@ export default function SavedPage() {
                             <Link
                                 key={question.id}
                                 href={`/questions/${question.id}`}
-                                className="group relative bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-sm rounded-[1.5rem] sm:rounded-[2rem] p-6 sm:p-8 hover:bg-white dark:hover:bg-slate-800 transition-all duration-500 hover:shadow-2xl hover:shadow-emerald-500/5 cursor-pointer overflow-hidden"
+                                className="group relative bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-sm rounded-2xl sm:rounded-2xl p-6 sm:p-8 hover:bg-white dark:hover:bg-slate-800 transition-all duration-500 hover:shadow-2xl hover:shadow-emerald-500/5 cursor-pointer overflow-hidden"
                             >
                                 {/* Decorative Gradient Blur */}
                                 <div className="absolute -top-24 -right-24 w-48 h-48 bg-emerald-500/5 rounded-full blur-3xl group-hover:bg-emerald-500/10 transition-colors" />

@@ -86,7 +86,7 @@ export default function AboutCommunityPage() {
           </section>
 
           {/* Guidelines Mini */}
-          <section className="bg-slate-900 rounded-3xl p-8 md:p-16 text-white text-center md:text-left overflow-hidden relative">
+          <section className="bg-slate-900 rounded-2xl p-8 md:p-16 text-white text-center md:text-left overflow-hidden relative">
             <div className="absolute top-0 right-0 w-64 h-64 bg-emerald-500/10 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2"></div>
 
             <div className="relative z-10 flex flex-col md:flex-row items-center justify-between gap-8">

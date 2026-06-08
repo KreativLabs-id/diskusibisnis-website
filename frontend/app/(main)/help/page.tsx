@@ -63,7 +63,7 @@ export default function HelpPage() {
           </section>
 
           {/* Contact Section */}
-          <section className="bg-emerald-50/50 dark:bg-emerald-900/20 rounded-3xl p-8 md:p-12 border border-emerald-100 dark:border-emerald-800">
+          <section className="bg-emerald-50/50 dark:bg-emerald-900/20 rounded-2xl p-8 md:p-12 border border-emerald-100 dark:border-emerald-800">
             <div className="flex flex-col md:flex-row gap-8 items-start md:items-center justify-between">
               <div>
                 <h2 className="text-2xl font-bold text-slate-900 dark:text-slate-100 mb-4">Butuh bantuan lebih lanjut?</h2>

@@ -82,7 +82,7 @@ export default function TagsPage() {
             <div className="h-14 bg-slate-200 dark:bg-slate-800 rounded-2xl w-full"></div>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {[1, 2, 3, 4, 5, 6].map(i => (
-                <div key={i} className="h-48 bg-slate-200 dark:bg-slate-800 rounded-3xl"></div>
+                <div key={i} className="h-48 bg-slate-200 dark:bg-slate-800 rounded-2xl"></div>
               ))}
             </div>
           </div>
@@ -104,8 +104,11 @@ export default function TagsPage() {
           </p>
         </div>
 
-        {/* Integrated Search & Filter - Clean UI */}
-        <div className="sticky top-4 z-40 mb-12">
+        {/* Integrated Search - Clean UI */}
+        <div 
+          className="sticky z-40 mb-12"
+          style={{ top: 'calc(var(--header-height, 64px) + 0.5rem)' }}
+        >
           <div className="bg-white/70 dark:bg-slate-900/70 backdrop-blur-xl border border-white dark:border-slate-800/50 rounded-2xl p-2 shadow-xl shadow-slate-200/50 dark:shadow-none flex flex-col sm:flex-row gap-2">
             <div className="relative flex-1">
               <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" />
@@ -157,7 +160,7 @@ export default function TagsPage() {
               <Link
                 key={tag.id}
                 href={`/tags/${tag.slug}`}
-                className="group relative bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-sm rounded-[2.5rem] p-8 hover:bg-white dark:hover:bg-slate-800/60 transition-all duration-500 hover:shadow-2xl hover:shadow-emerald-500/10 hover:-translate-y-1 overflow-hidden"
+                className="group relative bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-sm rounded-2xl p-8 hover:bg-white dark:hover:bg-slate-800/60 transition-all duration-500 hover:shadow-2xl hover:shadow-emerald-500/10 hover:-translate-y-1 overflow-hidden"
               >
                 {/* Decorative Blur Object */}
                 <div className="absolute -top-12 -right-12 w-32 h-32 bg-emerald-500/5 rounded-full blur-3xl group-hover:bg-emerald-500/10 transition-colors" />

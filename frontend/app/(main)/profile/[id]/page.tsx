@@ -201,7 +201,7 @@ export default function ProfilePage() {
           <div className="flex flex-col lg:flex-row gap-8 animate-pulse">
             {/* Sidebar Skeleton */}
             <div className="w-full lg:w-80 shrink-0 space-y-6">
-              <div className="bg-white dark:bg-slate-900 rounded-3xl border border-slate-200/60 dark:border-slate-800/60 p-6 shadow-sm">
+              <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200/60 dark:border-slate-800/60 p-6 shadow-sm">
                 <div className="w-24 h-24 sm:w-28 sm:h-28 mx-auto bg-slate-200 dark:bg-slate-800 rounded-full mb-6"></div>
                 <div className="h-6 bg-slate-200 dark:bg-slate-800 rounded-lg w-3/4 mx-auto mb-2"></div>
                 <div className="h-4 bg-slate-200 dark:bg-slate-800 rounded-lg w-1/2 mx-auto"></div>
@@ -213,7 +213,7 @@ export default function ProfilePage() {
             </div>
             {/* Main Content Skeleton */}
             <div className="flex-1">
-              <div className="bg-white dark:bg-slate-900/50 rounded-3xl border border-slate-200/60 dark:border-slate-800/60 p-4 sm:p-6 shadow-sm min-h-[400px]">
+              <div className="bg-white dark:bg-slate-900/50 rounded-2xl border border-slate-200/60 dark:border-slate-800/60 p-4 sm:p-6 shadow-sm min-h-[400px]">
                 <div className="flex gap-4 mb-8">
                   <div className="h-10 bg-slate-200 dark:bg-slate-800 rounded-xl w-32"></div>
                   <div className="h-10 bg-slate-200 dark:bg-slate-800 rounded-xl w-32"></div>
@@ -271,7 +271,7 @@ export default function ProfilePage() {
           )}
 
           <main className="flex-1 min-w-0 w-full lg:sticky lg:top-8">
-            <div className="bg-white/70 dark:bg-slate-900/70 backdrop-blur-xl rounded-[2.5rem] border border-white dark:border-slate-800/60 p-6 sm:p-10 shadow-2xl shadow-slate-200/40 dark:shadow-none min-h-[600px]">
+            <div className="bg-white/70 dark:bg-slate-900/70 backdrop-blur-xl rounded-2xl border border-white dark:border-slate-800/60 p-6 sm:p-10 shadow-2xl shadow-slate-200/40 dark:shadow-none min-h-[600px]">
               <ProfileActivityTabs 
                 activeTab={activeTab} 
                 setActiveTab={setActiveTab} 
@@ -285,7 +285,7 @@ export default function ProfilePage() {
                 {activeTab === 'questions' ? (
                   questions.length === 0 ? (
                     <div className="py-24 text-center">
-                      <div className="w-20 h-20 bg-slate-50 dark:bg-slate-800 rounded-[2rem] flex items-center justify-center mx-auto mb-6">
+                      <div className="w-20 h-20 bg-slate-50 dark:bg-slate-800 rounded-2xl flex items-center justify-center mx-auto mb-6">
                         <MessageSquare className="w-10 h-10 text-slate-300 dark:text-slate-600" />
                       </div>
                       <h3 className="text-xl font-bold text-slate-900 dark:text-white mb-2">Belum ada pertanyaan</h3>
@@ -296,7 +296,7 @@ export default function ProfilePage() {
                       <Link
                         key={question.id}
                         href={`/questions/${question.id}`}
-                        className="group block p-6 rounded-3xl border border-slate-100/50 dark:border-slate-800/50 bg-slate-50/30 dark:bg-slate-800/30 hover:bg-white dark:hover:bg-slate-800 hover:border-emerald-100 dark:hover:border-emerald-900/30 hover:shadow-xl hover:shadow-emerald-500/5 transition-all duration-500"
+                        className="group block p-6 rounded-2xl border border-slate-100/50 dark:border-slate-800/50 bg-slate-50/30 dark:bg-slate-800/30 hover:bg-white dark:hover:bg-slate-800 hover:border-emerald-100 dark:hover:border-emerald-900/30 hover:shadow-xl hover:shadow-emerald-500/5 transition-all duration-500"
                       >
                         <div className="flex justify-between items-start gap-4 mb-4">
                           <h3 className="text-lg sm:text-xl font-bold text-slate-900 dark:text-slate-100 group-hover:text-emerald-600 dark:group-hover:text-emerald-400 transition-colors line-clamp-2 leading-tight tracking-tight">
@@ -323,7 +323,7 @@ export default function ProfilePage() {
                 ) : (
                   answers.length === 0 ? (
                     <div className="py-24 text-center">
-                      <div className="w-20 h-20 bg-slate-50 dark:bg-slate-800 rounded-[2rem] flex items-center justify-center mx-auto mb-6">
+                      <div className="w-20 h-20 bg-slate-50 dark:bg-slate-800 rounded-2xl flex items-center justify-center mx-auto mb-6">
                         <CheckCircle className="w-10 h-10 text-slate-300 dark:text-slate-600" />
                       </div>
                       <h3 className="text-xl font-bold text-slate-900 dark:text-white mb-2">Belum ada jawaban</h3>
@@ -333,7 +333,7 @@ export default function ProfilePage() {
                     answers.map((answer) => (
                       <div
                         key={answer.id}
-                        className="group p-6 rounded-3xl border border-slate-100/50 dark:border-slate-800/50 bg-slate-50/30 dark:bg-slate-800/30 hover:bg-white dark:hover:bg-slate-800 hover:border-emerald-100 dark:hover:border-emerald-900/30 hover:shadow-xl hover:shadow-emerald-500/5 transition-all duration-500"
+                        className="group p-6 rounded-2xl border border-slate-100/50 dark:border-slate-800/50 bg-slate-50/30 dark:bg-slate-800/30 hover:bg-white dark:hover:bg-slate-800 hover:border-emerald-100 dark:hover:border-emerald-900/30 hover:shadow-xl hover:shadow-emerald-500/5 transition-all duration-500"
                       >
                         <div className="mb-4">
                           <div className="text-[10px] font-bold text-slate-400 mb-1 uppercase tracking-widest">Menjawab pada</div>

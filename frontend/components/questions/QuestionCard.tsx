@@ -69,7 +69,7 @@ export default function QuestionCard({ question, onReport, currentUserId }: Ques
 
   return (
     <div 
-      className="group relative bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-sm rounded-[1.5rem] sm:rounded-[2rem] p-5 sm:p-8 hover:bg-white dark:hover:bg-slate-800 transition-all duration-500 hover:shadow-2xl hover:shadow-emerald-500/5 cursor-pointer overflow-hidden"
+      className="group relative bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-sm rounded-2xl sm:rounded-2xl p-5 sm:p-8 hover:bg-white dark:hover:bg-slate-800 transition-all duration-500 hover:shadow-2xl hover:shadow-emerald-500/5 cursor-pointer overflow-hidden"
       onClick={() => {
         if (!questionId) return;
         persistListScrollPosition();

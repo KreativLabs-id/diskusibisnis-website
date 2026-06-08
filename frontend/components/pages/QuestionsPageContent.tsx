@@ -21,6 +21,7 @@ import Link from 'next/link';
 
 import { questionAPI } from '@/lib/api';
 import QuestionCard from '@/components/questions/QuestionCard';
+import QuestionCardSkeleton from '@/components/questions/QuestionCardSkeleton';
 import { useAuth } from '@/contexts/AuthContext';
 import { cn, formatNumber } from '@/lib/utils';
 
@@ -146,24 +147,7 @@ export default function QuestionsPageContent() {
   const renderSkeleton = (
     <div className="space-y-4">
       {[1, 2, 3, 4, 5].map((i) => (
-        <div
-          key={i}
-          className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-sm rounded-[2rem] p-6 animate-pulse"
-        >
-          <div className="flex gap-6">
-            <div className="flex-1 space-y-3">
-              <div className="h-6 bg-slate-200 dark:bg-slate-800 rounded w-3/4" />
-              <div className="space-y-2">
-                <div className="h-4 bg-slate-200 dark:bg-slate-800 rounded w-full" />
-                <div className="h-4 bg-slate-200 dark:bg-slate-800 rounded w-5/6" />
-              </div>
-              <div className="flex flex-wrap items-center gap-2">
-                <div className="h-6 w-20 bg-slate-200 dark:bg-slate-800 rounded-full" />
-                <div className="h-6 w-24 bg-slate-200 dark:bg-slate-800 rounded-full" />
-              </div>
-            </div>
-          </div>
-        </div>
+        <QuestionCardSkeleton key={i} />
       ))}
     </div>
   );
@@ -231,7 +215,7 @@ export default function QuestionsPageContent() {
           {loading ? (
             renderSkeleton
           ) : filteredQuestions.length === 0 ? (
-            <div className="py-20 text-center bg-white/40 dark:bg-slate-900/40 backdrop-blur-md rounded-[2.5rem] border border-white dark:border-slate-800/60 p-12">
+            <div className="py-20 text-center bg-white/40 dark:bg-slate-900/40 backdrop-blur-md rounded-2xl border border-white dark:border-slate-800/60 p-12">
               <div className="inline-flex w-20 h-20 bg-slate-100 dark:bg-slate-800 rounded-full items-center justify-center mb-6">
                 <Search className="w-10 h-10 text-slate-300" />
               </div>
@@ -254,7 +238,7 @@ export default function QuestionsPageContent() {
         {/* Desktop Right Sidebar */}
         <aside className="hidden lg:block space-y-8">
           {/* Topik Populer - Premium Card */}
-          <div className="group relative bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-sm rounded-[2rem] p-8 hover:bg-white dark:hover:bg-slate-800/60 transition-all duration-500 overflow-hidden shadow-sm">
+          <div className="group relative bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-sm rounded-2xl p-8 hover:bg-white dark:hover:bg-slate-800/60 transition-all duration-500 overflow-hidden shadow-sm">
             <div className="absolute -top-12 -right-12 w-32 h-32 bg-emerald-500/5 rounded-full blur-3xl group-hover:bg-emerald-500/10 transition-colors" />
             <div className="relative z-10">
               <div className="flex items-center gap-2 mb-6">
@@ -279,7 +263,7 @@ export default function QuestionsPageContent() {
           </div>
 
           {/* Tips Bertanya - Premium Card */}
-          <div className="group relative bg-slate-900 dark:bg-white rounded-[2rem] p-8 overflow-hidden shadow-xl">
+          <div className="group relative bg-slate-900 dark:bg-white rounded-2xl p-8 overflow-hidden shadow-xl">
             <div className="absolute top-0 right-0 w-64 h-64 bg-emerald-500/20 rounded-full blur-[80px]" />
             <div className="relative z-10">
               <div className="flex items-center gap-2 mb-6">
@@ -309,7 +293,7 @@ export default function QuestionsPageContent() {
           </div>
 
           {/* Leaderboard/Stats Mini Card */}
-          <div className="group relative bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-sm rounded-[2rem] p-8 hover:bg-white dark:hover:bg-slate-800/60 transition-all duration-500 overflow-hidden shadow-sm">
+          <div className="group relative bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-sm rounded-2xl p-8 hover:bg-white dark:hover:bg-slate-800/60 transition-all duration-500 overflow-hidden shadow-sm">
             <div className="relative z-10">
               <div className="flex items-center gap-2 mb-6">
                 <Trophy className="h-5 w-5 text-amber-500" />

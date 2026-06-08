@@ -7,7 +7,7 @@ import { User } from 'lucide-react';
 interface UserAvatarProps {
   src?: string | null;
   alt?: string;
-  size?: 'xs' | 'sm' | 'md' | 'lg' | 'xl';
+  size?: 'xs' | 'sm' | 'md' | 'lg' | 'xl' | '2xl';
   className?: string;
   fallbackName?: string;
 }
@@ -18,6 +18,7 @@ const sizeClasses = {
   md: 'w-10 h-10 text-base',
   lg: 'w-16 h-16 text-2xl',
   xl: 'w-24 h-24 text-4xl',
+  '2xl': 'w-32 h-32 text-5xl',
 };
 
 const iconSizes = {
@@ -26,6 +27,7 @@ const iconSizes = {
   md: 'w-5 h-5',
   lg: 'w-8 h-8',
   xl: 'w-12 h-12',
+  '2xl': 'w-16 h-16',
 };
 
 // Pixel sizes for next/image optimization
@@ -35,6 +37,7 @@ const pixelSizes = {
   md: 40,
   lg: 64,
   xl: 96,
+  '2xl': 128,
 };
 
 // Blur placeholder for loading

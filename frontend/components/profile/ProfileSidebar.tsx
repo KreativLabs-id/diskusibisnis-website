@@ -29,7 +29,7 @@ export default function ProfileSidebar({ profile, isOwnProfile, stats }: Profile
   return (
     <aside className="w-full lg:w-80 shrink-0 space-y-6">
       {/* Profile Card */}
-      <div className="bg-white/70 dark:bg-slate-900/70 backdrop-blur-xl rounded-[2.5rem] border border-white dark:border-slate-800/60 p-8 shadow-xl shadow-slate-200/40 dark:shadow-none relative overflow-hidden">
+      <div className="bg-white/70 dark:bg-slate-900/70 backdrop-blur-xl rounded-2xl border border-white dark:border-slate-800/60 p-8 shadow-xl shadow-slate-200/40 dark:shadow-none relative overflow-hidden">
         {/* Subtle Background Accent */}
         <div className="absolute top-0 right-0 w-32 h-32 bg-emerald-500/5 rounded-full blur-3xl" />
         
@@ -100,14 +100,14 @@ export default function ProfileSidebar({ profile, isOwnProfile, stats }: Profile
       </div>
 
       {/* Stats Card */}
-      <div className="bg-white/70 dark:bg-slate-900/70 backdrop-blur-xl rounded-[2.5rem] border border-white dark:border-slate-800/60 p-8 shadow-xl shadow-slate-200/40 dark:shadow-none">
+      <div className="bg-white/70 dark:bg-slate-900/70 backdrop-blur-xl rounded-2xl border border-white dark:border-slate-800/60 p-8 shadow-xl shadow-slate-200/40 dark:shadow-none">
         <h3 className="text-xs font-bold text-slate-400 dark:text-slate-500 mb-6">Statistik Kontribusi</h3>
         <div className="grid grid-cols-2 gap-4">
-          <div className="p-5 bg-slate-50/50 dark:bg-slate-800/50 rounded-[2rem] border border-slate-100/50 dark:border-slate-700/50">
+          <div className="p-5 bg-slate-50/50 dark:bg-slate-800/50 rounded-2xl border border-slate-100/50 dark:border-slate-700/50">
             <div className="text-2xl font-bold text-slate-900 dark:text-white tracking-tight">{profile.reputationPoints}</div>
             <div className="text-[10px] font-bold text-emerald-500 mt-0.5">Reputasi</div>
           </div>
-          <div className="p-5 bg-slate-50/50 dark:bg-slate-800/50 rounded-[2rem] border border-slate-100/50 dark:border-slate-700/50">
+          <div className="p-5 bg-slate-50/50 dark:bg-slate-800/50 rounded-2xl border border-slate-100/50 dark:border-slate-700/50">
             <div className="text-2xl font-bold text-slate-900 dark:text-white tracking-tight">{stats.questionsCount}</div>
             <div className="text-[10px] font-bold text-emerald-500 mt-0.5">Diskusi</div>
           </div>

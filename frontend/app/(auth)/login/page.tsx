@@ -101,7 +101,7 @@ export default function LoginPage() {
       <div className="sm:mx-auto sm:w-full sm:max-w-md relative z-10">
         <div className="text-center mb-8">
           <Link href="/" className="inline-block group">
-            <div className="w-16 h-16 mx-auto mb-6 bg-white dark:bg-slate-900 rounded-[1.5rem] shadow-xl shadow-emerald-500/10 p-4 flex items-center justify-center group-hover:scale-105 transition-all duration-500 ring-1 ring-slate-100 dark:ring-slate-800">
+            <div className="w-16 h-16 mx-auto mb-6 bg-white dark:bg-slate-900 rounded-2xl shadow-xl shadow-emerald-500/10 p-4 flex items-center justify-center group-hover:scale-105 transition-all duration-500 ring-1 ring-slate-100 dark:ring-slate-800">
               <img
                 src="/logodiskusibisnisaja.png"
                 alt="Logo"
@@ -117,7 +117,7 @@ export default function LoginPage() {
           </p>
         </div>
 
-        <div className="bg-white/70 dark:bg-slate-900/70 backdrop-blur-xl py-10 px-6 sm:px-10 shadow-2xl shadow-slate-200/50 dark:shadow-none rounded-[2.5rem] border border-white dark:border-slate-800/50">
+        <div className="bg-white/70 dark:bg-slate-900/70 backdrop-blur-xl py-10 px-6 sm:px-10 shadow-2xl shadow-slate-200/50 dark:shadow-none rounded-2xl border border-white dark:border-slate-800/50">
           {error && (
             <div className="mb-6 p-4 bg-red-500/5 border border-red-500/20 rounded-2xl flex items-start gap-3 animate-in fade-in slide-in-from-top-2">
               <AlertCircle className="w-5 h-5 text-red-500 flex-shrink-0 mt-0.5" />

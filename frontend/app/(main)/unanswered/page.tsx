@@ -16,6 +16,7 @@ import Link from 'next/link';
 
 import { questionAPI } from '@/lib/api';
 import QuestionCard from '@/components/questions/QuestionCard';
+import QuestionCardSkeleton from '@/components/questions/QuestionCardSkeleton';
 import { cn, formatNumber } from '@/lib/utils';
 
 interface Question {
@@ -74,16 +75,15 @@ export default function UnansweredPage() {
   if (loading) {
     return (
       <div className="min-h-screen bg-[#f8fafc] dark:bg-slate-950 px-4 py-12">
-        <div className="max-w-4xl mx-auto">
+        <div className="max-w-4xl mx-auto px-4 py-8 sm:py-14">
           <div className="animate-pulse space-y-8">
-            <div className="flex flex-col items-center gap-4 text-center">
-              <div className="w-12 h-12 bg-slate-200 dark:bg-slate-800 rounded-2xl"></div>
-              <div className="h-10 bg-slate-200 dark:bg-slate-800 rounded-lg w-64"></div>
-              <div className="h-4 bg-slate-200 dark:bg-slate-800 rounded-lg w-96"></div>
+            <div className="mb-8 sm:mb-10">
+              <div className="h-10 bg-slate-200 dark:bg-slate-800 rounded-lg w-64 mb-4"></div>
+              <div className="h-4 bg-slate-200 dark:bg-slate-800 rounded-lg w-96 max-w-full"></div>
             </div>
-            <div className="space-y-4 pt-10">
-              {[1, 2, 3, 4].map(i => (
-                <div key={i} className="h-48 bg-slate-200 dark:bg-slate-800 rounded-[2.5rem]"></div>
+            <div className="space-y-6 pt-4">
+              {[1, 2, 3, 4, 5].map((i) => (
+                <QuestionCardSkeleton key={i} />
               ))}
             </div>
           </div>
@@ -106,9 +106,12 @@ export default function UnansweredPage() {
         </div>
 
         {/* Integrated Filter - Glassmorphism */}
-        <div className="sticky top-4 z-40 mb-12">
+        <div 
+          className="sticky z-40 mb-12"
+          style={{ top: 'calc(var(--header-height, 64px) + 0.5rem)' }}
+        >
           <div className="bg-white/70 dark:bg-slate-900/70 backdrop-blur-xl border border-white dark:border-slate-800/50 rounded-2xl p-2 shadow-xl shadow-slate-200/50 dark:shadow-none flex items-center justify-center">
-            <div className="flex gap-1 p-1 bg-slate-100/50 dark:bg-slate-800/50 rounded-xl overflow-x-auto scrollbar-hide w-full max-w-md">
+            <div className="flex gap-1 p-1 bg-slate-100/50 dark:bg-slate-800/50 rounded-xl overflow-x-auto scrollbar-hide [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none] w-full max-w-md">
               {sortOptions.map((option) => (
                 <button
                   key={option.value}
@@ -131,7 +134,7 @@ export default function UnansweredPage() {
         {/* Questions List */}
         <div className="space-y-6">
           {questions.length === 0 ? (
-            <div className="py-20 text-center bg-white/40 dark:bg-slate-900/40 backdrop-blur-md rounded-[2.5rem] border border-white dark:border-slate-800/60 p-12 overflow-hidden relative">
+            <div className="py-20 text-center bg-white/40 dark:bg-slate-900/40 backdrop-blur-md rounded-2xl border border-white dark:border-slate-800/60 p-12 overflow-hidden relative">
               <div className="absolute top-0 right-0 w-64 h-64 bg-emerald-500/5 rounded-full blur-[80px]" />
               <div className="relative z-10">
                 <div className="inline-flex w-20 h-20 bg-emerald-500/10 dark:bg-emerald-400/10 rounded-full items-center justify-center mb-6">

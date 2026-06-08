@@ -21,7 +21,8 @@ import {
 } from 'lucide-react';
 
 import { questionAPI, tagAPI } from '@/lib/api';
-import QuestionCard from '../questions/QuestionCard';
+import QuestionCard from '@/components/questions/QuestionCard';
+import QuestionCardSkeleton from '@/components/questions/QuestionCardSkeleton';
 import { useAuth } from '@/contexts/AuthContext';
 import Link from 'next/link';
 import ReportModal from '../ui/ReportModal';
@@ -304,31 +305,13 @@ export default function HomePage() {
   const renderSkeleton = (
     <div className="space-y-4 pt-2">
       {[1, 2, 3, 4, 5].map((i) => (
-        <div key={i} className="flex flex-col sm:flex-row gap-4 sm:gap-5 p-5 sm:p-6 bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-800 rounded-xl animate-pulse">
-          <div className="flex sm:flex-col items-center sm:items-end gap-3 sm:gap-1.5 sm:min-w-[80px] shrink-0 pt-1">
-            <div className="h-4 w-12 bg-gray-200 dark:bg-slate-700 rounded"></div>
-            <div className="h-5 w-16 bg-gray-200 dark:bg-slate-700 rounded"></div>
-            <div className="h-4 w-12 bg-gray-200 dark:bg-slate-700 rounded"></div>
-          </div>
-          <div className="flex-1 min-w-0 space-y-3">
-            <div className="h-5 bg-gray-200 dark:bg-slate-700 rounded w-3/4"></div>
-            <div className="h-4 bg-gray-200 dark:bg-slate-700 rounded w-full"></div>
-            <div className="h-4 bg-gray-200 dark:bg-slate-700 rounded w-5/6"></div>
-            <div className="flex justify-between items-center pt-2">
-              <div className="flex gap-2">
-                <div className="h-5 w-16 bg-gray-200 dark:bg-slate-700 rounded"></div>
-                <div className="h-5 w-16 bg-gray-200 dark:bg-slate-700 rounded"></div>
-              </div>
-              <div className="h-4 w-32 bg-gray-200 dark:bg-slate-700 rounded"></div>
-            </div>
-          </div>
-        </div>
+        <QuestionCardSkeleton key={i} />
       ))}
     </div>
   );
 
   const renderEmptyState = (
-    <div className="py-20 text-center bg-white/40 dark:bg-slate-900/40 backdrop-blur-md rounded-[2.5rem] border border-white dark:border-slate-800/60 p-12 overflow-hidden relative">
+    <div className="py-20 text-center bg-white/40 dark:bg-slate-900/40 backdrop-blur-md rounded-2xl border border-white dark:border-slate-800/60 p-12 overflow-hidden relative">
       <div className="absolute top-0 right-0 w-64 h-64 bg-emerald-500/5 rounded-full blur-[80px]" />
       <div className="relative z-10">
         <div className="inline-flex w-20 h-20 bg-gray-100 dark:bg-slate-800 rounded-full items-center justify-center mb-6">
@@ -464,7 +447,7 @@ export default function HomePage() {
 
             {/* Pagination - Professional Style */}
             {!loading && filteredQuestions.length > pageSize && (
-              <div className="mt-12 flex flex-col sm:flex-row items-center justify-between gap-6 p-6 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-sm rounded-[2rem]">
+              <div className="mt-12 flex flex-col sm:flex-row items-center justify-between gap-6 p-6 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-sm rounded-2xl">
                 <div className="flex items-center gap-3">
                   <span className="text-xs font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest">Tampil</span>
                   <select
@@ -508,7 +491,7 @@ export default function HomePage() {
           {/* Right Sidebar - Professional Premium Cards */}
           <aside className="hidden lg:block space-y-8">
             {/* Topik Populer */}
-            <div className="group relative bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-sm rounded-[2rem] p-8 hover:bg-white dark:hover:bg-slate-800 transition-all duration-500 overflow-hidden shadow-sm">
+            <div className="group relative bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-sm rounded-2xl p-8 hover:bg-white dark:hover:bg-slate-800 transition-all duration-500 overflow-hidden shadow-sm">
               <div className="absolute -top-12 -right-12 w-32 h-32 bg-emerald-500/5 rounded-full blur-3xl group-hover:bg-emerald-500/10 transition-colors" />
               <div className="relative z-10">
                 <div className="flex items-center gap-2 mb-6">
@@ -538,7 +521,7 @@ export default function HomePage() {
             </div>
 
             {/* Tips Bertanya */}
-            <div className="group relative bg-slate-900 dark:bg-white rounded-[2rem] p-8 overflow-hidden shadow-xl">
+            <div className="group relative bg-slate-900 dark:bg-white rounded-2xl p-8 overflow-hidden shadow-xl">
               <div className="absolute top-0 right-0 w-64 h-64 bg-emerald-500/20 rounded-full blur-[80px]" />
               <div className="relative z-10">
                 <div className="flex items-center gap-2 mb-6">
@@ -568,7 +551,7 @@ export default function HomePage() {
             </div>
 
             {/* Aksi Cepat */}
-            <div className="group relative bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-sm rounded-[2rem] p-8 hover:bg-white dark:hover:bg-slate-800 transition-all duration-500 overflow-hidden shadow-sm">
+            <div className="group relative bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-sm rounded-2xl p-8 hover:bg-white dark:hover:bg-slate-800 transition-all duration-500 overflow-hidden shadow-sm">
               <div className="relative z-10">
                 <div className="flex items-center gap-2 mb-6">
                   <Trophy className="h-5 w-5 text-amber-500" />

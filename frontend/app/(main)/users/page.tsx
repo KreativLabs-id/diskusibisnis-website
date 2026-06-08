@@ -69,7 +69,7 @@ export default function UsersPage() {
             <div className="h-14 bg-slate-200 dark:bg-slate-800 rounded-2xl w-full"></div>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
               {[1, 2, 3, 4, 5, 6, 7, 8].map(i => (
-                <div key={i} className="h-72 bg-slate-200 dark:bg-slate-800 rounded-[2.5rem]"></div>
+                <div key={i} className="h-72 bg-slate-200 dark:bg-slate-800 rounded-2xl"></div>
               ))}
             </div>
           </div>
@@ -92,7 +92,10 @@ export default function UsersPage() {
         </div>
 
         {/* Integrated Search - Clean UI */}
-        <div className="sticky top-4 z-40 mb-12">
+        <div 
+          className="sticky z-40 mb-12"
+          style={{ top: 'calc(var(--header-height, 64px) + 0.5rem)' }}
+        >
           <div className="bg-white/70 dark:bg-slate-900/70 backdrop-blur-xl border border-white dark:border-slate-800/50 rounded-2xl p-2 shadow-xl shadow-slate-200/50 dark:shadow-none">
             <div className="relative flex-1">
               <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" />
@@ -122,7 +125,7 @@ export default function UsersPage() {
               <Link
                 key={user.id}
                 href={getProfileHref({ username: user.username, display_name: user.display_name })}
-                className="group relative bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-sm rounded-[2.5rem] p-6 hover:bg-white dark:hover:bg-slate-800/60 transition-all duration-500 hover:shadow-2xl hover:shadow-emerald-500/10 hover:-translate-y-1 overflow-hidden flex flex-col items-center text-center"
+                className="group relative bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-sm rounded-2xl p-6 hover:bg-white dark:hover:bg-slate-800/60 transition-all duration-500 hover:shadow-2xl hover:shadow-emerald-500/10 hover:-translate-y-1 overflow-hidden flex flex-col items-center text-center"
               >
                 {/* Decorative Blur Object */}
                 <div className="absolute -top-12 -right-12 w-32 h-32 bg-emerald-500/5 rounded-full blur-3xl group-hover:bg-emerald-500/10 transition-colors" />

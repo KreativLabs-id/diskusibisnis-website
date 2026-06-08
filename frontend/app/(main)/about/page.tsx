@@ -131,7 +131,7 @@ export default function AboutPage() {
           </section>
 
           {/* Call to Action */}
-          <section className="bg-emerald-50/50 rounded-3xl p-8 md:p-12 text-center">
+          <section className="bg-emerald-50/50 rounded-2xl p-8 md:p-12 text-center">
             <h2 className="text-2xl md:text-3xl font-bold text-slate-900 mb-4">Siap untuk melangkah?</h2>
             <p className="text-slate-600 mb-8 max-w-xl mx-auto">
               Bergabunglah dengan ribuan pengusaha lain yang sudah merasakan dampak positif dari komunitas ini.

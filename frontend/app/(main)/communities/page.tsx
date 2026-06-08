@@ -84,7 +84,7 @@ export default function CommunitiesPage() {
             <div className="h-14 bg-slate-200 dark:bg-slate-800 rounded-2xl w-full"></div>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {[1, 2, 3, 4, 5, 6].map(i => (
-                <div key={i} className="h-64 bg-slate-200 dark:bg-slate-800 rounded-[2.5rem]"></div>
+                <div key={i} className="h-64 bg-slate-200 dark:bg-slate-800 rounded-2xl"></div>
               ))}
             </div>
           </div>
@@ -125,7 +125,10 @@ export default function CommunitiesPage() {
         </div>
 
         {/* Integrated Search & Filter - Clean UI */}
-        <div className="sticky top-4 z-40 mb-12">
+        <div 
+          className="sticky z-40 mb-12"
+          style={{ top: 'calc(var(--header-height, 64px) + 0.5rem)' }}
+        >
           <div className="bg-white/70 dark:bg-slate-900/70 backdrop-blur-xl border border-white dark:border-slate-800/50 rounded-2xl p-2 shadow-xl shadow-slate-200/50 dark:shadow-none flex flex-col lg:flex-row gap-2">
             <div className="relative flex-1">
               <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" />
@@ -137,7 +140,7 @@ export default function CommunitiesPage() {
                 className="w-full bg-transparent pl-12 pr-4 py-3 text-slate-900 dark:text-white placeholder:text-slate-400 outline-none"
               />
             </div>
-            <div className="flex gap-1 p-1 bg-slate-100/50 dark:bg-slate-800/50 rounded-xl overflow-x-auto scrollbar-hide">
+            <div className="flex gap-1 p-1 bg-slate-100/50 dark:bg-slate-800/50 rounded-xl overflow-x-auto scrollbar-hide [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
               {categories.map((category) => (
                   <button
                     key={category.value}
@@ -171,7 +174,7 @@ export default function CommunitiesPage() {
               <Link
                 key={community.id}
                 href={`/communities/${community.slug}`}
-                className="group relative bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-sm rounded-[2.5rem] p-8 hover:bg-white dark:hover:bg-slate-800/60 transition-all duration-500 hover:shadow-2xl hover:shadow-emerald-500/10 hover:-translate-y-1 overflow-hidden flex flex-col"
+                className="group relative bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-sm rounded-2xl p-8 hover:bg-white dark:hover:bg-slate-800/60 transition-all duration-500 hover:shadow-2xl hover:shadow-emerald-500/10 hover:-translate-y-1 overflow-hidden flex flex-col"
               >
                 {/* Decorative Blur Object */}
                 <div className="absolute -top-12 -right-12 w-32 h-32 bg-emerald-500/5 rounded-full blur-3xl group-hover:bg-emerald-500/10 transition-colors" />
@@ -196,7 +199,7 @@ export default function CommunitiesPage() {
                     <div className="flex items-center gap-2 mb-6 px-1">
                       <div className="w-1 h-4 bg-emerald-500 rounded-full" />
                       <h2 className="text-xs font-bold text-slate-400 dark:text-slate-500">
-                        Kategori
+                        {community.category || 'Komunitas'}
                       </h2>
                     </div>
                     <h3 className="text-xl font-black text-slate-900 dark:text-white mb-3 group-hover:text-emerald-600 dark:group-hover:text-emerald-400 transition-colors line-clamp-1">

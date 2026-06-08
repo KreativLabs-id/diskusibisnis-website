@@ -120,7 +120,7 @@ export default function ExplorePage() {
 
                     {/* Premium CTA / Info */}
                     <section className="pt-8">
-                        <div className="group relative bg-slate-900 dark:bg-white rounded-[2.5rem] p-8 sm:p-12 overflow-hidden shadow-2xl text-center sm:text-left">
+                        <div className="group relative bg-slate-900 dark:bg-white rounded-2xl p-8 sm:p-12 overflow-hidden shadow-2xl text-center sm:text-left">
                             <div className="absolute top-0 right-0 w-64 h-64 bg-emerald-500/20 rounded-full blur-[100px]" />
                             <div className="relative z-10 flex flex-col sm:flex-row items-center justify-between gap-8">
                                 <div className="max-w-xl">
@@ -175,7 +175,7 @@ function ExploreGridItem({ href, title, description, icon: Icon, color }: any) {
     return (
         <Link 
             href={href} 
-            className="group relative bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-sm rounded-[2rem] p-6 hover:bg-white dark:hover:bg-slate-800 transition-all duration-500 hover:shadow-xl hover:-translate-y-1 overflow-hidden"
+            className="group relative bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-sm rounded-2xl p-6 hover:bg-white dark:hover:bg-slate-800 transition-all duration-500 hover:shadow-xl hover:-translate-y-1 overflow-hidden"
         >
             <div className={cn("w-12 h-12 rounded-2xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-500", colorVariants[color])}>
                 <Icon className="w-6 h-6" />
@@ -203,7 +203,7 @@ function ExploreListItem({ href, title, description, icon: Icon, color }: any) {
     return (
         <Link 
             href={href} 
-            className="group flex items-center justify-between p-5 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-sm rounded-[2rem] hover:bg-white dark:hover:bg-slate-800 transition-all duration-500 hover:shadow-lg"
+            className="group flex items-center justify-between p-5 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-sm rounded-2xl hover:bg-white dark:hover:bg-slate-800 transition-all duration-500 hover:shadow-lg"
         >
             <div className="flex items-center gap-4">
                 <div className={cn("w-12 h-12 rounded-2xl flex items-center justify-center group-hover:scale-110 transition-transform duration-500", colorVariants[color])}>
