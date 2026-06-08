@@ -117,23 +117,36 @@ export const recordPopupView = async (
             return;
         }
 
-        // Insert or update view record
-        const query = `
-      INSERT INTO promo_popup_views (popup_id, user_id, device_id, clicked)
-      VALUES ($1, $2, $3, $4)
-      ON CONFLICT (popup_id, user_id) 
-      DO UPDATE SET 
-        clicked = COALESCE(promo_popup_views.clicked, $4),
-        viewed_at = CURRENT_TIMESTAMP
-      RETURNING *
-    `;
+        // Insert or update view record.
+        // The table has TWO unique constraints:
+        //   1. (popup_id, user_id)  — for authenticated users
+        //   2. (popup_id, device_id) — for guests
+        // We must use the correct conflict target based on what identifier we have.
+        // PostgreSQL ON CONFLICT requires naming the exact constraint column(s).
 
-        await pool.query(query, [
-            popupId,
-            userId || null,
-            deviceId || null,
-            clicked || false
-        ]);
+        if (userId) {
+            // Authenticated user: resolve conflict on (popup_id, user_id)
+            await pool.query(
+                `INSERT INTO promo_popup_views (popup_id, user_id, device_id, clicked)
+                 VALUES ($1, $2, $3, $4)
+                 ON CONFLICT (popup_id, user_id)
+                 DO UPDATE SET
+                   clicked = COALESCE(promo_popup_views.clicked OR EXCLUDED.clicked, FALSE),
+                   viewed_at = CURRENT_TIMESTAMP`,
+                [popupId, userId, deviceId || null, clicked || false]
+            );
+        } else {
+            // Guest user: resolve conflict on (popup_id, device_id)
+            await pool.query(
+                `INSERT INTO promo_popup_views (popup_id, user_id, device_id, clicked)
+                 VALUES ($1, $2, $3, $4)
+                 ON CONFLICT (popup_id, device_id)
+                 DO UPDATE SET
+                   clicked = COALESCE(promo_popup_views.clicked OR EXCLUDED.clicked, FALSE),
+                   viewed_at = CURRENT_TIMESTAMP`,
+                [popupId, null, deviceId, clicked || false]
+            );
+        }
 
         res.json({
             status: 'success',

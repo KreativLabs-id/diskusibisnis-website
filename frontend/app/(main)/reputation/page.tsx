@@ -138,7 +138,7 @@ export default function ReputationPage() {
   }
 
   return (
-    <div className="min-h-screen bg-slate-50 dark:bg-slate-950 pb-20 transition-colors duration-200">
+    <div className="min-h-screen bg-[#f8fafc] dark:bg-slate-950 pb-20 transition-colors duration-300">
       {/* Mobile Header - Clean & Minimalist */}
       <div className="sticky top-0 z-30 bg-white/80 dark:bg-slate-900/80 backdrop-blur-md border-b border-slate-200 dark:border-slate-800 px-4 py-3 sm:hidden">
         <div className="flex items-center justify-between">
@@ -150,19 +150,19 @@ export default function ReputationPage() {
         </div>
       </div>
 
-      <div className="max-w-5xl mx-auto px-4 py-6 sm:py-10">
-        {/* Desktop Header */}
-        <div className="hidden sm:block mb-8">
-          <div className="flex items-center gap-4 mb-3">
-            <div className="w-14 h-14 bg-gradient-to-br from-emerald-500 to-teal-600 rounded-2xl flex items-center justify-center shadow-lg shadow-emerald-500/20 transform -rotate-3">
-              <Trophy className="w-7 h-7 text-white" />
-            </div>
-            <div>
-              <h1 className="text-3xl font-bold text-slate-900 dark:text-slate-100">Reputasi Anda</h1>
-              <p className="text-slate-600 dark:text-slate-400 text-lg">
-                Statistik pencapaian dan kontribusi Anda
-              </p>
-            </div>
+      <div className="w-full max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 pb-12 pt-6 sm:pt-14">
+        {/* Professional Minimalist Header */}
+        <div className="hidden sm:flex mb-10 sm:mb-12 flex-col sm:flex-row sm:items-end justify-between gap-6">
+          <div className="space-y-1">
+            <h1 className="text-3xl sm:text-4xl font-bold text-slate-900 dark:text-white tracking-tight flex items-center gap-3">
+              <div className="w-12 h-12 bg-gradient-to-br from-emerald-500 to-teal-600 rounded-2xl flex items-center justify-center shadow-lg shadow-emerald-500/20 transform -rotate-3">
+                <Trophy className="w-6 h-6 text-white" />
+              </div>
+              Reputasi Anda
+            </h1>
+            <p className="text-slate-500 dark:text-slate-400 text-lg">
+              Statistik pencapaian dan riwayat kontribusi Anda.
+            </p>
           </div>
         </div>
 

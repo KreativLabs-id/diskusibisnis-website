@@ -384,16 +384,16 @@ export default function CommunityDetailPage() {
   }
 
   return (
-    <div className="min-h-screen bg-slate-50 pb-20">
+    <div className="min-h-screen bg-[#f8fafc] dark:bg-slate-950 pb-20 transition-colors duration-300">
       {/* Mobile Header - Sticky */}
-      <div className="sticky top-0 z-30 bg-white border-b border-slate-200 px-4 py-3 sm:hidden flex items-center gap-3 shadow-sm">
+      <div className="sticky top-0 z-30 bg-white/80 dark:bg-slate-900/80 backdrop-blur-md border-b border-slate-200 dark:border-slate-800 px-4 py-3 sm:hidden flex items-center gap-3 shadow-sm transition-colors">
         <button
           onClick={() => router.back()}
           className="p-1 -ml-1 text-slate-600 hover:text-slate-900"
         >
           <ArrowLeft className="w-5 h-5" />
         </button>
-        <h1 className="text-lg font-bold text-slate-900 truncate flex-1">{community.name}</h1>
+        <h1 className="text-lg font-bold text-slate-900 dark:text-slate-100 truncate flex-1">{community.name}</h1>
         {user && !community.is_member && (
           <button
             onClick={handleJoinCommunity}
@@ -416,7 +416,7 @@ export default function CommunityDetailPage() {
         </button>
 
         {/* Community Header */}
-        <div className="bg-white rounded-3xl border border-slate-200 overflow-hidden shadow-sm mb-8 relative">
+        <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-sm rounded-[2rem] overflow-hidden shadow-sm mb-8 relative transition-all duration-300">
           {/* Decorative Background */}
           <div className="h-32 sm:h-48 bg-gradient-to-r from-emerald-600 to-emerald-800 relative">
             <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] opacity-10"></div>
@@ -426,8 +426,8 @@ export default function CommunityDetailPage() {
           <div className="px-4 sm:px-8 pb-6 sm:pb-8 relative">
             <div className="flex flex-col sm:flex-row gap-4 sm:gap-6 -mt-12 sm:-mt-16">
               {/* Avatar */}
-              <div className="w-24 h-24 sm:w-32 sm:h-32 bg-white rounded-2xl p-1.5 shadow-lg shrink-0 mx-auto sm:mx-0">
-                <div className="w-full h-full bg-emerald-100 rounded-xl flex items-center justify-center text-emerald-600 font-bold text-3xl sm:text-4xl border border-emerald-100">
+              <div className="w-24 h-24 sm:w-32 sm:h-32 bg-white dark:bg-slate-800 rounded-2xl p-1.5 shadow-lg shrink-0 mx-auto sm:mx-0 z-10">
+                <div className="w-full h-full bg-emerald-100 dark:bg-emerald-900/40 rounded-xl flex items-center justify-center text-emerald-600 dark:text-emerald-400 font-bold text-3xl sm:text-4xl border border-emerald-100 dark:border-emerald-800/50">
                   {community.name.charAt(0)}
                 </div>
               </div>
@@ -436,9 +436,9 @@ export default function CommunityDetailPage() {
               <div className="flex-1 text-center sm:text-left pt-4 sm:pt-20">
                 <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4">
                   <div>
-                    <h1 className="text-2xl sm:text-3xl font-bold text-slate-900 mb-2">{community.name}</h1>
-                    <div className="flex flex-wrap items-center justify-center sm:justify-start gap-3 text-sm text-slate-600 mb-4">
-                      <span className="px-2.5 py-0.5 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-100 font-medium">
+                    <h1 className="text-2xl sm:text-3xl font-bold text-slate-900 dark:text-white mb-2">{community.name}</h1>
+                    <div className="flex flex-wrap items-center justify-center sm:justify-start gap-3 text-sm text-slate-600 dark:text-slate-400 mb-4">
+                      <span className="px-2.5 py-0.5 rounded-full bg-emerald-50 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400 border border-emerald-100 dark:border-emerald-800 font-medium">
                         {community.category}
                       </span>
                       {community.location && (
@@ -452,12 +452,12 @@ export default function CommunityDetailPage() {
                         {community.members_count} anggota
                       </span>
                     </div>
-                    <p className="text-slate-600 text-sm sm:text-base leading-relaxed max-w-2xl mx-auto sm:mx-0 mb-4">
+                    <p className="text-slate-600 dark:text-slate-400 text-sm sm:text-base leading-relaxed max-w-2xl mx-auto sm:mx-0 mb-4">
                       {community.description}
                     </p>
                     <div className="flex items-center justify-center sm:justify-start gap-2 text-xs text-slate-400">
                       <Calendar className="w-3 h-3" />
-                      <span>Dibuat {formatDate(community.created_at)} oleh <span className="font-medium text-slate-600">{community.creator_name}</span></span>
+                      <span>Dibuat {formatDate(community.created_at)} oleh <span className="font-medium text-slate-600 dark:text-slate-300">{community.creator_name}</span></span>
                     </div>
                   </div>
 
@@ -482,7 +482,7 @@ export default function CommunityDetailPage() {
 
                     {community.is_member && (
                       <>
-                        <div className="flex items-center justify-center gap-2 w-full px-4 py-2.5 bg-emerald-50 text-emerald-700 rounded-xl border border-emerald-100 font-medium">
+                        <div className="flex items-center justify-center gap-2 w-full px-4 py-2.5 bg-emerald-50 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400 rounded-xl border border-emerald-100 dark:border-emerald-800 font-medium">
                           <Users className="w-4 h-4" />
                           <span>Member</span>
                           {community.user_role === 'admin' && (
@@ -512,7 +512,7 @@ export default function CommunityDetailPage() {
                     {canEditCommunity && (
                       <button
                         onClick={openEditModal}
-                        className="flex items-center justify-center gap-2 w-full px-4 py-2 bg-slate-100 text-slate-700 rounded-xl hover:bg-slate-200 transition-all font-medium text-sm"
+                        className="flex items-center justify-center gap-2 w-full px-4 py-2 bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 rounded-xl hover:bg-slate-200 dark:hover:bg-slate-700 transition-all font-medium text-sm"
                       >
                         <Edit className="w-4 h-4" />
                         <span>Edit Info</span>
@@ -531,12 +531,12 @@ export default function CommunityDetailPage() {
             onClick={() => setActiveTab('questions')}
             className={`flex items-center gap-2 px-4 py-2.5 rounded-full text-sm font-medium transition-all whitespace-nowrap ${activeTab === 'questions'
                 ? 'bg-emerald-600 text-white shadow-md shadow-emerald-600/20'
-                : 'bg-white text-slate-600 hover:bg-slate-50 border border-slate-200'
+                : 'bg-white dark:bg-slate-900 text-slate-600 dark:text-slate-400 hover:bg-white dark:hover:bg-slate-800 border border-white dark:border-slate-800'
               }`}
           >
             <MessageSquare className="w-4 h-4" />
             Diskusi
-            <span className={`ml-1 px-1.5 py-0.5 rounded-full text-[10px] ${activeTab === 'questions' ? 'bg-white/20 text-white' : 'bg-slate-100 text-slate-600'}`}>
+            <span className={`ml-1 px-1.5 py-0.5 rounded-full text-[10px] ${activeTab === 'questions' ? 'bg-white/20 text-white' : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400'}`}>
               {questions.length}
             </span>
           </button>
@@ -544,7 +544,7 @@ export default function CommunityDetailPage() {
             onClick={() => setActiveTab('overview')}
             className={`flex items-center gap-2 px-4 py-2.5 rounded-full text-sm font-medium transition-all whitespace-nowrap ${activeTab === 'overview'
                 ? 'bg-emerald-600 text-white shadow-md shadow-emerald-600/20'
-                : 'bg-white text-slate-600 hover:bg-slate-50 border border-slate-200'
+                : 'bg-white dark:bg-slate-900 text-slate-600 dark:text-slate-400 hover:bg-white dark:hover:bg-slate-800 border border-white dark:border-slate-800'
               }`}
           >
             <Tag className="w-4 h-4" />
@@ -554,12 +554,12 @@ export default function CommunityDetailPage() {
             onClick={() => setActiveTab('members')}
             className={`flex items-center gap-2 px-4 py-2.5 rounded-full text-sm font-medium transition-all whitespace-nowrap ${activeTab === 'members'
                 ? 'bg-emerald-600 text-white shadow-md shadow-emerald-600/20'
-                : 'bg-white text-slate-600 hover:bg-slate-50 border border-slate-200'
+                : 'bg-white dark:bg-slate-900 text-slate-600 dark:text-slate-400 hover:bg-white dark:hover:bg-slate-800 border border-white dark:border-slate-800'
               }`}
           >
             <Users className="w-4 h-4" />
             Anggota
-            <span className={`ml-1 px-1.5 py-0.5 rounded-full text-[10px] ${activeTab === 'members' ? 'bg-white/20 text-white' : 'bg-slate-100 text-slate-600'}`}>
+            <span className={`ml-1 px-1.5 py-0.5 rounded-full text-[10px] ${activeTab === 'members' ? 'bg-white/20 text-white' : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400'}`}>
               {community.members_count}
             </span>
           </button>
@@ -570,7 +570,7 @@ export default function CommunityDetailPage() {
           {activeTab === 'questions' && (
             <div className="space-y-6">
               <div className="flex items-center justify-between">
-                <h3 className="text-lg font-bold text-slate-900">Diskusi Terbaru</h3>
+                <h3 className="text-lg font-bold text-slate-900 dark:text-white">Diskusi Terbaru</h3>
                 {community.is_member && (
                   <Link
                     href={`/ask?community=${community.slug}`}
@@ -583,12 +583,12 @@ export default function CommunityDetailPage() {
               </div>
 
               {questions.length === 0 ? (
-                <div className="bg-white rounded-2xl border border-dashed border-slate-300 p-12 text-center">
-                  <div className="w-16 h-16 bg-slate-50 rounded-full flex items-center justify-center mx-auto mb-4">
-                    <MessageSquare className="w-8 h-8 text-slate-300" />
+                <div className="bg-white/60 dark:bg-slate-900/40 backdrop-blur-md rounded-2xl border border-white dark:border-slate-800/60 p-12 text-center shadow-sm">
+                  <div className="w-16 h-16 bg-slate-100 dark:bg-slate-800 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <MessageSquare className="w-8 h-8 text-slate-400 dark:text-slate-500" />
                   </div>
-                  <h3 className="text-lg font-bold text-slate-900 mb-2">Belum ada diskusi</h3>
-                  <p className="text-slate-500 mb-6">Jadilah yang pertama memulai diskusi di komunitas ini!</p>
+                  <h3 className="text-lg font-bold text-slate-900 dark:text-white mb-2">Belum ada diskusi</h3>
+                  <p className="text-slate-500 dark:text-slate-400 mb-6">Jadilah yang pertama memulai diskusi di komunitas ini!</p>
                   {community.is_member && (
                     <Link
                       href={`/ask?community=${community.slug}`}
@@ -604,19 +604,19 @@ export default function CommunityDetailPage() {
                     <Link
                       key={question.id}
                       href={`/questions/${question.id}`}
-                      className="block bg-white p-5 rounded-2xl border border-slate-200 hover:border-emerald-500/50 hover:shadow-md transition-all group"
+                      className="group relative block bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-sm rounded-[1.5rem] p-5 sm:p-6 hover:bg-white dark:hover:bg-slate-800 transition-all duration-500 hover:shadow-xl hover:shadow-emerald-500/5 cursor-pointer overflow-hidden"
                     >
                       <div className="flex items-start gap-4">
                         <div className="flex-1 min-w-0">
-                          <h4 className="text-lg font-bold text-slate-900 mb-2 group-hover:text-emerald-600 transition-colors line-clamp-2">
+                          <h4 className="text-lg font-bold text-slate-900 dark:text-white mb-2 group-hover:text-emerald-600 transition-colors line-clamp-2">
                             {question.title}
                           </h4>
-                          <div className="flex flex-wrap items-center gap-4 text-sm text-slate-500 mb-3">
+                          <div className="flex flex-wrap items-center gap-4 text-sm text-slate-500 dark:text-slate-400 mb-3">
                             <div className="flex items-center gap-1.5">
                               <MessageSquare className="w-4 h-4" />
                               <span>{question.answer_count} jawaban</span>
                             </div>
-                            <div className="flex items-center gap-1.5 text-emerald-600 font-medium">
+                            <div className="flex items-center gap-1.5 text-emerald-600 dark:text-emerald-500 font-medium">
                               <TrendingUp className="w-4 h-4" />
                               <span>{question.upvote_count} upvote</span>
                             </div>
@@ -628,9 +628,9 @@ export default function CommunityDetailPage() {
                               size="xs"
                               fallbackName={question.author_name}
                             />
-                            <span className="text-xs font-medium text-slate-700">{question.author_name}</span>
+                            <span className="text-xs font-medium text-slate-700 dark:text-slate-300">{question.author_name}</span>
                             {question.tags?.map((tag: any) => (
-                              <span key={tag.id} className="px-2 py-0.5 bg-slate-100 text-slate-600 text-[10px] rounded-full font-medium">
+                              <span key={tag.id} className="px-2 py-0.5 bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 border border-slate-200 dark:border-slate-700 text-[10px] rounded-full font-medium">
                                 {tag.name}
                               </span>
                             ))}
@@ -647,63 +647,63 @@ export default function CommunityDetailPage() {
           {activeTab === 'overview' && (
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
               <div className="lg:col-span-2 space-y-6">
-                <div className="bg-white rounded-2xl border border-slate-200 p-6 shadow-sm">
+                <div className="bg-white/60 dark:bg-slate-900/40 backdrop-blur-md rounded-[2rem] border border-white dark:border-slate-800/60 p-6 sm:p-8 shadow-sm transition-colors">
                   <div className="flex items-center justify-between mb-4">
-                    <h3 className="text-lg font-bold text-slate-900">Tentang Komunitas</h3>
+                    <h3 className="text-lg font-bold text-slate-900 dark:text-white">Tentang Komunitas</h3>
                     <Link
                       href={`/communities/${community.slug}/about`}
-                      className="text-sm font-medium text-emerald-600 hover:text-emerald-700 hover:underline"
+                      className="text-sm font-medium text-emerald-600 hover:text-emerald-700 dark:text-emerald-500 hover:underline"
                     >
                       Lihat Selengkapnya →
                     </Link>
                   </div>
-                  <p className="text-slate-600 leading-relaxed whitespace-pre-wrap">
+                  <p className="text-slate-600 dark:text-slate-400 leading-relaxed whitespace-pre-wrap">
                     {community.description}
                   </p>
 
                   {community.vision && (
-                    <div className="mt-6 pt-6 border-t border-slate-100">
-                      <h4 className="font-bold text-slate-900 mb-2 flex items-center gap-2">
+                    <div className="mt-6 pt-6 border-t border-slate-200 dark:border-slate-800">
+                      <h4 className="font-bold text-slate-900 dark:text-white mb-2 flex items-center gap-2">
                         <Target className="w-4 h-4 text-emerald-600" />
                         Visi
                       </h4>
-                      <p className="text-slate-600 text-sm">{community.vision}</p>
+                      <p className="text-slate-600 dark:text-slate-400 text-sm">{community.vision}</p>
                     </div>
                   )}
                 </div>
               </div>
 
               <div className="space-y-6">
-                <div className="bg-white rounded-2xl border border-slate-200 p-6 shadow-sm">
-                  <h3 className="font-bold text-slate-900 mb-4">Informasi</h3>
+                <div className="bg-white/60 dark:bg-slate-900/40 backdrop-blur-md rounded-[2rem] border border-white dark:border-slate-800/60 p-6 sm:p-8 shadow-sm transition-colors">
+                  <h3 className="font-bold text-slate-900 dark:text-white mb-4">Informasi</h3>
                   <div className="space-y-4">
                     <div className="flex items-center gap-3">
-                      <div className="w-8 h-8 bg-slate-50 rounded-lg flex items-center justify-center text-slate-400">
+                      <div className="w-8 h-8 bg-slate-100 dark:bg-slate-800 rounded-lg flex items-center justify-center text-slate-500 dark:text-slate-400">
                         <Tag className="w-4 h-4" />
                       </div>
                       <div>
-                        <p className="text-xs text-slate-500">Kategori</p>
-                        <p className="text-sm font-medium text-slate-900">{community.category}</p>
+                        <p className="text-xs text-slate-500 dark:text-slate-400">Kategori</p>
+                        <p className="text-sm font-medium text-slate-900 dark:text-white">{community.category}</p>
                       </div>
                     </div>
                     {community.location && (
                       <div className="flex items-center gap-3">
-                        <div className="w-8 h-8 bg-slate-50 rounded-lg flex items-center justify-center text-slate-400">
+                        <div className="w-8 h-8 bg-slate-100 dark:bg-slate-800 rounded-lg flex items-center justify-center text-slate-500 dark:text-slate-400">
                           <MapPin className="w-4 h-4" />
                         </div>
                         <div>
-                          <p className="text-xs text-slate-500">Lokasi</p>
-                          <p className="text-sm font-medium text-slate-900">{community.location}</p>
+                          <p className="text-xs text-slate-500 dark:text-slate-400">Lokasi</p>
+                          <p className="text-sm font-medium text-slate-900 dark:text-white">{community.location}</p>
                         </div>
                       </div>
                     )}
                     <div className="flex items-center gap-3">
-                      <div className="w-8 h-8 bg-slate-50 rounded-lg flex items-center justify-center text-slate-400">
+                      <div className="w-8 h-8 bg-slate-100 dark:bg-slate-800 rounded-lg flex items-center justify-center text-slate-500 dark:text-slate-400">
                         <Calendar className="w-4 h-4" />
                       </div>
                       <div>
-                        <p className="text-xs text-slate-500">Dibuat pada</p>
-                        <p className="text-sm font-medium text-slate-900">{formatDate(community.created_at)}</p>
+                        <p className="text-xs text-slate-500 dark:text-slate-400">Dibuat pada</p>
+                        <p className="text-sm font-medium text-slate-900 dark:text-white">{formatDate(community.created_at)}</p>
                       </div>
                     </div>
                   </div>
@@ -715,7 +715,7 @@ export default function CommunityDetailPage() {
           {activeTab === 'members' && (
             <div>
               <div className="flex items-center justify-between mb-6">
-                <h3 className="text-lg font-bold text-slate-900">Anggota ({members.length})</h3>
+                <h3 className="text-lg font-bold text-slate-900 dark:text-white">Anggota ({members.length})</h3>
               </div>
 
               {members.length === 0 ? (
@@ -723,7 +723,7 @@ export default function CommunityDetailPage() {
               ) : (
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
                   {members.map((member) => (
-                    <div key={member.id} className="bg-white p-4 rounded-2xl border border-slate-200 flex items-center gap-3 hover:shadow-md transition-all">
+                    <div key={member.id} className="bg-white/60 dark:bg-slate-900/40 backdrop-blur-md p-4 rounded-[1.5rem] border border-white dark:border-slate-800/60 flex items-center gap-3 hover:shadow-md transition-all group">
                       <UserAvatar
                         src={member.avatar_url}
                         alt={member.display_name}
@@ -732,10 +732,10 @@ export default function CommunityDetailPage() {
                       />
                       <div className="flex-1 min-w-0">
                         <div className="flex items-center gap-1">
-                          <p className="font-bold text-slate-900 truncate text-sm">{member.display_name}</p>
+                          <p className="font-bold text-slate-900 dark:text-white truncate text-sm">{member.display_name}</p>
                           <VerifiedBadge isVerified={member.is_verified || false} size="sm" />
                         </div>
-                        <div className="flex items-center gap-1.5 text-xs text-slate-500 mt-0.5">
+                        <div className="flex items-center gap-1.5 text-xs text-slate-500 dark:text-slate-400 mt-0.5">
                           {getRoleIcon(member.role)}
                           <span>{getRoleLabel(member.role)}</span>
                         </div>

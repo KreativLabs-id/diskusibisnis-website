@@ -56,6 +56,9 @@ export default function HomePage() {
   const [sortBy, setSortByState] = useState<'newest' | 'popular' | 'unanswered'>('newest');
   const [pageSize, setPageSize] = useState(10);
   const [currentPage, setCurrentPage] = useState(1);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [searchInput, setSearchInput] = useState('');
+  const searchDebounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   // Sync sortBy state with session storage
   useEffect(() => {
@@ -232,7 +235,23 @@ export default function HomePage() {
 
   useEffect(() => {
     setCurrentPage(1);
-  }, [sortBy, tagParam, pageSize]);
+  }, [sortBy, tagParam, pageSize, searchQuery]);
+
+  // Debounced search — 300ms delay sesuai UX best practice
+  const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const val = e.target.value;
+    setSearchInput(val);
+    if (searchDebounceRef.current) clearTimeout(searchDebounceRef.current);
+    searchDebounceRef.current = setTimeout(() => {
+      setSearchQuery(val.trim());
+    }, 300);
+  };
+
+  const handleSearchClear = () => {
+    setSearchInput('');
+    setSearchQuery('');
+    if (searchDebounceRef.current) clearTimeout(searchDebounceRef.current);
+  };
 
   const sortOptions = [
     { value: 'newest', label: 'Terbaru', icon: Clock },
@@ -254,8 +273,20 @@ export default function HomePage() {
     .sort((a, b) => b.count - a.count)
     .slice(0, 6);
 
-  const totalPages = Math.max(1, Math.ceil(questions.length / pageSize));
-  const paginatedQuestions = questions.slice((currentPage - 1) * pageSize, currentPage * pageSize);
+  // Filter questions client-side berdasarkan searchQuery
+  const filteredQuestions = searchQuery
+    ? questions.filter((q) => {
+        const q_lower = searchQuery.toLowerCase();
+        return (
+          q.title.toLowerCase().includes(q_lower) ||
+          q.content.toLowerCase().includes(q_lower) ||
+          (q.tags || []).some((t) => t.name.toLowerCase().includes(q_lower))
+        );
+      })
+    : questions;
+
+  const totalPages = Math.max(1, Math.ceil(filteredQuestions.length / pageSize));
+  const paginatedQuestions = filteredQuestions.slice((currentPage - 1) * pageSize, currentPage * pageSize);
 
   const handleReport = (questionId: string, title: string) => {
     if (!user) {
@@ -336,6 +367,8 @@ export default function HomePage() {
             <p className="text-slate-500 dark:text-slate-400 text-lg">
               {currentTag
                 ? `Menampilkan diskusi dengan topik ${currentTag.name}.`
+                : searchQuery
+                ? `${filteredQuestions.length} hasil dari ${questions.length} diskusi.`
                 : `Temukan wawasan dari ${questions.length} diskusi aktif UMKM Indonesia.`}
             </p>
           </div>
@@ -350,31 +383,42 @@ export default function HomePage() {
 
         {/* Integrated Search & Sort - Glassmorphism */}
         <div 
-          className="sticky z-40 mb-12"
-          style={{ top: 'calc(var(--header-height, 64px) + 1rem)' }}
+          className="sticky z-40 mb-6 sm:mb-12"
+          style={{ top: 'calc(var(--header-height, 64px) + 0.5rem)' }}
         >
-          <div className="bg-white/70 dark:bg-slate-900/70 backdrop-blur-xl border border-white dark:border-slate-800/50 rounded-2xl p-2 shadow-xl shadow-slate-200/50 dark:shadow-none flex flex-col lg:flex-row gap-2">
+          <div className="bg-white/70 dark:bg-slate-900/70 backdrop-blur-xl border border-white dark:border-slate-800/50 rounded-xl sm:rounded-2xl p-1.5 sm:p-2 shadow-lg sm:shadow-xl shadow-slate-200/50 dark:shadow-none flex flex-col lg:flex-row gap-2">
             <div className="relative flex-1">
-              <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" />
+              <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 sm:w-5 sm:h-5 text-slate-400" />
               <input
                 type="text"
+                value={searchInput}
+                onChange={handleSearchChange}
                 placeholder="Cari diskusi, topik, atau kata kunci..."
-                className="w-full bg-transparent pl-12 pr-4 py-3 text-slate-900 dark:text-white placeholder:text-slate-400 outline-none"
+                className="w-full bg-transparent pl-10 sm:pl-12 pr-10 py-2 sm:py-3 text-sm sm:text-base text-slate-900 dark:text-white placeholder:text-slate-400 outline-none"
               />
+              {searchInput && (
+                <button
+                  onClick={handleSearchClear}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 p-0.5 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 transition-colors"
+                  aria-label="Hapus pencarian"
+                >
+                  <X className="w-4 h-4" />
+                </button>
+              )}
             </div>
-            <div className="flex gap-1 p-1 bg-slate-100/50 dark:bg-slate-800/50 rounded-xl overflow-x-auto scrollbar-hide">
+            <div className="grid grid-cols-3 lg:flex gap-0.5 sm:gap-1 p-0.5 sm:p-1 bg-slate-100/50 dark:bg-slate-800/50 rounded-xl">
               {sortOptions.map((option) => (
                 <button
                   key={option.value}
                   onClick={() => setSortBy(option.value as any)}
                   className={cn(
-                    "px-5 py-2.5 rounded-lg text-xs font-black uppercase tracking-wider transition-all whitespace-nowrap flex items-center gap-2",
+                    "px-3 sm:px-5 py-1.5 sm:py-2.5 rounded-md sm:rounded-lg text-[10px] sm:text-xs font-black uppercase tracking-wider transition-all whitespace-nowrap flex items-center justify-center gap-2",
                     sortBy === option.value
                       ? "bg-white dark:bg-slate-700 text-slate-900 dark:text-white shadow-sm"
                       : "text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200"
                   )}
                 >
-                  <option.icon className="w-3.5 h-3.5" />
+                  <option.icon className="w-3.5 h-3.5 hidden sm:block" />
                   {option.label}
                 </button>
               ))}
@@ -387,8 +431,26 @@ export default function HomePage() {
           <div ref={listTopRef} className="space-y-6">
             {loading ? (
               renderSkeleton
-            ) : questions.length === 0 ? (
-              renderEmptyState
+            ) : filteredQuestions.length === 0 ? (
+              searchQuery ? (
+                <div className="py-16 text-center">
+                  <div className="inline-flex w-16 h-16 bg-slate-100 dark:bg-slate-800 rounded-full items-center justify-center mb-4">
+                    <Search className="w-8 h-8 text-slate-400" />
+                  </div>
+                  <h3 className="text-lg font-bold text-slate-900 dark:text-white mb-2">
+                    Tidak ada hasil untuk &ldquo;{searchQuery}&rdquo;
+                  </h3>
+                  <p className="text-slate-500 dark:text-slate-400 mb-4 text-sm">
+                    Coba gunakan kata kunci lain atau hapus filter pencarian.
+                  </p>
+                  <button
+                    onClick={handleSearchClear}
+                    className="text-emerald-600 dark:text-emerald-400 text-sm font-semibold hover:underline"
+                  >
+                    Hapus pencarian
+                  </button>
+                </div>
+              ) : renderEmptyState
             ) : (
               paginatedQuestions.map((question) => (
                 <QuestionCard
@@ -401,8 +463,8 @@ export default function HomePage() {
             )}
 
             {/* Pagination - Professional Style */}
-            {!loading && questions.length > pageSize && (
-              <div className="mt-12 flex flex-col sm:flex-row items-center justify-between gap-6 p-6 bg-white/60 dark:bg-slate-900/40 backdrop-blur-md border border-white dark:border-slate-800/60 rounded-[2rem]">
+            {!loading && filteredQuestions.length > pageSize && (
+              <div className="mt-12 flex flex-col sm:flex-row items-center justify-between gap-6 p-6 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-sm rounded-[2rem]">
                 <div className="flex items-center gap-3">
                   <span className="text-xs font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest">Tampil</span>
                   <select
@@ -446,7 +508,7 @@ export default function HomePage() {
           {/* Right Sidebar - Professional Premium Cards */}
           <aside className="hidden lg:block space-y-8">
             {/* Topik Populer */}
-            <div className="group relative bg-white/60 dark:bg-slate-900/40 backdrop-blur-md border border-white dark:border-slate-800/60 rounded-[2rem] p-8 hover:bg-white dark:hover:bg-slate-800 transition-all duration-500 overflow-hidden shadow-sm">
+            <div className="group relative bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-sm rounded-[2rem] p-8 hover:bg-white dark:hover:bg-slate-800 transition-all duration-500 overflow-hidden shadow-sm">
               <div className="absolute -top-12 -right-12 w-32 h-32 bg-emerald-500/5 rounded-full blur-3xl group-hover:bg-emerald-500/10 transition-colors" />
               <div className="relative z-10">
                 <div className="flex items-center gap-2 mb-6">
@@ -506,7 +568,7 @@ export default function HomePage() {
             </div>
 
             {/* Aksi Cepat */}
-            <div className="group relative bg-white/60 dark:bg-slate-900/40 backdrop-blur-md border border-white dark:border-slate-800/60 rounded-[2rem] p-8 hover:bg-white dark:hover:bg-slate-800 transition-all duration-500 overflow-hidden shadow-sm">
+            <div className="group relative bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-sm rounded-[2rem] p-8 hover:bg-white dark:hover:bg-slate-800 transition-all duration-500 overflow-hidden shadow-sm">
               <div className="relative z-10">
                 <div className="flex items-center gap-2 mb-6">
                   <Trophy className="h-5 w-5 text-amber-500" />

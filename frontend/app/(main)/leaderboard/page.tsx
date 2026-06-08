@@ -94,7 +94,7 @@ export default function LeaderboardPage() {
                 )}
 
                 {/* List of Other Contributors */}
-                <div className="bg-white/60 dark:bg-slate-900/40 backdrop-blur-md border border-white dark:border-slate-800/60 rounded-[2.5rem] overflow-hidden shadow-xl shadow-slate-200/50 dark:shadow-none">
+                <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-sm rounded-[2.5rem] overflow-hidden shadow-xl shadow-slate-200/50 dark:shadow-none">
                     <div className="px-6 py-4 border-b border-slate-100 dark:border-slate-800/60 flex items-center justify-between bg-slate-50/50 dark:bg-slate-800/30">
                         <span className="text-[10px] font-bold text-slate-400 dark:text-slate-500">Peringkat & anggota</span>
                         <span className="text-[10px] font-bold text-slate-400 dark:text-slate-500">Kontribusi reputasi</span>
@@ -189,7 +189,7 @@ function LeaderboardSpotlightCard({ user, rank, isMain }: { user: any, rank: num
         <Link
             href={getProfileHref({ username: user.username, display_name: user.display_name })}
             className={cn(
-                "group relative bg-white/60 dark:bg-slate-900/40 backdrop-blur-md border border-white dark:border-slate-800/60 rounded-[2.5rem] p-8 flex flex-col items-center text-center transition-all duration-500 hover:shadow-2xl hover:-translate-y-2",
+                "group relative bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-sm rounded-[2.5rem] p-8 flex flex-col items-center text-center transition-all duration-500 hover:shadow-2xl hover:-translate-y-2",
                 isMain ? "md:pb-12 md:pt-14 ring-2 ring-emerald-500/20 shadow-emerald-500/10 bg-white/80 dark:bg-slate-900/60" : "opacity-90 hover:opacity-100"
             )}
         >

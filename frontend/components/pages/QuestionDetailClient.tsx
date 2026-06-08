@@ -988,7 +988,7 @@ export default function QuestionDetailClient({ initialQuestion, questionId }: Qu
                                 </p>
                                 <div className="flex gap-4">
                                     <Link
-                                        href="/login"
+                                        href={`/login?callbackUrl=${encodeURIComponent(`/questions/${questionId}`)}`}
                                         className="px-6 py-2.5 bg-[#2F855A] text-white rounded font-medium hover:bg-[#276F4B] transition-colors shadow-sm"
                                     >
                                         Log in

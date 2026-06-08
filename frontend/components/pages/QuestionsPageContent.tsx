@@ -148,7 +148,7 @@ export default function QuestionsPageContent() {
       {[1, 2, 3, 4, 5].map((i) => (
         <div
           key={i}
-          className="bg-white/60 dark:bg-slate-900/40 backdrop-blur-md border border-white dark:border-slate-800/60 rounded-[2rem] p-6 animate-pulse"
+          className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-sm rounded-[2rem] p-6 animate-pulse"
         >
           <div className="flex gap-6">
             <div className="flex-1 space-y-3">
@@ -191,33 +191,33 @@ export default function QuestionsPageContent() {
 
       {/* Integrated Search & Filter - Clean UI */}
       <div 
-        className="sticky z-40 mb-12"
-        style={{ top: 'calc(var(--header-height, 64px) + 1rem)' }}
+        className="sticky z-40 mb-6 sm:mb-12"
+        style={{ top: 'calc(var(--header-height, 64px) + 0.5rem)' }}
       >
-        <div className="bg-white/70 dark:bg-slate-900/70 backdrop-blur-xl border border-white dark:border-slate-800/50 rounded-2xl p-2 shadow-xl shadow-slate-200/50 dark:shadow-none flex flex-col lg:flex-row gap-2">
+        <div className="bg-white/70 dark:bg-slate-900/70 backdrop-blur-xl border border-white dark:border-slate-800/50 rounded-xl sm:rounded-2xl p-1.5 sm:p-2 shadow-lg sm:shadow-xl shadow-slate-200/50 dark:shadow-none flex flex-col lg:flex-row gap-2">
           <div className="relative flex-1">
-            <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" />
+            <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 sm:w-5 sm:h-5 text-slate-400" />
             <input
               type="text"
               placeholder="Cari pertanyaan, topik, atau kata kunci..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full bg-transparent pl-12 pr-4 py-3 text-slate-900 dark:text-white placeholder:text-slate-400 outline-none"
+              className="w-full bg-transparent pl-10 sm:pl-12 pr-4 py-2 sm:py-3 text-sm sm:text-base text-slate-900 dark:text-white placeholder:text-slate-400 outline-none"
             />
           </div>
-          <div className="flex gap-1 p-1 bg-slate-100/50 dark:bg-slate-800/50 rounded-xl overflow-x-auto scrollbar-hide">
+          <div className="grid grid-cols-3 lg:flex gap-0.5 sm:gap-1 p-0.5 sm:p-1 bg-slate-100/50 dark:bg-slate-800/50 rounded-xl">
             {sortOptions.map((option) => (
               <button
                 key={option.value}
                 onClick={() => setSortBy(option.value as any)}
                 className={cn(
-                  "px-5 py-2.5 rounded-lg text-xs font-black uppercase tracking-wider transition-all whitespace-nowrap flex items-center gap-2",
+                  "px-3 sm:px-5 py-1.5 sm:py-2.5 rounded-md sm:rounded-lg text-[10px] sm:text-xs font-black uppercase tracking-wider transition-all whitespace-nowrap flex items-center justify-center gap-2",
                   sortByState === option.value
                     ? "bg-white dark:bg-slate-700 text-slate-900 dark:text-white shadow-sm"
                     : "text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200"
                 )}
               >
-                <option.icon className="w-3.5 h-3.5" />
+                <option.icon className="w-3.5 h-3.5 hidden sm:block" />
                 {option.label}
               </button>
             ))}
@@ -254,7 +254,7 @@ export default function QuestionsPageContent() {
         {/* Desktop Right Sidebar */}
         <aside className="hidden lg:block space-y-8">
           {/* Topik Populer - Premium Card */}
-          <div className="group relative bg-white/60 dark:bg-slate-900/40 backdrop-blur-md border border-white dark:border-slate-800/60 rounded-[2rem] p-8 hover:bg-white dark:hover:bg-slate-800/60 transition-all duration-500 overflow-hidden shadow-sm">
+          <div className="group relative bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-sm rounded-[2rem] p-8 hover:bg-white dark:hover:bg-slate-800/60 transition-all duration-500 overflow-hidden shadow-sm">
             <div className="absolute -top-12 -right-12 w-32 h-32 bg-emerald-500/5 rounded-full blur-3xl group-hover:bg-emerald-500/10 transition-colors" />
             <div className="relative z-10">
               <div className="flex items-center gap-2 mb-6">
@@ -309,7 +309,7 @@ export default function QuestionsPageContent() {
           </div>
 
           {/* Leaderboard/Stats Mini Card */}
-          <div className="group relative bg-white/60 dark:bg-slate-900/40 backdrop-blur-md border border-white dark:border-slate-800/60 rounded-[2rem] p-8 hover:bg-white dark:hover:bg-slate-800/60 transition-all duration-500 overflow-hidden shadow-sm">
+          <div className="group relative bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-sm rounded-[2rem] p-8 hover:bg-white dark:hover:bg-slate-800/60 transition-all duration-500 overflow-hidden shadow-sm">
             <div className="relative z-10">
               <div className="flex items-center gap-2 mb-6">
                 <Trophy className="h-5 w-5 text-amber-500" />

@@ -154,7 +154,7 @@ export default function MyTicketsPage() {
   // Show loading while checking auth
   if (authLoading || initialLoading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-slate-50 dark:bg-slate-950 transition-colors duration-200">
+      <div className="min-h-screen flex items-center justify-center bg-[#f8fafc] dark:bg-slate-950 transition-colors duration-200">
         <div className="text-center">
           <Loader2 className="w-8 h-8 text-emerald-600 animate-spin mx-auto mb-4" />
           <p className="text-slate-600 dark:text-slate-400">Memuat...</p>
@@ -166,7 +166,7 @@ export default function MyTicketsPage() {
   // Show login prompt for guests
   if (!user) {
     return (
-      <div className="min-h-screen py-12 px-4 sm:px-6 lg:px-8 bg-slate-50 dark:bg-slate-950 transition-colors duration-200">
+      <div className="min-h-screen py-12 px-4 sm:px-6 lg:px-8 bg-[#f8fafc] dark:bg-slate-950 transition-colors duration-200">
         <div className="max-w-md mx-auto text-center">
           <div className="w-20 h-20 bg-emerald-100 dark:bg-emerald-900/30 rounded-full flex items-center justify-center mx-auto mb-6">
             <Inbox className="w-10 h-10 text-emerald-600 dark:text-emerald-400" />
@@ -198,7 +198,7 @@ export default function MyTicketsPage() {
   // Detail View
   if (showDetail && selectedTicket) {
     return (
-      <div className="min-h-screen py-8 px-4 bg-slate-50 dark:bg-slate-950 transition-colors duration-200">
+      <div className="min-h-screen py-8 px-4 bg-[#f8fafc] dark:bg-slate-950 transition-colors duration-200">
         <div className="max-w-3xl mx-auto">
           {/* Navigation */}
           <button
@@ -334,7 +334,7 @@ export default function MyTicketsPage() {
   }
 
   return (
-    <div className="min-h-screen py-12 px-4 sm:px-6 lg:px-8 bg-slate-50 dark:bg-slate-950 transition-colors duration-200">
+    <div className="min-h-screen py-12 px-4 sm:px-6 lg:px-8 bg-[#f8fafc] dark:bg-slate-950 transition-colors duration-200">
       <div className="max-w-3xl mx-auto">
         {/* Header */}
         <div className="mb-10">

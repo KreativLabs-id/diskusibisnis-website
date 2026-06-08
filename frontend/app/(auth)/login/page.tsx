@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { useAuth } from '@/contexts/AuthContext';
 import { Mail, Lock, AlertCircle, ArrowRight, Eye, EyeOff } from 'lucide-react';
@@ -17,14 +17,17 @@ export default function LoginPage() {
   const [loading, setLoading] = useState(false);
   const { login, googleLogin, user, loading: authLoading } = useAuth();
   const router = useRouter();
+  const searchParams = useSearchParams();
 
-  /* Client-side redirect disabled to fix access issues
+  // Get callbackUrl from query params (set by middleware when redirecting to login)
+  const callbackUrl = searchParams.get('callbackUrl') || '/';
+
+  // Redirect already-authenticated users away from login page
   useEffect(() => {
     if (!authLoading && user) {
-      router.push('/');
+      router.replace(callbackUrl);
     }
-  }, [user, authLoading, router]);
-  */
+  }, [user, authLoading, router, callbackUrl]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -33,7 +36,7 @@ export default function LoginPage() {
 
     try {
       await login(formData.email, formData.password);
-      router.push('/');
+      router.push(callbackUrl);
     } catch (err: any) {
       // Handle different error scenarios
       if (err.response) {
@@ -62,7 +65,7 @@ export default function LoginPage() {
     setLoading(true);
     try {
       await googleLogin(credential);
-      router.push('/');
+      router.push(callbackUrl);
     } catch (err: any) {
       if (err.response) {
         const message = err.response.data?.message || err.response.data?.error;
@@ -75,8 +78,8 @@ export default function LoginPage() {
     }
   };
 
-  // Show loading state while checking auth
-  if (authLoading) {
+  // Show loading state while checking auth or while redirecting logged-in user
+  if (authLoading || user) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-slate-50 dark:bg-slate-950 transition-colors duration-200">
         <div className="text-center">
@@ -85,11 +88,6 @@ export default function LoginPage() {
         </div>
       </div>
     );
-  }
-
-  // Don't render if user is logged in (will redirect)
-  if (user) {
-    return null;
   }
 
   return (

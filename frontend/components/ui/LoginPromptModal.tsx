@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect } from 'react';
+import { usePathname } from 'next/navigation';
 import Link from 'next/link';
 import { X, LogIn, UserPlus, MessageCircle, ThumbsUp, Bookmark, Flag } from 'lucide-react';
 
@@ -51,6 +52,8 @@ const actionConfig = {
 export default function LoginPromptModal({ isOpen, onClose, action = 'general' }: LoginPromptModalProps) {
     const config = actionConfig[action];
     const Icon = config.icon;
+    const pathname = usePathname();
+    const loginHref = `/login?callbackUrl=${encodeURIComponent(pathname || '/')}`;
 
     // Lock scroll when modal is open
     useEffect(() => {
@@ -104,7 +107,7 @@ export default function LoginPromptModal({ isOpen, onClose, action = 'general' }
                     {/* CTA Buttons */}
                     <div className="flex flex-col gap-3">
                         <Link
-                            href="/login"
+                            href={loginHref}
                             className="flex items-center justify-center gap-2 w-full px-5 py-3 bg-emerald-600 text-white rounded-xl font-semibold hover:bg-emerald-700 transition-colors shadow-lg shadow-emerald-500/25"
                         >
                             <LogIn className="w-5 h-5" />

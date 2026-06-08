@@ -84,8 +84,7 @@ export default function MainLayout({ children }: MainLayoutProps) {
         <footer className="hidden lg:block bg-white dark:bg-slate-900 py-6 px-3 sm:px-4 lg:px-6 transition-colors duration-200">
           <div className="max-w-6xl mx-auto text-center">
             <p className="text-sm text-slate-600 dark:text-slate-400">
-              2026 DiskusiBisnis. Platform Q&A untuk UMKM Indonesia.
-              © 2026 DiskusiBisnis. Platform Q&A untuk UMKM Indonesia.
+              &copy; {new Date().getFullYear()} DiskusiBisnis. Platform Q&A untuk UMKM Indonesia.
             </p>
             <div className="flex flex-wrap justify-center gap-3 sm:gap-4 mt-3">
               <a href="/about" className="text-xs text-slate-500 dark:text-slate-400 hover:text-emerald-600 dark:hover:text-emerald-400 transition-colors">

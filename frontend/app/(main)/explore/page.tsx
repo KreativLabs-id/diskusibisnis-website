@@ -175,7 +175,7 @@ function ExploreGridItem({ href, title, description, icon: Icon, color }: any) {
     return (
         <Link 
             href={href} 
-            className="group relative bg-white/60 dark:bg-slate-900/40 backdrop-blur-md border border-white dark:border-slate-800/60 rounded-[2rem] p-6 hover:bg-white dark:hover:bg-slate-800 transition-all duration-500 hover:shadow-xl hover:-translate-y-1 overflow-hidden"
+            className="group relative bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-sm rounded-[2rem] p-6 hover:bg-white dark:hover:bg-slate-800 transition-all duration-500 hover:shadow-xl hover:-translate-y-1 overflow-hidden"
         >
             <div className={cn("w-12 h-12 rounded-2xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-500", colorVariants[color])}>
                 <Icon className="w-6 h-6" />
@@ -203,7 +203,7 @@ function ExploreListItem({ href, title, description, icon: Icon, color }: any) {
     return (
         <Link 
             href={href} 
-            className="group flex items-center justify-between p-5 bg-white/60 dark:bg-slate-900/40 backdrop-blur-md border border-white dark:border-slate-800/60 rounded-[2rem] hover:bg-white dark:hover:bg-slate-800 transition-all duration-500 hover:shadow-lg"
+            className="group flex items-center justify-between p-5 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-sm rounded-[2rem] hover:bg-white dark:hover:bg-slate-800 transition-all duration-500 hover:shadow-lg"
         >
             <div className="flex items-center gap-4">
                 <div className={cn("w-12 h-12 rounded-2xl flex items-center justify-center group-hover:scale-110 transition-transform duration-500", colorVariants[color])}>

@@ -69,7 +69,6 @@ export default function SavedPage() {
         try {
             setLoading(true);
             const response = await bookmarkAPI.getAll();
-            console.log('Bookmarks API response:', response.data);
 
             // Backend returns: { success: true, data: { bookmarks: [...], pagination: {...} } }
             // Handle different response structures
@@ -135,7 +134,7 @@ export default function SavedPage() {
                         Silakan login untuk melihat pertanyaan yang Anda simpan.
                     </p>
                     <Link
-                        href="/login"
+                        href="/login?callbackUrl=%2Fsaved"
                         className="inline-flex items-center gap-2 px-8 py-4 bg-emerald-600 text-white rounded-xl font-semibold hover:bg-emerald-700 transition-colors shadow-lg shadow-emerald-500/25"
                     >
                         <LogIn className="w-5 h-5" />
@@ -155,18 +154,18 @@ export default function SavedPage() {
     }
 
     return (
-        <div className="min-h-screen bg-slate-50 dark:bg-slate-950 pb-20 transition-colors duration-200">
-            <div className="max-w-4xl mx-auto px-4 py-8">
-                {/* Header */}
-                <div className="mb-8">
-                    <div className="flex items-center gap-3 mb-2">
-                        <div className="p-2.5 bg-emerald-100 dark:bg-emerald-900/30 rounded-xl">
-                            <Bookmark className="w-6 h-6 text-emerald-600 dark:text-emerald-400" />
-                        </div>
-                        <div>
-                            <h1 className="text-2xl font-bold text-slate-900 dark:text-slate-100">Tersimpan</h1>
-                            <p className="text-sm text-slate-500 dark:text-slate-400">Pertanyaan yang Anda bookmark</p>
-                        </div>
+        <div className="min-h-screen bg-[#f8fafc] dark:bg-slate-950 pb-20 transition-colors duration-300">
+            <div className="w-full max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 pb-12 pt-6 sm:pt-14">
+                {/* Professional Minimalist Header */}
+                <div className="mb-8 sm:mb-10 flex flex-col sm:flex-row sm:items-end justify-between gap-4 sm:gap-6">
+                    <div className="space-y-1">
+                        <h1 className="text-2xl sm:text-4xl font-bold text-slate-900 dark:text-white tracking-tight flex items-center gap-3">
+                            <Bookmark className="w-6 h-6 sm:w-8 sm:h-8 text-emerald-600 dark:text-emerald-500" />
+                            Tersimpan
+                        </h1>
+                        <p className="text-sm sm:text-lg text-slate-500 dark:text-slate-400">
+                            Pertanyaan dan diskusi yang Anda bookmark.
+                        </p>
                     </div>
                 </div>
 
@@ -205,9 +204,9 @@ export default function SavedPage() {
                         </Link>
                     </div>
                 ) : (
-                    <div className="space-y-4">
-                        <div className="flex items-center justify-between mb-4">
-                            <p className="text-sm text-slate-500 dark:text-slate-400">
+                    <div className="grid grid-cols-1 gap-6">
+                        <div className="flex items-center justify-between mb-2">
+                            <p className="text-sm font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-widest">
                                 {bookmarks.length} pertanyaan tersimpan
                             </p>
                         </div>
@@ -216,8 +215,10 @@ export default function SavedPage() {
                             <Link
                                 key={question.id}
                                 href={`/questions/${question.id}`}
-                                className="block bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 p-5 hover:border-emerald-500/50 hover:shadow-md dark:hover:shadow-emerald-900/10 transition-all group"
+                                className="group relative bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-sm rounded-[1.5rem] sm:rounded-[2rem] p-6 sm:p-8 hover:bg-white dark:hover:bg-slate-800 transition-all duration-500 hover:shadow-2xl hover:shadow-emerald-500/5 cursor-pointer overflow-hidden"
                             >
+                                {/* Decorative Gradient Blur */}
+                                <div className="absolute -top-24 -right-24 w-48 h-48 bg-emerald-500/5 rounded-full blur-3xl group-hover:bg-emerald-500/10 transition-colors" />
                                 <div className="flex justify-between items-start gap-4">
                                     <div className="flex-1 min-w-0">
                                         {/* Title */}
