@@ -3,12 +3,15 @@ nixPkgs = ["nodejs_20"]
 
 [phases.install]
 cmds = [
-  "npm install --prefix backend --no-audit"
+  # Install ALL dependencies including devDependencies so that `tsc` is available during build.
+  # devDependencies will be pruned AFTER the build step.
+  "npm install --prefix backend --include=dev --no-audit"
 ]
 
 [phases.build]
 cmds = [
   "npm run build --prefix backend",
+  # Remove devDependencies after compilation to keep the final image lean.
   "npm prune --omit=dev --no-audit --prefix backend"
 ]
 
