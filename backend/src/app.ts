@@ -78,6 +78,36 @@ app.use(blockSuspiciousUserAgents);
 // 4. Block suspicious paths (path traversal, common attack paths)
 app.use(blockSuspiciousPaths);
 
+
+// Validate environment variables on startup (non-blocking warning in development)
+try {
+  validateEnvironment();
+} catch (error) {
+  if (config.nodeEnv === 'production') {
+    console.error('❌ Environment validation failed:', error);
+    process.exit(1);
+  } else {
+    console.warn('⚠️ Environment validation warning:', (error as Error).message);
+  }
+}
+
+// Trust proxy is required for rate limiting to work correctly behind reverse proxies (like Railway, Heroku, Nginx)
+// limiting to the first proxy loopback address
+app.set('trust proxy', 1);
+
+// Security middleware - Order matters!
+// 1. Add additional security headers
+app.use(securityHeaders);
+
+// 2. Helmet for comprehensive security headers (including CSP)
+app.use(helmet(helmetConfig));
+
+// 3. Block suspicious user agents (security scanners, bots)
+app.use(blockSuspiciousUserAgents);
+
+// 4. Block suspicious paths (path traversal, common attack paths)
+app.use(blockSuspiciousPaths);
+
 // Prevent HTTP Parameter Pollution
 app.use(hpp());
 
@@ -86,6 +116,30 @@ app.use(xss());
 
 // Cookie parser middleware (required for HttpOnly cookies)
 app.use(cookieParser());
+
+// Health check endpoints - Always return 200 for Railway (MUST be before CORS)
+app.get('/api/health', async (_req, res) => healthCheckHandler(res));
+app.get('/health', async (_req, res) => {
+  const health = {
+    status: 'OK',
+    timestamp: new Date().toISOString(),
+    uptime: process.uptime(),
+    environment: config.nodeEnv,
+    database: 'checking...' as string
+  };
+
+  // Try to check database connection without blocking the response
+  try {
+    await pool.query('SELECT 1');
+    health.database = 'connected';
+  } catch (error) {
+    health.database = 'disconnected';
+    console.log('⚠️ Health check: Database not available');
+  }
+
+  // Always return 200 OK for Railway healthcheck
+  res.status(200).json(health);
+});
 
 // CORS configuration - Handle multiple origins
 app.use(cors({
@@ -176,32 +230,8 @@ const limiter = rateLimit({
   },
 });
 
-app.get('/api/health', async (_req, res) => healthCheckHandler(res));
-
 app.use('/api/', limiter);
 
-// Health check endpoint - Always return 200 for Railway
-app.get('/health', async (_req, res) => {
-  const health = {
-    status: 'OK',
-    timestamp: new Date().toISOString(),
-    uptime: process.uptime(),
-    environment: config.nodeEnv,
-    database: 'checking...' as string
-  };
-
-  // Try to check database connection without blocking the response
-  try {
-    await pool.query('SELECT 1');
-    health.database = 'connected';
-  } catch (error) {
-    health.database = 'disconnected';
-    console.log('⚠️ Health check: Database not available');
-  }
-
-  // Always return 200 OK for Railway healthcheck
-  res.status(200).json(health);
-});
 // API routes with security middleware
 // Apply additional security checks to all API routes
 app.use('/api', detectPathTraversal);
