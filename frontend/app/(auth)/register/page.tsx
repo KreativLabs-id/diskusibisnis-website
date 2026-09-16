@@ -159,7 +159,7 @@ export default function RegisterPage() {
   // OTP Verification Step
   if (step === 'otp') {
     return (
-      <div className="min-h-screen flex flex-col justify-center py-12 px-4 bg-[#f8fafc] dark:bg-slate-950 relative overflow-hidden transition-colors duration-300">
+      <div className="min-h-screen flex flex-col justify-center py-6 sm:py-10 px-4 bg-[#f8fafc] dark:bg-slate-950 relative overflow-hidden transition-colors duration-300">
         {/* Decorative Background Elements */}
         <div className="absolute top-0 left-0 w-full h-full overflow-hidden pointer-events-none">
           <div className="absolute top-[-10%] right-[-10%] w-[40%] h-[40%] bg-emerald-500/5 rounded-full blur-[120px]"></div>
@@ -167,35 +167,35 @@ export default function RegisterPage() {
         </div>
 
         <div className="sm:mx-auto sm:w-full sm:max-w-md relative z-10">
-          <div className="bg-white/70 dark:bg-slate-900/70 backdrop-blur-xl py-10 px-6 sm:px-10 shadow-2xl shadow-slate-200/50 dark:shadow-none rounded-2xl border border-white dark:border-slate-800/50">
+          <div className="bg-white/80 dark:bg-slate-900/80 backdrop-blur-xl p-5 sm:p-8 shadow-xl shadow-slate-200/40 dark:shadow-none rounded-2xl sm:rounded-3xl border border-slate-200/60 dark:border-slate-800/50">
             <button
               onClick={() => setStep('form')}
-              className="flex items-center gap-2 text-slate-400 hover:text-emerald-600 transition-colors mb-8 group"
+              className="flex items-center gap-1.5 text-slate-400 hover:text-emerald-600 transition-colors mb-5 group"
             >
               <ArrowLeft className="w-4 h-4 group-hover:-translate-x-1 transition-transform" />
-              <span className="text-sm font-bold text-slate-700 dark:text-slate-300">Kembali</span>
+              <span className="text-xs sm:text-sm font-semibold text-slate-700 dark:text-slate-300">Kembali</span>
             </button>
 
-            <div className="text-center mb-8">
-              <div className="w-16 h-16 bg-emerald-500/10 dark:bg-emerald-400/10 rounded-2xl flex items-center justify-center mx-auto mb-6 ring-1 ring-emerald-500/20">
-                <Mail className="w-8 h-8 text-emerald-600 dark:text-emerald-400" />
+            <div className="text-center mb-5 sm:mb-6">
+              <div className="w-12 h-12 sm:w-14 sm:h-14 bg-emerald-500/10 dark:bg-emerald-400/10 rounded-xl sm:rounded-2xl flex items-center justify-center mx-auto mb-3 sm:mb-4 ring-1 ring-emerald-500/20">
+                <Mail className="w-6 h-6 sm:w-7 sm:h-7 text-emerald-600 dark:text-emerald-400" />
               </div>
-              <h2 className="text-3xl font-bold tracking-tight text-slate-900 dark:text-white">Verifikasi Email</h2>
-              <p className="mt-2 text-slate-500 dark:text-slate-400 font-medium">
+              <h2 className="text-2xl sm:text-3xl font-bold tracking-tight text-slate-900 dark:text-white">Verifikasi Email</h2>
+              <p className="mt-1 text-xs sm:text-sm text-slate-500 dark:text-slate-400 font-medium">
                 Masukkan kode 6 digit yang dikirim ke
               </p>
-              <p className="font-bold text-slate-900 dark:text-white mt-1">{formData.email}</p>
+              <p className="font-bold text-xs sm:text-sm text-slate-900 dark:text-white mt-0.5">{formData.email}</p>
             </div>
 
             {error && (
-              <div className="mb-6 p-4 bg-red-500/5 border border-red-500/20 rounded-2xl flex items-start gap-3">
-                <AlertCircle className="w-5 h-5 text-red-500 flex-shrink-0" />
-                <p className="text-sm font-bold text-red-600 dark:text-red-400">{error}</p>
+              <div className="mb-4 p-3 bg-red-500/5 border border-red-500/20 rounded-xl flex items-start gap-2.5">
+                <AlertCircle className="w-4 h-4 text-red-500 flex-shrink-0 mt-0.5" />
+                <p className="text-xs sm:text-sm font-bold text-red-600 dark:text-red-400">{error}</p>
               </div>
             )}
 
             {/* OTP Input */}
-            <div className="flex justify-center gap-3 mb-8">
+            <div className="flex justify-center gap-2 sm:gap-3 mb-5 sm:mb-6">
               {otp.map((digit, index) => (
                 <input
                   key={index}
@@ -206,7 +206,7 @@ export default function RegisterPage() {
                   value={digit}
                   onChange={(e) => handleOtpChange(index, e.target.value)}
                   onKeyDown={(e) => handleOtpKeyDown(index, e)}
-                  className="w-12 h-14 text-center text-2xl font-black border border-slate-100 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-800 text-slate-900 dark:text-white rounded-2xl focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 outline-none transition-all"
+                  className="w-10 h-12 sm:w-12 sm:h-14 text-center text-xl sm:text-2xl font-bold border border-slate-200 dark:border-slate-700 bg-slate-50/70 dark:bg-slate-800 text-slate-900 dark:text-white rounded-xl sm:rounded-2xl focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 outline-none transition-all"
                 />
               ))}
             </div>
@@ -214,28 +214,28 @@ export default function RegisterPage() {
             <button
               onClick={handleVerifyOTP}
               disabled={loading || otp.join('').length !== 6}
-              className="w-full py-4 px-4 bg-emerald-600 dark:bg-emerald-500 text-white rounded-2xl font-black text-sm uppercase tracking-widest shadow-xl shadow-emerald-500/25 hover:bg-emerald-700 dark:hover:bg-emerald-400 hover:scale-[1.02] active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-300 flex items-center justify-center gap-2"
+              className="w-full py-2.5 sm:py-3 px-4 bg-emerald-600 dark:bg-emerald-500 text-white rounded-xl sm:rounded-2xl font-bold text-sm shadow-md sm:shadow-lg shadow-emerald-500/20 hover:bg-emerald-700 dark:hover:bg-emerald-400 active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 flex items-center justify-center gap-2"
             >
               {loading ? (
                 <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
               ) : (
                 <>
-                  <CheckCircle className="w-5 h-5" />
+                  <CheckCircle className="w-4 h-4" />
                   <span>Verifikasi Akun</span>
                 </>
               )}
             </button>
 
-            <div className="mt-8 text-center">
-              <p className="text-sm text-slate-500 dark:text-slate-400 font-medium">
+            <div className="mt-5 sm:mt-6 text-center">
+              <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400 font-medium">
                 Tidak menerima kode?{' '}
                 {resendCooldown > 0 ? (
-                  <span className="text-slate-400 font-bold ml-1">Kirim ulang dalam {resendCooldown}s</span>
+                  <span className="text-slate-400 font-semibold ml-1">Kirim ulang dalam {resendCooldown}s</span>
                 ) : (
                   <button
                     onClick={handleResendOTP}
                     disabled={loading}
-                    className="text-emerald-600 dark:text-emerald-400 font-black hover:text-emerald-700 transition-colors ml-1"
+                    className="text-emerald-600 dark:text-emerald-400 font-bold hover:text-emerald-700 transition-colors ml-1"
                   >
                     Kirim Ulang
                   </button>
@@ -250,7 +250,7 @@ export default function RegisterPage() {
 
   // Registration Form Step
   return (
-    <div className="min-h-screen flex flex-col justify-center py-12 px-4 bg-[#f8fafc] dark:bg-slate-950 relative overflow-hidden transition-colors duration-300">
+    <div className="min-h-screen flex flex-col justify-center py-6 sm:py-10 px-4 bg-[#f8fafc] dark:bg-slate-950 relative overflow-hidden transition-colors duration-300">
       {/* Decorative Background Elements - Subtle Spotlight */}
       <div className="absolute top-0 left-0 w-full h-full overflow-hidden pointer-events-none">
         <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] bg-emerald-500/5 rounded-full blur-[120px]"></div>
@@ -258,51 +258,51 @@ export default function RegisterPage() {
       </div>
 
       <div className="sm:mx-auto sm:w-full sm:max-w-md relative z-10">
-        <div className="text-center mb-8">
+        <div className="text-center mb-5 sm:mb-6">
           <Link href="/" className="inline-block group">
-            <div className="w-16 h-16 mx-auto mb-6 bg-white dark:bg-slate-900 rounded-2xl shadow-xl shadow-emerald-500/10 p-4 flex items-center justify-center group-hover:scale-105 transition-all duration-500 ring-1 ring-slate-100 dark:ring-slate-800">
+            <div className="w-12 h-12 sm:w-14 sm:h-14 mx-auto mb-3 sm:mb-4 bg-white dark:bg-slate-900 rounded-xl sm:rounded-2xl shadow-md sm:shadow-lg shadow-emerald-500/10 p-2.5 sm:p-3 flex items-center justify-center group-hover:scale-105 transition-all duration-300 ring-1 ring-slate-100 dark:ring-slate-800">
               <img src="/logodiskusibisnisaja.png" alt="Logo" className="w-full h-full object-contain" />
             </div>
           </Link>
-          <h1 className="text-3xl font-bold tracking-tight text-slate-900 dark:text-white">Gabung Komunitas</h1>
-          <p className="mt-2 text-slate-500 dark:text-slate-400 font-medium">Mulai perjalanan bisnis Anda sekarang.</p>
+          <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-slate-900 dark:text-white">Gabung Komunitas</h1>
+          <p className="mt-1 text-xs sm:text-sm text-slate-500 dark:text-slate-400 font-medium">Mulai perjalanan bisnis Anda sekarang.</p>
         </div>
 
-        <div className="bg-white/70 dark:bg-slate-900/70 backdrop-blur-xl py-10 px-6 sm:px-10 shadow-2xl shadow-slate-200/50 dark:shadow-none rounded-2xl border border-white dark:border-slate-800/50">
+        <div className="bg-white/80 dark:bg-slate-900/80 backdrop-blur-xl p-5 sm:p-8 shadow-xl shadow-slate-200/40 dark:shadow-none rounded-2xl sm:rounded-3xl border border-slate-200/60 dark:border-slate-800/50">
           {error && (
-            <div className="mb-6 p-4 bg-red-500/5 border border-red-500/20 rounded-2xl flex items-start gap-3">
-              <AlertCircle className="w-5 h-5 text-red-600 dark:text-red-400 flex-shrink-0" />
-              <p className="text-sm font-bold text-red-600 dark:text-red-400">{error}</p>
+            <div className="mb-4 p-3 bg-red-500/5 border border-red-500/20 rounded-xl flex items-start gap-2.5">
+              <AlertCircle className="w-4 h-4 text-red-600 dark:text-red-400 flex-shrink-0 mt-0.5" />
+              <p className="text-xs sm:text-sm font-bold text-red-600 dark:text-red-400">{error}</p>
             </div>
           )}
 
-          <form className="space-y-6" onSubmit={handleRequestOTP}>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <form className="space-y-3.5 sm:space-y-4" onSubmit={handleRequestOTP}>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
               <div>
-                <label className="block text-sm font-bold text-slate-700 dark:text-slate-300 mb-2 ml-1">Nama Lengkap</label>
+                <label className="block text-xs sm:text-sm font-semibold text-slate-700 dark:text-slate-300 mb-1.5 ml-0.5">Nama Lengkap</label>
                 <div className="relative group">
-                  <User className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400 group-focus-within:text-emerald-500 transition-colors" />
+                  <User className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 sm:w-5 sm:h-5 text-slate-400 group-focus-within:text-emerald-500 transition-colors" />
                   <input
                     type="text"
                     required
                     value={formData.displayName}
                     onChange={(e) => setFormData({ ...formData, displayName: e.target.value })}
-                    className="w-full pl-10 pr-4 py-4 border border-slate-100 dark:border-slate-800 rounded-2xl bg-slate-50/50 dark:bg-slate-800 text-slate-900 dark:text-white placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500/50 focus:bg-white dark:focus:bg-slate-800 transition-all duration-300 font-medium text-sm"
+                    className="w-full pl-9 sm:pl-10 pr-3 py-2.5 sm:py-3 border border-slate-200 dark:border-slate-700/80 rounded-xl sm:rounded-2xl bg-slate-50/70 dark:bg-slate-800/50 text-slate-900 dark:text-white placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all font-medium text-xs sm:text-sm"
                     placeholder="John Doe"
                   />
                 </div>
               </div>
 
               <div>
-                <label className="block text-sm font-bold text-slate-700 dark:text-slate-300 mb-2 ml-1">Username</label>
+                <label className="block text-xs sm:text-sm font-semibold text-slate-700 dark:text-slate-300 mb-1.5 ml-0.5">Username</label>
                 <div className="relative group">
-                  <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-sm font-bold">@</span>
+                  <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-xs sm:text-sm font-bold">@</span>
                   <input
                     type="text"
                     required
                     value={formData.username}
                     onChange={(e) => setFormData({ ...formData, username: e.target.value.toLowerCase().replace(/[^a-z0-9_]/g, '') })}
-                    className="w-full pl-8 pr-4 py-4 border border-slate-100 dark:border-slate-800 rounded-2xl bg-slate-50/50 dark:bg-slate-800 text-slate-900 dark:text-white placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500/50 focus:bg-white dark:focus:bg-slate-800 transition-all duration-300 font-medium text-sm"
+                    className="w-full pl-7 sm:pl-8 pr-3 py-2.5 sm:py-3 border border-slate-200 dark:border-slate-700/80 rounded-xl sm:rounded-2xl bg-slate-50/70 dark:bg-slate-800/50 text-slate-900 dark:text-white placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all font-medium text-xs sm:text-sm"
                     placeholder="username"
                     minLength={3}
                     maxLength={30}
@@ -312,31 +312,31 @@ export default function RegisterPage() {
             </div>
 
             <div>
-              <label className="block text-sm font-bold text-slate-700 dark:text-slate-300 mb-2 ml-1">Email</label>
+              <label className="block text-xs sm:text-sm font-semibold text-slate-700 dark:text-slate-300 mb-1.5 ml-0.5">Email</label>
               <div className="relative group">
-                <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400 group-focus-within:text-emerald-500 transition-colors" />
+                <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 sm:w-5 sm:h-5 text-slate-400 group-focus-within:text-emerald-500 transition-colors" />
                 <input
                   type="email"
                   required
                   value={formData.email}
                   onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                  className="w-full pl-10 pr-4 py-4 border border-slate-100 dark:border-slate-800 rounded-2xl bg-slate-50/50 dark:bg-slate-800 text-slate-900 dark:text-white placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500/50 focus:bg-white dark:focus:bg-slate-800 transition-all duration-300 font-medium text-sm"
+                  className="w-full pl-9 sm:pl-10 pr-3 py-2.5 sm:py-3 border border-slate-200 dark:border-slate-700/80 rounded-xl sm:rounded-2xl bg-slate-50/70 dark:bg-slate-800/50 text-slate-900 dark:text-white placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all font-medium text-xs sm:text-sm"
                   placeholder="nama@email.com"
                 />
               </div>
             </div>
 
             <div>
-              <label className="block text-sm font-bold text-slate-700 dark:text-slate-300 mb-2 ml-1">Kata Sandi</label>
+              <label className="block text-xs sm:text-sm font-semibold text-slate-700 dark:text-slate-300 mb-1.5 ml-0.5">Kata Sandi</label>
               <div className="relative group">
-                <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400 group-focus-within:text-emerald-500 transition-colors" />
+                <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 sm:w-5 sm:h-5 text-slate-400 group-focus-within:text-emerald-500 transition-colors" />
                 <input
                   type={showPassword ? 'text' : 'password'}
                   required
                   minLength={6}
                   value={formData.password}
                   onChange={(e) => setFormData({ ...formData, password: e.target.value })}
-                  className="w-full pl-10 pr-10 py-4 border border-slate-100 dark:border-slate-800 rounded-2xl bg-slate-50/50 dark:bg-slate-800 text-slate-900 dark:text-white placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500/50 focus:bg-white dark:focus:bg-slate-800 transition-all duration-300 font-medium text-sm"
+                  className="w-full pl-9 sm:pl-10 pr-10 py-2.5 sm:py-3 border border-slate-200 dark:border-slate-700/80 rounded-xl sm:rounded-2xl bg-slate-50/70 dark:bg-slate-800/50 text-slate-900 dark:text-white placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all font-medium text-xs sm:text-sm"
                   placeholder="Minimal 6 karakter"
                 />
                 <button
@@ -344,7 +344,7 @@ export default function RegisterPage() {
                   onClick={() => setShowPassword(!showPassword)}
                   className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 dark:hover:text-slate-300 transition-colors"
                 >
-                  {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+                  {showPassword ? <EyeOff className="w-4 h-4 sm:w-5 sm:h-5" /> : <Eye className="w-4 h-4 sm:w-5 sm:h-5" />}
                 </button>
               </div>
             </div>
@@ -352,7 +352,7 @@ export default function RegisterPage() {
             <button
               type="submit"
               disabled={loading}
-              className="w-full py-4 px-4 bg-emerald-600 dark:bg-emerald-500 text-white rounded-2xl font-bold text-base shadow-xl shadow-emerald-500/25 hover:bg-emerald-700 dark:hover:bg-emerald-400 hover:scale-[1.02] active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-300 flex items-center justify-center gap-2"
+              className="w-full py-2.5 sm:py-3 px-4 bg-emerald-600 dark:bg-emerald-500 text-white rounded-xl sm:rounded-2xl font-bold text-sm sm:text-base shadow-md sm:shadow-lg shadow-emerald-500/20 hover:bg-emerald-700 dark:hover:bg-emerald-400 active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 flex items-center justify-center gap-2"
             >
               {loading ? (
                 <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
@@ -365,17 +365,17 @@ export default function RegisterPage() {
             </button>
           </form>
 
-          <div className="mt-8">
+          <div className="mt-4 sm:mt-5">
             <div className="relative">
               <div className="absolute inset-0 flex items-center">
                 <div className="w-full border-t border-slate-100 dark:border-slate-800" />
               </div>
-              <div className="relative flex justify-center text-sm">
-                <span className="px-4 bg-white dark:bg-slate-900 text-slate-500 font-medium">Atau daftar dengan</span>
+              <div className="relative flex justify-center text-xs">
+                <span className="px-3 bg-white dark:bg-slate-900 text-slate-400 dark:text-slate-500 font-medium">Atau daftar dengan</span>
               </div>
             </div>
 
-            <div className="mt-8">
+            <div className="mt-4 sm:mt-5">
               <GoogleLoginButton
                 onSuccess={handleGoogleSuccess}
                 onError={() => setError('Gagal daftar dengan Google')}
@@ -385,20 +385,22 @@ export default function RegisterPage() {
             </div>
           </div>
 
-          <div className="mt-10 text-center">
-            <p className="text-sm text-slate-500 dark:text-slate-400 font-medium">
+          <div className="mt-5 sm:mt-6 text-center">
+            <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400 font-medium">
               Sudah memiliki akun?{' '}
-              <Link href="/login" className="text-emerald-600 dark:text-emerald-400 font-black hover:text-emerald-700 transition-colors ml-1">
+              <Link href="/login" className="text-emerald-600 dark:text-emerald-400 font-bold hover:text-emerald-700 transition-colors ml-1">
                 Masuk Sekarang
               </Link>
             </p>
           </div>
         </div>
 
-        <div className="mt-12 text-center">
-          <p className="text-[10px] font-bold text-slate-400 dark:text-slate-600 uppercase tracking-[0.2em] leading-relaxed">
+        <div className="mt-6 sm:mt-8 text-center">
+          <p className="text-[10px] font-bold text-slate-400 dark:text-slate-600 uppercase tracking-[0.15em] leading-relaxed">
             Dengan mendaftar, Anda menyetujui{' '}
-            <Link href="/terms" className="text-emerald-600/70 dark:text-emerald-400/70 hover:text-emerald-600 transition-colors underline decoration-2 underline-offset-4">Syarat & Ketentuan</Link>
+            <Link href="/syarat" className="text-emerald-600/70 dark:text-emerald-400/70 hover:text-emerald-600 transition-colors underline decoration-2 underline-offset-4">Syarat & Ketentuan</Link>
+            {' '}<span className="text-slate-300 dark:text-slate-700">serta</span>{' '}
+            <Link href="/privasi" className="text-emerald-600/70 dark:text-emerald-400/70 hover:text-emerald-600 transition-colors underline decoration-2 underline-offset-4">Kebijakan Privasi</Link>
             {' '}kami.
           </p>
         </div>

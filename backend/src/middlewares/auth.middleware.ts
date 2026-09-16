@@ -28,25 +28,41 @@ export const authenticateToken = (
   res: Response,
   next: NextFunction
 ): void => {
-  try {
-    const token = extractToken(req);
+  // Use an async IIFE so we can use await without changing the function signature
+  (async () => {
+    try {
+      const token = extractToken(req);
 
-    if (!token) {
-      unauthorizedResponse(res, 'Authentication token required');
-      return;
+      if (!token) {
+        unauthorizedResponse(res, 'Authentication token required');
+        return;
+      }
+
+      if (!config.jwt.secret) {
+        throw new Error('JWT secret not configured');
+      }
+
+      // Check if token has been blacklisted (e.g., after logout)
+      try {
+        const { rateLimitStore } = await import('../config/redis');
+        const blacklisted = await rateLimitStore.get(`blacklist:${token}`);
+        if (blacklisted) {
+          unauthorizedResponse(res, 'Token has been revoked. Please log in again.');
+          return;
+        }
+      } catch (blacklistErr) {
+        // Non-fatal: if blacklist check fails, continue and let JWT verify proceed
+        console.error('Blacklist check error (non-fatal):', blacklistErr);
+      }
+
+      const decoded = jwt.verify(token, config.jwt.secret) as AuthUser;
+      req.user = decoded;
+      next();
+    } catch (error) {
+      console.error('Token verification error:', error);
+      unauthorizedResponse(res, 'Invalid or expired token');
     }
-
-    if (!config.jwt.secret) {
-      throw new Error('JWT secret not configured');
-    }
-
-    const decoded = jwt.verify(token, config.jwt.secret) as AuthUser;
-    req.user = decoded;
-    next();
-  } catch (error) {
-    console.error('Token verification error:', error);
-    unauthorizedResponse(res, 'Invalid or expired token');
-  }
+  })();
 };
 
 export const optionalAuth = (

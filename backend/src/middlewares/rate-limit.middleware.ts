@@ -89,7 +89,7 @@ export const resetLoginRateLimit = async (ip: string, email: string): Promise<vo
  */
 export const passwordResetRateLimiter = async (
     req: AuthRequest,
-    _res: Response,
+    res: Response,
     next: NextFunction
 ): Promise<void> => {
     try {
@@ -104,9 +104,13 @@ export const passwordResetRateLimiter = async (
         const result = await rateLimitStore.incrementAndCheck(key, 3, 3600000); // 3 attempts per hour
 
         if (result.isLocked) {
-            // Don't reveal if email exists, just say request sent
-            // But actually don't process it
-            console.log(`Password reset rate limit exceeded for: ${email}`);
+            // Respond with same generic message to avoid email enumeration.
+            // IMPORTANT: We must NOT call next() here — the request must be stopped.
+            res.status(429).json({
+                success: false,
+                message: 'Jika email Anda terdaftar, instruksi reset password telah dikirim. Silakan coba lagi nanti.'
+            });
+            return;
         }
 
         next();

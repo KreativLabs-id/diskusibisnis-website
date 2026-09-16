@@ -1,20 +1,21 @@
 /**
  * Next.js Middleware for Route Protection
- * 
+ *
  * Based on Next.js 15 documentation:
  * - Runs at the edge before requests reach pages
  * - Checks for authentication cookies
  * - Redirects unauthenticated users from protected routes
- * 
+ *
  * Security Features:
  * - Token validation via HTTP-only cookies
- * - Admin route protection
+ * - Admin route protection with cryptographic JWT verification (jose)
  * - Rate limit headers forwarding
  * - Security headers
  */
 
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
+import { jwtVerify } from 'jose';
 
 // Routes that require authentication
 const PROTECTED_ROUTES = [
@@ -49,7 +50,7 @@ const PUBLIC_ROUTES = [
     '/terms',
 ];
 
-export function middleware(request: NextRequest) {
+export async function middleware(request: NextRequest) {
     const { pathname } = request.nextUrl;
     const response = NextResponse.next();
 
@@ -61,13 +62,8 @@ export function middleware(request: NextRequest) {
     response.headers.set('Referrer-Policy', 'strict-origin-when-cross-origin');
     response.headers.set('Permissions-Policy', 'camera=(), microphone=(), geolocation=()');
 
-    // Get authentication token from cookies
-    // The backend sets this as an HTTP-only cookie named 'auth_token'
+    // Get authentication token from HttpOnly cookie
     const authToken = request.cookies.get('auth_token')?.value;
-
-    // Also check for user info cookie (non-HTTP-only, for client-side availability)
-    const userCookie = request.cookies.get('user_role')?.value;
-    const isAdmin = userCookie === 'admin';
 
     // Helper to check if path matches any pattern
     const matchesPath = (patterns: string[], path: string): boolean => {
@@ -79,55 +75,69 @@ export function middleware(request: NextRequest) {
         });
     };
 
+    /**
+     * Verify and decode the JWT token using the server-side secret.
+     * jose works in the Edge runtime; jsonwebtoken does NOT.
+     * Returns the payload on success, null on any failure.
+     */
+    const verifyJwt = async (token: string): Promise<{ id: string; role: string } | null> => {
+        const jwtSecret = process.env.JWT_SECRET;
+        if (!jwtSecret) return null;
+        try {
+            const secret = new TextEncoder().encode(jwtSecret);
+            const { payload } = await jwtVerify(token, secret);
+            return payload as { id: string; role: string };
+        } catch {
+            return null;
+        }
+    };
+
     // Check if this is an admin route
     if (matchesPath(ADMIN_ROUTES, pathname)) {
-        // For admin routes, we need both authentication AND admin role
-        // We accept user_role cookie as proof of auth for routing purposes (handled by client)
-        // This solves issues where HttpOnly auth_token is not visible to middleware (cross-domain)
-        if (!authToken && !userCookie) {
-            // Not authenticated - redirect to login
+        if (!authToken) {
+            // Not authenticated — redirect to login
             const loginUrl = new URL('/login', request.url);
             loginUrl.searchParams.set('callbackUrl', pathname);
             loginUrl.searchParams.set('error', 'auth_required');
             return NextResponse.redirect(loginUrl);
         }
 
-        // Check admin role
-        // Note: This is a basic check. The actual admin verification
-        // should happen on the backend for every admin API call
-        if (!isAdmin) {
-            // Authenticated but not admin - redirect to home with error
+        // Cryptographically verify the JWT and check the role claim
+        const payload = await verifyJwt(authToken);
+
+        if (!payload || payload.role !== 'admin') {
+            // Token invalid OR user is not admin — redirect to home
             const homeUrl = new URL('/', request.url);
             homeUrl.searchParams.set('error', 'unauthorized');
             return NextResponse.redirect(homeUrl);
         }
 
-        // Admin access granted - continue
+        // Admin access granted
         return response;
     }
 
     // Check if this is a protected route (requires authentication)
     if (matchesPath(PROTECTED_ROUTES, pathname)) {
-        // We accept user_role cookie as proof of auth for routing purposes
-        if (!authToken && !userCookie) {
-            // Not authenticated - redirect to login with callback
+        if (!authToken) {
+            // Not authenticated — redirect to login with callback
             const loginUrl = new URL('/login', request.url);
             loginUrl.searchParams.set('callbackUrl', pathname);
             return NextResponse.redirect(loginUrl);
         }
-
-        // Authenticated - continue
+        // Token presence is sufficient for protected (non-admin) routes.
+        // Full JWT verification happens on the backend for each API call.
         return response;
     }
 
     // Check if user is already authenticated and trying to access auth pages
-    // We only redirect if we have a very strong indication of active session
     if (matchesPath(AUTH_ROUTES, pathname)) {
-        if (authToken && userCookie) {
-            // Already fully authenticated - redirect to home
-            return NextResponse.redirect(new URL('/', request.url));
+        if (authToken) {
+            // Verify the token is actually valid before redirecting
+            const payload = await verifyJwt(authToken);
+            if (payload) {
+                return NextResponse.redirect(new URL('/', request.url));
+            }
         }
-        // Allow access to login/register if not fully authenticated
         return response;
     }
 
@@ -149,3 +159,5 @@ export const config = {
         '/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp|ico|css|js)$).*)',
     ],
 };
+
+

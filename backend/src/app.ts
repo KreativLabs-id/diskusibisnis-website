@@ -94,12 +94,13 @@ app.use(cors({
     const isProduction = config.nodeEnv === 'production';
     const shouldLogCors = !isProduction && config.debug.cors;
 
-    // Allow requests with no origin (like mobile apps, Postman, curl requests)
+    // Allow requests with no origin ONLY in development (e.g. Postman, curl).
+    // In production, all legitimate browser requests MUST have an Origin header.
     if (!origin) {
-      if (shouldLogCors) {
-        console.log('CORS: Request with no origin - allowing');
+      if (!isProduction) {
+        return callback(null, true);
       }
-      return callback(null, true);
+      return callback(new Error('Missing Origin header'), false);
     }
 
     if (shouldLogCors) {

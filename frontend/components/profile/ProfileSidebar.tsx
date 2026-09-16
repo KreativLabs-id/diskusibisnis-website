@@ -27,16 +27,12 @@ interface ProfileSidebarProps {
 
 export default function ProfileSidebar({ profile, isOwnProfile, stats }: ProfileSidebarProps) {
   return (
-    <aside className="w-full lg:w-80 shrink-0 space-y-6">
-      {/* Profile Card */}
-      <div className="bg-white/70 dark:bg-slate-900/70 backdrop-blur-xl rounded-2xl border border-white dark:border-slate-800/60 p-8 shadow-xl shadow-slate-200/40 dark:shadow-none relative overflow-hidden">
-        {/* Subtle Background Accent */}
-        <div className="absolute top-0 right-0 w-32 h-32 bg-emerald-500/5 rounded-full blur-3xl" />
-        
-        <div className="relative mb-6">
-          <div className="w-24 h-24 sm:w-32 sm:h-32 mx-auto relative">
-            <div className="absolute inset-0 bg-emerald-500/10 rounded-full blur-2xl group-hover:bg-emerald-500/20 transition-all duration-700"></div>
-            <div className="relative aspect-square bg-white dark:bg-slate-900 rounded-full border-4 border-white dark:border-slate-800 overflow-hidden shadow-2xl">
+    <aside className="w-full lg:w-80 shrink-0">
+      <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 p-5 shadow-sm">
+        {/* Profile Header */}
+        <div className="flex items-start gap-4 mb-4">
+          <div className="relative shrink-0">
+            <div className="w-16 h-16 sm:w-20 sm:h-20 bg-slate-100 dark:bg-slate-800 rounded-full overflow-hidden ring-2 ring-slate-100 dark:ring-slate-800">
               <UserAvatar
                 src={profile.avatarUrl}
                 alt={profile.displayName}
@@ -46,76 +42,76 @@ export default function ProfileSidebar({ profile, isOwnProfile, stats }: Profile
               />
             </div>
             {profile.isVerified && (
-              <div className="absolute bottom-1 right-1 bg-white dark:bg-slate-900 rounded-full p-1 shadow-lg ring-2 ring-emerald-500/20">
-                <VerifiedBadge isVerified={true} size="md" />
+              <div className="absolute -bottom-1 -right-1 bg-white dark:bg-slate-900 rounded-full p-0.5 shadow-sm">
+                <VerifiedBadge isVerified={true} size="sm" />
               </div>
+            )}
+          </div>
+          <div className="flex-1 min-w-0 pt-1">
+            <h1 className="text-xl font-bold text-slate-900 dark:text-white truncate">
+              {profile.displayName}
+            </h1>
+            {profile.username && (
+              <p className="text-slate-500 dark:text-slate-400 text-sm truncate font-medium">
+                @{profile.username}
+              </p>
             )}
           </div>
         </div>
 
-        <div className="text-center space-y-1 mb-8 relative z-10">
-          <h1 className="text-2xl font-bold text-slate-900 dark:text-white tracking-tight">
-            {profile.displayName}
-          </h1>
-          {profile.username && (
-            <p className="text-emerald-600 dark:text-emerald-400 font-bold text-sm">
-              @{profile.username}
-            </p>
-          )}
-        </div>
-
+        {/* Bio */}
         {profile.bio && (
-          <p className="text-slate-600 dark:text-slate-400 text-sm leading-relaxed text-center mb-8 px-2 relative z-10 font-medium">
+          <p className="text-slate-700 dark:text-slate-300 text-sm mb-5 line-clamp-3 leading-relaxed">
             {profile.bio}
           </p>
         )}
 
-        <div className="space-y-4 pt-6 border-t border-slate-100 dark:border-slate-800/60 relative z-10">
-          <div className="flex items-center gap-3 text-slate-500 dark:text-slate-400 text-sm font-medium">
-            <div className="w-8 h-8 rounded-xl bg-slate-100 dark:bg-slate-800 flex items-center justify-center">
-              <Calendar className="w-4 h-4 text-slate-400" />
-            </div>
-            <span>Bergabung {new Date(profile.createdAt).toLocaleDateString('id-ID', { year: 'numeric', month: 'long' })}</span>
+        {/* Stats Row */}
+        <div className="flex items-center gap-6 mb-5">
+          <div className="flex flex-col">
+            <span className="text-lg font-bold text-slate-900 dark:text-white">{profile.reputationPoints}</span>
+            <span className="text-[10px] font-semibold text-slate-500 uppercase tracking-wide">Reputasi</span>
+          </div>
+          <div className="flex flex-col">
+            <span className="text-lg font-bold text-slate-900 dark:text-white">{stats.questionsCount}</span>
+            <span className="text-[10px] font-semibold text-slate-500 uppercase tracking-wide">Diskusi</span>
+          </div>
+          <div className="flex flex-col">
+            <span className="text-lg font-bold text-slate-900 dark:text-white">{stats.answersCount}</span>
+            <span className="text-[10px] font-semibold text-slate-500 uppercase tracking-wide">Jawaban</span>
+          </div>
+        </div>
+
+        {/* Progress Bar (Reputation) */}
+        <div className="mb-5">
+          <ReputationProgress reputationPoints={profile.reputationPoints} />
+        </div>
+
+        {/* Additional Info */}
+        <div className="space-y-2 mt-4 pt-4 border-t border-slate-100 dark:border-slate-800">
+          <div className="flex items-center gap-2 text-slate-500 text-xs font-medium">
+            <Calendar className="w-3.5 h-3.5 text-slate-400" />
+            <span>Bergabung {new Date(profile.createdAt).toLocaleDateString('id-ID', { year: 'numeric', month: 'short' })}</span>
           </div>
           {profile.email && isOwnProfile && (
-            <div className="flex items-center gap-3 text-slate-500 dark:text-slate-400 text-sm font-medium">
-              <div className="w-8 h-8 rounded-xl bg-slate-100 dark:bg-slate-800 flex items-center justify-center">
-                <Mail className="w-4 h-4 text-slate-400" />
-              </div>
+            <div className="flex items-center gap-2 text-slate-500 text-xs font-medium">
+              <Mail className="w-3.5 h-3.5 text-slate-400" />
               <span className="truncate">{profile.email}</span>
             </div>
           )}
         </div>
 
+        {/* Action Button */}
         {isOwnProfile && (
-          <div className="mt-10 relative z-10">
+          <div className="mt-5">
             <Link
               href="/settings"
-              className="flex items-center justify-center w-full py-3 bg-emerald-600 dark:bg-emerald-500 hover:bg-emerald-700 dark:hover:bg-emerald-400 text-white text-sm font-bold rounded-2xl shadow-lg shadow-emerald-500/20 active:scale-95 transition-all"
+              className="flex items-center justify-center w-full py-2.5 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-800 dark:text-white text-sm font-semibold rounded-xl transition-colors"
             >
               Edit Profil
             </Link>
           </div>
         )}
-      </div>
-
-      {/* Stats Card */}
-      <div className="bg-white/70 dark:bg-slate-900/70 backdrop-blur-xl rounded-2xl border border-white dark:border-slate-800/60 p-8 shadow-xl shadow-slate-200/40 dark:shadow-none">
-        <h3 className="text-xs font-bold text-slate-400 dark:text-slate-500 mb-6">Statistik Kontribusi</h3>
-        <div className="grid grid-cols-2 gap-4">
-          <div className="p-5 bg-slate-50/50 dark:bg-slate-800/50 rounded-2xl border border-slate-100/50 dark:border-slate-700/50">
-            <div className="text-2xl font-bold text-slate-900 dark:text-white tracking-tight">{profile.reputationPoints}</div>
-            <div className="text-[10px] font-bold text-emerald-500 mt-0.5">Reputasi</div>
-          </div>
-          <div className="p-5 bg-slate-50/50 dark:bg-slate-800/50 rounded-2xl border border-slate-100/50 dark:border-slate-700/50">
-            <div className="text-2xl font-bold text-slate-900 dark:text-white tracking-tight">{stats.questionsCount}</div>
-            <div className="text-[10px] font-bold text-emerald-500 mt-0.5">Diskusi</div>
-          </div>
-        </div>
-
-        <div className="mt-8 pt-6 border-t border-slate-100 dark:border-slate-800/60">
-           <ReputationProgress reputationPoints={profile.reputationPoints} />
-        </div>
       </div>
     </aside>
   );

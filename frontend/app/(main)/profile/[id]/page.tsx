@@ -3,7 +3,8 @@
 import { useState, useEffect } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { useAuth } from '@/contexts/AuthContext';
-import { User, Mail, Calendar, Award, MessageSquare, CheckCircle, Edit, ArrowLeft, MapPin, Link as LinkIcon, TrendingUp, ChevronRight } from 'lucide-react';
+import { User, Mail, Calendar, Award, MessageSquare, CheckCircle, Edit, ArrowLeft, MapPin, Link as LinkIcon, TrendingUp, ChevronRight, ThumbsUp, MessageCircle, Eye } from 'lucide-react';
+import { cn } from '@/lib/utils';
 import { userAPI } from '@/lib/api';
 import Link from 'next/link';
 import VerifiedBadge from '@/components/ui/VerifiedBadge';
@@ -271,17 +272,19 @@ export default function ProfilePage() {
           )}
 
           <main className="flex-1 min-w-0 w-full lg:sticky lg:top-8">
-            <div className="bg-white/70 dark:bg-slate-900/70 backdrop-blur-xl rounded-2xl border border-white dark:border-slate-800/60 p-6 sm:p-10 shadow-2xl shadow-slate-200/40 dark:shadow-none min-h-[600px]">
-              <ProfileActivityTabs 
-                activeTab={activeTab} 
-                setActiveTab={setActiveTab} 
-                counts={{
-                  questions: questions.length,
-                  answers: answers.length
-                }} 
-              />
+            <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm min-h-[600px] overflow-hidden">
+              <div className="px-1 sm:px-4 pt-2 border-b border-slate-100 dark:border-slate-800/60">
+                <ProfileActivityTabs 
+                  activeTab={activeTab} 
+                  setActiveTab={setActiveTab} 
+                  counts={{
+                    questions: questions.length,
+                    answers: answers.length
+                  }} 
+                />
+              </div>
 
-              <div className="space-y-5">
+              <div className="divide-y divide-slate-100 dark:divide-slate-800/60">
                 {activeTab === 'questions' ? (
                   questions.length === 0 ? (
                     <div className="py-24 text-center">
@@ -296,26 +299,44 @@ export default function ProfilePage() {
                       <Link
                         key={question.id}
                         href={`/questions/${question.id}`}
-                        className="group block p-6 rounded-2xl border border-slate-100/50 dark:border-slate-800/50 bg-slate-50/30 dark:bg-slate-800/30 hover:bg-white dark:hover:bg-slate-800 hover:border-emerald-100 dark:hover:border-emerald-900/30 hover:shadow-xl hover:shadow-emerald-500/5 transition-all duration-500"
+                        className="group block bg-white dark:bg-slate-900 border-b border-slate-100 dark:border-slate-800/60 p-4 sm:p-5 hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors"
                       >
-                        <div className="flex justify-between items-start gap-4 mb-4">
-                          <h3 className="text-lg sm:text-xl font-bold text-slate-900 dark:text-slate-100 group-hover:text-emerald-600 dark:group-hover:text-emerald-400 transition-colors line-clamp-2 leading-tight tracking-tight">
-                            {question.title}
-                          </h3>
+                        {/* Top Meta: Time */}
+                        <div className="flex items-center justify-between mb-2">
+                           <div className="flex items-center gap-2">
+                              <span className="text-xs sm:text-sm font-semibold text-slate-500 dark:text-slate-400">
+                                {new Date(question.createdAt).toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' })}
+                              </span>
+                           </div>
                         </div>
-                        <div className="flex items-center flex-wrap gap-6 text-[11px] font-bold text-slate-400 dark:text-slate-500">
-                          <span className="flex items-center gap-2 group-hover:text-emerald-500 transition-colors">
-                            <TrendingUp className="w-4 h-4" />
-                            {question.upvotesCount} suara
-                          </span>
-                          <span className="flex items-center gap-2 group-hover:text-blue-500 transition-colors">
-                            <MessageSquare className="w-4 h-4" />
-                            {question.answersCount} jawaban
-                          </span>
-                          <span className="flex items-center gap-2 ml-auto font-medium">
-                            <Calendar className="w-4 h-4" />
-                            {new Date(question.createdAt).toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' })}
-                          </span>
+
+                        <div className="flex flex-col sm:flex-row gap-3 sm:gap-4">
+                          <div className="flex-1 min-w-0">
+                            <h3 className="text-base sm:text-lg font-bold text-slate-900 dark:text-white mb-2 group-hover:text-emerald-600 dark:group-hover:text-emerald-400 transition-colors line-clamp-2 leading-snug">
+                              {question.title}
+                            </h3>
+                          </div>
+                        </div>
+
+                        {/* Footer Stats */}
+                        <div className="mt-2 flex items-center gap-1 sm:gap-2 -ml-2">
+                          <div className="flex items-center gap-1.5 px-3 py-2 rounded-full group-hover:bg-emerald-50 dark:group-hover:bg-emerald-900/20 transition-colors text-sm font-medium text-slate-500 dark:text-slate-400 group-hover:text-emerald-600">
+                            <ThumbsUp className="w-4 h-4" />
+                            <span>{question.upvotesCount || 0}</span>
+                          </div>
+
+                          <div className={cn(
+                            "flex items-center gap-1.5 px-3 py-2 rounded-full group-hover:bg-blue-50 dark:group-hover:bg-blue-900/20 transition-colors text-sm font-medium",
+                            question.answersCount > 0 ? "text-blue-600 dark:text-blue-400" : "text-slate-500 dark:text-slate-400"
+                          )}>
+                            <MessageCircle className="w-4 h-4" />
+                            <span>{question.answersCount || 0}</span>
+                          </div>
+
+                          <div className="flex items-center gap-1.5 px-3 py-2 rounded-full group-hover:bg-slate-100 dark:group-hover:bg-slate-800 transition-colors text-sm font-medium text-slate-500 dark:text-slate-400">
+                            <Eye className="w-4 h-4" />
+                            <span>{question.viewsCount || 0}</span>
+                          </div>
                         </div>
                       </Link>
                     ))
@@ -331,35 +352,42 @@ export default function ProfilePage() {
                     </div>
                   ) : (
                     answers.map((answer) => (
-                      <div
+                      <Link
                         key={answer.id}
-                        className="group p-6 rounded-2xl border border-slate-100/50 dark:border-slate-800/50 bg-slate-50/30 dark:bg-slate-800/30 hover:bg-white dark:hover:bg-slate-800 hover:border-emerald-100 dark:hover:border-emerald-900/30 hover:shadow-xl hover:shadow-emerald-500/5 transition-all duration-500"
+                        href={`/questions/${answer.questionId}`}
+                        className="group block bg-white dark:bg-slate-900 border-b border-slate-100 dark:border-slate-800/60 p-4 sm:p-5 hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors"
                       >
-                        <div className="mb-4">
-                          <div className="text-[10px] font-bold text-slate-400 mb-1 uppercase tracking-widest">Menjawab pada</div>
-                          <Link href={`/questions/${answer.questionId}`} className="text-base font-bold text-slate-900 dark:text-white hover:text-emerald-600 dark:hover:text-emerald-400 transition-colors line-clamp-1 tracking-tight">
-                            {answer.questionTitle}
-                          </Link>
+                        {/* Top Meta: Time & Context */}
+                        <div className="flex flex-wrap items-center gap-2 mb-3">
+                           <span className="text-xs sm:text-sm font-semibold text-slate-500 dark:text-slate-400">
+                             {new Date(answer.createdAt).toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' })}
+                           </span>
+                           <span className="text-slate-300 dark:text-slate-600 text-xs sm:text-sm">•</span>
+                           <span className="text-[10px] sm:text-xs font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest bg-slate-100 dark:bg-slate-800 px-2 py-0.5 rounded-full">Menjawab pada</span>
+                           <span className="text-sm font-bold text-slate-700 dark:text-slate-300 line-clamp-1 flex-1 min-w-[200px]">
+                             {answer.questionTitle}
+                           </span>
                         </div>
-                        <p className="text-slate-500 dark:text-slate-400 text-sm mb-6 line-clamp-2 leading-relaxed font-medium">{answer.content}</p>
+
+                        <p className="text-sm text-slate-600 dark:text-slate-400 line-clamp-3 leading-relaxed mb-3">
+                           {answer.content.replace(/<[^>]*>/g, '').trim()}
+                        </p>
                         
-                        <div className="flex items-center flex-wrap gap-6 text-[11px] font-bold text-slate-400 dark:text-slate-500">
-                          <span className="flex items-center gap-2 group-hover:text-emerald-500 transition-colors">
-                            <TrendingUp className="w-4 h-4" />
-                            {answer.upvotesCount} suara
-                          </span>
+                        {/* Footer Stats */}
+                        <div className="mt-2 flex items-center gap-1 sm:gap-2 -ml-2">
+                          <div className="flex items-center gap-1.5 px-3 py-2 rounded-full group-hover:bg-emerald-50 dark:group-hover:bg-emerald-900/20 transition-colors text-sm font-medium text-slate-500 dark:text-slate-400 group-hover:text-emerald-600">
+                            <ThumbsUp className="w-4 h-4" />
+                            <span>{answer.upvotesCount || 0}</span>
+                          </div>
+
                           {answer.isAccepted && (
-                            <span className="flex items-center gap-2 text-emerald-600 dark:text-emerald-400">
-                              <CheckCircle className="w-4 h-4 fill-emerald-500/10" />
-                              Diterima
-                            </span>
+                            <div className="flex items-center gap-1.5 px-3 py-2 rounded-full bg-emerald-50 dark:bg-emerald-900/20 text-emerald-600 dark:text-emerald-400 text-sm font-medium">
+                              <CheckCircle className="w-4 h-4" />
+                              <span>Diterima</span>
+                            </div>
                           )}
-                          <span className="flex items-center gap-2 ml-auto font-medium">
-                            <Calendar className="w-4 h-4" />
-                            {new Date(answer.createdAt).toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' })}
-                          </span>
                         </div>
-                      </div>
+                      </Link>
                     ))
                   )
                 )}

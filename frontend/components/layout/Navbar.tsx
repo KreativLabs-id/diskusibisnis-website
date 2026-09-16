@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { useAuth } from '@/contexts/AuthContext';
-import { Search, Bell, User, LogOut, Settings, Plus, Menu, X, ChevronDown, Shield } from 'lucide-react';
+import { Search, Bell, User, LogOut, Settings, Plus, Menu, X, ChevronDown, Shield, ArrowLeft } from 'lucide-react';
 import { useState, useEffect, useRef } from 'react';
 import NotificationDropdown from '@/components/ui/NotificationDropdown';
 import LoadingSpinner from '@/components/ui/LoadingSpinner';
@@ -10,6 +10,7 @@ import VerifiedBadge from '@/components/ui/VerifiedBadge';
 import UserAvatar from '@/components/ui/UserAvatar';
 import { getProfileHref } from '@/lib/profile';
 import TopBanner from '@/components/ui/TopBanner';
+import { useSearch } from '@/contexts/SearchContext';
 
 interface NavbarProps {
   onMenuClick?: () => void;
@@ -19,6 +20,14 @@ export default function Navbar({ onMenuClick }: NavbarProps) {
   const { user, logout, loading, forceRefreshUser } = useAuth();
   const [showUserMenu, setShowUserMenu] = useState(false);
   const userMenuRef = useRef<HTMLDivElement>(null);
+  
+  const searchCtx = useSearch();
+  const searchInput = searchCtx?.searchInput ?? '';
+  const isNavbarSearchOpen = searchCtx?.isNavbarSearchOpen ?? false;
+  const isScrolled = searchCtx?.isScrolled ?? false;
+  const setIsNavbarSearchOpen = searchCtx?.setIsNavbarSearchOpen ?? (() => {});
+  const handleSearchChange = searchCtx?.handleSearchChange ?? (() => {});
+  const handleSearchClear = searchCtx?.handleSearchClear ?? (() => {});
 
   // Close dropdown when clicking outside
   useEffect(() => {
@@ -43,25 +52,73 @@ export default function Navbar({ onMenuClick }: NavbarProps) {
       <nav className="w-full bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800 transition-colors duration-200 relative">
         <div className="container mx-auto px-3 sm:px-4">
         <div className="flex items-center justify-between h-14 sm:h-16 gap-2">
-          {/* Mobile Menu Button - Hidden as we use Bottom Nav & Discovery Page */}
-          <button
-            onClick={onMenuClick}
-            className="hidden lg:hidden p-2 rounded-lg hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors shrink-0"
-          >
-            <Menu className="w-5 h-5 sm:w-6 sm:h-6 text-slate-700 dark:text-slate-200" />
-          </button>
+          {/* Mobile Search Active Mode */}
+          {isNavbarSearchOpen ? (
+            <div className="flex lg:hidden items-center gap-2 w-full py-1 animate-in fade-in duration-200">
+              <button
+                onClick={() => setIsNavbarSearchOpen(false)}
+                className="p-2 text-slate-500 hover:text-slate-800 dark:text-slate-400 dark:hover:text-slate-200 rounded-xl hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors shrink-0"
+                aria-label="Kembali"
+              >
+                <ArrowLeft className="w-5 h-5" />
+              </button>
+              <div className="relative flex-1">
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+                <input
+                  type="text"
+                  autoFocus
+                  value={searchInput}
+                  onChange={handleSearchChange}
+                  placeholder="Cari diskusi, topik, atau kata kunci..."
+                  className="w-full bg-slate-100 dark:bg-slate-800 text-slate-900 dark:text-white pl-9 pr-9 py-2 rounded-xl text-sm outline-none focus:ring-2 focus:ring-emerald-500/30"
+                />
+                {searchInput && (
+                  <button
+                    onClick={handleSearchClear}
+                    className="absolute right-2.5 top-1/2 -translate-y-1/2 p-0.5 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200"
+                    aria-label="Hapus"
+                  >
+                    <X className="w-4 h-4" />
+                  </button>
+                )}
+              </div>
+            </div>
+          ) : (
+            <>
+              {/* Mobile Left Slot: Search Button when scrolled down */}
+              <div className="flex lg:hidden items-center shrink-0 w-9">
+                {isScrolled && (
+                  <button
+                    onClick={() => setIsNavbarSearchOpen(true)}
+                    className="p-2 rounded-xl text-slate-600 dark:text-slate-300 hover:text-emerald-600 dark:hover:text-emerald-400 hover:bg-slate-100 dark:hover:bg-slate-800 transition-all animate-in fade-in duration-200"
+                    aria-label="Cari diskusi"
+                  >
+                    <Search className="w-5 h-5" />
+                  </button>
+                )}
+              </div>
 
-          {/* Logo - Centered on mobile, left on desktop */}
-          <Link href="/" className="group flex-1 lg:flex-none text-center lg:text-left">
-            <span className="text-lg sm:text-xl lg:text-2xl font-bold bg-gradient-to-r from-emerald-600 to-emerald-700 bg-clip-text text-transparent group-hover:from-emerald-700 group-hover:to-emerald-800 transition-all duration-200">
-              DiskusiBisnis
-            </span>
-          </Link>
+              {/* Mobile Menu Button - Hidden as we use Bottom Nav & Discovery Page */}
+              <button
+                onClick={onMenuClick}
+                className="hidden lg:hidden p-2 rounded-lg hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors shrink-0"
+              >
+                <Menu className="w-5 h-5 sm:w-6 sm:h-6 text-slate-700 dark:text-slate-200" />
+              </button>
+
+              {/* Logo - Centered on mobile, left on desktop */}
+              <Link href="/" className="group flex-1 lg:flex-none text-center lg:text-left">
+                <span className="text-lg sm:text-xl lg:text-2xl font-bold bg-gradient-to-r from-emerald-600 to-emerald-700 bg-clip-text text-transparent group-hover:from-emerald-700 group-hover:to-emerald-800 transition-all duration-200">
+                  DiskusiBisnis
+                </span>
+              </Link>
+            </>
+          )}
 
           {/* Navigation - Mobile Optimized */}
-          <div className="flex items-center gap-1.5 sm:gap-2 shrink-0">
+          <div className={`items-center justify-end gap-1.5 sm:gap-2 shrink-0 min-w-[36px] lg:min-w-0 ${isNavbarSearchOpen ? 'hidden lg:flex' : 'flex'}`}>
             {loading ? (
-              <div className="w-8 h-8 flex items-center justify-center">
+              <div className="hidden lg:flex w-8 h-8 items-center justify-center">
                 <div className="animate-spin rounded-full h-5 w-5 border-2 border-emerald-600 border-t-transparent"></div>
               </div>
             ) : user ? (
@@ -81,7 +138,7 @@ export default function Navbar({ onMenuClick }: NavbarProps) {
                 </div>
 
                 {/* User Menu */}
-                <div className="relative" ref={userMenuRef}>
+                <div className="relative hidden lg:block" ref={userMenuRef}>
                   <button
                     onClick={() => setShowUserMenu(!showUserMenu)}
                     className="flex items-center gap-2 p-1.5 sm:p-2 hover:bg-slate-50 dark:hover:bg-slate-800 rounded-xl transition-colors group"

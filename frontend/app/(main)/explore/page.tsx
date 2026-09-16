@@ -36,41 +36,30 @@ export default function ExplorePage() {
                 </div>
 
                 <div className="space-y-12">
-                    {/* Main Menu Grid */}
+                    {/* Main Menu App-like Grid */}
                     <section>
-                        <div className="flex items-center gap-2 mb-6 px-1">
-                            <div className="w-1.5 h-6 bg-emerald-500 rounded-full" />
-                            <h2 className="text-xs font-bold text-slate-400 dark:text-slate-500">
-                                Navigasi utama
-                            </h2>
-                        </div>
-                        
-                        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-                            <ExploreGridItem 
+                        <div className="grid grid-cols-4 gap-y-6 gap-x-2 sm:gap-6 bg-white dark:bg-slate-900 rounded-3xl p-5 sm:p-8 shadow-sm border border-slate-100 dark:border-slate-800/60">
+                            <ExploreAppMenu 
                                 href="/communities" 
                                 title="Komunitas" 
-                                description="Gabung grup diskusi" 
                                 icon={Globe} 
                                 color="blue"
                             />
-                            <ExploreGridItem 
+                            <ExploreAppMenu 
                                 href="/tags" 
                                 title="Topik" 
-                                description="Cari kategori bisnis" 
                                 icon={Hash} 
                                 color="purple"
                             />
-                            <ExploreGridItem 
+                            <ExploreAppMenu 
                                 href="/leaderboard" 
-                                title="Leaderboard" 
-                                description="Member teraktif" 
+                                title="Peringkat" 
                                 icon={Trophy} 
                                 color="amber"
                             />
-                            <ExploreGridItem 
+                            <ExploreAppMenu 
                                 href="/users" 
                                 title="Pengguna" 
-                                description="Cari member lain" 
                                 icon={User} 
                                 color="rose"
                             />
@@ -79,39 +68,34 @@ export default function ExplorePage() {
 
                     {/* Questions & Content section */}
                     <section>
-                        <div className="flex items-center gap-2 mb-6 px-1">
-                            <div className="w-1.5 h-6 bg-emerald-500 rounded-full" />
-                            <h2 className="text-xs font-bold text-slate-400 dark:text-slate-500">
-                                Diskusi & bantuan
+                        <div className="flex items-center gap-2 mb-4 px-2">
+                            <h2 className="text-sm font-bold text-slate-900 dark:text-white tracking-tight">
+                                Diskusi & Bantuan
                             </h2>
                         </div>
 
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                            <ExploreListItem 
+                        <div className="bg-white dark:bg-slate-900 rounded-3xl overflow-hidden shadow-sm border border-slate-100 dark:border-slate-800/60 divide-y divide-slate-100 dark:divide-slate-800/60">
+                            <ExploreListRow 
                                 href="/questions" 
                                 title="Semua pertanyaan" 
-                                description="Lihat semua diskusi terbaru dari komunitas" 
                                 icon={MessageCircleQuestion} 
                                 color="emerald"
                             />
-                            <ExploreListItem 
+                            <ExploreListRow 
                                 href="/unanswered" 
                                 title="Belum terjawab" 
-                                description="Bantu sesama dengan menjawab pertanyaan" 
                                 icon={HelpCircle} 
                                 color="orange"
                             />
-                            <ExploreListItem 
+                            <ExploreListRow 
                                 href="/saved" 
                                 title="Disimpan" 
-                                description="Koleksi diskusi yang telah Anda simpan" 
                                 icon={Bookmark} 
                                 color="sky"
                             />
-                            <ExploreListItem 
+                            <ExploreListRow 
                                 href="/contact" 
-                                title="Bantuan / cs" 
-                                description="Hubungi tim dukungan kami" 
+                                title="Bantuan / Layanan" 
                                 icon={Mail} 
                                 color="slate"
                             />
@@ -164,61 +148,37 @@ export default function ExplorePage() {
     );
 }
 
-function ExploreGridItem({ href, title, description, icon: Icon, color }: any) {
-    const colorVariants: any = {
-        blue: "text-blue-500 bg-blue-500/10",
-        purple: "text-purple-500 bg-purple-500/10",
-        amber: "text-amber-500 bg-amber-500/10",
-        rose: "text-rose-500 bg-rose-500/10",
-    };
-
+function ExploreAppMenu({ href, title, icon: Icon }: any) {
     return (
         <Link 
             href={href} 
-            className="group relative bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-sm rounded-2xl p-6 hover:bg-white dark:hover:bg-slate-800 transition-all duration-500 hover:shadow-xl hover:-translate-y-1 overflow-hidden"
+            className="flex flex-col items-center gap-2.5 group outline-none"
         >
-            <div className={cn("w-12 h-12 rounded-2xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-500", colorVariants[color])}>
-                <Icon className="w-6 h-6" />
+            <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-2xl flex items-center justify-center transition-transform group-active:scale-90 text-emerald-600 bg-emerald-50 dark:bg-emerald-500/10 dark:text-emerald-400 group-hover:bg-emerald-100 dark:group-hover:bg-emerald-500/20">
+                <Icon className="w-6 h-6 sm:w-7 sm:h-7" strokeWidth={2.5} />
             </div>
-            <div>
-                <h3 className="text-lg font-black text-slate-900 dark:text-white group-hover:text-emerald-600 transition-colors">
-                    {title}
-                </h3>
-                <p className="text-xs font-medium text-slate-500 dark:text-slate-400 mt-1 line-clamp-1">
-                    {description}
-                </p>
-            </div>
+            <span className="text-[11px] sm:text-xs font-semibold text-slate-700 dark:text-slate-300 text-center tracking-tight leading-tight group-hover:text-emerald-600 dark:group-hover:text-emerald-400 transition-colors">
+                {title}
+            </span>
         </Link>
     );
 }
 
-function ExploreListItem({ href, title, description, icon: Icon, color }: any) {
-    const colorVariants: any = {
-        emerald: "text-emerald-500 bg-emerald-500/10",
-        orange: "text-orange-500 bg-orange-500/10",
-        sky: "text-sky-500 bg-sky-500/10",
-        slate: "text-slate-500 bg-slate-500/10",
-    };
-
+function ExploreListRow({ href, title, icon: Icon }: any) {
     return (
         <Link 
             href={href} 
-            className="group flex items-center justify-between p-5 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-sm rounded-2xl hover:bg-white dark:hover:bg-slate-800 transition-all duration-500 hover:shadow-lg"
+            className="flex items-center justify-between p-4 sm:p-5 hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors group outline-none"
         >
             <div className="flex items-center gap-4">
-                <div className={cn("w-12 h-12 rounded-2xl flex items-center justify-center group-hover:scale-110 transition-transform duration-500", colorVariants[color])}>
+                <div className="w-10 h-10 rounded-xl flex items-center justify-center text-slate-500 bg-slate-50 dark:bg-slate-800 dark:text-slate-400 group-hover:text-emerald-600 group-hover:bg-emerald-50 dark:group-hover:bg-emerald-500/10 dark:group-hover:text-emerald-400 transition-colors">
                     <Icon className="w-5 h-5" />
                 </div>
-                <div>
-                    <h3 className="font-black text-slate-900 dark:text-white group-hover:text-emerald-600 transition-colors">
-                        {title}
-                    </h3>
-                    <p className="text-xs font-medium text-slate-500 dark:text-slate-400 mt-0.5">
-                        {description}
-                    </p>
-                </div>
+                <span className="font-semibold text-slate-800 dark:text-slate-200 text-sm sm:text-base group-hover:text-emerald-600 dark:group-hover:text-emerald-400 transition-colors">
+                    {title}
+                </span>
             </div>
-            <ChevronRight className="w-5 h-5 text-slate-300 group-hover:text-emerald-500 group-hover:translate-x-1 transition-all" />
+            <ChevronRight className="w-5 h-5 text-slate-300 dark:text-slate-600 group-hover:text-emerald-500 transition-colors" />
         </Link>
     );
 }

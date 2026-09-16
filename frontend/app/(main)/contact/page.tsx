@@ -129,11 +129,11 @@ export default function ContactPage() {
     <div className="min-h-screen py-12 px-4 sm:px-6 lg:px-8 bg-slate-50 dark:bg-slate-950 transition-colors duration-200">
       <div className="max-w-3xl mx-auto">
         {/* Header Section */}
-        <div className="mb-10 text-center">
-          <h1 className="text-4xl font-bold text-slate-900 dark:text-slate-100 mb-4">
+        <div className="mb-8 text-center flex flex-col gap-1 items-center">
+          <h1 className="text-2xl font-bold text-slate-900 dark:text-white">
             Hubungi Kami
           </h1>
-          <p className="text-lg text-slate-600 dark:text-slate-400 mb-6">
+          <p className="text-sm text-slate-500 dark:text-slate-400 mb-4">
             Tim kami siap membantu Anda menyelesaikan masalah secepat mungkin.
           </p>
           <Link
@@ -146,101 +146,102 @@ export default function ContactPage() {
         </div>
 
         {/* Form */}
-        <form onSubmit={handleSubmit} className="space-y-8">
-
-          {/* Category Selection */}
-          <div>
-            <label className="block text-sm font-semibold text-slate-900 dark:text-slate-100 mb-4">Kategori Masalah</label>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              {categories.map((cat) => (
-                <button
-                  key={cat.value}
-                  type="button"
-                  onClick={() => setFormData({ ...formData, category: cat.value })}
-                  className={`flex items-start p-4 rounded-xl border transition-all text-left ${formData.category === cat.value
-                    ? 'border-emerald-500 bg-emerald-50/50 dark:bg-emerald-900/20 ring-1 ring-emerald-500'
-                    : 'border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 hover:border-slate-300 dark:hover:border-slate-600 hover:bg-slate-50 dark:hover:bg-slate-700'
-                    }`}
-                >
-                  <cat.icon className={`w-5 h-5 mr-3 mt-0.5 ${formData.category === cat.value ? 'text-emerald-600 dark:text-emerald-400' : 'text-slate-400 dark:text-slate-500'
-                    }`} />
-                  <div>
-                    <div className={`font-medium ${formData.category === cat.value ? 'text-emerald-900 dark:text-emerald-300' : 'text-slate-900 dark:text-slate-100'
-                      }`}>
-                      {cat.label}
+        <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl p-5 sm:p-8 shadow-sm">
+          <form onSubmit={handleSubmit} className="space-y-6">
+            {/* Category Selection */}
+            <div>
+              <label className="block text-sm font-bold text-slate-900 dark:text-slate-100 mb-3">Kategori Masalah</label>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                {categories.map((cat) => (
+                  <button
+                    key={cat.value}
+                    type="button"
+                    onClick={() => setFormData({ ...formData, category: cat.value })}
+                    className={`flex items-start p-4 rounded-xl border transition-all text-left ${formData.category === cat.value
+                      ? 'border-emerald-500 bg-emerald-50 dark:bg-emerald-900/20 ring-1 ring-emerald-500'
+                      : 'border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/50 hover:border-slate-300 dark:hover:border-slate-600'
+                      }`}
+                  >
+                    <cat.icon className={`w-5 h-5 mr-3 shrink-0 ${formData.category === cat.value ? 'text-emerald-600 dark:text-emerald-400' : 'text-slate-400 dark:text-slate-500'
+                      }`} />
+                    <div>
+                      <div className={`text-sm font-bold ${formData.category === cat.value ? 'text-emerald-900 dark:text-emerald-300' : 'text-slate-900 dark:text-slate-100'
+                        }`}>
+                        {cat.label}
+                      </div>
+                      <div className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
+                        {cat.description}
+                      </div>
                     </div>
-                    <div className="text-sm text-slate-500 dark:text-slate-400 mt-1">
-                      {cat.description}
-                    </div>
-                  </div>
-                </button>
-              ))}
+                  </button>
+                ))}
+              </div>
             </div>
-          </div>
 
-          {/* User Info */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div className="space-y-2">
-              <label className="block text-sm font-semibold text-slate-900 dark:text-slate-100">Nama Lengkap</label>
+            {/* User Info */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="space-y-1.5">
+                <label className="block text-sm font-bold text-slate-900 dark:text-slate-100">Nama Lengkap</label>
+                <input
+                  type="text"
+                  value={formData.name}
+                  onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                  className="w-full px-4 py-2.5 bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700 focus:border-emerald-500 rounded-xl text-sm text-slate-900 dark:text-slate-100 focus:ring-1 focus:ring-emerald-500 outline-none transition-all placeholder:text-slate-400"
+                  placeholder="Nama kamu"
+                  required
+                />
+              </div>
+              <div className="space-y-1.5">
+                <label className="block text-sm font-bold text-slate-900 dark:text-slate-100">Email</label>
+                <input
+                  type="email"
+                  value={formData.email}
+                  onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                  className="w-full px-4 py-2.5 bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700 focus:border-emerald-500 rounded-xl text-sm text-slate-900 dark:text-slate-100 focus:ring-1 focus:ring-emerald-500 outline-none transition-all placeholder:text-slate-400"
+                  placeholder="email@example.com"
+                  required
+                />
+              </div>
+            </div>
+
+            {/* Subject */}
+            <div className="space-y-1.5">
+              <label className="block text-sm font-bold text-slate-900 dark:text-slate-100">Subjek</label>
               <input
                 type="text"
-                value={formData.name}
-                onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                className="w-full px-4 py-3 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 focus:border-emerald-500 rounded-xl text-sm text-slate-900 dark:text-slate-100 focus:ring-2 focus:ring-emerald-500/20 outline-none transition-all placeholder:text-slate-400 dark:placeholder:text-slate-500"
-                placeholder="Nama kamu"
+                value={formData.subject}
+                onChange={(e) => setFormData({ ...formData, subject: e.target.value })}
+                className="w-full px-4 py-2.5 bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700 focus:border-emerald-500 rounded-xl text-sm text-slate-900 dark:text-slate-100 focus:ring-1 focus:ring-emerald-500 outline-none transition-all placeholder:text-slate-400"
+                placeholder="Judul masalah"
                 required
               />
             </div>
-            <div className="space-y-2">
-              <label className="block text-sm font-semibold text-slate-900 dark:text-slate-100">Email</label>
-              <input
-                type="email"
-                value={formData.email}
-                onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                className="w-full px-4 py-3 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 focus:border-emerald-500 rounded-xl text-sm text-slate-900 dark:text-slate-100 focus:ring-2 focus:ring-emerald-500/20 outline-none transition-all placeholder:text-slate-400 dark:placeholder:text-slate-500"
-                placeholder="email@example.com"
+
+            {/* Message */}
+            <div className="space-y-1.5">
+              <label className="block text-sm font-bold text-slate-900 dark:text-slate-100">Pesan</label>
+              <textarea
+                value={formData.message}
+                onChange={(e) => setFormData({ ...formData, message: e.target.value })}
+                className="w-full px-4 py-3 bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700 focus:border-emerald-500 rounded-xl text-sm text-slate-900 dark:text-slate-100 focus:ring-1 focus:ring-emerald-500 outline-none transition-all resize-none min-h-[120px] placeholder:text-slate-400"
+                placeholder="Jelaskan detail masalah..."
                 required
               />
             </div>
-          </div>
 
-          {/* Subject */}
-          <div className="space-y-2">
-            <label className="block text-sm font-semibold text-slate-900 dark:text-slate-100">Subjek</label>
-            <input
-              type="text"
-              value={formData.subject}
-              onChange={(e) => setFormData({ ...formData, subject: e.target.value })}
-              className="w-full px-4 py-3 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 focus:border-emerald-500 rounded-xl text-sm text-slate-900 dark:text-slate-100 focus:ring-2 focus:ring-emerald-500/20 outline-none transition-all placeholder:text-slate-400 dark:placeholder:text-slate-500"
-              placeholder="Judul masalah"
-              required
-            />
-          </div>
-
-          {/* Message */}
-          <div className="space-y-2">
-            <label className="block text-sm font-semibold text-slate-900 dark:text-slate-100">Pesan</label>
-            <textarea
-              value={formData.message}
-              onChange={(e) => setFormData({ ...formData, message: e.target.value })}
-              className="w-full px-4 py-3 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 focus:border-emerald-500 rounded-xl text-sm text-slate-900 dark:text-slate-100 focus:ring-2 focus:ring-emerald-500/20 outline-none transition-all resize-none min-h-[150px] placeholder:text-slate-400 dark:placeholder:text-slate-500"
-              placeholder="Jelaskan detail masalah..."
-              required
-            />
-          </div>
-
-          {/* Submit Button */}
-          <div className="pt-4">
-            <button
-              type="submit"
-              disabled={submitting}
-              className="w-full px-8 py-3.5 bg-emerald-600 text-white rounded-xl font-medium hover:bg-emerald-700 transition-colors disabled:opacity-70 disabled:cursor-not-allowed flex items-center justify-center gap-2 shadow-sm hover:shadow-md"
-            >
-              {submitting ? 'Mengirim...' : 'Kirim Pesan'}
-              {!submitting && <Send className="w-4 h-4" />}
-            </button>
-          </div>
-        </form>
+            {/* Submit Button */}
+            <div className="pt-2">
+              <button
+                type="submit"
+                disabled={submitting}
+                className="w-full px-6 py-3 bg-emerald-600 text-white rounded-xl text-sm font-bold hover:bg-emerald-700 transition-colors disabled:opacity-70 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+              >
+                {submitting ? 'Mengirim...' : 'Kirim Pesan'}
+                {!submitting && <Send className="w-4 h-4" />}
+              </button>
+            </div>
+          </form>
+        </div>
       </div>
 
       <AlertModal

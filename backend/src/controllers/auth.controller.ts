@@ -270,10 +270,36 @@ export const register = async (req: AuthRequest, res: Response): Promise<void> =
 /**
  * Logout user
  * POST /api/auth/logout
+ *
+ * Blacklists the current JWT so it cannot be reused even if stolen before logout.
+ * The blacklist entry TTL equals the token's remaining lifetime.
  */
-export const logout = async (_req: AuthRequest, res: Response): Promise<void> => {
+export const logout = async (req: AuthRequest, res: Response): Promise<void> => {
   try {
-    // Clear HttpOnly cookie
+    const token = req.cookies?.auth_token
+      || (req.headers['authorization'] as string | undefined)?.replace('Bearer ', '');
+
+    if (token) {
+      try {
+        const decoded = jwt.decode(token) as { exp?: number } | null;
+        if (decoded?.exp) {
+          const nowSeconds = Math.floor(Date.now() / 1000);
+          const ttlSeconds = decoded.exp - nowSeconds;
+          if (ttlSeconds > 0) {
+            const { rateLimitStore } = await import('../config/redis');
+            await rateLimitStore.set(
+              `blacklist:${token}`,
+              { count: 1, firstAttempt: Date.now() },
+              ttlSeconds
+            );
+          }
+        }
+      } catch (tokenErr) {
+        // Non-fatal: still proceed with cookie clearing even if blacklisting fails
+        console.error('Token blacklisting error (non-fatal):', tokenErr);
+      }
+    }
+
     clearTokenCookie(res);
     successResponse(res, null, 'Logout successful');
   } catch (error) {

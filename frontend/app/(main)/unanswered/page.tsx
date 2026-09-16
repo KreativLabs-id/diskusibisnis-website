@@ -96,11 +96,11 @@ export default function UnansweredPage() {
     <div className="min-h-screen bg-[#f8fafc] dark:bg-slate-950 pb-20 transition-colors duration-300">
       <div className="max-w-4xl mx-auto px-4 py-8 sm:py-14">
         {/* Professional Minimalist Header - Optimized for Mobile */}
-        <div className="mb-8 sm:mb-10">
-          <h1 className="text-2xl sm:text-4xl font-bold text-slate-900 dark:text-white tracking-tight">
+        <div className="mb-8 flex flex-col gap-1">
+          <h1 className="text-2xl font-bold text-slate-900 dark:text-white">
             Belum Terjawab
           </h1>
-          <p className="text-sm sm:text-lg text-slate-500 dark:text-slate-400 mt-1">
+          <p className="text-sm text-slate-500 dark:text-slate-400">
             Bantu sesama pebisnis dengan membagikan wawasan dan solusi Anda.
           </p>
         </div>
@@ -152,12 +152,7 @@ export default function UnansweredPage() {
             </div>
           ) : (
             questions.map((question) => (
-              <div key={question.id} className="relative group">
-                <div className="absolute -top-3 left-8 z-10">
-                  <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-500 text-white text-[10px] font-black uppercase tracking-widest shadow-lg shadow-emerald-500/20">
-                    <Sparkles className="w-3 h-3" /> Butuh Jawaban
-                  </span>
-                </div>
+              <div key={question.id} className="relative group/unanswered">
                 <QuestionCard question={question} />
               </div>
             ))

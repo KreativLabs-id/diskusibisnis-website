@@ -173,36 +173,28 @@ export function ReputationProgress({ reputationPoints }: { reputationPoints: num
     const nextLevelInfo = getNextLevel(reputationPoints);
 
     return (
-        <div className={`${currentLevel.bgColor} border ${currentLevel.borderColor} rounded-xl p-4`}>
-            <div className="flex items-center gap-3 mb-3">
-                <div className={`w-10 h-10 rounded-full bg-gradient-to-br ${currentLevel.gradient} flex items-center justify-center text-white shadow-lg`}>
-                    <span className="w-5 h-5">
+        <div>
+            <div className="flex justify-between items-end mb-2">
+                <div className="flex items-center gap-2">
+                    <span className={`w-4 h-4 ${currentLevel.color}`}>
                         {currentLevel.icon}
                     </span>
+                    <span className={`text-sm font-bold ${currentLevel.color}`}>{currentLevel.name}</span>
                 </div>
-                <div>
-                    <p className={`font-bold ${currentLevel.color}`}>{currentLevel.name}</p>
-                    <p className="text-xs text-slate-500">{reputationPoints} poin reputasi</p>
-                </div>
+                {nextLevelInfo && (
+                    <span className="text-[10px] font-semibold text-slate-500">{nextLevelInfo.pointsNeeded} pt ke {nextLevelInfo.name}</span>
+                )}
             </div>
 
-            {nextLevelInfo && (
-                <div>
-                    <div className="flex justify-between text-xs text-slate-500 mb-1">
-                        <span>Menuju {nextLevelInfo.name}</span>
-                        <span>{nextLevelInfo.pointsNeeded} poin lagi</span>
-                    </div>
-                    <div className="h-2 bg-white/50 rounded-full overflow-hidden">
-                        <div
-                            className={`h-full bg-gradient-to-r ${currentLevel.gradient} rounded-full transition-all duration-500`}
-                            style={{ width: `${nextLevelInfo.progress}%` }}
-                        />
-                    </div>
+            {nextLevelInfo ? (
+                <div className="h-1.5 bg-slate-100 dark:bg-slate-800 rounded-full overflow-hidden">
+                    <div
+                        className={`h-full bg-gradient-to-r ${currentLevel.gradient} rounded-full transition-all duration-500`}
+                        style={{ width: `${nextLevelInfo.progress}%` }}
+                    />
                 </div>
-            )}
-
-            {!nextLevelInfo && (
-                <p className="text-xs text-amber-600 font-medium flex items-center gap-1">
+            ) : (
+                <p className="text-[10px] text-amber-600 font-medium flex items-center gap-1 mt-1">
                     <Sparkles className="w-3 h-3" />
                     Level tertinggi tercapai!
                 </p>

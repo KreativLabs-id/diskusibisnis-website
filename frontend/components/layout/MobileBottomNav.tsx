@@ -66,15 +66,14 @@ export default function MobileBottomNav() {
                 {/* Profile / Login */}
                 <Link
                     href={user ? getProfileHref(user) : "/login"}
-                    className={cn(
-                        "flex flex-col items-center justify-center w-full h-full space-y-1 transition-all duration-300",
-                        isActive('/profile') || isActive('/login') ? "text-emerald-600 dark:text-emerald-400" : "text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200"
-                    )}
+                    className={`flex flex-col items-center justify-center w-full h-full space-y-1 ${
+                        isActive('/profile') || isActive('/login') ? 'text-emerald-600 dark:text-emerald-500' : 'text-slate-500 hover:text-slate-900 dark:text-slate-400 dark:hover:text-slate-200'
+                    }`}
                 >
                     {user ? (
                         <div className={cn(
                             "p-0.5 rounded-full border transition-all",
-                            isActive('/profile') ? "border-emerald-600 dark:border-emerald-400 scale-110" : "border-transparent"
+                            isActive('/profile') ? "border-emerald-600 dark:border-emerald-500 scale-110" : "border-transparent"
                         )}>
                             <UserAvatar
                                 src={user.avatarUrl}
@@ -84,9 +83,9 @@ export default function MobileBottomNav() {
                             />
                         </div>
                     ) : (
-                        <LogIn className={cn("w-6 h-6", isActive('/login') && "scale-110")} />
+                        <LogIn className="w-6 h-6" strokeWidth={isActive('/login') ? 2.5 : 2} />
                     )}
-                    <span className="text-[10px] font-bold uppercase tracking-widest">
+                    <span className="text-[10px] font-medium">
                         {user ? 'Profil' : 'Masuk'}
                     </span>
                 </Link>

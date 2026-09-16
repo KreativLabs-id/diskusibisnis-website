@@ -18,6 +18,8 @@ import {
 import AlertModal from '@/components/ui/AlertModal';
 import ConfirmModal from '@/components/ui/ConfirmModal';
 import SimpleRichEditor from '@/components/ui/SimpleRichEditor';
+import DOMPurify from 'dompurify';
+
 
 interface NewsletterStats {
     totalSubscribers: number;
@@ -754,7 +756,10 @@ export default function AdminNewsletter() {
                             </div>
                             <div
                                 className="prose prose-sm max-w-none"
-                                dangerouslySetInnerHTML={{ __html: content || '<p class="text-slate-400">Konten belum diisi...</p>' }}
+                                dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(content || '<p class="text-slate-400">Konten belum diisi...</p>', {
+                                    ALLOWED_TAGS: ['p','br','strong','em','u','h2','h3','ul','ol','li','blockquote','a','span','div'],
+                                    ALLOWED_ATTR: ['href','target','rel','class'],
+                                }) }}
                             />
                         </div>
                     </div>

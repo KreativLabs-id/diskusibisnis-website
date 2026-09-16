@@ -6,6 +6,7 @@ import { PWAInstallPrompt } from '@/components/PWAInstallPrompt';
 import { PWAUpdateModal } from '@/components/PWAUpdateModal';
 import { OfflineIndicator } from '@/components/OfflineIndicator';
 import { ThemeProvider } from '@/contexts/ThemeContext';
+import { SearchProvider } from '@/contexts/SearchContext';
 
 export default function ClientProviders({
   children,
@@ -16,10 +17,12 @@ export default function ClientProviders({
     <ThemeProvider>
       <AuthProvider>
         <NotificationProvider>
-          <OfflineIndicator />
-          {children}
-          <PWAInstallPrompt />
-          <PWAUpdateModal />
+          <SearchProvider>
+            <OfflineIndicator />
+            {children}
+            <PWAInstallPrompt />
+            <PWAUpdateModal />
+          </SearchProvider>
         </NotificationProvider>
       </AuthProvider>
     </ThemeProvider>

@@ -102,14 +102,9 @@ const ImageUpload: React.FC<ImageUploadProps> = ({
     }
 
     // Ganti temp previews dengan hasil upload yang sebenarnya
-    // Pertahankan gambar lama (existingCount), ganti temp dengan newImages
-    setImages(prev => {
-      const existingImages = prev.slice(0, existingCount);
-      const finalImages = [...existingImages, ...newImages];
-      // Notify parent langsung di sini dengan nilai final
-      onImagesChange(finalImages);
-      return finalImages;
-    });
+    const finalImages = [...images, ...newImages];
+    setImages(finalImages);
+    onImagesChange(finalImages);
 
     setUploading(false);
     setUploadProgress(0);
@@ -117,7 +112,10 @@ const ImageUpload: React.FC<ImageUploadProps> = ({
   }, [images, maxImages, userId, onImagesChange]);
 
 
-  const handleRemoveImage = async (index: number) => {
+  const handleRemoveImage = async (e: React.MouseEvent, index: number) => {
+    e.preventDefault();
+    e.stopPropagation();
+    
     const imageToRemove = images[index];
 
     try {
@@ -167,9 +165,9 @@ const ImageUpload: React.FC<ImageUploadProps> = ({
       {/* Upload Area */}
       <div
         className={`
-          relative border-2 border-dashed rounded-lg p-6 transition-colors
-          ${dragActive ? 'border-blue-500 bg-blue-50' : 'border-gray-300'}
-          ${disabled ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer hover:border-gray-400'}
+          relative border border-dashed rounded-xl p-3.5 sm:p-4 transition-colors
+          ${dragActive ? 'border-emerald-500 bg-emerald-50/50 dark:bg-emerald-950/20' : 'border-slate-300 dark:border-slate-700 bg-slate-50/50 dark:bg-slate-900/50'}
+          ${disabled ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer hover:border-slate-400 dark:hover:border-slate-600'}
         `}
         onDragEnter={handleDrag}
         onDragLeave={handleDrag}
@@ -187,29 +185,26 @@ const ImageUpload: React.FC<ImageUploadProps> = ({
           disabled={disabled || uploading}
         />
 
-        <div className="flex flex-col items-center justify-center space-y-3">
+        <div className="flex items-center justify-center gap-2.5">
           {uploading ? (
             <>
-              <Loader2 className="w-12 h-12 text-blue-500 animate-spin" />
-              <p className="text-sm text-gray-600">
-                Uploading... {Math.round(uploadProgress)}%
+              <Loader2 className="w-4 h-4 text-emerald-600 animate-spin" />
+              <p className="text-xs text-slate-600 dark:text-slate-400">
+                Mengunggah... {Math.round(uploadProgress)}%
               </p>
             </>
           ) : (
             <>
-              <div className="p-3 bg-gray-100 rounded-full">
-                <Upload className="w-8 h-8 text-gray-500" />
+              <div className="p-1.5 bg-slate-200/70 dark:bg-slate-800 rounded-lg shrink-0">
+                <Upload className="w-4 h-4 text-slate-500 dark:text-slate-400" />
               </div>
-              <div className="text-center">
-                <p className="text-sm font-medium text-gray-700">
-                  Klik atau drag & drop gambar di sini
-                </p>
-                <p className="text-xs text-gray-500 mt-1">
-                  JPG, PNG, GIF, WebP (Maks. 5MB per file)
-                </p>
-                <p className="text-xs text-gray-500">
-                  Maksimal {maxImages} gambar
-                </p>
+              <div>
+                <span className="text-xs font-semibold text-slate-700 dark:text-slate-300">
+                  Pilih atau seret gambar
+                </span>
+                <span className="text-[11px] text-slate-400 dark:text-slate-500 ml-1.5">
+                  (Maks. {maxImages} file, 5MB)
+                </span>
               </div>
             </>
           )}
@@ -246,15 +241,16 @@ const ImageUpload: React.FC<ImageUploadProps> = ({
               {/* Remove Button */}
               {(image.preview || image.url) && (
                 <button
-                  onClick={() => handleRemoveImage(index)}
+                  type="button"
+                  onClick={(e) => handleRemoveImage(e, index)}
                   className="
-                    absolute top-2 right-2 p-1.5 bg-red-500 text-white rounded-full
-                    opacity-0 group-hover:opacity-100 transition-opacity
-                    hover:bg-red-600 focus:outline-none focus:ring-2 focus:ring-red-500
+                    absolute top-1.5 right-1.5 p-1.5 bg-slate-900/60 hover:bg-red-500 text-white rounded-full
+                    backdrop-blur-sm transition-all z-10
+                    focus:outline-none focus:ring-2 focus:ring-red-500
                   "
-                  disabled={disabled}
+                  disabled={disabled || uploading}
                 >
-                  <X className="w-4 h-4" />
+                  <X className="w-3.5 h-3.5" />
                 </button>
               )}
 

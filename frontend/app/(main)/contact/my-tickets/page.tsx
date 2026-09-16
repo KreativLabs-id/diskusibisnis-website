@@ -211,30 +211,30 @@ export default function MyTicketsPage() {
 
           <div className="space-y-8">
             {/* Ticket Header */}
-            <div className="border-b border-slate-200 dark:border-slate-700 pb-6">
-              <div className="flex items-start justify-between mb-4">
+            <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl p-5 sm:p-6 shadow-sm mb-6">
+              <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4 mb-4">
                 <div>
-                  <h1 className="text-2xl font-bold text-slate-900 dark:text-slate-100 mb-2">{selectedTicket.subject}</h1>
-                  <div className="flex items-center gap-3 text-sm text-slate-500 dark:text-slate-400">
-                    <span className="font-mono bg-white dark:bg-slate-800 px-2 py-0.5 rounded border border-slate-200 dark:border-slate-700">#{selectedTicket.ticket_number}</span>
-                    <span>•</span>
+                  <h1 className="text-xl font-bold text-slate-900 dark:text-slate-100 mb-1.5">{selectedTicket.subject}</h1>
+                  <div className="flex flex-wrap items-center gap-2 text-xs font-medium text-slate-500 dark:text-slate-400">
+                    <span className="font-mono bg-slate-100 dark:bg-slate-800 px-1.5 py-0.5 rounded border border-slate-200 dark:border-slate-700">#{selectedTicket.ticket_number}</span>
+                    <span className="text-slate-300 dark:text-slate-600">•</span>
                     <span>{formatDate(selectedTicket.created_at)}</span>
-                    <span>•</span>
+                    <span className="text-slate-300 dark:text-slate-600">•</span>
                     <span className="capitalize">{selectedTicket.category}</span>
                   </div>
                 </div>
-                <div className={`px-3 py-1 rounded-full text-xs font-medium border ${statusColors[selectedTicket.status]}`}>
+                <div className={`px-2.5 py-1 rounded-md text-xs font-bold border shrink-0 w-fit ${statusColors[selectedTicket.status]}`}>
                   {statusLabels[selectedTicket.status]}
                 </div>
               </div>
 
-              <div className="flex items-start gap-4 mt-6">
-                <div className="w-10 h-10 bg-slate-100 dark:bg-slate-800 rounded-full flex items-center justify-center text-slate-600 dark:text-slate-300 font-bold text-sm shrink-0">
+              <div className="flex items-start gap-3 mt-4 pt-4 border-t border-slate-100 dark:border-slate-800/50">
+                <div className="w-8 h-8 bg-slate-100 dark:bg-slate-800 rounded-full flex items-center justify-center text-slate-600 dark:text-slate-300 font-bold text-xs shrink-0">
                   {selectedTicket.name?.charAt(0).toUpperCase()}
                 </div>
                 <div>
                   <p className="text-sm font-semibold text-slate-900 dark:text-slate-100">{selectedTicket.name}</p>
-                  <p className="text-slate-700 dark:text-slate-300 mt-2 whitespace-pre-wrap leading-relaxed">
+                  <p className="text-slate-700 dark:text-slate-300 mt-1.5 whitespace-pre-wrap text-sm leading-relaxed">
                     {selectedTicket.message}
                   </p>
                 </div>
@@ -337,18 +337,18 @@ export default function MyTicketsPage() {
     <div className="min-h-screen py-12 px-4 sm:px-6 lg:px-8 bg-[#f8fafc] dark:bg-slate-950 transition-colors duration-200">
       <div className="max-w-3xl mx-auto">
         {/* Header */}
-        <div className="mb-10">
+        <div className="mb-8 flex flex-col gap-4">
           <Link
             href="/contact"
-            className="inline-flex items-center gap-2 text-slate-500 dark:text-slate-400 hover:text-emerald-600 dark:hover:text-emerald-400 text-sm mb-6 transition-colors"
+            className="inline-flex items-center gap-2 text-slate-500 dark:text-slate-400 hover:text-emerald-600 dark:hover:text-emerald-400 text-sm w-fit transition-colors"
           >
             <ArrowLeft className="w-4 h-4" />
             Kembali ke Hubungi Kami
           </Link>
-          <div className="flex items-center justify-between">
-            <div>
-              <h1 className="text-3xl font-bold text-slate-900 dark:text-slate-100 mb-2">Tiket Saya</h1>
-              <p className="text-slate-600 dark:text-slate-400">Riwayat tiket support untuk <span className="font-medium text-slate-900 dark:text-slate-100">{user.email}</span></p>
+          <div className="flex items-center justify-between gap-4">
+            <div className="flex flex-col gap-1">
+              <h1 className="text-2xl font-bold text-slate-900 dark:text-white">Tiket Saya</h1>
+              <p className="text-sm text-slate-500 dark:text-slate-400">Riwayat tiket support untuk <span className="font-medium text-slate-900 dark:text-white">{user.email}</span></p>
             </div>
             <div className="flex items-center gap-3">
               <button
@@ -359,9 +359,6 @@ export default function MyTicketsPage() {
               >
                 <RefreshCw className={`w-5 h-5 ${loading ? 'animate-spin' : ''}`} />
               </button>
-              <div className="w-12 h-12 bg-emerald-50 dark:bg-emerald-900/30 rounded-full flex items-center justify-center">
-                <Inbox className="w-6 h-6 text-emerald-600 dark:text-emerald-400" />
-              </div>
             </div>
           </div>
         </div>
@@ -404,39 +401,40 @@ export default function MyTicketsPage() {
               </Link>
             </div>
           ) : (
-            <div className="divide-y divide-slate-200 dark:divide-slate-700">
+            <div className="flex flex-col gap-3">
               {tickets.map((ticket) => (
                 <div
                   key={ticket.id}
                   onClick={() => handleViewTicket(ticket.ticket_number)}
-                  className="group py-4 cursor-pointer hover:bg-slate-100 dark:hover:bg-slate-800/50 -mx-4 px-4 rounded-xl transition-colors"
+                  className="group bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl p-4 sm:p-5 hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors cursor-pointer"
                 >
                   <div className="flex items-start justify-between gap-4">
                     <div className="flex-1 min-w-0">
-                      <div className="flex items-center gap-3 mb-2">
-                        <span className="text-xs font-mono text-slate-500 dark:text-slate-400 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 px-2 py-0.5 rounded">
+                      <div className="flex items-center gap-2 mb-2">
+                        <span className="text-xs font-mono text-slate-500 dark:text-slate-400">
                           #{ticket.ticket_number}
                         </span>
-                        <span className={`text-xs px-2.5 py-0.5 rounded-full border ${statusColors[ticket.status]}`}>
+                        <span className="text-slate-300 dark:text-slate-600">•</span>
+                        <span className={`text-[10px] font-bold px-2 py-0.5 rounded-md border ${statusColors[ticket.status]}`}>
                           {statusLabels[ticket.status]}
                         </span>
                       </div>
-                      <h3 className="font-bold text-slate-900 dark:text-slate-100 text-lg mb-1 group-hover:text-emerald-700 dark:group-hover:text-emerald-400 transition-colors">
+                      <h3 className="font-bold text-slate-900 dark:text-slate-100 text-base mb-1.5 group-hover:text-emerald-700 dark:group-hover:text-emerald-400 transition-colors line-clamp-1">
                         {ticket.subject}
                       </h3>
-                      <div className="flex items-center gap-4 text-sm text-slate-500 dark:text-slate-400">
+                      <div className="flex items-center gap-3 text-xs text-slate-500 dark:text-slate-400 font-medium">
                         <span className="flex items-center gap-1.5">
-                          <Clock className="w-4 h-4" />
+                          <Clock className="w-3.5 h-3.5" />
                           {formatDate(ticket.created_at)}
                         </span>
                         <span className="flex items-center gap-1.5 capitalize">
-                          <MessageSquare className="w-4 h-4" />
+                          <MessageSquare className="w-3.5 h-3.5" />
                           {ticket.category}
                         </span>
                       </div>
                     </div>
-                    <div className="self-center">
-                      <ChevronRight className="w-5 h-5 text-slate-300 dark:text-slate-600 group-hover:text-emerald-500 transition-colors" />
+                    <div className="self-center shrink-0">
+                      <ChevronRight className="w-5 h-5 text-slate-400 group-hover:text-emerald-500 transition-colors" />
                     </div>
                   </div>
                 </div>

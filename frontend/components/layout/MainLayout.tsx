@@ -86,20 +86,17 @@ export default function MainLayout({ children }: MainLayoutProps) {
             <p className="text-sm text-slate-600 dark:text-slate-400">
               &copy; {new Date().getFullYear()} DiskusiBisnis. Platform Q&A untuk UMKM Indonesia.
             </p>
-            <div className="flex flex-wrap justify-center gap-3 sm:gap-4 mt-3">
-              <a href="/about" className="text-xs text-slate-500 dark:text-slate-400 hover:text-emerald-600 dark:hover:text-emerald-400 transition-colors">
-                Tentang
-              </a>
-              <a href="/about-community" className="text-xs text-slate-500 dark:text-slate-400 hover:text-emerald-600 dark:hover:text-emerald-400 transition-colors">
+            <div className="flex flex-wrap items-center justify-center gap-x-4 gap-y-2 mt-3">
+              <a href="/tentang" className="text-xs font-medium text-slate-500 dark:text-slate-400 hover:text-emerald-600 dark:hover:text-emerald-400 transition-colors">
                 Tentang Komunitas
               </a>
-              <a href="/privacy" className="text-xs text-slate-500 dark:text-slate-400 hover:text-emerald-600 dark:hover:text-emerald-400 transition-colors">
+              <a href="/privasi" className="text-xs font-medium text-slate-500 dark:text-slate-400 hover:text-emerald-600 dark:hover:text-emerald-400 transition-colors">
                 Privasi
               </a>
-              <a href="/terms" className="text-xs text-slate-500 dark:text-slate-400 hover:text-emerald-600 dark:hover:text-emerald-400 transition-colors">
+              <a href="/syarat" className="text-xs font-medium text-slate-500 dark:text-slate-400 hover:text-emerald-600 dark:hover:text-emerald-400 transition-colors">
                 Syarat & Ketentuan
               </a>
-              <a href="/help" className="text-xs text-slate-500 dark:text-slate-400 hover:text-emerald-600 dark:hover:text-emerald-400 transition-colors">
+              <a href="/bantuan" className="text-xs font-medium text-slate-500 dark:text-slate-400 hover:text-emerald-600 dark:hover:text-emerald-400 transition-colors">
                 Bantuan
               </a>
             </div>

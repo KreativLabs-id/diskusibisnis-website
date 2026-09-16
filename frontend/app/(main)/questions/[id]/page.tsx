@@ -84,5 +84,32 @@ export async function generateMetadata(
 export default async function QuestionDetailPage({ params }: Props) {
   const question = await getQuestion(params.id);
 
-  return <QuestionDetailClient initialQuestion={question} questionId={params.id} />;
+  const jsonLd = question ? {
+    "@context": "https://schema.org",
+    "@type": "QAPage",
+    "mainEntity": {
+      "@type": "Question",
+      "name": question.title,
+      "text": (question.content || '').replace(/<[^>]*>/g, '').trim(),
+      "answerCount": question.answers_count || 0,
+      "upvoteCount": question.upvotes_count || 0,
+      "dateCreated": question.created_at,
+      "author": {
+        "@type": "Person",
+        "name": question.author_name
+      }
+    }
+  } : null;
+
+  return (
+    <>
+      {jsonLd && (
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+        />
+      )}
+      <QuestionDetailClient initialQuestion={question} questionId={params.id} />
+    </>
+  );
 }

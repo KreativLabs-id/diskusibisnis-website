@@ -1,6 +1,8 @@
 'use client';
 
 import React, { useState, useRef, useCallback, useEffect } from 'react';
+import DOMPurify from 'dompurify';
+
 import {
     Bold,
     Italic,
@@ -36,7 +38,12 @@ export default function SimpleRichEditor({ value, onChange, placeholder }: Simpl
     useEffect(() => {
         // Only update if value changed from outside (not from user typing)
         if (editorRef.current && value !== lastExternalValueRef.current && !isUserTypingRef.current) {
-            editorRef.current.innerHTML = value;
+            // Sanitize HTML before injecting into the DOM to prevent XSS
+            const cleanHtml = DOMPurify.sanitize(value, {
+                ALLOWED_TAGS: ['p','br','strong','em','u','h2','h3','ul','ol','li','blockquote','a','span','div'],
+                ALLOWED_ATTR: ['href','target','rel','class','style'],
+            });
+            editorRef.current.innerHTML = cleanHtml;
             lastExternalValueRef.current = value;
 
             // Move cursor to end after content is set
@@ -55,7 +62,11 @@ export default function SimpleRichEditor({ value, onChange, placeholder }: Simpl
     // Initialize content on mount
     useEffect(() => {
         if (editorRef.current && value && !editorRef.current.innerHTML) {
-            editorRef.current.innerHTML = value;
+            const cleanHtml = DOMPurify.sanitize(value, {
+                ALLOWED_TAGS: ['p','br','strong','em','u','h2','h3','ul','ol','li','blockquote','a','span','div'],
+                ALLOWED_ATTR: ['href','target','rel','class','style'],
+            });
+            editorRef.current.innerHTML = cleanHtml;
         }
     }, []);
 

@@ -171,13 +171,13 @@ export default function SettingsPage() {
       <div className="max-w-2xl mx-auto px-4 md:px-0 py-8">
 
         {/* Header - Simple & Clean */}
-        <div className="mb-10 px-2 md:px-0">
+        <div className="mb-8 px-2 md:px-0">
           <h1 className="text-2xl font-bold text-slate-900 dark:text-slate-100">Pengaturan</h1>
           <p className="text-slate-500 dark:text-slate-400 text-sm mt-1">Kelola preferensi akun Anda</p>
         </div>
 
         {/* Notifications */}
-        <div className="px-2 md:px-0 mb-8 space-y-4">
+        <div className="px-2 md:px-0 mb-6 space-y-4">
           {success && (
             <div className="bg-emerald-50 text-emerald-800 px-4 py-3 rounded-xl flex items-center gap-3 animate-in fade-in slide-in-from-top-2 border border-emerald-100">
               <CheckCircle className="w-5 h-5 text-emerald-600 flex-shrink-0" />
@@ -192,19 +192,17 @@ export default function SettingsPage() {
           )}
         </div>
 
-        {/* Main Form Area - No "Cards", just stacked inputs */}
-        <div className="space-y-12">
-
+        <div className="space-y-8">
           <section className="px-2 md:px-0">
-            <h2 className="text-sm font-bold text-slate-900 dark:text-slate-100 uppercase tracking-wider mb-6">Profil</h2>
+            <h2 className="text-[11px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-widest mb-3">Profil</h2>
 
-            <form onSubmit={handleSubmit}>
-              <div className="flex flex-col gap-8">
+            <form onSubmit={handleSubmit} className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-5 sm:p-6 shadow-sm">
+              <div className="flex flex-col gap-6">
 
-                {/* Avatar Section - Centered & Premium */}
-                <div className="flex flex-col items-center justify-center py-8 bg-slate-50/50 dark:bg-slate-900/30 rounded-2xl border border-dashed border-slate-200 dark:border-slate-800">
-                  <div className="relative group">
-                    <div className="w-24 h-24 sm:w-28 sm:h-28 rounded-full p-1 bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800 shadow-sm relative z-10 overflow-hidden">
+                {/* Avatar Section - Compact */}
+                <div className="flex items-center gap-5">
+                  <div className="relative group shrink-0">
+                    <div className="w-20 h-20 sm:w-24 sm:h-24 rounded-full p-1 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-sm relative z-10 overflow-hidden">
                       <UserAvatar
                         src={avatarPreview}
                         alt="Avatar"
@@ -218,9 +216,9 @@ export default function SettingsPage() {
                       type="button"
                       onClick={() => fileInputRef.current?.click()}
                       disabled={uploadingAvatar || loading}
-                      className="absolute bottom-1 right-1 z-20 p-2 bg-emerald-600 text-white rounded-full hover:bg-emerald-700 transition-all border-2 border-white dark:border-slate-900 shadow-lg"
+                      className="absolute bottom-0 right-0 z-20 p-1.5 bg-slate-900 dark:bg-white text-white dark:text-slate-900 rounded-full hover:bg-slate-800 dark:hover:bg-slate-200 transition-all border-2 border-white dark:border-slate-950 shadow-sm"
                     >
-                      <Camera className="w-4 h-4" />
+                      <Camera className="w-3.5 h-3.5" />
                     </button>
                     
                     <input
@@ -232,21 +230,21 @@ export default function SettingsPage() {
                     />
                   </div>
                   
-                  <div className="mt-4 text-center">
-                    <h3 className="text-sm font-bold text-slate-900 dark:text-slate-100 uppercase tracking-tight">Foto Profil</h3>
-                    <div className="flex items-center justify-center gap-4 mt-2">
+                  <div className="flex flex-col gap-2">
+                    <h3 className="text-sm font-bold text-slate-900 dark:text-slate-100 tracking-tight">Foto Profil</h3>
+                    <div className="flex items-center gap-2">
                       <button
                         type="button"
                         onClick={() => fileInputRef.current?.click()}
-                        className="text-xs font-semibold px-3 py-1.5 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors shadow-sm"
+                        className="text-xs font-semibold px-4 py-2 bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 rounded-lg hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors shadow-sm"
                       >
-                        Pilih Foto
+                        Ubah Foto
                       </button>
                       {avatarPreview && (
                         <button
                           type="button"
                           onClick={handleRemoveAvatar}
-                          className="text-xs font-semibold px-3 py-1.5 text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-colors"
+                          className="text-xs font-semibold px-4 py-2 text-red-600 dark:text-red-400 bg-red-50 dark:bg-red-900/10 hover:bg-red-100 dark:hover:bg-red-900/20 rounded-lg transition-colors"
                         >
                           Hapus
                         </button>
@@ -255,32 +253,29 @@ export default function SettingsPage() {
                   </div>
                 </div>
 
-                {/* Form Fields - Minimalist, underline/clean style */}
-                <div className="space-y-6">
+                {/* Form Fields - Minimalist, unified styles */}
+                <div className="space-y-4">
                   <div className="group">
-                    <label className="block text-xs font-semibold text-slate-500 dark:text-slate-400 mb-1.5 uppercase tracking-wide">Display Name</label>
+                    <label className="block text-xs font-bold text-slate-500 dark:text-slate-400 mb-2 uppercase tracking-wide">Display Name</label>
                     <input
                       type="text"
                       value={formData.displayName}
                       onChange={(e) => setFormData({ ...formData, displayName: e.target.value })}
-                      className="w-full py-2.5 bg-transparent border-b border-slate-200 dark:border-slate-700 focus:border-emerald-500 focus:outline-none transition-colors text-slate-900 dark:text-slate-100 font-medium placeholder:text-slate-300 dark:placeholder:text-slate-600"
+                      className="w-full px-4 py-3 bg-slate-50 dark:bg-slate-950/50 border border-slate-200 dark:border-slate-800 focus:bg-white dark:focus:bg-slate-900 focus:border-emerald-500 rounded-xl outline-none text-sm transition-all text-slate-900 dark:text-slate-100 font-medium placeholder:text-slate-400 dark:placeholder:text-slate-600"
                       placeholder="Nama Lengkap"
                     />
                   </div>
 
                   <div className="group">
-                    <label className="block text-xs font-semibold text-slate-500 dark:text-slate-400 mb-1.5 uppercase tracking-wide">Bio</label>
+                    <label className="block text-xs font-bold text-slate-500 dark:text-slate-400 mb-2 uppercase tracking-wide">Bio</label>
                     <textarea
-                      rows={2}
+                      rows={3}
                       value={formData.bio}
                       onChange={(e) => setFormData({ ...formData, bio: e.target.value })}
-                      className="w-full py-2.5 bg-transparent border-b border-slate-200 dark:border-slate-700 focus:border-emerald-500 focus:outline-none transition-colors text-slate-900 dark:text-slate-100 resize-none placeholder:text-slate-300 dark:placeholder:text-slate-600"
+                      className="w-full px-4 py-3 bg-slate-50 dark:bg-slate-950/50 border border-slate-200 dark:border-slate-800 focus:bg-white dark:focus:bg-slate-900 focus:border-emerald-500 rounded-xl outline-none text-sm transition-all text-slate-900 dark:text-slate-100 font-medium resize-none placeholder:text-slate-400 dark:placeholder:text-slate-600"
                       placeholder="Ceritakan sedikit tentang Anda..."
                       maxLength={200}
                     />
-                    <div className="text-right mt-1 text-xs text-slate-400 dark:text-slate-500">
-                      {formData.bio.length}/200
-                    </div>
                   </div>
                 </div>
 
@@ -308,30 +303,28 @@ export default function SettingsPage() {
             </form>
           </section>
 
-          <hr className="border-slate-100 dark:border-slate-800 mx-2 md:mx-0" />
-
           {/* Account Section - List Style */}
           <section className="px-2 md:px-0">
-            <h2 className="text-sm font-bold text-slate-900 dark:text-slate-100 uppercase tracking-wider mb-4">Akun & Keamanan</h2>
-            <div className="flex flex-col">
+            <h2 className="text-[11px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-widest mb-3">Akun & Keamanan</h2>
+            <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl overflow-hidden shadow-sm divide-y divide-slate-100 dark:divide-slate-800/60">
 
-              <div className="flex items-center justify-between py-4 border-b border-slate-50 dark:border-slate-800 hover:bg-slate-50/50 dark:hover:bg-slate-800/50 transition-colors -mx-4 px-4 rounded-xl">
+              <div className="flex items-center justify-between p-4 sm:p-5 hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors">
                 <div className="flex items-center gap-4">
-                  <div className="p-2 bg-slate-50 dark:bg-slate-800 text-slate-600 dark:text-slate-400 rounded-lg">
+                  <div className="p-2 bg-slate-50 dark:bg-slate-800 text-slate-600 dark:text-slate-400 rounded-xl">
                     <Mail className="w-5 h-5" />
                   </div>
                   <div>
-                    <p className="text-sm font-medium text-slate-900 dark:text-slate-100">Email</p>
-                    <p className="text-xs text-slate-500 dark:text-slate-400">{user.email}</p>
+                    <p className="text-sm font-bold text-slate-900 dark:text-slate-100">Email</p>
+                    <p className="text-xs font-medium text-slate-500 dark:text-slate-400">{user.email}</p>
                   </div>
                 </div>
               </div>
 
               {/* Google Account Indicator */}
               {user.googleId && (
-                <div className="flex items-center justify-between py-4 border-b border-slate-50 dark:border-slate-800 -mx-4 px-4 rounded-xl">
+                <div className="flex items-center justify-between p-4 sm:p-5 hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors">
                   <div className="flex items-center gap-4">
-                    <div className="p-2 bg-white dark:bg-slate-700 rounded-lg shadow-sm border border-slate-100 dark:border-slate-600">
+                    <div className="p-2 bg-white dark:bg-slate-800 rounded-xl shadow-sm border border-slate-100 dark:border-slate-700">
                       <svg className="w-5 h-5" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                         <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4" />
                         <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853" />
@@ -340,73 +333,70 @@ export default function SettingsPage() {
                       </svg>
                     </div>
                     <div>
-                      <p className="text-sm font-medium text-slate-900 dark:text-slate-100">Login dengan Google</p>
-                      <p className="text-xs text-emerald-600 dark:text-emerald-400 font-medium">Terhubung</p>
+                      <p className="text-sm font-bold text-slate-900 dark:text-slate-100">Login dengan Google</p>
+                      <p className="text-xs font-medium text-emerald-600 dark:text-emerald-400">Terhubung</p>
                     </div>
                   </div>
-                  <div className="flex items-center gap-1 px-2 py-1 bg-emerald-50 dark:bg-emerald-900/20 rounded-full">
-                    <div className="w-2 h-2 bg-emerald-500 rounded-full"></div>
-                    <span className="text-xs text-emerald-700 dark:text-emerald-400 font-medium">Aktif</span>
+                  <div className="flex items-center gap-1.5 px-2.5 py-1 bg-emerald-50 dark:bg-emerald-500/10 rounded-full">
+                    <div className="w-1.5 h-1.5 bg-emerald-500 rounded-full"></div>
+                    <span className="text-[10px] font-bold text-emerald-600 dark:text-emerald-400">Aktif</span>
                   </div>
                 </div>
               )}
 
-              <div className="flex items-center justify-between py-4 border-b border-slate-50 dark:border-slate-800 hover:bg-slate-50/50 dark:hover:bg-slate-800/50 transition-colors -mx-4 px-4 rounded-xl cursor-pointer"
+              <button type="button" className="w-full flex items-center justify-between p-4 sm:p-5 hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors text-left"
                 onClick={() => user.googleId && !user.hasPassword ? setShowSetPasswordModal(true) : setShowPasswordModal(true)}>
                 <div className="flex items-center gap-4">
-                  <div className="p-2 bg-slate-50 dark:bg-slate-800 text-slate-600 dark:text-slate-400 rounded-lg">
+                  <div className="p-2 bg-slate-50 dark:bg-slate-800 text-slate-600 dark:text-slate-400 rounded-xl">
                     <Lock className="w-5 h-5" />
                   </div>
                   <div>
-                    <p className="text-sm font-medium text-slate-900 dark:text-slate-100">Password</p>
-                    <p className="text-xs text-slate-500 dark:text-slate-400">
+                    <p className="text-sm font-bold text-slate-900 dark:text-slate-100">Password</p>
+                    <p className="text-xs font-medium text-slate-500 dark:text-slate-400">
                       {user.googleId && !user.hasPassword ? 'Belum diset (opsional)' : '••••••••'}
                     </p>
                   </div>
                 </div>
                 <ChevronRight className="w-5 h-5 text-slate-300 dark:text-slate-600" />
-              </div>
+              </button>
 
-              <div className="flex items-center justify-between py-4 border-b border-slate-50 dark:border-slate-800 hover:bg-slate-50/50 dark:hover:bg-slate-800/50 transition-colors -mx-4 px-4 rounded-xl cursor-pointer"
+              <button type="button" className="w-full flex items-center justify-between p-4 sm:p-5 hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors text-left"
                 onClick={logout}>
                 <div className="flex items-center gap-4">
-                  <div className="p-2 bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400 rounded-lg">
+                  <div className="p-2 bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400 rounded-xl">
                     <LogOut className="w-5 h-5" />
                   </div>
                   <div>
-                    <p className="text-sm font-medium text-red-600 dark:text-red-400">Keluar</p>
-                    <p className="text-xs text-slate-500 dark:text-slate-400">
-                      Keluar dari akun Anda
-                    </p>
+                    <p className="text-sm font-bold text-red-600 dark:text-red-400">Keluar Akun</p>
+                    <p className="text-xs font-medium text-slate-500 dark:text-slate-400">Keluar dari sesi ini</p>
                   </div>
                 </div>
                 <ChevronRight className="w-5 h-5 text-slate-300 dark:text-slate-600" />
-              </div>
+              </button>
 
             </div>
           </section>
 
-          <hr className="border-slate-100 dark:border-slate-800 mx-2 md:mx-0" />
-
           {/* Preferences Section */}
           <section className="px-2 md:px-0">
-            <h2 className="text-sm font-bold text-slate-900 dark:text-slate-100 uppercase tracking-wider mb-4">Preferensi</h2>
-            <div className="flex flex-col">
+            <h2 className="text-[11px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-widest mb-3">Preferensi</h2>
+            <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl overflow-hidden shadow-sm divide-y divide-slate-100 dark:divide-slate-800/60">
 
-              <div className="flex items-center justify-between py-4 border-b border-slate-50 dark:border-slate-800 hover:bg-slate-50/50 dark:hover:bg-slate-800/50 transition-colors -mx-4 px-4 rounded-xl">
+              <div className="flex items-center justify-between p-4 sm:p-5 hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors">
                 <div className="flex items-center gap-4">
-                  <div className="p-2 bg-slate-50 dark:bg-slate-800 text-slate-600 dark:text-slate-400 rounded-lg">
+                  <div className="p-2 bg-slate-50 dark:bg-slate-800 text-slate-600 dark:text-slate-400 rounded-xl">
                     {theme === 'dark' ? <Moon className="w-5 h-5" /> : <Sun className="w-5 h-5" />}
                   </div>
                   <div>
-                    <p className="text-sm font-medium text-slate-900 dark:text-slate-100">Mode Gelap</p>
-                    <p className="text-xs text-slate-500 dark:text-slate-400">Tampilan ramah mata</p>
+                    <p className="text-sm font-bold text-slate-900 dark:text-slate-100">Mode Gelap</p>
+                    <p className="text-xs font-medium text-slate-500 dark:text-slate-400">Tampilan ramah mata</p>
                   </div>
                 </div>
                 {/* Functional Toggle */}
                 <button
+                  type="button"
                   onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
-                  className={`w-11 h-6 rounded-full relative cursor-pointer transition-colors ${theme === 'dark' ? 'bg-emerald-500' : 'bg-slate-200 dark:bg-slate-700'
+                  className={`w-12 h-6 rounded-full relative cursor-pointer transition-colors ${theme === 'dark' ? 'bg-emerald-500' : 'bg-slate-200 dark:bg-slate-700'
                     }`}
                 >
                   <div className={`absolute top-1 w-4 h-4 bg-white rounded-full shadow-sm transition-all ${theme === 'dark' ? 'right-1' : 'left-1'
@@ -414,18 +404,18 @@ export default function SettingsPage() {
                 </button>
               </div>
 
-              <div className="flex items-center justify-between py-4 border-b border-slate-50 dark:border-slate-800 hover:bg-slate-50/50 dark:hover:bg-slate-800/50 transition-colors -mx-4 px-4 rounded-xl">
+              <div className="flex items-center justify-between p-4 sm:p-5 hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors">
                 <div className="flex items-center gap-4">
-                  <div className="p-2 bg-slate-50 dark:bg-slate-800 text-slate-600 dark:text-slate-400 rounded-lg">
+                  <div className="p-2 bg-slate-50 dark:bg-slate-800 text-slate-600 dark:text-slate-400 rounded-xl">
                     <BellRing className="w-5 h-5" />
                   </div>
                   <div>
-                    <p className="text-sm font-medium text-slate-900 dark:text-slate-100">Notifikasi Email</p>
-                    <p className="text-xs text-slate-500 dark:text-slate-400">Info terbaru via email</p>
+                    <p className="text-sm font-bold text-slate-900 dark:text-slate-100">Notifikasi Email</p>
+                    <p className="text-xs font-medium text-slate-500 dark:text-slate-400">Info terbaru via email</p>
                   </div>
                 </div>
                 {/* Visual Toggle (Dummy - On) */}
-                <div className="w-11 h-6 bg-emerald-500 rounded-full relative cursor-pointer transition-colors">
+                <div className="w-12 h-6 bg-emerald-500 rounded-full relative cursor-pointer transition-colors">
                   <div className="absolute top-1 right-1 w-4 h-4 bg-white rounded-full shadow-sm transition-all"></div>
                 </div>
               </div>
@@ -433,34 +423,32 @@ export default function SettingsPage() {
             </div>
           </section>
 
-          <hr className="border-slate-100 dark:border-slate-800 mx-2 md:mx-0" />
-
           {/* About & Support Section */}
           <section className="px-2 md:px-0">
-            <h2 className="text-sm font-bold text-slate-900 dark:text-slate-100 uppercase tracking-wider mb-4">Tentang & Bantuan</h2>
-            <div className="flex flex-col">
+            <h2 className="text-[11px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-widest mb-3">Tentang & Bantuan</h2>
+            <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl overflow-hidden shadow-sm divide-y divide-slate-100 dark:divide-slate-800/60">
 
-              <a href="/help" className="flex items-center justify-between py-4 border-b border-slate-50 dark:border-slate-800 hover:bg-slate-50/50 dark:hover:bg-slate-800/50 transition-colors -mx-4 px-4 rounded-xl cursor-pointer">
+              <a href="/help" className="flex items-center justify-between p-4 sm:p-5 hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors">
                 <div className="flex items-center gap-4">
-                  <div className="p-2 bg-slate-50 dark:bg-slate-800 text-slate-600 dark:text-slate-400 rounded-lg">
+                  <div className="p-2 bg-slate-50 dark:bg-slate-800 text-slate-600 dark:text-slate-400 rounded-xl">
                     <HelpCircle className="w-5 h-5" />
                   </div>
                   <div>
-                    <p className="text-sm font-medium text-slate-900 dark:text-slate-100">Pusat Bantuan</p>
-                    <p className="text-xs text-slate-500 dark:text-slate-400">FAQ dan Hubungi Kami</p>
+                    <p className="text-sm font-bold text-slate-900 dark:text-slate-100">Pusat Bantuan</p>
+                    <p className="text-xs font-medium text-slate-500 dark:text-slate-400">FAQ dan Hubungi Kami</p>
                   </div>
                 </div>
                 <ExternalLink className="w-4 h-4 text-slate-300 dark:text-slate-600" />
               </a>
 
-              <a href="/terms" className="flex items-center justify-between py-4 border-b border-slate-50 dark:border-slate-800 hover:bg-slate-50/50 dark:hover:bg-slate-800/50 transition-colors -mx-4 px-4 rounded-xl cursor-pointer">
+              <a href="/terms" className="flex items-center justify-between p-4 sm:p-5 hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors">
                 <div className="flex items-center gap-4">
-                  <div className="p-2 bg-slate-50 dark:bg-slate-800 text-slate-600 dark:text-slate-400 rounded-lg">
+                  <div className="p-2 bg-slate-50 dark:bg-slate-800 text-slate-600 dark:text-slate-400 rounded-xl">
                     <Info className="w-5 h-5" />
                   </div>
                   <div>
-                    <p className="text-sm font-medium text-slate-900 dark:text-slate-100">Tentang Aplikasi</p>
-                    <p className="text-xs text-slate-500 dark:text-slate-400">Versi 1.0.0 (Beta)</p>
+                    <p className="text-sm font-bold text-slate-900 dark:text-slate-100">Tentang Aplikasi</p>
+                    <p className="text-xs font-medium text-slate-500 dark:text-slate-400">Versi 1.0.0 (Beta)</p>
                   </div>
                 </div>
                 <ChevronRight className="w-5 h-5 text-slate-300 dark:text-slate-600" />
@@ -469,21 +457,22 @@ export default function SettingsPage() {
             </div>
           </section>
 
-          <hr className="border-slate-100 dark:border-slate-800 mx-2 md:mx-0" />
-
-          {/* Danger Zone - Subtle */}
+          {/* Danger Zone */}
           <section className="px-2 md:px-0">
             <div
-              className="flex items-center justify-between py-4 cursor-pointer group"
+              className="flex items-center justify-between p-4 sm:p-5 bg-white dark:bg-slate-900 border border-red-200 dark:border-red-900/30 rounded-2xl cursor-pointer hover:bg-red-50 dark:hover:bg-red-900/10 transition-colors group shadow-sm"
               onClick={() => setShowDeleteModal(true)}
             >
-              <div>
-                <h3 className="text-sm font-medium text-red-600 dark:text-red-400 group-hover:text-red-700 dark:group-hover:text-red-300 transition-colors">Hapus Akun</h3>
-                <p className="text-xs text-slate-400 dark:text-slate-500 mt-0.5">Hapus permanen akun dan data Anda</p>
+              <div className="flex items-center gap-4">
+                  <div className="p-2 bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400 rounded-xl group-hover:bg-red-100 dark:group-hover:bg-red-900/40 transition-colors">
+                    <Trash2 className="w-5 h-5" />
+                  </div>
+                  <div>
+                    <p className="text-sm font-bold text-red-600 dark:text-red-400">Hapus Akun</p>
+                    <p className="text-xs font-medium text-slate-500 dark:text-slate-400">Tindakan ini permanen</p>
+                  </div>
               </div>
-              <div className="p-2 text-slate-300 dark:text-slate-600 group-hover:text-red-600 dark:group-hover:text-red-400 group-hover:bg-red-50 dark:group-hover:bg-red-900/20 rounded-full transition-all">
-                <Trash2 className="w-4 h-4" />
-              </div>
+              <ChevronRight className="w-5 h-5 text-red-300 dark:text-red-600" />
             </div>
           </section>
 

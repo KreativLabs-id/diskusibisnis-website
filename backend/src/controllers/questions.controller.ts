@@ -16,8 +16,9 @@ export const getQuestions = async (req: AuthRequest, res: Response): Promise<voi
   try {
     const hasImagesColumn = await hasTableColumn('public', 'questions', 'images');
     const currentUserId = req.user?.id || null;
-    const page = parseInt(req.query.page as string) || 1;
-    const limit = parseInt(req.query.limit as string) || 10;
+    const page = Math.max(1, parseInt(req.query.page as string) || 1);
+    const MAX_LIMIT = 50;
+    const limit = Math.min(Math.max(1, parseInt(req.query.limit as string) || 10), MAX_LIMIT);
     let sort = (req.query.sort as string) || 'newest';
     const search = (req.query.search as string) || '';
     const tag = (req.query.tag as string) || '';

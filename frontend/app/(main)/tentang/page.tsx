@@ -24,16 +24,16 @@ export default function AboutCommunityPage() {
         </nav>
 
         {/* Header */}
-        <header className="mb-16 md:mb-24">
-          <h1 className="text-4xl md:text-6xl font-bold tracking-tight text-slate-900 mb-6 leading-tight">
-            Kita tumbuh karena <span className="text-emerald-600">kita peduli</span>.
+        <header className="mb-12 md:mb-16">
+          <h1 className="text-3xl md:text-4xl font-bold tracking-tight text-slate-900 dark:text-slate-100 mb-4 leading-tight">
+            Kita tumbuh karena <span className="text-emerald-600 dark:text-emerald-400">kita peduli</span>.
           </h1>
-          <p className="text-lg md:text-xl text-slate-600 leading-relaxed max-w-2xl">
+          <p className="text-base md:text-lg text-slate-600 dark:text-slate-400 leading-relaxed max-w-2xl">
             DiskusiBisnis bukan sekadar website, melainkan kumpulan individu yang percaya bahwa sukses bisnis adalah hasil dari kolaborasi, bukan isolasi.
           </p>
         </header>
 
-        <div className="space-y-20 md:space-y-32">
+        <div className="space-y-16 md:space-y-24">
 
           {/* Core Values */}
           <section>
@@ -91,22 +91,22 @@ export default function AboutCommunityPage() {
 
             <div className="relative z-10 flex flex-col md:flex-row items-center justify-between gap-8">
               <div className="max-w-xl">
-                <h2 className="text-2xl md:text-3xl font-bold mb-4">Ingin Menjadi Member Teladan?</h2>
-                <p className="text-slate-300 leading-relaxed mb-8">
+                <h2 className="text-xl md:text-2xl font-bold mb-3">Ingin Menjadi Member Teladan?</h2>
+                <p className="text-slate-300 leading-relaxed mb-6 text-sm">
                   Pelajari panduan lengkap etika komunitas kami untuk memastikan interaksi yang positif dan produktif.
                 </p>
                 <Link
-                  href="/terms"
-                  className="inline-flex px-6 py-3 bg-emerald-600 text-white font-medium rounded-full hover:bg-emerald-500 transition-colors"
+                  href="/syarat"
+                  className="inline-flex px-5 py-2.5 bg-emerald-600 text-white font-medium rounded-full hover:bg-emerald-500 transition-colors text-sm"
                 >
                   Baca Panduan Etika
                 </Link>
               </div>
 
-              <div className="shrink-0 p-6 bg-white/5 rounded-2xl border border-white/10 backdrop-blur-sm">
-                <div className="text-4xl font-bold text-emerald-400 mb-2">#1</div>
-                <div className="text-white font-medium">Aturan Emas</div>
-                <div className="text-sm text-slate-400 mt-1">"Bicaralah pada orang lain<br />seperti Anda ingin diajak bicara."</div>
+              <div className="shrink-0 p-5 bg-white/5 rounded-2xl border border-white/10 backdrop-blur-sm">
+                <div className="text-3xl font-bold text-emerald-400 mb-2">#1</div>
+                <div className="text-white font-medium text-sm">Aturan Emas</div>
+                <div className="text-xs text-slate-400 mt-1">"Bicaralah pada orang lain<br />seperti Anda ingin diajak bicara."</div>
               </div>
             </div>
           </section>

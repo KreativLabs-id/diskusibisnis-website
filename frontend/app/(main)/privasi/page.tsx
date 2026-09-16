@@ -24,8 +24,8 @@ export default function PrivacyPage() {
         </nav>
 
         {/* Header */}
-        <header className="mb-16 border-b border-slate-100 dark:border-slate-800 pb-10">
-          <h1 className="text-3xl md:text-5xl font-bold text-slate-900 dark:text-slate-100 mb-6">Kebijakan Privasi</h1>
+        <header className="mb-12 md:mb-16 border-b border-slate-100 dark:border-slate-800 pb-8 md:pb-10">
+          <h1 className="text-3xl md:text-4xl font-bold tracking-tight text-slate-900 dark:text-slate-100 mb-4 leading-tight">Kebijakan Privasi</h1>
           <div className="flex items-center gap-4 text-slate-500 dark:text-slate-400 text-sm">
             <span className="flex items-center gap-1.5">
               <Shield className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
@@ -84,7 +84,7 @@ export default function PrivacyPage() {
           <section className="bg-slate-50 dark:bg-slate-800 p-8 rounded-2xl border border-slate-100 dark:border-slate-700 not-prose mt-16">
             <h4 className="text-lg font-bold text-slate-900 dark:text-slate-100 mb-2">Punya pertanyaan tentang privasi?</h4>
             <p className="text-slate-600 dark:text-slate-400 mb-4">Tim kami siap membantu menjelaskan praktik data kami.</p>
-            <Link href="/help" className="text-emerald-600 dark:text-emerald-400 font-medium hover:underline">
+            <Link href="/bantuan" className="text-emerald-600 dark:text-emerald-400 font-medium hover:underline">
               Hubungi Pusat Bantuan &rarr;
             </Link>
           </section>

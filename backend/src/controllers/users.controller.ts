@@ -10,8 +10,9 @@ import { successResponse, errorResponse, notFoundResponse } from '../utils/respo
  */
 export const getUsers = async (req: AuthRequest, res: Response): Promise<void> => {
   try {
-    const page = parseInt(req.query.page as string) || 1;
-    const limit = parseInt(req.query.limit as string) || 20;
+    const page = Math.max(1, parseInt(req.query.page as string) || 1);
+    const MAX_PAGE_SIZE = 50;
+    const limit = Math.min(Math.max(1, parseInt(req.query.limit as string) || 20), MAX_PAGE_SIZE);
     const search = (req.query.search as string) || '';
     const offset = (page - 1) * limit;
 
@@ -285,8 +286,9 @@ export const getUserAnswers = async (req: AuthRequest, res: Response): Promise<v
 export const getUserActivities = async (req: AuthRequest, res: Response): Promise<void> => {
   try {
     const userId = req.params.id;
-    const page = parseInt(req.query.page as string) || 1;
-    const limit = parseInt(req.query.limit as string) || 50;
+    const page = Math.max(1, parseInt(req.query.page as string) || 1);
+    const MAX_PAGE_SIZE = 50;
+    const limit = Math.min(Math.max(1, parseInt(req.query.limit as string) || 50), MAX_PAGE_SIZE);
     const offset = (page - 1) * limit;
 
     // Get reputation activities

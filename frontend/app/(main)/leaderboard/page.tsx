@@ -39,20 +39,17 @@ export default function LeaderboardPage() {
                         </div>
 
                         {/* Podium Skeleton */}
-                        <div className="mb-12 pt-6 sm:pt-8 flex items-end justify-center gap-2 sm:gap-6 overflow-visible">
+                        <div className="mb-12 pt-6 sm:pt-8 flex items-end justify-center gap-4 sm:gap-10 overflow-visible">
                             {[2, 1, 3].map((rank) => (
-                                <div key={rank} className="flex flex-col items-center w-28 sm:w-48">
-                                    {/* Icon */}
-                                    <div className="w-10 h-10 sm:w-12 sm:h-12 bg-slate-200 dark:bg-slate-800 rounded-full mb-3 sm:mb-4"></div>
+                                <div key={rank} className="flex flex-col items-center w-24 sm:w-36">
+                                    {rank === 1 && <div className="w-8 h-8 sm:w-10 sm:h-10 bg-slate-200 dark:bg-slate-800 rounded-full mb-3"></div>}
                                     {/* Avatar */}
-                                    <div className={`rounded-full bg-slate-200 dark:bg-slate-800 mb-3 sm:mb-5 ${rank === 1 ? 'w-24 h-24 sm:w-32 sm:h-32' : 'w-16 h-16 sm:w-24 sm:h-24'}`}></div>
+                                    <div className={`rounded-full bg-slate-200 dark:bg-slate-800 mb-4 sm:mb-5 ${rank === 1 ? 'w-20 h-20 sm:w-28 sm:h-28' : 'w-16 h-16 sm:w-20 sm:h-20'}`}></div>
                                     {/* Details */}
-                                    <div className="w-full flex flex-col items-center px-2">
-                                        <div className="h-4 bg-slate-200 dark:bg-slate-800 rounded-md w-3/4 mb-2"></div>
-                                        <div className="h-6 bg-slate-200 dark:bg-slate-800 rounded-full w-16 mb-4 sm:mb-6"></div>
+                                    <div className="w-full flex flex-col items-center px-2 gap-2">
+                                        <div className="h-4 bg-slate-200 dark:bg-slate-800 rounded-md w-3/4"></div>
+                                        <div className="h-6 bg-slate-200 dark:bg-slate-800 rounded-full w-20"></div>
                                     </div>
-                                    {/* Podium Step */}
-                                    <div className={`w-full rounded-t-2xl sm:rounded-t-[2rem] bg-slate-200 dark:bg-slate-800 ${rank === 1 ? 'h-32 sm:h-44' : rank === 2 ? 'h-24 sm:h-32' : 'h-20 sm:h-28'}`}></div>
                                 </div>
                             ))}
                         </div>
@@ -100,18 +97,18 @@ export default function LeaderboardPage() {
         <div className="min-h-screen bg-[#f8fafc] dark:bg-slate-950 pb-20 transition-colors duration-300">
             <div className="max-w-5xl mx-auto px-4 py-8 sm:py-14">
                 {/* Professional Minimalist Header - Optimized for Mobile */}
-                <div className="mb-4 sm:mb-6 text-center md:text-left">
-                    <h1 className="text-2xl sm:text-4xl font-bold text-slate-900 dark:text-white tracking-tight">
+                <div className="mb-8 text-center md:text-left flex flex-col gap-1">
+                    <h1 className="text-2xl font-bold text-slate-900 dark:text-white">
                         Leaderboard Kontributor
                     </h1>
-                    <p className="text-sm sm:text-base text-slate-500 dark:text-slate-400 mt-2">
+                    <p className="text-sm text-slate-500 dark:text-slate-400">
                         Apresiasi bagi para penggerak ekosistem yang paling aktif berbagi wawasan.
                     </p>
                 </div>
 
                 {/* Top 3 Spotlight Podium */}
                 {topThree.length > 0 && (
-                    <div className="mb-12 pt-6 sm:pt-8 flex items-end justify-center gap-2 sm:gap-6 overflow-visible">
+                    <div className="mb-12 pt-6 sm:pt-10 flex items-end justify-center gap-4 sm:gap-12 overflow-visible">
                         {/* Rank 2 */}
                         {topThree[1] && (
                             <PodiumUser user={topThree[1]} rank={2} />
@@ -211,30 +208,30 @@ export default function LeaderboardPage() {
 }
 
 function PodiumUser({ user, rank, isMain }: { user: any, rank: number, isMain?: boolean }) {
-    const rankColors = {
-        1: 'from-yellow-500/20 to-yellow-500/5 border-yellow-500/30 text-yellow-600 dark:text-yellow-500',
-        2: 'from-slate-400/20 to-slate-400/5 border-slate-400/30 text-slate-500 dark:text-slate-400',
-        3: 'from-amber-700/20 to-amber-700/5 border-amber-700/30 text-amber-800 dark:text-amber-600',
-    }[rank as 1 | 2 | 3];
-
-    const Icon = rank === 1 ? Trophy : rank === 2 ? Medal : Star;
-    const heightClass = rank === 1 ? 'h-32 sm:h-44' : rank === 2 ? 'h-24 sm:h-32' : 'h-20 sm:h-28';
+    const isGold = rank === 1;
+    const isSilver = rank === 2;
+    const isBronze = rank === 3;
 
     return (
         <Link
             href={getProfileHref({ username: user.username, display_name: user.display_name })}
-            className="flex flex-col items-center group w-28 sm:w-48 relative transition-transform hover:-translate-y-2 duration-300"
+            className="flex flex-col items-center group relative transition-transform hover:-translate-y-1.5 duration-300 w-24 sm:w-36"
         >
-            {/* Rank Icon */}
-            <div className={cn("mb-3 sm:mb-4 transition-transform group-hover:scale-110", rank === 1 && "animate-bounce")}>
-                <div className={cn("w-10 h-10 sm:w-12 sm:h-12 rounded-full flex items-center justify-center bg-white dark:bg-slate-800 shadow-sm border", rank === 1 ? "border-yellow-500/30" : rank === 2 ? "border-slate-400/30" : "border-amber-700/30")}>
-                    <Icon className={cn("w-5 h-5 sm:w-6 sm:h-6", rank === 1 ? "text-yellow-500" : rank === 2 ? "text-slate-400" : "text-amber-700")} />
+            {/* Crown / Rank indicator above */}
+            {isGold && (
+                <div className="mb-2.5 transform group-hover:scale-110 transition-transform duration-300">
+                    <Trophy className="w-7 h-7 sm:w-9 sm:h-9 text-yellow-500 drop-shadow-md" fill="currentColor" />
                 </div>
-            </div>
-
+            )}
+            
             {/* Avatar */}
-            <div className="relative mb-3 sm:mb-5">
-                <div className={cn("p-1 sm:p-1.5 rounded-full ring-2 bg-white dark:bg-slate-900 transition-all", rank === 1 ? "ring-yellow-500" : rank === 2 ? "ring-slate-300 dark:ring-slate-600" : "ring-amber-700/50")}>
+            <div className="relative mb-4 sm:mb-5">
+                <div className={cn(
+                    "p-1 rounded-full ring-4 transition-all bg-white dark:bg-slate-900",
+                    isGold ? "ring-yellow-400 shadow-xl shadow-yellow-500/20" : 
+                    isSilver ? "ring-slate-200 dark:ring-slate-700 shadow-lg shadow-slate-400/10" : 
+                    "ring-amber-700/40 shadow-lg shadow-amber-600/10"
+                )}>
                     <UserAvatar
                         src={user.avatar_url}
                         alt={user.display_name}
@@ -242,31 +239,26 @@ function PodiumUser({ user, rank, isMain }: { user: any, rank: number, isMain?: 
                         fallbackName={user.display_name}
                     />
                 </div>
-                {user.is_verified && (
-                    <div className="absolute -bottom-1 -right-1">
-                        <VerifiedBadge isVerified={true} size={isMain ? "md" : "sm"} />
-                    </div>
-                )}
+                
+                {/* Rank Badge attached to avatar */}
+                <div className={cn(
+                    "absolute -bottom-2.5 sm:-bottom-3.5 left-1/2 -translate-x-1/2 flex items-center justify-center font-extrabold rounded-full border-[3px] border-white dark:border-slate-950",
+                    isGold ? "w-8 h-8 sm:w-10 sm:h-10 bg-gradient-to-br from-yellow-400 to-yellow-600 text-white shadow-md text-sm sm:text-base" : 
+                    isSilver ? "w-7 h-7 sm:w-8 sm:h-8 bg-gradient-to-br from-slate-300 to-slate-500 text-white shadow-sm text-xs sm:text-sm" : 
+                    "w-7 h-7 sm:w-8 sm:h-8 bg-gradient-to-br from-amber-500 to-amber-700 text-white shadow-sm text-xs sm:text-sm"
+                )}>
+                    {rank}
+                </div>
             </div>
 
             {/* Details */}
-            <div className="text-center z-10 px-1 w-full">
+            <div className="text-center mt-1 sm:mt-2 px-1 w-full">
                 <div className={cn("font-bold text-slate-900 dark:text-white truncate w-full group-hover:text-emerald-600 dark:group-hover:text-emerald-400 transition-colors", isMain ? "text-base sm:text-lg" : "text-sm sm:text-base")}>
                     {user.display_name}
                 </div>
-                <div className="text-emerald-600 dark:text-emerald-400 font-bold text-xs sm:text-sm flex items-center justify-center gap-1 mt-1 bg-white/80 dark:bg-slate-900/80 rounded-full py-0.5 px-2.5 w-max mx-auto border border-emerald-100 dark:border-emerald-900/30 shadow-sm">
+                <div className="text-emerald-700 dark:text-emerald-300 font-bold text-xs flex items-center justify-center gap-1.5 mt-2 bg-emerald-50 dark:bg-emerald-900/30 rounded-full py-1 px-3 w-max mx-auto border border-emerald-100 dark:border-emerald-800 shadow-sm">
                     <Award className="w-3.5 h-3.5" />
                     {formatNumber(user.reputation_points)}
-                </div>
-            </div>
-
-            {/* Podium Step */}
-            <div className={cn("w-full rounded-t-2xl sm:rounded-t-[2rem] mt-4 sm:mt-6 border-t border-l border-r relative overflow-hidden shadow-lg", heightClass, rankColors.split(' text-')[0])}>
-                <div className="absolute inset-0 bg-gradient-to-t opacity-50 dark:opacity-20" />
-                <div className="w-full h-full flex justify-center pt-4 sm:pt-6">
-                    <span className={cn("font-black text-5xl sm:text-7xl opacity-40 dark:opacity-20", rankColors.split(' text-')[1])}>
-                        {rank}
-                    </span>
                 </div>
             </div>
         </Link>

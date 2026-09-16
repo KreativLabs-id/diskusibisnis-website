@@ -155,12 +155,12 @@ export default function QuestionsPageContent() {
   return (
     <div className="w-full max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 pb-12 pt-6 sm:pt-14">
       {/* Professional Minimalist Header - Optimized for Mobile */}
-      <div className="mb-8 sm:mb-10 flex flex-col sm:flex-row sm:items-end justify-between gap-4 sm:gap-6">
-        <div className="space-y-1">
-          <h1 className="text-2xl sm:text-4xl font-bold text-slate-900 dark:text-white tracking-tight">
+      <div className="mb-8 flex flex-col sm:flex-row sm:items-end justify-between gap-4">
+        <div className="flex flex-col gap-1">
+          <h1 className="text-2xl font-bold text-slate-900 dark:text-white">
             Semua Pertanyaan
           </h1>
-          <p className="text-sm sm:text-lg text-slate-500 dark:text-slate-400">
+          <p className="text-sm text-slate-500 dark:text-slate-400">
             Temukan wawasan dari {filteredQuestions.length} diskusi aktif UMKM.
           </p>
         </div>
@@ -173,32 +173,41 @@ export default function QuestionsPageContent() {
         </Link>
       </div>
 
-      {/* Integrated Search & Filter - Clean UI */}
+      {/* Desktop: Integrated Search & Filter */}
       <div 
-        className="sticky z-40 mb-6 sm:mb-12"
+        className="hidden lg:block sticky z-40 mb-10 sm:mb-12"
         style={{ top: 'calc(var(--header-height, 64px) + 0.5rem)' }}
       >
-        <div className="bg-white/70 dark:bg-slate-900/70 backdrop-blur-xl border border-white dark:border-slate-800/50 rounded-xl sm:rounded-2xl p-1.5 sm:p-2 shadow-lg sm:shadow-xl shadow-slate-200/50 dark:shadow-none flex flex-col lg:flex-row gap-2">
+        <div className="bg-white/80 dark:bg-slate-900/80 backdrop-blur-md border border-slate-200 dark:border-slate-800 rounded-xl p-1.5 shadow-sm flex flex-row gap-2">
           <div className="relative flex-1">
-            <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 sm:w-5 sm:h-5 text-slate-400" />
+            <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
             <input
               type="text"
               placeholder="Cari pertanyaan, topik, atau kata kunci..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full bg-transparent pl-10 sm:pl-12 pr-4 py-2 sm:py-3 text-sm sm:text-base text-slate-900 dark:text-white placeholder:text-slate-400 outline-none"
+              className="w-full bg-transparent pl-10 pr-9 py-2 text-sm text-slate-900 dark:text-white placeholder:text-slate-400 outline-none"
             />
+            {searchQuery && (
+              <button
+                onClick={() => setSearchQuery('')}
+                className="absolute right-3 top-1/2 -translate-y-1/2 p-0.5 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 transition-colors"
+                aria-label="Hapus pencarian"
+              >
+                <X className="w-3.5 h-3.5" />
+              </button>
+            )}
           </div>
-          <div className="grid grid-cols-3 lg:flex gap-0.5 sm:gap-1 p-0.5 sm:p-1 bg-slate-100/50 dark:bg-slate-800/50 rounded-xl">
+          <div className="flex gap-1 p-0.5 bg-slate-100 dark:bg-slate-800 rounded-lg">
             {sortOptions.map((option) => (
               <button
                 key={option.value}
                 onClick={() => setSortBy(option.value as any)}
                 className={cn(
-                  "px-3 sm:px-5 py-1.5 sm:py-2.5 rounded-md sm:rounded-lg text-[10px] sm:text-xs font-black uppercase tracking-wider transition-all whitespace-nowrap flex items-center justify-center gap-2",
+                  "px-4 py-1.5 rounded-md text-xs font-semibold transition-colors flex items-center justify-center gap-1.5 whitespace-nowrap",
                   sortByState === option.value
-                    ? "bg-white dark:bg-slate-700 text-slate-900 dark:text-white shadow-sm"
-                    : "text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200"
+                    ? "bg-white dark:bg-slate-700 text-slate-900 dark:text-white shadow-xs"
+                    : "text-slate-500 hover:text-slate-700 dark:hover:text-slate-300"
                 )}
               >
                 <option.icon className="w-3.5 h-3.5 hidden sm:block" />
@@ -206,6 +215,55 @@ export default function QuestionsPageContent() {
               </button>
             ))}
           </div>
+        </div>
+      </div>
+
+      {/* Mobile: In-Page Search Box - Natural flow, not sticky */}
+      <div className="block lg:hidden mb-3">
+        <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl p-1 shadow-xs flex items-center">
+          <div className="relative flex-1 flex items-center">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+            <input
+              type="text"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              placeholder="Cari pertanyaan, topik, atau kata kunci..."
+              className="w-full bg-transparent pl-9 pr-8 py-2 text-sm text-slate-900 dark:text-white placeholder:text-slate-400 outline-none"
+            />
+            {searchQuery && (
+              <button
+                onClick={() => setSearchQuery('')}
+                className="absolute right-2.5 top-1/2 -translate-y-1/2 p-0.5 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 transition-colors"
+                aria-label="Hapus pencarian"
+              >
+                <X className="w-3.5 h-3.5" />
+              </button>
+            )}
+          </div>
+        </div>
+      </div>
+
+      {/* Mobile: Sticky Filter Tabs - Sticks to top when scrolling */}
+      <div 
+        className="block lg:hidden sticky z-30 mb-4 -mx-4 px-4 py-2 bg-[#f8fafc]/90 dark:bg-slate-950/90 backdrop-blur-md border-b border-slate-200/60 dark:border-slate-800/60"
+        style={{ top: 'var(--header-height, 56px)' }}
+      >
+        <div className="grid grid-cols-3 gap-1 p-0.5 bg-slate-200/70 dark:bg-slate-900 rounded-lg">
+          {sortOptions.map((option) => (
+            <button
+              key={option.value}
+              onClick={() => setSortBy(option.value as any)}
+              className={cn(
+                "py-1.5 rounded-md text-[10px] sm:text-xs font-semibold transition-colors flex items-center justify-center gap-1.5",
+                sortByState === option.value
+                  ? "bg-white dark:bg-slate-800 text-emerald-600 dark:text-emerald-400 shadow-xs"
+                  : "text-slate-500 hover:text-slate-700 dark:hover:text-slate-300"
+              )}
+            >
+              <option.icon className="w-3.5 h-3.5" />
+              <span>{option.label}</span>
+            </button>
+          ))}
         </div>
       </div>
 

@@ -18,7 +18,7 @@ export default function ProfileActivityTabs({ activeTab, setActiveTab, counts }:
   ] as const;
 
   return (
-    <div className="flex items-center gap-4 sm:gap-8 border-b border-slate-200 dark:border-slate-800 mb-8 overflow-x-auto no-scrollbar">
+    <div className="flex items-center gap-4 sm:gap-8 overflow-x-auto no-scrollbar">
       {tabs.map((tab) => {
         const isActive = activeTab === tab.id;
         return (

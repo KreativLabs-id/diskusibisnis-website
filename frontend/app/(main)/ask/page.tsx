@@ -3,8 +3,8 @@
 import { FormEvent, useState, useEffect } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useAuth } from '@/contexts/AuthContext';
-import { HelpCircle, Tag, Lightbulb, AlertCircle, ArrowLeft } from 'lucide-react';
-import api, { questionAPI } from '@/lib/api';
+import { Lightbulb, AlertCircle, ArrowLeft, X } from 'lucide-react';
+import { questionAPI } from '@/lib/api';
 import ImageUpload, { UploadedImage } from '@/components/ui/ImageUpload';
 import MentionInput from '@/components/ui/MentionInput';
 
@@ -31,6 +31,17 @@ export default function AskPage() {
   const [images, setImages] = useState<UploadedImage[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const [showTips, setShowTips] = useState(() => {
+    if (typeof window !== 'undefined') {
+      return sessionStorage.getItem('dismiss_ask_tips') !== 'true';
+    }
+    return false;
+  });
+
+  const handleDismissTips = () => {
+    setShowTips(false);
+    sessionStorage.setItem('dismiss_ask_tips', 'true');
+  };
 
   useEffect(() => {
     if (!authLoading && !user) {
@@ -39,7 +50,6 @@ export default function AskPage() {
   }, [user, authLoading, router]);
 
   useEffect(() => {
-    // Check if community is pre-selected from URL
     const community = searchParams.get('community');
     if (community) {
       setCommunitySlug(community);
@@ -97,19 +107,16 @@ export default function AskPage() {
       return;
     }
 
-    // Validasi title
     if (!title || title.trim().length < 10) {
       setError('Judul pertanyaan minimal 10 karakter');
       return;
     }
 
-    // Validasi content
     if (!content || content.trim().length < 20) {
       setError('Isi pertanyaan minimal 20 karakter');
       return;
     }
 
-    // Tag is optional, but if provided must be valid (max 5)
     if (selectedTags.length > 5) {
       setError('Maksimal 5 tag');
       return;
@@ -124,10 +131,9 @@ export default function AskPage() {
         content,
         tags: selectedTags,
         community_slug: communitySlug || undefined,
-        images: images.map(img => img.url), // Add image URLs
+        images: images.map(img => img.url),
       });
 
-      // Get question ID from response
       const questionData = response.data.data?.question || response.data.data;
       const questionId = questionData?.id;
 
@@ -146,17 +152,14 @@ export default function AskPage() {
 
   if (authLoading) {
     return (
-      <div className="min-h-screen bg-slate-50 dark:bg-slate-950 transition-colors duration-200">
-        <div className="max-w-4xl mx-auto px-4 py-10">
-          <div className="animate-pulse space-y-6">
-            <div className="h-8 bg-slate-200 dark:bg-slate-800 rounded w-1/3"></div>
-            <div className="bg-white dark:bg-slate-900 rounded-2xl p-6 space-y-4">
-              <div className="h-10 bg-slate-200 dark:bg-slate-800 rounded"></div>
-              <div className="h-40 bg-slate-200 dark:bg-slate-800 rounded"></div>
-              <div className="h-10 bg-slate-200 dark:bg-slate-800 rounded"></div>
-              <div className="flex justify-end">
-                <div className="h-10 bg-slate-200 dark:bg-slate-800 rounded w-32"></div>
-              </div>
+      <div className="min-h-screen bg-[#f8fafc] dark:bg-slate-950 transition-colors duration-200">
+        <div className="max-w-3xl mx-auto px-4 py-8">
+          <div className="animate-pulse space-y-4">
+            <div className="h-8 bg-slate-200 dark:bg-slate-800 rounded-lg w-1/4"></div>
+            <div className="bg-white dark:bg-slate-900 rounded-2xl p-5 space-y-4 border border-slate-200 dark:border-slate-800">
+              <div className="h-10 bg-slate-200 dark:bg-slate-800 rounded-xl"></div>
+              <div className="h-32 bg-slate-200 dark:bg-slate-800 rounded-xl"></div>
+              <div className="h-10 bg-slate-200 dark:bg-slate-800 rounded-xl"></div>
             </div>
           </div>
         </div>
@@ -169,66 +172,90 @@ export default function AskPage() {
   }
 
   return (
-    <div className="min-h-screen bg-slate-50 dark:bg-slate-950 transition-colors duration-200">
-      <div className="max-w-4xl mx-auto px-4 py-10">
-        {/* Back Button */}
-        <button
-          onClick={() => router.push('/')}
-          className="flex items-center gap-2 text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200 mb-6 transition-colors"
-        >
-          <ArrowLeft className="w-5 h-5" />
-          <span className="font-medium">Kembali</span>
-        </button>
+    <div className="min-h-screen bg-[#f8fafc] dark:bg-slate-950 transition-colors duration-200 pb-20">
+      <div className="max-w-3xl mx-auto px-4 py-4 sm:py-8">
+        {/* Clean Header with Back button and Tips toggle */}
+        <div className="flex items-center justify-between gap-3 mb-4">
+          <div className="flex items-center gap-2 sm:gap-3 min-w-0">
+            <button
+              type="button"
+              onClick={() => router.push('/')}
+              className="p-1.5 -ml-1 text-slate-500 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white rounded-lg transition-colors"
+              aria-label="Kembali"
+            >
+              <ArrowLeft className="w-5 h-5" />
+            </button>
+            <div>
+              <h1 className="text-lg sm:text-2xl font-bold text-slate-900 dark:text-white tracking-tight">
+                Buat Pertanyaan
+              </h1>
+              {communitySlug && (
+                <p className="text-xs text-emerald-600 dark:text-emerald-400 font-medium">
+                  Diposting di komunitas #{communitySlug}
+                </p>
+              )}
+            </div>
+          </div>
 
-        <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-6 mb-8 shadow-sm">
-          <p className="inline-flex items-center gap-2 text-sm text-emerald-600 font-semibold">
-            <HelpCircle className="w-4 h-4" />
-            Formulir Pertanyaan
-          </p>
-          <h1 className="text-3xl font-bold text-slate-900 dark:text-slate-100 mt-3">Tanyakan Masalah Bisnis Anda</h1>
-          <p className="text-sm text-slate-500 dark:text-slate-400 mt-2 leading-relaxed">
-            Jelaskan kendala secara spesifik agar mentor dan pelaku usaha lain bisa memberikan solusi
-            terbaik. Sertakan data yang relevan, konteks usaha, dan langkah yang sudah Anda coba.
-          </p>
-          {communitySlug && (
-            <div className="mt-3 p-3 bg-emerald-50 border border-emerald-200 rounded-lg">
-              <p className="text-sm text-emerald-700">
-                📍 Pertanyaan ini akan diposting di komunitas <span className="font-semibold">{communitySlug}</span>
-              </p>
-            </div>
-          )}
-          {!communitySlug && (
-            <div className="mt-3 p-3 bg-blue-50 border border-blue-200 rounded-lg">
-              <p className="text-sm text-blue-700">
-                💡 <span className="font-semibold">Tips:</span> Untuk bertanya di komunitas spesifik, klik tombol "Buat Pertanyaan" dari halaman komunitas tersebut
-              </p>
-            </div>
-          )}
+          <button
+            type="button"
+            onClick={() => setShowTips(!showTips)}
+            className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors shrink-0 ${
+              showTips
+                ? 'bg-emerald-50 dark:bg-emerald-950/40 text-emerald-600 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-800/60'
+                : 'bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-slate-600 dark:text-slate-300 hover:border-slate-300'
+            }`}
+          >
+            <Lightbulb className="w-3.5 h-3.5 text-amber-500" />
+            <span>Tips Menulis</span>
+          </button>
         </div>
 
-        {error && (
-          <div className="bg-red-50 border border-red-200 rounded-xl p-4 mb-6 flex items-start gap-3">
-            <AlertCircle className="w-5 h-5 text-red-600 shrink-0 mt-0.5" />
-            <div>
-              <p className="text-sm font-medium text-red-800">Error</p>
-              <p className="text-sm text-red-600 mt-1">{error}</p>
+        {/* Dismissible Tips Banner */}
+        {showTips && (
+          <div className="mb-4 p-3.5 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl text-xs text-slate-600 dark:text-slate-300 shadow-xs flex items-start justify-between gap-3">
+            <div className="flex items-start gap-2.5 min-w-0">
+              <Lightbulb className="w-4 h-4 text-amber-500 shrink-0 mt-0.5" />
+              <div className="space-y-1">
+                <p className="font-semibold text-slate-900 dark:text-white">Panduan singkat agar mendapat solusi terbaik:</p>
+                <ul className="text-slate-500 dark:text-slate-400 list-disc list-inside space-y-0.5">
+                  <li>Tulis judul yang jelas dan spesifik.</li>
+                  <li>Sertakan konteks bisnis atau data pendukung.</li>
+                  <li>Ceritakan kendala dan apa yang sudah dicoba.</li>
+                </ul>
+              </div>
             </div>
+            <button
+              type="button"
+              onClick={handleDismissTips}
+              className="p-1 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 rounded-lg shrink-0"
+              aria-label="Tutup tips"
+            >
+              <X className="w-3.5 h-3.5" />
+            </button>
           </div>
         )}
 
+        {error && (
+          <div className="bg-red-50 dark:bg-red-950/30 border border-red-200 dark:border-red-900/50 rounded-xl p-3 mb-4 flex items-start gap-2.5">
+            <AlertCircle className="w-4 h-4 text-red-600 dark:text-red-400 shrink-0 mt-0.5" />
+            <p className="text-xs sm:text-sm text-red-600 dark:text-red-400">{error}</p>
+          </div>
+        )}
+
+        {/* Single Cohesive Form Card */}
         <form
           onSubmit={handleSubmit}
-          className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-6 space-y-6 shadow-sm"
+          className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-4 sm:p-6 space-y-4 sm:space-y-5 shadow-xs"
         >
+          {/* Judul Pertanyaan */}
           <div>
-            <div className="flex items-center justify-between mb-2">
-              <label htmlFor="title" className="block text-sm font-medium text-slate-700 dark:text-slate-300">
+            <div className="flex items-center justify-between mb-1.5">
+              <label htmlFor="title" className="text-xs sm:text-sm font-semibold text-slate-800 dark:text-slate-200">
                 Judul Pertanyaan <span className="text-red-500">*</span>
               </label>
-              <span className={`text-xs ${title.length < 10 ? 'text-red-500' : 'text-emerald-600'}`}>
-                {title.length < 10
-                  ? `${title.length}/10 karakter`
-                  : `${title.length}/200 karakter`}
+              <span className="text-[11px] text-slate-400 dark:text-slate-500">
+                {title.length}/200
               </span>
             </div>
             <input
@@ -237,40 +264,39 @@ export default function AskPage() {
               type="text"
               value={title}
               onChange={(e) => setTitle(e.target.value)}
-              placeholder="Contoh: Strategi pemasaran digital untuk meningkatkan penjualan harian"
-              className="w-full px-4 py-3 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-500 text-sm"
+              placeholder="Apa kendala atau pertanyaan bisnis Anda?"
+              className="w-full px-3.5 py-2.5 border border-slate-200 dark:border-slate-800 dark:bg-slate-900 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 text-sm text-slate-900 dark:text-white placeholder:text-slate-400"
               required
             />
           </div>
 
+          {/* Detail Pertanyaan */}
           <div>
-            <div className="flex items-center justify-between mb-2">
-              <label htmlFor="content" className="block text-sm font-medium text-slate-700">
+            <div className="flex items-center justify-between mb-1.5">
+              <label htmlFor="content" className="text-xs sm:text-sm font-semibold text-slate-800 dark:text-slate-200">
                 Detail Pertanyaan <span className="text-red-500">*</span>
               </label>
-              <span className={`text-xs ${content.length < 20 ? 'text-red-500' : 'text-emerald-600'}`}>
-                {content.length < 20
-                  ? `${content.length}/20 karakter`
-                  : `${content.length}/5000 karakter`}
+              <span className="text-[11px] text-slate-400 dark:text-slate-500">
+                {content.length}/5000
               </span>
             </div>
-            <MentionInput
-              value={content}
-              onChange={setContent}
-              placeholder="Jelaskan latar belakang bisnis, masalah utama, data pendukung, dan solusi yang sudah dicoba... Ketik @ untuk mention user atau paste link"
-              className="text-sm"
-              minRows={8}
-              maxRows={20}
-              disabled={loading}
-            />
-            <p className="text-xs text-slate-500 mt-1">
-              Gunakan paragraf singkat, bullet point, atau angka untuk memudahkan pembaca. Ketik @ untuk mention user.
-            </p>
+            <div className="border border-slate-200 dark:border-slate-800 dark:bg-slate-900 rounded-xl focus-within:ring-2 focus-within:ring-emerald-500/20 focus-within:border-emerald-500 transition-all overflow-hidden bg-white">
+              <MentionInput
+                value={content}
+                onChange={setContent}
+                placeholder="Jelaskan kendala bisnis, data pendukung, atau solusi yang sudah dicoba..."
+                className="text-sm text-slate-900 dark:text-white placeholder:text-slate-400"
+                minRows={6}
+                maxRows={16}
+                disabled={loading}
+              />
+            </div>
           </div>
 
+          {/* Gambar Pendukung */}
           <div>
-            <label className="block text-sm font-medium text-slate-700 mb-2">
-              Gambar Pendukung (Opsional)
+            <label className="block text-xs sm:text-sm font-semibold text-slate-800 dark:text-slate-200 mb-1.5">
+              Gambar Pendukung <span className="text-slate-400 font-normal text-xs">(Opsional)</span>
             </label>
             <ImageUpload
               onImagesChange={setImages}
@@ -278,121 +304,101 @@ export default function AskPage() {
               userId={user?.id || ''}
               disabled={loading}
             />
-            <p className="text-xs text-slate-500 mt-1">
-              Upload gambar untuk memperjelas masalah (grafik, screenshot, foto produk, dll)
-            </p>
           </div>
 
+          {/* Tag */}
           <div>
-            <div className="flex items-center justify-between mb-3">
-              <label className="text-sm font-medium text-slate-700">
-                Tag (Opsional)
+            <div className="flex items-center justify-between mb-1.5">
+              <label className="text-xs sm:text-sm font-semibold text-slate-800 dark:text-slate-200">
+                Tag <span className="text-slate-400 font-normal text-xs">(Opsional, maks. 5)</span>
               </label>
-              <p className="text-xs text-slate-500">
-                {selectedTags.length}/5 tag
-              </p>
+              {selectedTags.length > 0 && (
+                <span className="text-[11px] text-slate-400 dark:text-slate-500">
+                  {selectedTags.length}/5 dipilih
+                </span>
+              )}
             </div>
 
             {/* Selected Tags Display */}
             {selectedTags.length > 0 && (
-              <div className="flex flex-wrap gap-2 mb-3 p-3 bg-slate-50 rounded-xl border border-slate-200">
+              <div className="flex flex-wrap gap-1.5 mb-2">
                 {selectedTags.map((tag) => (
                   <span
                     key={tag}
-                    className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-emerald-600 text-white text-sm font-medium"
+                    className="inline-flex items-center gap-1 pl-2.5 pr-1.5 py-1 rounded-lg bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800/50 text-xs font-semibold"
                   >
-                    <Tag className="w-3.5 h-3.5" />
-                    {tag}
+                    #{tag}
                     <button
                       type="button"
                       onClick={() => removeTag(tag)}
-                      className="ml-1 hover:bg-emerald-700 rounded-full p-0.5 transition-colors"
+                      className="p-0.5 hover:bg-emerald-200/50 dark:hover:bg-emerald-900 rounded-md transition-colors"
+                      aria-label={`Hapus tag ${tag}`}
                     >
-                      <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                      </svg>
+                      <X className="w-3 h-3" />
                     </button>
                   </span>
                 ))}
               </div>
             )}
 
-            {/* Custom Tag Input */}
-            <div className="mb-3">
-              <div className="flex flex-col sm:flex-row gap-2">
-                <input
-                  type="text"
-                  value={customTag}
-                  onChange={(e) => setCustomTag(e.target.value)}
-                  onKeyDown={(e) => {
-                    if (e.key === 'Enter') {
-                      e.preventDefault();
-                      addCustomTag();
-                    }
-                  }}
-                  placeholder="Ketik tag custom (contoh: startup, fintech)"
-                  className="flex-1 px-4 py-2 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-500 text-sm"
-                  disabled={selectedTags.length >= 5}
-                />
-                <button
-                  type="button"
-                  onClick={addCustomTag}
-                  disabled={selectedTags.length >= 5 || !customTag.trim()}
-                  className="w-full sm:w-auto px-4 py-2 bg-emerald-600 text-white rounded-xl hover:bg-emerald-700 disabled:bg-slate-300 disabled:cursor-not-allowed text-sm font-medium transition-colors whitespace-nowrap"
-                >
-                  Tambah
-                </button>
-              </div>
-              <p className="text-xs text-slate-500 mt-1">
-                Tekan Enter atau klik Tambah untuk menambahkan tag custom
-              </p>
+            {/* Custom Tag Input with inline Tambah button */}
+            <div className="relative flex items-center">
+              <input
+                type="text"
+                value={customTag}
+                onChange={(e) => setCustomTag(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter') {
+                    e.preventDefault();
+                    addCustomTag();
+                  }
+                }}
+                placeholder="Ketik tag custom..."
+                className="w-full pl-3.5 pr-20 py-2 border border-slate-200 dark:border-slate-800 dark:bg-slate-900 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 text-xs sm:text-sm text-slate-900 dark:text-white placeholder:text-slate-400"
+                disabled={selectedTags.length >= 5}
+              />
+              <button
+                type="button"
+                onClick={addCustomTag}
+                disabled={selectedTags.length >= 5 || !customTag.trim()}
+                className="absolute right-1.5 px-3 py-1 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 disabled:opacity-40 text-xs font-semibold transition-colors"
+              >
+                Tambah
+              </button>
             </div>
 
             {/* Suggested Tags */}
-            <div>
-              <p className="text-xs font-medium text-slate-600 mb-2">Tag yang disarankan:</p>
-              <div className="flex flex-wrap gap-2">
-                {suggestedTags.map((tag) => (
-                  <button
-                    key={tag}
-                    type="button"
-                    onClick={() => toggleTag(tag)}
-                    disabled={!selectedTags.includes(tag) && selectedTags.length >= 5}
-                    className={`inline-flex items-center gap-2 px-3 py-1.5 rounded-full border text-sm font-medium transition-colors ${selectedTags.includes(tag)
-                      ? 'bg-emerald-600 text-white border-emerald-600'
-                      : !selectedTags.includes(tag) && selectedTags.length >= 5
-                        ? 'bg-slate-100 text-slate-400 border-slate-200 cursor-not-allowed'
-                        : 'bg-white text-slate-600 border-slate-200 hover:border-emerald-400 hover:text-emerald-600'
+            <div className="mt-2.5">
+              <p className="text-[11px] font-medium text-slate-400 dark:text-slate-500 mb-1.5">Saran topik:</p>
+              <div className="flex flex-wrap gap-1.5">
+                {suggestedTags.map((tag) => {
+                  const isSelected = selectedTags.includes(tag);
+                  return (
+                    <button
+                      key={tag}
+                      type="button"
+                      onClick={() => toggleTag(tag)}
+                      disabled={!isSelected && selectedTags.length >= 5}
+                      className={`px-2.5 py-1 rounded-lg text-xs transition-colors ${
+                        isSelected
+                          ? 'bg-emerald-600 text-white font-medium'
+                          : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700'
                       }`}
-                  >
-                    <Tag className="w-3.5 h-3.5" />
-                    {tag}
-                  </button>
-                ))}
+                    >
+                      #{tag}
+                    </button>
+                  );
+                })}
               </div>
             </div>
           </div>
 
-          <div className="bg-emerald-50 border border-emerald-200 rounded-xl p-4">
-            <div className="flex items-start gap-3">
-              <Lightbulb className="w-5 h-5 text-emerald-600 shrink-0 mt-0.5" />
-              <div>
-                <p className="text-sm font-medium text-emerald-900">Tips Pertanyaan Berkualitas</p>
-                <ul className="text-xs text-emerald-700 mt-2 space-y-1 list-disc list-inside">
-                  <li>Jelaskan masalah dengan spesifik dan detail</li>
-                  <li>Sertakan data atau angka pendukung jika ada</li>
-                  <li>Ceritakan apa yang sudah Anda coba</li>
-                  <li>Gunakan tag yang relevan agar mudah ditemukan</li>
-                </ul>
-              </div>
-            </div>
-          </div>
-
-          <div className="flex items-center justify-between pt-4 border-t border-slate-200">
+          {/* Action Buttons */}
+          <div className="flex items-center justify-between pt-3 border-t border-slate-100 dark:border-slate-800">
             <button
               type="button"
               onClick={() => router.push('/')}
-              className="px-6 py-2.5 text-slate-700 hover:bg-slate-100 rounded-lg transition-colors font-medium"
+              className="px-4 py-2 text-xs sm:text-sm text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white font-medium transition-colors"
               disabled={loading}
             >
               Batal
@@ -400,11 +406,11 @@ export default function AskPage() {
             <button
               type="submit"
               disabled={loading || title.trim().length < 10 || content.trim().length < 20}
-              className="px-6 py-2.5 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 transition-colors font-medium disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+              className="px-5 py-2.5 bg-emerald-600 text-white rounded-xl hover:bg-emerald-700 text-xs sm:text-sm font-semibold transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2 shadow-sm shadow-emerald-600/20"
             >
               {loading ? (
                 <>
-                  <div className="animate-spin rounded-full h-4 w-4 border-2 border-white border-t-transparent"></div>
+                  <div className="animate-spin rounded-full h-3.5 w-3.5 border-2 border-white border-t-transparent"></div>
                   <span>Menyimpan...</span>
                 </>
               ) : (

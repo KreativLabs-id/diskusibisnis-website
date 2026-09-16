@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import { X } from 'lucide-react';
 import api from '@/lib/api';
 import Link from 'next/link';
+import { usePathname } from 'next/navigation';
 import Image from 'next/image';
 
 // Generic blur placeholder for loading
@@ -22,8 +23,16 @@ export default function PromoPopupModal() {
     const [popup, setPopup] = useState<PromoPopup | null>(null);
     const [isOpen, setIsOpen] = useState(false);
     const [hasShown, setHasShown] = useState(false);
+    const pathname = usePathname();
 
     useEffect(() => {
+        // Hanya tampilkan popup di halaman beranda ('/')
+        if (pathname !== '/') return;
+
+        // Cek apakah user sudah menutup popup di sesi ini
+        const hasClosedInSession = sessionStorage.getItem('promo_popup_closed') === 'true';
+        if (hasClosedInSession) return;
+
         // Delay popup to not interfere with page load
         const timer = setTimeout(() => {
             if (!hasShown) {
@@ -32,7 +41,7 @@ export default function PromoPopupModal() {
         }, 2000);
 
         return () => clearTimeout(timer);
-    }, [hasShown]);
+    }, [hasShown, pathname]);
 
     const fetchPopup = async () => {
         try {
@@ -64,6 +73,7 @@ export default function PromoPopupModal() {
             e.stopPropagation();
         }
         setIsOpen(false);
+        sessionStorage.setItem('promo_popup_closed', 'true');
         if (popup) {
             await recordView(popup.id, false);
         }
@@ -71,6 +81,7 @@ export default function PromoPopupModal() {
 
     const handleClick = async () => {
         setIsOpen(false);
+        sessionStorage.setItem('promo_popup_closed', 'true');
         if (popup) {
             await recordView(popup.id, true);
         }

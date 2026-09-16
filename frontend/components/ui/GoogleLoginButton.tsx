@@ -115,7 +115,6 @@ export default function GoogleLoginButton({
         size: 'large',
         text: 'continue_with',
         shape: 'rectangular',
-        width: '100%',
       });
     }
   }, [isReady]);
@@ -187,7 +186,7 @@ export default function GoogleLoginButton({
         type="button"
         onClick={handleClick}
         disabled={disabled || isLoading || !isReady}
-        className="w-full flex justify-center items-center gap-3 py-3 px-4 border border-slate-200 rounded-xl text-sm font-semibold text-slate-700 bg-white hover:bg-slate-50 hover:border-slate-300 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-slate-200 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200"
+        className="w-full flex justify-center items-center gap-2.5 py-2.5 sm:py-3 px-4 border border-slate-200 dark:border-slate-700/80 rounded-xl sm:rounded-2xl text-xs sm:text-sm font-semibold text-slate-700 dark:text-slate-200 bg-white dark:bg-slate-800 hover:bg-slate-50 dark:hover:bg-slate-700/50 hover:border-slate-300 dark:hover:border-slate-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500/20 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 shadow-sm"
       >
         {isLoading ? (
           <>

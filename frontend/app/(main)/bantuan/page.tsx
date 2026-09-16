@@ -24,9 +24,9 @@ export default function HelpPage() {
         </nav>
 
         {/* Header */}
-        <header className="mb-16">
-          <h1 className="text-3xl md:text-5xl font-bold text-slate-900 dark:text-slate-100 mb-6">Pusat Bantuan</h1>
-          <p className="text-xl text-slate-600 dark:text-slate-400 leading-relaxed max-w-2xl">
+        <header className="mb-12 md:mb-16">
+          <h1 className="text-3xl md:text-4xl font-bold tracking-tight text-slate-900 dark:text-slate-100 mb-4 leading-tight">Pusat Bantuan</h1>
+          <p className="text-base md:text-lg text-slate-600 dark:text-slate-400 leading-relaxed max-w-2xl">
             Temukan jawaban atas pertanyaan Anda atau hubungi tim dukungan kami jika Anda mengalami kendala.
           </p>
         </header>

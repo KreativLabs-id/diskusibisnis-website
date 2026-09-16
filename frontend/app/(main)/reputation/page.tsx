@@ -152,100 +152,83 @@ export default function ReputationPage() {
 
       <div className="w-full max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 pb-12 pt-6 sm:pt-14">
         {/* Professional Minimalist Header */}
-        <div className="hidden sm:flex mb-10 sm:mb-12 flex-col sm:flex-row sm:items-end justify-between gap-6">
-          <div className="space-y-1">
-            <h1 className="text-3xl sm:text-4xl font-bold text-slate-900 dark:text-white tracking-tight flex items-center gap-3">
-              <div className="w-12 h-12 bg-gradient-to-br from-emerald-500 to-teal-600 rounded-2xl flex items-center justify-center shadow-lg shadow-emerald-500/20 transform -rotate-3">
-                <Trophy className="w-6 h-6 text-white" />
-              </div>
-              Reputasi Anda
-            </h1>
-            <p className="text-slate-500 dark:text-slate-400 text-lg">
-              Statistik pencapaian dan riwayat kontribusi Anda.
-            </p>
-          </div>
+        <div className="hidden sm:flex mb-8 flex-col gap-1">
+          <h1 className="text-2xl font-bold text-slate-900 dark:text-white flex items-center gap-2">
+            <div className="p-2 bg-emerald-50 dark:bg-emerald-900/30 text-emerald-600 dark:text-emerald-400 rounded-lg">
+              <Trophy className="w-5 h-5" />
+            </div>
+            Reputasi Anda
+          </h1>
+          <p className="text-sm text-slate-500 dark:text-slate-400 ml-10">
+            Statistik pencapaian dan riwayat kontribusi Anda.
+          </p>
         </div>
 
-        {/* Stats Grid - Responsive */}
-        {/* Stats Grid - Responsive */}
-        <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 sm:gap-4 mb-6 sm:mb-8">
+        {/* Stats Container - Single unified box */}
+        <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl overflow-hidden shadow-sm flex flex-col sm:flex-row divide-y sm:divide-y-0 sm:divide-x divide-slate-100 dark:divide-slate-800/60 mb-8">
+          
           {/* Total Reputation Card */}
-          <div className="col-span-1 bg-white dark:bg-slate-800 rounded-2xl p-4 sm:p-5 border border-slate-200 dark:border-slate-700 shadow-sm relative overflow-hidden group">
-            <div className="absolute top-0 right-0 w-24 h-24 bg-emerald-50 dark:bg-emerald-900/20 rounded-full blur-2xl -translate-y-1/2 translate-x-1/2 group-hover:bg-emerald-100 dark:group-hover:bg-emerald-900/30 transition-colors"></div>
-            <div className="relative z-10">
-              <div className="flex items-center gap-2 sm:gap-3 mb-2">
-                <div className="p-1.5 sm:p-2 bg-emerald-50 dark:bg-emerald-900/30 rounded-lg text-emerald-600 dark:text-emerald-400">
-                  <Trophy className="w-4 h-4 sm:w-5 sm:h-5" />
-                </div>
-                <span className="text-xs sm:text-sm font-medium text-slate-500 dark:text-slate-400">Total Poin</span>
-              </div>
-              <div className="flex flex-col sm:flex-row sm:items-baseline gap-0.5 sm:gap-1.5">
-                <span className="text-2xl sm:text-3xl font-bold text-slate-900 dark:text-slate-100">{user.reputationPoints || 0}</span>
-                <span className="text-xs sm:text-sm font-medium text-slate-400 dark:text-slate-500">poin</span>
-              </div>
+          <div className="flex-1 p-5 flex items-center justify-between sm:flex-col sm:items-start sm:justify-start gap-2 hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors">
+            <div className="flex items-center gap-2 text-slate-500 dark:text-slate-400">
+              <Trophy className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
+              <span className="text-xs font-bold uppercase tracking-wider">Total Poin</span>
+            </div>
+            <div className="flex items-baseline gap-1.5">
+              <span className="text-2xl font-bold text-slate-900 dark:text-slate-100">{user.reputationPoints || 0}</span>
+              <span className="text-xs font-medium text-slate-500">poin</span>
             </div>
           </div>
 
           {/* Weekly Growth Card */}
-          <div className="col-span-1 bg-white rounded-2xl p-4 sm:p-5 border border-slate-200 shadow-sm relative overflow-hidden group">
-            <div className="absolute top-0 right-0 w-24 h-24 bg-emerald-50 rounded-full blur-2xl -translate-y-1/2 translate-x-1/2 group-hover:bg-emerald-100 transition-colors"></div>
-            <div className="relative z-10">
-              <div className="flex items-center gap-2 sm:gap-3 mb-2">
-                <div className="p-1.5 sm:p-2 bg-emerald-50 rounded-lg text-emerald-600">
-                  <TrendingUp className="w-4 h-4 sm:w-5 sm:h-5" />
-                </div>
-                <span className="text-xs sm:text-sm font-medium text-slate-500">Minggu Ini</span>
-              </div>
-              <div className="flex flex-col sm:flex-row sm:items-baseline gap-0.5 sm:gap-1.5">
-                <span className="text-2xl sm:text-3xl font-bold text-emerald-600">+0</span>
-                <span className="text-xs sm:text-sm font-medium text-emerald-600/70">poin baru</span>
-              </div>
+          <div className="flex-1 p-5 flex items-center justify-between sm:flex-col sm:items-start sm:justify-start gap-2 hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors">
+            <div className="flex items-center gap-2 text-slate-500 dark:text-slate-400">
+              <TrendingUp className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
+              <span className="text-xs font-bold uppercase tracking-wider">Minggu Ini</span>
+            </div>
+            <div className="flex items-baseline gap-1.5">
+              <span className="text-2xl font-bold text-emerald-600 dark:text-emerald-400">+0</span>
+              <span className="text-xs font-medium text-emerald-600/70 dark:text-emerald-500/80">poin baru</span>
             </div>
           </div>
 
           {/* Global Rank Card */}
-          <div className="col-span-2 sm:col-span-1 bg-white rounded-2xl p-4 sm:p-5 border border-slate-200 shadow-sm relative overflow-hidden group">
-            <div className="absolute top-0 right-0 w-24 h-24 bg-emerald-50 rounded-full blur-2xl -translate-y-1/2 translate-x-1/2 group-hover:bg-emerald-100 transition-colors"></div>
-            <div className="relative z-10">
-              <div className="flex items-center gap-2 sm:gap-3 mb-2">
-                <div className="p-1.5 sm:p-2 bg-emerald-50 rounded-lg text-emerald-600">
-                  <Award className="w-4 h-4 sm:w-5 sm:h-5" />
-                </div>
-                <span className="text-xs sm:text-sm font-medium text-slate-500">Peringkat Global</span>
-              </div>
-              <div className="flex items-center gap-2">
-                <span className="text-2xl sm:text-3xl font-bold text-slate-900">
-                  {userRank ? `#${userRank}` : '-'}
-                </span>
-                <span className="text-[10px] sm:text-xs px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-700 font-bold">
-                  Top 1%
-                </span>
-              </div>
+          <div className="flex-1 p-5 flex items-center justify-between sm:flex-col sm:items-start sm:justify-start gap-2 hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors">
+            <div className="flex items-center gap-2 text-slate-500 dark:text-slate-400">
+              <Award className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
+              <span className="text-xs font-bold uppercase tracking-wider">Peringkat Global</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <span className="text-2xl font-bold text-slate-900 dark:text-slate-100">
+                {userRank ? `#${userRank}` : '-'}
+              </span>
+              <span className="text-[10px] px-2 py-0.5 rounded-full bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400 font-bold border border-emerald-200 dark:border-emerald-800">
+                Top 1%
+              </span>
             </div>
           </div>
+
         </div>
 
         <div className="grid lg:grid-cols-3 gap-6 lg:gap-8">
           {/* Main Content: Activity History */}
-          {/* Main Content: Activity History */}
           <div className="lg:col-span-2">
-            <div className="flex items-center justify-between mb-4 px-1">
-              <h2 className="text-lg font-bold text-slate-900">Riwayat Aktivitas</h2>
-              <div className="text-[10px] sm:text-xs font-medium text-slate-500 bg-white px-2.5 py-1 rounded-full border border-slate-200 shadow-sm">
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="text-sm font-bold text-slate-900 dark:text-slate-100 uppercase tracking-wider">Riwayat Aktivitas</h2>
+              <div className="text-[10px] sm:text-xs font-bold text-slate-500 bg-white dark:bg-slate-800 px-2 py-1 rounded-md border border-slate-200 dark:border-slate-700">
                 Terupdate
               </div>
             </div>
 
             <div className="space-y-1">
               {loading ? (
-                <div className="divide-y divide-slate-200/50">
+                <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl overflow-hidden shadow-sm divide-y divide-slate-100 dark:divide-slate-800/60">
                   {[1, 2, 3].map((i) => (
-                    <div key={i} className="py-4 animate-pulse pt-2">
+                    <div key={i} className="p-4 sm:p-5 animate-pulse">
                       <div className="flex items-center gap-3 sm:gap-4">
-                        <div className="w-10 h-10 bg-slate-200 rounded-xl" />
+                        <div className="w-10 h-10 bg-slate-200 dark:bg-slate-800 rounded-xl" />
                         <div className="flex-1 space-y-2">
-                          <div className="h-3 sm:h-4 bg-slate-200 rounded w-3/4" />
-                          <div className="h-2 sm:h-3 bg-slate-200 rounded w-1/2" />
+                          <div className="h-3 sm:h-4 bg-slate-200 dark:bg-slate-800 rounded w-3/4" />
+                          <div className="h-2 sm:h-3 bg-slate-200 dark:bg-slate-800 rounded w-1/2" />
                         </div>
                       </div>
                     </div>
@@ -268,19 +251,19 @@ export default function ReputationPage() {
                   </Link>
                 </div>
               ) : (
-                <div className="divide-y divide-slate-200 border-t border-slate-200/50">
+                <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl overflow-hidden shadow-sm divide-y divide-slate-100 dark:divide-slate-800/60">
                   {activities.map((activity) => (
-                    <div key={activity.id} className="py-4 hover:bg-white/50 transition-colors -mx-4 px-4 sm:mx-0 sm:px-0 rounded-xl">
+                    <div key={activity.id} className="p-4 sm:p-5 hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors">
                       <div className="flex items-start gap-3 sm:gap-4">
-                        <div className="w-10 h-10 sm:w-11 sm:h-11 bg-white rounded-xl flex items-center justify-center border border-slate-200 shadow-sm shrink-0">
+                        <div className="w-10 h-10 bg-slate-50 dark:bg-slate-800 rounded-xl flex items-center justify-center shrink-0">
                           {getActivityIcon(activity.type)}
                         </div>
                         <div className="flex-1 min-w-0 pt-0.5">
                           <div className="flex items-start justify-between gap-2 mb-1">
-                            <p className="font-semibold text-slate-900 text-sm sm:text-base line-clamp-2 leading-snug">
+                            <p className="font-semibold text-slate-900 dark:text-slate-100 text-sm line-clamp-2 leading-snug">
                               {activity.description}
                             </p>
-                            <span className="inline-flex items-center px-2 py-0.5 rounded-lg text-[10px] sm:text-xs font-bold bg-emerald-50 text-emerald-700 border border-emerald-100 shrink-0">
+                            <span className="inline-flex items-center px-2 py-0.5 rounded-lg text-[10px] font-bold bg-emerald-50 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400 border border-emerald-100 dark:border-emerald-800/50 shrink-0">
                               +{activity.points}
                             </span>
                           </div>
@@ -288,14 +271,14 @@ export default function ReputationPage() {
                           {activity.questionTitle && (
                             <Link
                               href={`/questions/${activity.questionId}`}
-                              className="group/link flex items-center gap-1 text-xs sm:text-sm text-slate-500 hover:text-emerald-600 transition-colors mb-1.5 w-fit"
+                              className="group/link flex items-center gap-1 text-xs text-slate-500 dark:text-slate-400 hover:text-emerald-600 dark:hover:text-emerald-400 transition-colors mb-1.5 w-fit"
                             >
                               <span className="truncate max-w-[200px] sm:max-w-md">{activity.questionTitle}</span>
                               <ArrowUpRight className="w-3 h-3 opacity-0 group-hover/link:opacity-100 transition-opacity" />
                             </Link>
                           )}
 
-                          <div className="flex items-center gap-2 text-[10px] sm:text-xs text-slate-400 font-medium">
+                          <div className="flex items-center gap-1.5 text-[10px] sm:text-xs text-slate-400 dark:text-slate-500 font-medium mt-2">
                             <Calendar className="w-3 h-3" />
                             <span>{formatDate(activity.date)}</span>
                           </div>
@@ -310,43 +293,37 @@ export default function ReputationPage() {
 
           {/* Sidebar: How it Works */}
           <div className="lg:col-span-1">
-            <div className="bg-gradient-to-br from-emerald-900 to-emerald-800 rounded-xl sm:rounded-2xl p-4 sm:p-6 text-white shadow-xl relative overflow-hidden">
-              {/* Background Effects */}
-              <div className="absolute top-0 right-0 w-32 h-32 bg-emerald-400/20 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2"></div>
-              <div className="absolute bottom-0 left-0 w-32 h-32 bg-teal-400/20 rounded-full blur-3xl translate-y-1/2 -translate-x-1/2"></div>
-
-              <div className="relative z-10">
-                <div className="flex items-center gap-3 mb-4 sm:mb-6">
-                  <div className="w-8 h-8 sm:w-10 sm:h-10 bg-white/10 backdrop-blur-md rounded-lg sm:rounded-xl flex items-center justify-center border border-white/10">
-                    <Star className="w-4 h-4 sm:w-5 sm:h-5 text-yellow-400" />
-                  </div>
-                  <h3 className="text-base sm:text-lg font-bold">Sistem Poin</h3>
+            <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl overflow-hidden shadow-sm sticky top-24">
+              <div className="p-4 sm:p-5 border-b border-slate-100 dark:border-slate-800/60 bg-slate-50/50 dark:bg-slate-800/20">
+                <div className="flex items-center gap-2">
+                  <Star className="w-4 h-4 text-yellow-500" />
+                  <h3 className="text-sm font-bold text-slate-900 dark:text-slate-100 uppercase tracking-wider">Sistem Poin</h3>
                 </div>
-
-                <div className="space-y-2 sm:space-y-3">
-                  <div className="flex items-center justify-between p-2.5 sm:p-3 bg-emerald-950/30 rounded-lg sm:rounded-xl border border-emerald-700/30 hover:bg-emerald-950/50 transition-colors">
-                    <span className="text-xs sm:text-sm text-emerald-100">Jawaban Terbaik</span>
-                    <span className="text-xs sm:text-sm font-bold text-emerald-400">+15</span>
-                  </div>
-                  <div className="flex items-center justify-between p-2.5 sm:p-3 bg-emerald-950/30 rounded-lg sm:rounded-xl border border-emerald-700/30 hover:bg-emerald-950/50 transition-colors">
-                    <span className="text-xs sm:text-sm text-emerald-100">Dapat Upvote</span>
-                    <span className="text-xs sm:text-sm font-bold text-emerald-400">+10</span>
-                  </div>
-                  <div className="flex items-center justify-between p-2.5 sm:p-3 bg-emerald-950/30 rounded-lg sm:rounded-xl border border-emerald-700/30 hover:bg-emerald-950/50 transition-colors">
-                    <span className="text-xs sm:text-sm text-emerald-100">Buat Pertanyaan</span>
-                    <span className="text-xs sm:text-sm font-bold text-emerald-400">+5</span>
-                  </div>
-                  <div className="flex items-center justify-between p-2.5 sm:p-3 bg-emerald-950/30 rounded-lg sm:rounded-xl border border-emerald-700/30 hover:bg-emerald-950/50 transition-colors">
-                    <span className="text-xs sm:text-sm text-emerald-100">Dapat Downvote</span>
-                    <span className="text-xs sm:text-sm font-bold text-red-400">-2</span>
-                  </div>
+              </div>
+              
+              <div className="divide-y divide-slate-100 dark:divide-slate-800/60">
+                <div className="flex items-center justify-between p-4 sm:p-5">
+                  <span className="text-sm font-medium text-slate-700 dark:text-slate-300">Jawaban Terbaik</span>
+                  <span className="text-xs font-bold text-emerald-600 dark:text-emerald-400 px-2 py-1 bg-emerald-50 dark:bg-emerald-900/20 rounded-md">+15</span>
                 </div>
-
-                <div className="mt-4 sm:mt-6 pt-4 sm:pt-6 border-t border-emerald-700/30">
-                  <p className="text-[10px] sm:text-xs text-emerald-200/80 leading-relaxed text-center">
-                    Kumpulkan poin untuk meningkatkan reputasi dan mendapatkan lencana eksklusif.
-                  </p>
+                <div className="flex items-center justify-between p-4 sm:p-5">
+                  <span className="text-sm font-medium text-slate-700 dark:text-slate-300">Dapat Upvote</span>
+                  <span className="text-xs font-bold text-emerald-600 dark:text-emerald-400 px-2 py-1 bg-emerald-50 dark:bg-emerald-900/20 rounded-md">+10</span>
                 </div>
+                <div className="flex items-center justify-between p-4 sm:p-5">
+                  <span className="text-sm font-medium text-slate-700 dark:text-slate-300">Buat Pertanyaan</span>
+                  <span className="text-xs font-bold text-emerald-600 dark:text-emerald-400 px-2 py-1 bg-emerald-50 dark:bg-emerald-900/20 rounded-md">+5</span>
+                </div>
+                <div className="flex items-center justify-between p-4 sm:p-5">
+                  <span className="text-sm font-medium text-slate-700 dark:text-slate-300">Dapat Downvote</span>
+                  <span className="text-xs font-bold text-red-600 dark:text-red-400 px-2 py-1 bg-red-50 dark:bg-red-900/20 rounded-md">-2</span>
+                </div>
+              </div>
+              
+              <div className="p-4 sm:p-5 bg-slate-50 dark:bg-slate-800/30 border-t border-slate-100 dark:border-slate-800/60">
+                <p className="text-xs text-slate-500 dark:text-slate-400 text-center leading-relaxed">
+                  Kumpulkan poin untuk meningkatkan reputasi dan lencana.
+                </p>
               </div>
             </div>
           </div>

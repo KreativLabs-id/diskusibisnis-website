@@ -260,9 +260,9 @@ const MentionInput: React.FC<MentionInputProps> = ({
       )}
 
       {/* Helper text */}
-      <div className="mt-1 text-xs text-gray-500">
-        Type <kbd className="px-1.5 py-0.5 bg-gray-100 border border-gray-300 rounded text-xs">@</kbd> to mention · 
-        <kbd className="ml-1 px-1.5 py-0.5 bg-gray-100 border border-gray-300 rounded text-xs">Ctrl+Enter</kbd> to submit
+      <div className="hidden sm:block mt-1 text-[11px] text-slate-400 dark:text-slate-500">
+        Ketik <kbd className="px-1.5 py-0.5 bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded text-[10px]">@</kbd> untuk mention · 
+        <kbd className="ml-1 px-1.5 py-0.5 bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded text-[10px]">Ctrl+Enter</kbd> untuk kirim
       </div>
     </div>
   );
