@@ -115,10 +115,8 @@ const MentionInput: React.FC<MentionInputProps> = ({
     const textBefore = value.slice(0, mentionStartPos);
     const textAfter = value.slice(cursorPos);
     
-    // Use display_name for mention (with quotes if has space)
-    const mentionText = user.display_name.includes(' ') 
-      ? `@"${user.display_name}"` 
-      : `@${user.display_name}`;
+    // Use username for mention
+    const mentionText = `@${user.username}`;
     
     const newValue = `${textBefore}${mentionText} ${textAfter}`;
     onChange(newValue);
@@ -190,7 +188,7 @@ const MentionInput: React.FC<MentionInputProps> = ({
   }, []);
 
   return (
-    <div className="relative">
+    <div className={`relative ${showMentionDropdown ? 'z-[100]' : 'z-10'}`}>
       <textarea
         ref={textareaRef}
         value={value}

@@ -3,6 +3,7 @@ import pool from '../config/database';
 import { AuthRequest } from '../types';
 import { successResponse, errorResponse, notFoundResponse, forbiddenResponse } from '../utils/response.utils';
 import { generateUniqueSlug } from '../utils/slug.utils';
+import { apiCache, cacheKeys, invalidateCache } from '../utils/cache';
 
 /**
  * Get all communities
@@ -160,6 +161,7 @@ export const createCommunity = async (req: AuthRequest, res: Response): Promise<
       [community.id, user.id, 'admin']
     );
 
+    await invalidateCache.communities();
     successResponse(res, { community }, 'Community created successfully', 201);
   } catch (error) {
     console.error('Create community error:', error);
@@ -217,6 +219,13 @@ export const getCommunityBySlug = async (req: AuthRequest, res: Response): Promi
       params = [slug];
     }
 
+    const cacheKey = cacheKeys.communityBySlug(slug) + (currentUserId ? ':user:' + currentUserId : '');
+    const cached = await apiCache.get(cacheKey);
+    if (cached) {
+      successResponse(res, cached);
+      return;
+    }
+
     const result = await pool.query(query, params);
 
     if (result.rows.length === 0) {
@@ -227,7 +236,9 @@ export const getCommunityBySlug = async (req: AuthRequest, res: Response): Promi
     const community = result.rows[0];
     console.log(`[getCommunityBySlug] Result: is_member=${community.is_member}, user_role=${community.user_role}`);
 
-    successResponse(res, { community });
+    const responseData = { community };
+    await apiCache.set(cacheKey, responseData, 60000); // 1 minute
+    successResponse(res, responseData);
   } catch (error) {
     console.error('Get community error:', error);
     errorResponse(res, 'Server error');
@@ -285,6 +296,7 @@ export const joinCommunity = async (req: AuthRequest, res: Response): Promise<vo
       [communityId, user.id, 'member']
     );
 
+    await invalidateCache.community(slug);
     successResponse(res, { already_member: false }, 'Successfully joined community');
   } catch (error) {
     console.error('Join community error:', error);
@@ -343,6 +355,7 @@ export const leaveCommunity = async (req: AuthRequest, res: Response): Promise<v
       [communityId, user.id]
     );
 
+    await invalidateCache.community(slug);
     successResponse(res, { already_left: false }, 'Successfully left community');
   } catch (error) {
     console.error('Leave community error:', error);
@@ -532,6 +545,7 @@ export const promoteMemberToAdmin = async (req: AuthRequest, res: Response): Pro
       ['admin', communityId, userId]
     );
 
+    await invalidateCache.community(slug);
     successResponse(res, null, 'Member successfully promoted to admin');
   } catch (error) {
     console.error('Promote member error:', error);
@@ -601,6 +615,7 @@ export const demoteAdminToMember = async (req: AuthRequest, res: Response): Prom
       ['member', communityId, userId]
     );
 
+    await invalidateCache.community(slug);
     successResponse(res, null, 'Admin successfully demoted to member');
   } catch (error) {
     console.error('Demote admin error:', error);
@@ -639,7 +654,7 @@ export const updateCommunity = async (req: AuthRequest, res: Response): Promise<
     const { id: communityId, created_by, role } = communityResult.rows[0];
 
     // Only creator or admin can update community info
-    if (created_by !== user.id && role !== 'admin') {
+    if (created_by !== user.id && role !== 'admin' && user.role !== 'admin') {
       forbiddenResponse(res, 'Only admins can update community information');
       return;
     }
@@ -663,6 +678,7 @@ export const updateCommunity = async (req: AuthRequest, res: Response): Promise<
       RETURNING id, name, slug, description, category, location, avatar_url
     `, [name.trim(), description.trim(), category, location || null, avatar_url, communityId]);
 
+    await invalidateCache.community(slug);
     successResponse(res, updateResult.rows[0], 'Community updated successfully');
   } catch (error) {
     console.error('Update community error:', error);
@@ -701,7 +717,7 @@ export const updateCommunityAbout = async (req: AuthRequest, res: Response): Pro
     const { id: communityId, created_by, role } = communityResult.rows[0];
 
     // Only creator or admin can update about info
-    if (created_by !== user.id && role !== 'admin') {
+    if (created_by !== user.id && role !== 'admin' && user.role !== 'admin') {
       forbiddenResponse(res, 'Only admins can update community information');
       return;
     }
@@ -714,6 +730,7 @@ export const updateCommunityAbout = async (req: AuthRequest, res: Response): Pro
       RETURNING vision, mission, target_members, benefits
     `, [vision, mission, target_members, benefits, communityId]);
 
+    await invalidateCache.community(slug);
     successResponse(res, updateResult.rows[0], 'Community about information updated successfully');
   } catch (error) {
     console.error('Update community about error:', error);

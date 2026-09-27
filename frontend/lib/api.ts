@@ -164,8 +164,8 @@ export const userAPI = {
 
 // Tags
 export const tagAPI = {
-  getAll: () =>
-    api.get('/tags'),
+  getAll: (params?: { search?: string; limit?: number }) =>
+    api.get('/tags', { params }),
   getBySlug: (slug: string) =>
     api.get(`/tags/${slug}`),
   create: (data: { name: string; slug: string; description?: string }) =>

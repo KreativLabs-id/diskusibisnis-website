@@ -14,7 +14,7 @@ export const getTags = async (req: AuthRequest, res: Response): Promise<void> =>
     const limit = Math.min(parseInt(req.query.limit as string) || 50, 100);
     const normalizedSearch = search.trim().toLowerCase();
     const cacheKey = cacheKeys.tagsSearch(normalizedSearch, limit);
-    const cached = apiCache.get<{ tags: any[] }>(cacheKey);
+    const cached = await apiCache.get<{ tags: any[] }>(cacheKey);
 
     if (cached) {
       successResponse(res, cached);
@@ -44,7 +44,7 @@ export const getTags = async (req: AuthRequest, res: Response): Promise<void> =>
     const result = await pool.query(query, queryParams);
     const responseData = { tags: result.rows };
 
-    apiCache.set(cacheKey, responseData, normalizedSearch ? 15000 : 60000);
+    await apiCache.set(cacheKey, responseData, normalizedSearch ? 15000 : 60000);
     successResponse(res, responseData);
   } catch (error) {
     console.error('Get tags error:', error);
@@ -60,7 +60,7 @@ export const getTagBySlug = async (req: AuthRequest, res: Response): Promise<voi
   try {
     const slug = req.params.slug;
     const cacheKey = `tag:${slug}`;
-    const cached = apiCache.get<{ tag: any }>(cacheKey);
+    const cached = await apiCache.get<{ tag: any }>(cacheKey);
 
     if (cached) {
       successResponse(res, cached);
@@ -83,7 +83,7 @@ export const getTagBySlug = async (req: AuthRequest, res: Response): Promise<voi
     }
 
     const responseData = { tag: result.rows[0] };
-    apiCache.set(cacheKey, responseData, 60000);
+    await apiCache.set(cacheKey, responseData, 60000);
     successResponse(res, responseData);
   } catch (error) {
     console.error('Get tag error:', error);

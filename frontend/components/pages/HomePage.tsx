@@ -23,8 +23,8 @@ import {
 import { questionAPI, tagAPI } from '@/lib/api';
 import QuestionCard from '@/components/questions/QuestionCard';
 import QuestionCardSkeleton from '@/components/questions/QuestionCardSkeleton';
+import GlobalSearchDropdown from '@/components/ui/GlobalSearchDropdown';
 import { useAuth } from '@/contexts/AuthContext';
-import { useSearch } from '@/contexts/SearchContext';
 import Link from 'next/link';
 import ReportModal from '../ui/ReportModal';
 import LoginPromptModal from '../ui/LoginPromptModal';
@@ -58,13 +58,12 @@ export default function HomePage() {
   const [sortBy, setSortByState] = useState<'newest' | 'popular' | 'unanswered'>('newest');
   const [pageSize, setPageSize] = useState(10);
   const [currentPage, setCurrentPage] = useState(1);
-  const searchCtx = useSearch();
   const [localSearchQuery, setLocalSearchQuery] = useState('');
   const [localSearchInput, setLocalSearchInput] = useState('');
   const searchDebounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  const searchQuery = searchCtx ? searchCtx.searchQuery : localSearchQuery;
-  const searchInput = searchCtx ? searchCtx.searchInput : localSearchInput;
+  const searchQuery = localSearchQuery;
+  const searchInput = localSearchInput;
 
   // Sync sortBy state with session storage
   useEffect(() => {
@@ -245,26 +244,18 @@ export default function HomePage() {
 
   // Debounced search — 300ms delay sesuai UX best practice
   const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (searchCtx) {
-      searchCtx.handleSearchChange(e);
-    } else {
-      const val = e.target.value;
-      setLocalSearchInput(val);
-      if (searchDebounceRef.current) clearTimeout(searchDebounceRef.current);
-      searchDebounceRef.current = setTimeout(() => {
-        setLocalSearchQuery(val.trim());
-      }, 300);
-    }
+    const val = e.target.value;
+    setLocalSearchInput(val);
+    if (searchDebounceRef.current) clearTimeout(searchDebounceRef.current);
+    searchDebounceRef.current = setTimeout(() => {
+      setLocalSearchQuery(val.trim());
+    }, 300);
   };
 
   const handleSearchClear = () => {
-    if (searchCtx) {
-      searchCtx.handleSearchClear();
-    } else {
-      setLocalSearchInput('');
-      setLocalSearchQuery('');
-      if (searchDebounceRef.current) clearTimeout(searchDebounceRef.current);
-    }
+    setLocalSearchInput('');
+    setLocalSearchQuery('');
+    if (searchDebounceRef.current) clearTimeout(searchDebounceRef.current);
   };
 
   const sortOptions = [
@@ -316,7 +307,7 @@ export default function HomePage() {
   };
 
   const renderSkeleton = (
-    <div className="space-y-4 pt-2">
+    <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 overflow-hidden shadow-sm divide-y divide-slate-200 dark:divide-slate-800">
       {[1, 2, 3, 4, 5].map((i) => (
         <QuestionCardSkeleton key={i} />
       ))}
@@ -377,75 +368,7 @@ export default function HomePage() {
           </Link>
         </div>
 
-        {/* Desktop: Integrated Search & Sort in One Row - Glassmorphism */}
-        <div 
-          className="hidden lg:block sticky z-40 mb-10 sm:mb-12"
-          style={{ top: 'calc(var(--header-height, 64px) + 0.5rem)' }}
-        >
-          <div className="bg-white/80 dark:bg-slate-900/80 backdrop-blur-md border border-slate-200 dark:border-slate-800 rounded-xl p-1.5 shadow-sm flex flex-row gap-2">
-            <div className="relative flex-1">
-              <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
-              <input
-                type="text"
-                value={searchInput}
-                onChange={handleSearchChange}
-                placeholder="Cari diskusi, topik, atau kata kunci..."
-                className="w-full bg-transparent pl-10 pr-9 py-2 text-sm text-slate-900 dark:text-white placeholder:text-slate-400 outline-none"
-              />
-              {searchInput && (
-                <button
-                  onClick={handleSearchClear}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 p-0.5 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 transition-colors"
-                  aria-label="Hapus pencarian"
-                >
-                  <X className="w-3.5 h-3.5" />
-                </button>
-              )}
-            </div>
-            <div className="flex gap-1 p-0.5 bg-slate-100 dark:bg-slate-800 rounded-lg">
-              {sortOptions.map((option) => (
-                <button
-                  key={option.value}
-                  onClick={() => setSortBy(option.value as any)}
-                  className={cn(
-                    "px-4 py-1.5 rounded-md text-xs font-semibold transition-colors flex items-center justify-center gap-1.5 whitespace-nowrap",
-                    sortBy === option.value
-                      ? "bg-white dark:bg-slate-700 text-slate-900 dark:text-white shadow-xs"
-                      : "text-slate-500 hover:text-slate-700 dark:hover:text-slate-300"
-                  )}
-                >
-                  <option.icon className="w-3.5 h-3.5" />
-                  <span>{option.label}</span>
-                </button>
-              ))}
-            </div>
-          </div>
-        </div>
 
-        {/* Mobile: In-Page Search Box - Natural flow, not sticky */}
-        <div className="block lg:hidden mb-3">
-          <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl p-1 shadow-xs flex items-center">
-            <div className="relative flex-1 flex items-center">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
-              <input
-                type="text"
-                value={searchInput}
-                onChange={handleSearchChange}
-                placeholder="Cari diskusi, topik, atau kata kunci..."
-                className="w-full bg-transparent pl-9 pr-8 py-2 text-sm text-slate-900 dark:text-white placeholder:text-slate-400 outline-none"
-              />
-              {searchInput && (
-                <button
-                  onClick={handleSearchClear}
-                  className="absolute right-2.5 top-1/2 -translate-y-1/2 p-0.5 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 transition-colors"
-                  aria-label="Hapus pencarian"
-                >
-                  <X className="w-3.5 h-3.5" />
-                </button>
-              )}
-            </div>
-          </div>
-        </div>
 
         {/* Mobile: Sticky Filter Tabs - Sticks to top when scrolling */}
         <div 
@@ -474,6 +397,50 @@ export default function HomePage() {
         <div className="grid grid-cols-1 gap-8 lg:grid-cols-[minmax(0,1fr)_320px]">
           {/* Main Content: Question List */}
           <div ref={listTopRef} className="space-y-6">
+            {/* Desktop: Integrated Search & Filter */}
+            <div 
+              className="hidden lg:block sticky z-40 -mt-2 mb-6"
+              style={{ top: 'calc(var(--header-height, 64px) + 0.5rem)' }}
+            >
+              <div className="bg-white/80 dark:bg-slate-900/80 backdrop-blur-md border border-slate-200 dark:border-slate-800 rounded-xl p-1.5 shadow-sm flex flex-row gap-2">
+                <div className="relative flex-1">
+                  <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+                  <input
+                    type="text"
+                    value={searchInput}
+                    onChange={handleSearchChange}
+                    placeholder="Cari di beranda..."
+                    className="w-full bg-transparent pl-10 pr-9 py-2 text-sm text-slate-900 dark:text-white placeholder:text-slate-400 outline-none"
+                  />
+                  {searchInput && (
+                    <button
+                      onClick={handleSearchClear}
+                      className="absolute right-3 top-1/2 -translate-y-1/2 p-0.5 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 transition-colors"
+                      aria-label="Hapus pencarian"
+                    >
+                      <X className="w-3.5 h-3.5" />
+                    </button>
+                  )}
+                </div>
+                <div className="flex gap-1 p-0.5 bg-slate-100 dark:bg-slate-800 rounded-lg overflow-x-auto scrollbar-hide">
+                  {sortOptions.map((option) => (
+                    <button
+                      key={option.value}
+                      onClick={() => setSortBy(option.value as any)}
+                      className={cn(
+                        "px-4 py-1.5 rounded-md text-xs font-semibold transition-colors flex items-center gap-1.5 whitespace-nowrap flex-shrink-0",
+                        sortBy === option.value
+                          ? "bg-white dark:bg-slate-700 text-slate-900 dark:text-white shadow-xs"
+                          : "text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-300"
+                      )}
+                    >
+                      <option.icon className="w-3.5 h-3.5" />
+                      <span>{option.label}</span>
+                    </button>
+                  ))}
+                </div>
+              </div>
+            </div>
             {loading ? (
               renderSkeleton
             ) : filteredQuestions.length === 0 ? (
@@ -497,21 +464,23 @@ export default function HomePage() {
                 </div>
               ) : renderEmptyState
             ) : (
-              paginatedQuestions.map((question) => (
-                <QuestionCard
-                  key={question.id}
-                  question={question}
-                  onReport={handleReport}
-                  currentUserId={user?.id}
-                />
-              ))
+              <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 overflow-hidden shadow-sm divide-y divide-slate-200 dark:divide-slate-800">
+                {paginatedQuestions.map((question) => (
+                  <QuestionCard
+                    key={question.id}
+                    question={question}
+                    onReport={handleReport}
+                    currentUserId={user?.id}
+                  />
+                ))}
+              </div>
             )}
 
-            {/* Pagination - Professional Style */}
+            {/* Pagination */}
             {!loading && filteredQuestions.length > pageSize && (
-              <div className="mt-12 flex flex-col sm:flex-row items-center justify-between gap-6 p-6 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-sm rounded-2xl">
-                <div className="flex items-center gap-3">
-                  <span className="text-xs font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest">Tampil</span>
+              <div className="mt-8 flex flex-col sm:flex-row items-center justify-between gap-4">
+                <div className="flex items-center gap-2">
+                  <span className="text-sm font-medium text-slate-500 dark:text-slate-400">Tampilkan</span>
                   <select
                     value={pageSize}
                     onChange={(e) => {
@@ -519,7 +488,7 @@ export default function HomePage() {
                       setPageSize(next);
                       sessionStorage.setItem('home_page_size', String(next));
                     }}
-                    className="bg-slate-100 dark:bg-slate-800 border-none rounded-lg px-3 py-1.5 text-xs font-bold text-slate-700 dark:text-slate-200 focus:ring-2 focus:ring-emerald-500/20"
+                    className="bg-transparent border border-slate-200 dark:border-slate-800 rounded-lg px-2 py-1 text-sm font-medium text-slate-700 dark:text-slate-200 focus:ring-2 focus:ring-emerald-500/20 outline-none"
                   >
                     <option value={10}>10</option>
                     <option value={20}>20</option>
@@ -531,19 +500,19 @@ export default function HomePage() {
                   <button
                     onClick={() => goToPage(Math.max(1, currentPage - 1))}
                     disabled={currentPage === 1}
-                    className="p-2 rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 disabled:opacity-30 hover:bg-emerald-500 hover:text-white transition-all"
+                    className="p-2 rounded-lg border border-slate-200 dark:border-slate-800 text-slate-500 hover:bg-slate-50 dark:hover:bg-slate-800 disabled:opacity-50 transition-colors"
                   >
-                    <ChevronRight className="w-5 h-5 rotate-180" />
+                    <ChevronRight className="w-4 h-4 rotate-180" />
                   </button>
-                  <div className="px-4 py-1.5 rounded-xl bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 text-xs font-black">
-                    {currentPage} / {totalPages}
+                  <div className="px-3 py-1 text-sm font-medium text-slate-600 dark:text-slate-300">
+                    Halaman {currentPage} dari {totalPages}
                   </div>
                   <button
                     onClick={() => goToPage(Math.min(totalPages, currentPage + 1))}
                     disabled={currentPage === totalPages}
-                    className="p-2 rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 disabled:opacity-30 hover:bg-emerald-500 hover:text-white transition-all"
+                    className="p-2 rounded-lg border border-slate-200 dark:border-slate-800 text-slate-500 hover:bg-slate-50 dark:hover:bg-slate-800 disabled:opacity-50 transition-colors"
                   >
-                    <ChevronRight className="w-5 h-5" />
+                    <ChevronRight className="w-4 h-4" />
                   </button>
                 </div>
               </div>

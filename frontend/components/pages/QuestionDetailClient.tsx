@@ -12,6 +12,8 @@ import {
     Bookmark,
     BookmarkCheck,
     Flag,
+    MessageSquare,
+    Share2,
 } from 'lucide-react';
 import { questionAPI, answerAPI, voteAPI, bookmarkAPI } from '@/lib/api';
 import { useAuth } from '@/contexts/AuthContext';
@@ -752,12 +754,21 @@ export default function QuestionDetailClient({ initialQuestion, questionId }: Qu
                                         orientation="horizontal"
                                         size="small"
                                     />
-                                    <button
-                                        onClick={handleShare}
-                                        className="flex items-center gap-2 text-[13px] text-gray-500 font-medium hover:text-emerald-600 transition-colors"
-                                    >
-                                        Share
-                                    </button>
+                                    <div className="flex items-center gap-4">
+                                        <button
+                                            onClick={scrollToAnswerComposer}
+                                            className="flex items-center gap-1.5 text-[13px] text-gray-500 font-medium hover:text-emerald-600 transition-colors"
+                                        >
+                                            <MessageSquare className="w-4 h-4" />
+                                            <span>{question.answers?.length ?? question.answers_count ?? 0}</span>
+                                        </button>
+                                        <button
+                                            onClick={handleShare}
+                                            className="flex items-center gap-2 text-[13px] text-gray-500 font-medium hover:text-emerald-600 transition-colors"
+                                        >
+                                            <Share2 className="w-4 h-4" />
+                                        </button>
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -1022,7 +1033,7 @@ export default function QuestionDetailClient({ initialQuestion, questionId }: Qu
                     <div className="py-8 bg-white dark:bg-slate-900">
                         <div className="max-w-5xl mx-auto px-4 sm:px-6">
                             <h3 className="text-lg font-bold text-slate-900 mb-6">Pertanyaan Terkait</h3>
-                            <div className="space-y-4">
+                            <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 overflow-hidden shadow-sm divide-y divide-slate-200 dark:divide-slate-800">
                                 {relatedQuestions.map((related) => (
                                     <QuestionCard key={related.id} question={related} />
                                 ))}

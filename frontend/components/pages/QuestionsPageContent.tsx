@@ -63,7 +63,27 @@ export default function QuestionsPageContent() {
     setSortByState(val);
   };
 
-  const [searchQuery, setSearchQuery] = useState('');
+  const [localSearchQuery, setLocalSearchQuery] = useState('');
+  const [localSearchInput, setLocalSearchInput] = useState('');
+  const searchDebounceRef = React.useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  const searchQuery = localSearchQuery;
+  const searchInput = localSearchInput;
+
+  const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const val = e.target.value;
+    setLocalSearchInput(val);
+    if (searchDebounceRef.current) clearTimeout(searchDebounceRef.current);
+    searchDebounceRef.current = setTimeout(() => {
+      setLocalSearchQuery(val.trim());
+    }, 300);
+  };
+
+  const handleSearchClear = () => {
+    setLocalSearchInput('');
+    setLocalSearchQuery('');
+    if (searchDebounceRef.current) clearTimeout(searchDebounceRef.current);
+  };
   const [showUmkmBanner, setShowUmkmBanner] = useState(true);
   const { user } = useAuth();
   const searchParams = useSearchParams();
@@ -145,7 +165,7 @@ export default function QuestionsPageContent() {
     .slice(0, 6);
 
   const renderSkeleton = (
-    <div className="space-y-4">
+    <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 overflow-hidden shadow-sm divide-y divide-slate-200 dark:divide-slate-800">
       {[1, 2, 3, 4, 5].map((i) => (
         <QuestionCardSkeleton key={i} />
       ))}
@@ -173,75 +193,9 @@ export default function QuestionsPageContent() {
         </Link>
       </div>
 
-      {/* Desktop: Integrated Search & Filter */}
-      <div 
-        className="hidden lg:block sticky z-40 mb-10 sm:mb-12"
-        style={{ top: 'calc(var(--header-height, 64px) + 0.5rem)' }}
-      >
-        <div className="bg-white/80 dark:bg-slate-900/80 backdrop-blur-md border border-slate-200 dark:border-slate-800 rounded-xl p-1.5 shadow-sm flex flex-row gap-2">
-          <div className="relative flex-1">
-            <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
-            <input
-              type="text"
-              placeholder="Cari pertanyaan, topik, atau kata kunci..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full bg-transparent pl-10 pr-9 py-2 text-sm text-slate-900 dark:text-white placeholder:text-slate-400 outline-none"
-            />
-            {searchQuery && (
-              <button
-                onClick={() => setSearchQuery('')}
-                className="absolute right-3 top-1/2 -translate-y-1/2 p-0.5 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 transition-colors"
-                aria-label="Hapus pencarian"
-              >
-                <X className="w-3.5 h-3.5" />
-              </button>
-            )}
-          </div>
-          <div className="flex gap-1 p-0.5 bg-slate-100 dark:bg-slate-800 rounded-lg">
-            {sortOptions.map((option) => (
-              <button
-                key={option.value}
-                onClick={() => setSortBy(option.value as any)}
-                className={cn(
-                  "px-4 py-1.5 rounded-md text-xs font-semibold transition-colors flex items-center justify-center gap-1.5 whitespace-nowrap",
-                  sortByState === option.value
-                    ? "bg-white dark:bg-slate-700 text-slate-900 dark:text-white shadow-xs"
-                    : "text-slate-500 hover:text-slate-700 dark:hover:text-slate-300"
-                )}
-              >
-                <option.icon className="w-3.5 h-3.5 hidden sm:block" />
-                {option.label}
-              </button>
-            ))}
-          </div>
-        </div>
-      </div>
 
-      {/* Mobile: In-Page Search Box - Natural flow, not sticky */}
-      <div className="block lg:hidden mb-3">
-        <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl p-1 shadow-xs flex items-center">
-          <div className="relative flex-1 flex items-center">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
-            <input
-              type="text"
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              placeholder="Cari pertanyaan, topik, atau kata kunci..."
-              className="w-full bg-transparent pl-9 pr-8 py-2 text-sm text-slate-900 dark:text-white placeholder:text-slate-400 outline-none"
-            />
-            {searchQuery && (
-              <button
-                onClick={() => setSearchQuery('')}
-                className="absolute right-2.5 top-1/2 -translate-y-1/2 p-0.5 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 transition-colors"
-                aria-label="Hapus pencarian"
-              >
-                <X className="w-3.5 h-3.5" />
-              </button>
-            )}
-          </div>
-        </div>
-      </div>
+
+
 
       {/* Mobile: Sticky Filter Tabs - Sticks to top when scrolling */}
       <div 
@@ -270,6 +224,51 @@ export default function QuestionsPageContent() {
       <div className="grid grid-cols-1 gap-8 lg:grid-cols-[minmax(0,1fr)_320px]">
         {/* Questions List */}
         <div className="space-y-6">
+          {/* Desktop: Integrated Search & Filter */}
+          <div 
+            className="hidden lg:block sticky z-40 -mt-2 mb-6"
+            style={{ top: 'calc(var(--header-height, 64px) + 0.5rem)' }}
+          >
+            <div className="bg-white/80 dark:bg-slate-900/80 backdrop-blur-md border border-slate-200 dark:border-slate-800 rounded-xl p-1.5 shadow-sm flex flex-row gap-2">
+              <div className="relative flex-1">
+                <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+                <input
+                  type="text"
+                  value={searchInput}
+                  onChange={handleSearchChange}
+                  placeholder="Cari pertanyaan..."
+                  className="w-full bg-transparent pl-10 pr-9 py-2 text-sm text-slate-900 dark:text-white placeholder:text-slate-400 outline-none"
+                />
+                {searchInput && (
+                  <button
+                    onClick={handleSearchClear}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 p-0.5 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 transition-colors"
+                    aria-label="Hapus pencarian"
+                  >
+                    <X className="w-3.5 h-3.5" />
+                  </button>
+                )}
+              </div>
+              
+              <div className="flex gap-1 p-0.5 bg-slate-100 dark:bg-slate-800 rounded-lg overflow-x-auto scrollbar-hide">
+                {sortOptions.map((option) => (
+                  <button
+                    key={option.value}
+                    onClick={() => setSortBy(option.value as any)}
+                    className={cn(
+                      "px-4 py-1.5 rounded-md text-xs font-semibold transition-colors flex items-center gap-1.5 whitespace-nowrap flex-shrink-0",
+                      sortByState === option.value
+                        ? "bg-white dark:bg-slate-700 text-slate-900 dark:text-white shadow-xs"
+                        : "text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-300"
+                    )}
+                  >
+                    <option.icon className="w-3.5 h-3.5 hidden sm:block" />
+                    {option.label}
+                  </button>
+                ))}
+              </div>
+            </div>
+          </div>
           {loading ? (
             renderSkeleton
           ) : filteredQuestions.length === 0 ? (
@@ -280,16 +279,18 @@ export default function QuestionsPageContent() {
               <h3 className="text-xl font-bold text-slate-900 dark:text-white">Tidak ada diskusi ditemukan</h3>
               <p className="text-slate-500 mt-2 mb-8">Coba gunakan kata kunci lain atau bersihkan filter.</p>
               <button
-                onClick={() => { setSearchQuery(''); setSortBy('newest'); }}
+                onClick={() => { handleSearchClear(); setSortBy('newest'); }}
                 className="px-6 py-2 bg-slate-900 dark:bg-white text-white dark:text-slate-900 rounded-full font-bold text-sm"
               >
                 Reset Filter
               </button>
             </div>
           ) : (
-            filteredQuestions.map((question) => (
-              <QuestionCard key={question.id} question={question} />
-            ))
+            <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 overflow-hidden shadow-sm divide-y divide-slate-200 dark:divide-slate-800">
+              {filteredQuestions.map((question) => (
+                <QuestionCard key={question.id} question={question} />
+              ))}
+            </div>
           )}
         </div>
 

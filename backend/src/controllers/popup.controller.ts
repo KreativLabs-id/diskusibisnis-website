@@ -21,7 +21,7 @@ export const getActivePopup = async (
         const deviceId = req.headers['x-device-id'] as string; // For guests
         const cacheScope = userId || deviceId || 'public';
         const cacheKey = cacheKeys.popupActive(cacheScope);
-        const cached = apiCache.get<{ popup: any }>(cacheKey);
+        const cached = await apiCache.get<{ popup: any }>(cacheKey);
 
         if (cached) {
             res.json({
@@ -75,7 +75,7 @@ export const getActivePopup = async (
             status: 'success',
             data: { popup }
         });
-        apiCache.set(cacheKey, { popup }, 30000);
+        await apiCache.set(cacheKey, { popup }, 30000);
     } catch (err) {
         next(err);
     }
@@ -152,7 +152,7 @@ export const recordPopupView = async (
             status: 'success',
             message: 'Popup view recorded'
         });
-        invalidateCache.popups();
+        await invalidateCache.popups();
     } catch (err) {
         next(err);
     }
@@ -331,7 +331,7 @@ export const createPopup = async (
             userId
         ]);
 
-        invalidateCache.popups();
+        await invalidateCache.popups();
         res.status(201).json({
             status: 'success',
             message: 'Popup created successfully',
@@ -413,7 +413,7 @@ export const updatePopup = async (
             id
         ]);
 
-        invalidateCache.popups();
+        await invalidateCache.popups();
         res.json({
             status: 'success',
             message: 'Popup updated successfully',
@@ -449,7 +449,7 @@ export const deletePopup = async (
             return;
         }
 
-        invalidateCache.popups();
+        await invalidateCache.popups();
         res.json({
             status: 'success',
             message: 'Popup deleted successfully'
@@ -487,7 +487,7 @@ export const togglePopupStatus = async (
             return;
         }
 
-        invalidateCache.popups();
+        await invalidateCache.popups();
         res.json({
             status: 'success',
             message: `Popup ${result.rows[0].is_active ? 'activated' : 'deactivated'}`,

@@ -246,39 +246,47 @@ export default function MyTicketsPage() {
               <h3 className="text-sm font-bold text-slate-900 dark:text-slate-100 uppercase tracking-wider">Riwayat Percakapan</h3>
 
               {selectedTicket.replies?.length > 0 ? (
-                selectedTicket.replies.map((reply) => {
-                  const isAdmin = reply.is_admin;
-                  return (
-                    <div
-                      key={reply.id}
-                      className={`flex gap-4 ${isAdmin ? 'flex-row-reverse' : ''}`}
-                    >
-                      <div className="shrink-0">
-                        {isAdmin ? (
-                          <div className="w-8 h-8 bg-emerald-100 dark:bg-emerald-900/30 rounded-full flex items-center justify-center">
-                            <ShieldCheck className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
-                          </div>
-                        ) : (
-                          <div className="w-8 h-8 bg-slate-100 dark:bg-slate-800 rounded-full flex items-center justify-center">
-                            <User className="w-4 h-4 text-slate-500 dark:text-slate-400" />
-                          </div>
-                        )}
-                      </div>
+                <div className="flex flex-col gap-6">
+                  {selectedTicket.replies.map((reply) => {
+                    const isMe = !reply.is_admin;
+                    return (
+                      <div
+                        key={reply.id}
+                        className={`flex gap-3 w-full ${isMe ? 'flex-row-reverse' : 'flex-row'}`}
+                      >
+                        <div className="shrink-0 mt-auto mb-1">
+                          {isMe ? (
+                            <div className="w-8 h-8 bg-slate-100 dark:bg-slate-800 rounded-full flex items-center justify-center border border-slate-200 dark:border-slate-700">
+                              <User className="w-4 h-4 text-slate-500 dark:text-slate-400" />
+                            </div>
+                          ) : (
+                            <div className="w-8 h-8 bg-emerald-100 dark:bg-emerald-900/30 rounded-full flex items-center justify-center border border-emerald-200 dark:border-emerald-800/50">
+                              <ShieldCheck className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
+                            </div>
+                          )}
+                        </div>
 
-                      <div className={`flex-1 ${isAdmin ? 'text-right' : ''}`}>
-                        <div className={`flex items-center gap-2 mb-1 ${isAdmin ? 'justify-end' : ''}`}>
-                          <span className={`text-sm font-semibold ${isAdmin ? 'text-emerald-700 dark:text-emerald-400' : 'text-slate-900 dark:text-slate-100'}`}>
-                            {reply.sender_name || (isAdmin ? 'Admin Support' : 'User')}
-                          </span>
-                          <span className="text-xs text-slate-400 dark:text-slate-500">{formatDate(reply.created_at)}</span>
-                        </div>
-                        <div className={`text-slate-700 dark:text-slate-300 leading-relaxed whitespace-pre-wrap ${isAdmin ? 'bg-emerald-50/50 dark:bg-emerald-900/20 p-4 rounded-2xl rounded-tr-none' : 'bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 p-4 rounded-2xl rounded-tl-none'}`}>
-                          {reply.message}
+                        <div className={`flex flex-col max-w-[85%] sm:max-w-[75%] ${isMe ? 'items-end' : 'items-start'}`}>
+                          <div className={`flex items-center gap-2 mb-1.5 px-1 ${isMe ? 'flex-row-reverse' : 'flex-row'}`}>
+                            <span className={`text-xs font-bold ${isMe ? 'text-slate-700 dark:text-slate-300' : 'text-emerald-700 dark:text-emerald-400'}`}>
+                              {reply.sender_name || (isMe ? 'Anda' : 'Admin Support')}
+                            </span>
+                            <span className="text-[10px] text-slate-400 font-medium">
+                              {formatDate(reply.created_at)}
+                            </span>
+                          </div>
+                          <div className={`text-sm leading-relaxed whitespace-pre-wrap text-left inline-block w-fit px-4 py-3 shadow-sm ${
+                            isMe 
+                              ? 'bg-slate-900 text-white dark:bg-slate-100 dark:text-slate-900 rounded-2xl rounded-br-sm' 
+                              : 'bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300 rounded-2xl rounded-bl-sm'
+                          }`}>
+                            {reply.message}
+                          </div>
                         </div>
                       </div>
-                    </div>
-                  );
-                })
+                    );
+                  })}
+                </div>
               ) : (
                 <div className="text-center py-8 border-y border-slate-200 dark:border-slate-700 border-dashed">
                   <p className="text-slate-500 dark:text-slate-400">Belum ada balasan.</p>

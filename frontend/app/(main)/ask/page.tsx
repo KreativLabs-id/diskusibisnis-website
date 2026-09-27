@@ -280,7 +280,7 @@ export default function AskPage() {
                 {content.length}/5000
               </span>
             </div>
-            <div className="border border-slate-200 dark:border-slate-800 dark:bg-slate-900 rounded-xl focus-within:ring-2 focus-within:ring-emerald-500/20 focus-within:border-emerald-500 transition-all overflow-hidden bg-white">
+            <div className="border border-slate-200 dark:border-slate-800 dark:bg-slate-900 rounded-xl focus-within:ring-2 focus-within:ring-emerald-500/20 focus-within:border-emerald-500 transition-all overflow-visible bg-white">
               <MentionInput
                 value={content}
                 onChange={setContent}

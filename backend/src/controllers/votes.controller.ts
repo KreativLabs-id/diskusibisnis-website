@@ -32,7 +32,7 @@ export const createOrUpdateVote = async (req: AuthRequest, res: Response): Promi
     // Check if target exists
     const targetTable = targetType === 'question' ? 'questions' : 'answers';
     const targetResult = await pool.query(
-      `SELECT id FROM public.${targetTable} WHERE id = $1`,
+      `SELECT id, author_id FROM public.${targetTable} WHERE id = $1`,
       [targetId]
     );
 
@@ -145,6 +145,33 @@ export const createOrUpdateVote = async (req: AuthRequest, res: Response): Promi
           : `SELECT vote_type FROM votes WHERE user_id = $1 AND answer_id = $2`,
         [user.id, targetId]
       );
+
+      // Update reputation points
+      let reputationDiff = 0;
+      
+      if (existingVoteResult.rows.length > 0) {
+        const existingVote = existingVoteResult.rows[0];
+        if (existingVote.vote_type === voteType) {
+          // Remove vote
+          reputationDiff = voteType === 'upvote' ? -10 : 2;
+        } else {
+          // Change vote
+          reputationDiff = voteType === 'upvote' ? 12 : -12;
+        }
+      } else {
+        // New vote
+        reputationDiff = voteType === 'upvote' ? 10 : -2;
+      }
+      
+      const authorId = targetResult.rows[0].author_id;
+      
+      // Prevent reputation farming by self-voting
+      if (authorId && authorId !== user.id && reputationDiff !== 0) {
+        await client.query(
+          'UPDATE public.users SET reputation_points = COALESCE(reputation_points, 0) + $1 WHERE id = $2',
+          [reputationDiff, authorId]
+        );
+      }
 
       await client.query('COMMIT');
 

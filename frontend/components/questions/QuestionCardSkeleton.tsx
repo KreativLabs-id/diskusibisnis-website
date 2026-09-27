@@ -2,7 +2,7 @@ import React from 'react';
 
 export default function QuestionCardSkeleton() {
   return (
-    <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-sm rounded-2xl p-5 sm:p-8 animate-pulse">
+    <div className="bg-white dark:bg-slate-900 p-4 sm:p-5 animate-pulse">
       {/* Top Meta */}
       <div className="flex items-center justify-between mb-4 sm:mb-5">
         <div className="flex items-center gap-3">

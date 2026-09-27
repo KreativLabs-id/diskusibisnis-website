@@ -279,21 +279,6 @@ export default function CommunitiesPage() {
           </div>
         )}
 
-        {/* Minimalist Sub-info */}
-        <div className="mt-24 p-8 sm:p-12 rounded-[3rem] bg-slate-900 dark:bg-white text-white dark:text-slate-900 relative overflow-hidden flex flex-col sm:flex-row items-center justify-between gap-8 text-center sm:text-left">
-          <div className="absolute top-0 right-0 w-64 h-64 bg-emerald-500/20 rounded-full blur-[100px]" />
-          <div className="relative z-10 max-w-xl">
-            <h3 className="text-2xl sm:text-3xl font-bold mb-3">Tidak menemukan komunitas yang tepat?</h3>
-            <p className="text-slate-400 dark:text-slate-500 font-medium">Jadilah pionir dengan membangun komunitas baru dan kumpulkan rekan bisnis dengan visi yang sama.</p>
-          </div>
-          <Link
-            href="/communities/create"
-            className="relative z-10 px-8 py-4 bg-emerald-500 text-white dark:text-white rounded-full font-bold text-sm shadow-xl shadow-emerald-500/20 flex items-center gap-2 whitespace-nowrap"
-          >
-            <Plus className="w-4 h-4" />
-            Buat Komunitas Baru
-          </Link>
-        </div>
       </div>
     </div>
   );

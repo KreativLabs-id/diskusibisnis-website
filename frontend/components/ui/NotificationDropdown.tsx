@@ -207,14 +207,14 @@ export default function NotificationDropdown() {
 
       {/* Dropdown Menu - Responsive with Max Height */}
       {isOpen && (
-        <div className="fixed sm:absolute right-0 top-14 sm:top-auto sm:mt-2 w-full sm:w-96 max-h-[70vh] sm:max-h-[600px] bg-white rounded-b-xl sm:rounded-xl shadow-2xl border-t sm:border border-slate-200 flex flex-col z-50 overflow-hidden">
+        <div className="fixed sm:absolute right-0 top-14 sm:top-auto sm:mt-3 w-full sm:w-96 max-h-[70vh] sm:max-h-[600px] bg-white/80 dark:bg-slate-900/80 backdrop-blur-md rounded-b-xl sm:rounded-xl shadow-sm border-t sm:border border-slate-200 dark:border-slate-800 flex flex-col z-50 overflow-hidden">
           {/* Header - Clean & Minimal */}
-          <div className="px-4 py-3 border-b border-slate-200 bg-white shrink-0">
+          <div className="px-4 py-3 border-b border-slate-200/60 dark:border-slate-700/60 bg-transparent shrink-0">
             <div className="flex items-center justify-between">
               <div>
-                <h3 className="text-base font-bold text-slate-900">Pemberitahuan</h3>
+                <h3 className="text-base font-bold text-slate-900 dark:text-slate-100">Pemberitahuan</h3>
                 {unreadCount > 0 && (
-                  <p className="text-xs text-emerald-600 font-medium mt-0.5">
+                  <p className="text-xs text-emerald-600 dark:text-emerald-400 font-medium mt-0.5">
                     {unreadCount} belum dibaca
                   </p>
                 )}
@@ -223,10 +223,10 @@ export default function NotificationDropdown() {
               {unreadCount > 0 && (
                 <button
                   onClick={handleMarkAllAsRead}
-                  className="p-2 hover:bg-slate-100 rounded-lg transition-colors"
+                  className="p-2 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg transition-colors"
                   title="Tandai semua dibaca"
                 >
-                  <CheckCheck className="w-5 h-5 text-emerald-600" />
+                  <CheckCheck className="w-5 h-5 text-emerald-600 dark:text-emerald-400" />
                 </button>
               )}
             </div>
@@ -237,15 +237,15 @@ export default function NotificationDropdown() {
             {loading ? (
               <div className="p-8 text-center">
                 <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-emerald-600 mx-auto"></div>
-                <p className="text-sm text-slate-500 mt-3">Memuat pemberitahuan...</p>
+                <p className="text-sm text-slate-500 dark:text-slate-400 mt-3">Memuat pemberitahuan...</p>
               </div>
             ) : notifications.length === 0 ? (
               <div className="p-8 text-center">
-                <div className="w-16 h-16 bg-slate-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                <div className="w-16 h-16 bg-slate-100 dark:bg-slate-800 rounded-full flex items-center justify-center mx-auto mb-4">
                   <Bell className="w-8 h-8 text-slate-400" />
                 </div>
-                <p className="text-base text-slate-700 font-semibold">Tidak ada pemberitahuan</p>
-                <p className="text-sm text-slate-500 mt-1">
+                <p className="text-base text-slate-700 dark:text-slate-200 font-semibold">Tidak ada pemberitahuan</p>
+                <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">
                   Pemberitahuan baru akan muncul di sini
                 </p>
               </div>
@@ -254,8 +254,8 @@ export default function NotificationDropdown() {
                 {/* Unread Section */}
                 {notifications.some(n => !n.is_read) && (
                   <div>
-                    <div className="px-4 py-2 bg-slate-50 sticky top-0 z-10">
-                      <p className="text-xs font-semibold text-slate-600 uppercase tracking-wider">Belum Dibaca</p>
+                    <div className="px-4 py-2 bg-slate-50/50 dark:bg-slate-800/50 sticky top-0 z-10 backdrop-blur-md">
+                      <p className="text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Belum Dibaca</p>
                     </div>
                     <div>
                       {notifications.filter(n => !n.is_read).map((notification) => (
@@ -274,8 +274,8 @@ export default function NotificationDropdown() {
                 {notifications.some(n => n.is_read) && (
                   <div>
                     {notifications.some(n => !n.is_read) && (
-                      <div className="px-4 py-2 bg-slate-50 sticky top-0 z-10">
-                        <p className="text-xs font-semibold text-slate-600 uppercase tracking-wider">Sudah Dibaca</p>
+                      <div className="px-4 py-2 bg-slate-50/50 dark:bg-slate-800/50 sticky top-0 z-10 backdrop-blur-md">
+                        <p className="text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Sudah Dibaca</p>
                       </div>
                     )}
                     <div>
@@ -296,10 +296,10 @@ export default function NotificationDropdown() {
 
           {/* Footer - Full Width Button */}
           {notifications.length > 0 && (
-            <div className="border-t border-slate-200 bg-white shrink-0">
+            <div className="border-t border-slate-200/60 dark:border-slate-700/60 bg-transparent shrink-0">
               <Link
                 href="/notifications"
-                className="block w-full px-4 py-3 text-center text-sm font-semibold text-emerald-600 hover:bg-emerald-50 transition-colors"
+                className="block w-full px-4 py-3 text-center text-sm font-semibold text-emerald-600 dark:text-emerald-400 hover:bg-slate-50/50 dark:hover:bg-slate-800/50 transition-colors"
                 onClick={() => setIsOpen(false)}
               >
                 Lihat Semua Pemberitahuan

@@ -25,9 +25,11 @@ export default function LoginPage() {
   // Redirect already-authenticated users away from login page
   useEffect(() => {
     if (!authLoading && user) {
-      router.replace(callbackUrl);
+      // Use window.location.href instead of router.replace to bypass Next.js router cache.
+      // This prevents the infinite redirect loop if the destination was previously cached as a redirect to login.
+      window.location.href = callbackUrl;
     }
-  }, [user, authLoading, router, callbackUrl]);
+  }, [user, authLoading, callbackUrl]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -36,7 +38,8 @@ export default function LoginPage() {
 
     try {
       await login(formData.email, formData.password);
-      router.push(callbackUrl);
+      // Hard redirect to bypass Next.js router cache for protected routes
+      window.location.href = callbackUrl;
     } catch (err: any) {
       // Handle different error scenarios
       if (err.response) {
@@ -65,7 +68,8 @@ export default function LoginPage() {
     setLoading(true);
     try {
       await googleLogin(credential);
-      router.push(callbackUrl);
+      // Hard redirect to bypass Next.js router cache for protected routes
+      window.location.href = callbackUrl;
     } catch (err: any) {
       if (err.response) {
         const message = err.response.data?.message || err.response.data?.error;

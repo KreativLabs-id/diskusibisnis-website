@@ -3,6 +3,7 @@ import bcrypt from 'bcryptjs';
 import pool from '../config/database';
 import { AuthRequest } from '../types';
 import { successResponse, errorResponse, notFoundResponse } from '../utils/response.utils';
+import { apiCache, cacheKeys, invalidateCache } from '../utils/cache';
 
 /**
  * Get all users

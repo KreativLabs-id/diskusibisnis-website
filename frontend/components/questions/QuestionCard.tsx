@@ -69,7 +69,7 @@ export default function QuestionCard({ question, onReport, currentUserId }: Ques
 
   return (
     <div 
-      className="group bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-4 sm:p-5 hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors cursor-pointer"
+      className="group bg-white dark:bg-slate-900 p-4 sm:p-5 hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors cursor-pointer"
       onClick={() => {
         if (!questionId) return;
         persistListScrollPosition();
@@ -121,14 +121,14 @@ export default function QuestionCard({ question, onReport, currentUserId }: Ques
       </div>
 
       {/* Main Content */}
-      <div className="flex flex-col sm:flex-row gap-3 sm:gap-4">
-        <div className="flex-1 min-w-0">
+      <div className="flex flex-col gap-3">
+        <div className="min-w-0">
           <h2 className="text-base sm:text-lg font-bold text-slate-900 dark:text-white mb-1.5 group-hover:text-emerald-600 dark:group-hover:text-emerald-400 transition-colors line-clamp-2 leading-snug">
             {question.title}
           </h2>
           
           {preview && (
-            <p className="text-sm text-slate-600 dark:text-slate-400 line-clamp-2 leading-relaxed mb-3">
+            <p className="text-sm text-slate-600 dark:text-slate-400 line-clamp-3 leading-relaxed mb-3">
               {preview}
             </p>
           )}
@@ -150,18 +150,16 @@ export default function QuestionCard({ question, onReport, currentUserId }: Ques
           )}
         </div>
 
-        {/* Thumbnail Image */}
+        {/* Full Width Image - Feed Style */}
         {question.images && question.images.length > 0 && (
-          <div className="shrink-0">
-            <div className="relative h-20 sm:h-24 w-28 sm:w-32 rounded-xl overflow-hidden border border-slate-100 dark:border-slate-800 bg-slate-50 dark:bg-slate-800">
-              <Image
-                src={question.images[0]}
-                alt={question.title}
-                fill
-                className="object-cover"
-                sizes="(max-width: 640px) 112px, 128px"
-              />
-            </div>
+          <div className="mt-1 relative w-full aspect-[4/3] sm:aspect-video rounded-xl sm:rounded-2xl overflow-hidden border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-800/50">
+            <Image
+              src={question.images[0]}
+              alt={question.title}
+              fill
+              className="object-cover transition-transform duration-300 group-hover:scale-[1.02]"
+              sizes="(max-width: 640px) 100vw, (max-width: 1024px) 75vw, 50vw"
+            />
           </div>
         )}
       </div>

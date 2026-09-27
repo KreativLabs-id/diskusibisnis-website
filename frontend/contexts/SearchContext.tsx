@@ -2,6 +2,8 @@
 
 import React, { createContext, useContext, useState, useEffect, useRef, useCallback } from 'react';
 
+import { usePathname, useRouter, useSearchParams } from 'next/navigation';
+
 interface SearchContextType {
   searchInput: string;
   setSearchInput: (value: string) => void;
@@ -9,7 +11,10 @@ interface SearchContextType {
   setSearchQuery: (query: string) => void;
   isNavbarSearchOpen: boolean;
   setIsNavbarSearchOpen: (open: boolean) => void;
+  isSearchDropdownOpen: boolean;
+  setIsSearchDropdownOpen: (open: boolean) => void;
   handleSearchChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
+  handleSearchSubmit: (e: React.KeyboardEvent<HTMLInputElement>) => void;
   handleSearchClear: () => void;
   isScrolled: boolean;
 }
@@ -20,8 +25,22 @@ export function SearchProvider({ children }: { children: React.ReactNode }) {
   const [searchInput, setSearchInput] = useState('');
   const [searchQuery, setSearchQuery] = useState('');
   const [isNavbarSearchOpen, setIsNavbarSearchOpen] = useState(false);
+  const [isSearchDropdownOpen, setIsSearchDropdownOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
   const searchDebounceRef = useRef<NodeJS.Timeout | null>(null);
+  
+  const pathname = usePathname();
+  const router = useRouter();
+  const searchParams = useSearchParams();
+
+  // Read initial search query from URL on mount
+  useEffect(() => {
+    const q = searchParams.get('q');
+    if (q !== null && pathname === '/') {
+      setSearchInput(q);
+      setSearchQuery(q);
+    }
+  }, [searchParams, pathname]);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -41,15 +60,35 @@ export function SearchProvider({ children }: { children: React.ReactNode }) {
   const handleSearchChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
     const val = e.target.value;
     setSearchInput(val);
+    
     if (searchDebounceRef.current) clearTimeout(searchDebounceRef.current);
-    searchDebounceRef.current = setTimeout(() => {
-      setSearchQuery(val.trim());
-    }, 300);
-  }, []);
+    
+    // Only update query instantly on homepage, otherwise wait for submit
+    if (pathname === '/') {
+      searchDebounceRef.current = setTimeout(() => {
+        setSearchQuery(val.trim());
+      }, 300);
+    }
+  }, [pathname]);
+
+  const handleSearchSubmit = useCallback((e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      setIsSearchDropdownOpen(false);
+      const val = searchInput.trim();
+      
+      if (pathname !== '/') {
+        router.push(`/?q=${encodeURIComponent(val)}`);
+      } else {
+        setSearchQuery(val);
+      }
+    }
+  }, [searchInput, pathname, router]);
 
   const handleSearchClear = useCallback(() => {
     setSearchInput('');
     setSearchQuery('');
+    setIsSearchDropdownOpen(false);
     if (searchDebounceRef.current) clearTimeout(searchDebounceRef.current);
   }, []);
 
@@ -62,7 +101,10 @@ export function SearchProvider({ children }: { children: React.ReactNode }) {
         setSearchQuery,
         isNavbarSearchOpen,
         setIsNavbarSearchOpen,
+        isSearchDropdownOpen,
+        setIsSearchDropdownOpen,
         handleSearchChange,
+        handleSearchSubmit,
         handleSearchClear,
         isScrolled,
       }}

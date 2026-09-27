@@ -1,12 +1,13 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { useParams, useRouter } from 'next/navigation';
+import { useParams, useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { useAuth } from '@/contexts/AuthContext';
 import { ArrowLeft, Target, Users as UsersIcon, Lightbulb, Gift, Edit, CheckCircle } from 'lucide-react';
 import api from '@/lib/api';
 import AlertModal from '@/components/ui/AlertModal';
+import ImageUpload, { UploadedImage } from '@/components/ui/ImageUpload';
 
 interface Community {
   id: string;
@@ -14,10 +15,12 @@ interface Community {
   slug: string;
   description: string;
   category: string;
+  location?: string;
   vision?: string;
   mission?: string;
   target_members?: string;
   benefits?: string;
+  avatar_url?: string;
   user_role?: string;
   created_by: string;
   members_count?: number;
@@ -26,11 +29,17 @@ interface Community {
 export default function CommunityAboutPage() {
   const params = useParams();
   const router = useRouter();
+  const searchParams = useSearchParams();
   const { user } = useAuth();
   const [community, setCommunity] = useState<Community | null>(null);
   const [loading, setLoading] = useState(true);
   const [editing, setEditing] = useState(false);
   const [formData, setFormData] = useState({
+    name: '',
+    description: '',
+    category: '',
+    location: '',
+    avatar_url: '',
     vision: '',
     mission: '',
     target_members: '',
@@ -58,11 +67,19 @@ export default function CommunityAboutPage() {
       const communityData = response.data.data?.community || response.data;
       setCommunity(communityData);
       setFormData({
+        name: communityData.name || '',
+        description: communityData.description || '',
+        category: communityData.category || '',
+        location: communityData.location || '',
+        avatar_url: communityData.avatar_url || '',
         vision: communityData.vision || '',
         mission: communityData.mission || '',
         target_members: communityData.target_members || '',
         benefits: communityData.benefits || ''
       });
+      if (searchParams.get('edit') === 'true') {
+        setEditing(true);
+      }
     } catch (error: any) {
       console.error('Failed to load community:', error);
     } finally {
@@ -75,7 +92,21 @@ export default function CommunityAboutPage() {
 
     setSaving(true);
     try {
-      await api.put(`/communities/${community.slug}/about`, formData);
+      await Promise.all([
+        api.put(`/communities/${community.slug}`, {
+          name: formData.name,
+          description: formData.description,
+          category: formData.category,
+          location: formData.location,
+          avatar_url: formData.avatar_url
+        }),
+        api.put(`/communities/${community.slug}/about`, {
+          vision: formData.vision,
+          mission: formData.mission,
+          target_members: formData.target_members,
+          benefits: formData.benefits
+        })
+      ]);
       await loadCommunity();
       setEditing(false);
       showAlert('success', 'Berhasil', 'Perubahan berhasil disimpan');
@@ -88,7 +119,8 @@ export default function CommunityAboutPage() {
 
   const canEdit = user && community && (
     community.created_by === user.id ||
-    community.user_role === 'admin'
+    community.user_role === 'admin' ||
+    user.role === 'admin'
   );
 
   if (loading) {
@@ -169,142 +201,192 @@ export default function CommunityAboutPage() {
           )}
         </div>
 
-        <div className="mb-8">
-          <h1 className="text-2xl sm:text-3xl font-bold text-slate-900 mb-3">
-            Tentang {community.name}
-          </h1>
-          <p className="text-slate-600 text-lg leading-relaxed max-w-3xl">
-            {community.description}
-          </p>
-        </div>
-
-        {/* Info Komunitas */}
-        {!editing && (
-          <div className="bg-white rounded-2xl p-6 mb-8 border border-slate-200">
-            <div className="flex items-center gap-3 mb-4">
-              <div className="w-10 h-10 bg-emerald-100 rounded-xl flex items-center justify-center">
-                <UsersIcon className="w-5 h-5 text-emerald-600" />
+        <div className="space-y-6 mb-8">
+          {editing ? (
+            <div className="space-y-6">
+              <div className="bg-white rounded-2xl p-6 sm:p-8 shadow-sm border border-slate-200">
+                <h2 className="text-xl font-bold text-slate-900 mb-6">Informasi Dasar</h2>
+                <div className="space-y-6">
+                  <div>
+                    <label className="block text-sm font-medium text-slate-700 mb-2">Logo/Gambar Komunitas</label>
+                    <ImageUpload 
+                      userId={user?.id || ''}
+                      maxImages={1}
+                      onImagesChange={(images) => {
+                        if (images.length > 0) {
+                          setFormData({ ...formData, avatar_url: images[0].url });
+                        } else {
+                          setFormData({ ...formData, avatar_url: '' });
+                        }
+                      }}
+                    />
+                    {formData.avatar_url && (
+                      <div className="mt-2 text-sm text-emerald-600 flex items-center gap-1">
+                        <CheckCircle className="w-4 h-4" /> Gambar telah diunggah
+                      </div>
+                    )}
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-slate-700 mb-2">Nama Komunitas *</label>
+                    <input
+                      type="text"
+                      value={formData.name}
+                      onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                      className="w-full p-3 border border-slate-200 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:border-transparent bg-slate-50"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-slate-700 mb-2">Kategori *</label>
+                    <select
+                      value={formData.category}
+                      onChange={(e) => setFormData({ ...formData, category: e.target.value })}
+                      className="w-full p-3 border border-slate-200 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:border-transparent bg-slate-50"
+                    >
+                      <option value="">Pilih Kategori</option>
+                      <option value="Regional">Regional</option>
+                      <option value="Marketing">Marketing</option>
+                      <option value="Industri">Industri</option>
+                      <option value="Perdagangan">Perdagangan</option>
+                      <option value="Teknologi">Teknologi</option>
+                      <option value="Keuangan">Keuangan</option>
+                      <option value="Kuliner">Kuliner</option>
+                      <option value="Fashion">Fashion</option>
+                      <option value="Kesehatan">Kesehatan</option>
+                      <option value="Pendidikan">Pendidikan</option>
+                      <option value="Lainnya">Lainnya</option>
+                    </select>
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-slate-700 mb-2">Lokasi (opsional)</label>
+                    <input
+                      type="text"
+                      value={formData.location}
+                      onChange={(e) => setFormData({ ...formData, location: e.target.value })}
+                      className="w-full p-3 border border-slate-200 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:border-transparent bg-slate-50"
+                      placeholder="Contoh: Jakarta, Indonesia"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-slate-700 mb-2">Deskripsi Singkat *</label>
+                    <textarea
+                      value={formData.description}
+                      onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+                      className="w-full p-3 border border-slate-200 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:border-transparent bg-slate-50 min-h-[100px]"
+                    />
+                  </div>
+                </div>
               </div>
-              <div>
-                <h2 className="text-lg font-bold text-slate-900">Info Komunitas</h2>
-                <p className="text-sm text-slate-500">Kategori: {community.category || 'Umum'}</p>
+
+              <div className="bg-white rounded-2xl p-6 sm:p-8 shadow-sm border border-slate-200">
+                <h2 className="text-xl font-bold text-slate-900 mb-6">Detail Komunitas</h2>
+                <div className="space-y-6">
+                  <div>
+                    <label className="block text-sm font-medium text-slate-700 mb-2">Visi</label>
+                    <textarea
+                      value={formData.vision}
+                      onChange={(e) => setFormData({ ...formData, vision: e.target.value })}
+                      className="w-full p-3 border border-slate-200 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:border-transparent bg-slate-50 min-h-[100px]"
+                      placeholder="Contoh: Menjadi komunitas UMKM terbesar di Indonesia yang memberdayakan pengusaha lokal untuk Go Digital dan Go Global"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-slate-700 mb-2">Misi</label>
+                    <textarea
+                      value={formData.mission}
+                      onChange={(e) => setFormData({ ...formData, mission: e.target.value })}
+                      className="w-full p-3 border border-slate-200 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:border-transparent bg-slate-50 min-h-[100px]"
+                      placeholder="Contoh: 1. Menyediakan platform diskusi dan sharing knowledge. 2. Menghubungkan UMKM dengan mentor dan investor."
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-slate-700 mb-2">Siapa Target Anggota?</label>
+                    <textarea
+                      value={formData.target_members}
+                      onChange={(e) => setFormData({ ...formData, target_members: e.target.value })}
+                      className="w-full p-3 border border-slate-200 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:border-transparent bg-slate-50 min-h-[100px]"
+                      placeholder="Contoh: Pemilik UMKM, startup founder, pengusaha muda..."
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-slate-700 mb-2">Manfaat Bergabung</label>
+                    <textarea
+                      value={formData.benefits}
+                      onChange={(e) => setFormData({ ...formData, benefits: e.target.value })}
+                      className="w-full p-3 border border-slate-200 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:border-transparent bg-slate-50 min-h-[100px]"
+                      placeholder="Contoh: Networking dengan sesama pengusaha, akses ke mentor berpengalaman..."
+                    />
+                  </div>
+                </div>
               </div>
             </div>
-
-            {community.members_count && community.members_count > 0 && (
-              <div className="flex items-center gap-2 text-sm text-slate-600 bg-slate-50 px-4 py-3 rounded-xl">
-                <CheckCircle className="w-4 h-4 text-emerald-500" />
-                <span><strong>{community.members_count}</strong> anggota sudah bergabung</span>
+          ) : (
+            <div className="space-y-6">
+              <div className="mb-8">
+                <h1 className="text-2xl sm:text-3xl font-bold text-slate-900 mb-3">
+                  Tentang {community.name}
+                </h1>
+                <p className="text-slate-600 text-lg leading-relaxed max-w-3xl">
+                  {community.description}
+                </p>
               </div>
-            )}
-          </div>
-        )}
-
-        {/* Content Grid */}
-        <div className="grid grid-cols-1 gap-6">
-          {/* Vision */}
-          <div className="bg-white rounded-2xl p-6 sm:p-8 shadow-sm border border-slate-200 hover:border-emerald-500/30 transition-colors">
-            <div className="flex items-center gap-4 mb-6">
-              <div className="w-12 h-12 bg-emerald-50 rounded-2xl flex items-center justify-center shrink-0">
-                <Target className="w-6 h-6 text-emerald-600" />
+              <div className="bg-white rounded-2xl p-6 border border-slate-200">
+                <div className="flex items-center gap-3 mb-4">
+                  <div className="w-10 h-10 bg-emerald-100 rounded-xl flex items-center justify-center">
+                    <UsersIcon className="w-5 h-5 text-emerald-600" />
+                  </div>
+                  <div>
+                    <h2 className="text-lg font-bold text-slate-900">Info Komunitas</h2>
+                    <p className="text-sm text-slate-500">Kategori: {community.category || 'Umum'}</p>
+                  </div>
+                </div>
+                {community.members_count && community.members_count > 0 && (
+                  <div className="flex items-center gap-2 text-sm text-slate-600 bg-slate-50 px-4 py-3 rounded-xl">
+                    <CheckCircle className="w-4 h-4 text-emerald-500" />
+                    <span><strong>{community.members_count}</strong> anggota sudah bergabung</span>
+                  </div>
+                )}
               </div>
-              <div>
-                <h2 className="text-xl font-bold text-slate-900">Visi</h2>
-                <p className="text-sm text-slate-500">Tujuan jangka panjang komunitas</p>
-              </div>
-            </div>
-
-            {editing ? (
-              <textarea
-                value={formData.vision}
-                onChange={(e) => setFormData({ ...formData, vision: e.target.value })}
-                className="w-full p-4 border border-slate-200 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:border-transparent bg-slate-50 min-h-[120px]"
-                placeholder="Contoh: Menjadi komunitas UMKM terbesar di Indonesia yang memberdayakan pengusaha lokal untuk Go Digital dan Go Global"
-              />
-            ) : (
-              <p className="text-slate-700 whitespace-pre-wrap leading-relaxed">
-                {community.vision || <span className="text-slate-400 italic">Visi komunitas belum diisi.</span>}
-              </p>
-            )}
-          </div>
-
-          {/* Mission */}
-          <div className="bg-white rounded-2xl p-6 sm:p-8 shadow-sm border border-slate-200 hover:border-emerald-500/30 transition-colors">
-            <div className="flex items-center gap-4 mb-6">
-              <div className="w-12 h-12 bg-emerald-50 rounded-2xl flex items-center justify-center shrink-0">
-                <Lightbulb className="w-6 h-6 text-emerald-600" />
-              </div>
-              <div>
-                <h2 className="text-xl font-bold text-slate-900">Misi</h2>
-                <p className="text-sm text-slate-500">Langkah-langkah mencapai visi</p>
-              </div>
-            </div>
-
-            {editing ? (
-              <textarea
-                value={formData.mission}
-                onChange={(e) => setFormData({ ...formData, mission: e.target.value })}
-                className="w-full p-4 border border-slate-200 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:border-transparent bg-slate-50 min-h-[120px]"
-                placeholder="Contoh: 1. Menyediakan platform diskusi dan sharing knowledge. 2. Menghubungkan UMKM dengan mentor dan investor. 3. Memfasilitasi kolaborasi bisnis antar anggota."
-              />
-            ) : (
-              <p className="text-slate-700 whitespace-pre-wrap leading-relaxed">
-                {community.mission || <span className="text-slate-400 italic">Misi komunitas belum diisi.</span>}
-              </p>
-            )}
-          </div>
-
-          {/* Target Members */}
-          <div className="bg-white rounded-2xl p-6 sm:p-8 shadow-sm border border-slate-200 hover:border-emerald-500/30 transition-colors">
-            <div className="flex items-center gap-4 mb-6">
-              <div className="w-12 h-12 bg-emerald-50 rounded-2xl flex items-center justify-center shrink-0">
-                <UsersIcon className="w-6 h-6 text-emerald-600" />
-              </div>
-              <div>
-                <h2 className="text-xl font-bold text-slate-900">Siapa Target Anggota?</h2>
-                <p className="text-sm text-slate-500">Profil anggota yang cocok</p>
+              
+              <div className="space-y-6">
+                <div className="bg-white rounded-2xl p-6 sm:p-8 shadow-sm border border-slate-200">
+                  <div className="flex items-center gap-4 mb-4">
+                    <Target className="w-6 h-6 text-emerald-600" />
+                    <h2 className="text-xl font-bold text-slate-900">Visi</h2>
+                  </div>
+                  <p className="text-slate-700 whitespace-pre-wrap leading-relaxed">
+                    {community.vision || <span className="text-slate-400 italic">Visi komunitas belum diisi.</span>}
+                  </p>
+                </div>
+                <div className="bg-white rounded-2xl p-6 sm:p-8 shadow-sm border border-slate-200">
+                  <div className="flex items-center gap-4 mb-4">
+                    <Lightbulb className="w-6 h-6 text-emerald-600" />
+                    <h2 className="text-xl font-bold text-slate-900">Misi</h2>
+                  </div>
+                  <p className="text-slate-700 whitespace-pre-wrap leading-relaxed">
+                    {community.mission || <span className="text-slate-400 italic">Misi komunitas belum diisi.</span>}
+                  </p>
+                </div>
+                <div className="bg-white rounded-2xl p-6 sm:p-8 shadow-sm border border-slate-200">
+                  <div className="flex items-center gap-4 mb-4">
+                    <UsersIcon className="w-6 h-6 text-emerald-600" />
+                    <h2 className="text-xl font-bold text-slate-900">Siapa Target Anggota?</h2>
+                  </div>
+                  <p className="text-slate-700 whitespace-pre-wrap leading-relaxed">
+                    {community.target_members || <span className="text-slate-400 italic">Target anggota belum diisi.</span>}
+                  </p>
+                </div>
+                <div className="bg-white rounded-2xl p-6 sm:p-8 shadow-sm border border-slate-200">
+                  <div className="flex items-center gap-4 mb-4">
+                    <Gift className="w-6 h-6 text-emerald-600" />
+                    <h2 className="text-xl font-bold text-slate-900">Manfaat Bergabung</h2>
+                  </div>
+                  <p className="text-slate-700 whitespace-pre-wrap leading-relaxed">
+                    {community.benefits || <span className="text-slate-400 italic">Manfaat komunitas belum diisi.</span>}
+                  </p>
+                </div>
               </div>
             </div>
-
-            {editing ? (
-              <textarea
-                value={formData.target_members}
-                onChange={(e) => setFormData({ ...formData, target_members: e.target.value })}
-                className="w-full p-4 border border-slate-200 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:border-transparent bg-slate-50 min-h-[120px]"
-                placeholder="Contoh: Pemilik UMKM, startup founder, pengusaha muda, calon entrepreneur, siapa saja yang ingin memulai atau mengembangkan bisnis"
-              />
-            ) : (
-              <p className="text-slate-700 whitespace-pre-wrap leading-relaxed">
-                {community.target_members || <span className="text-slate-400 italic">Target anggota belum diisi.</span>}
-              </p>
-            )}
-          </div>
-
-          {/* Benefits */}
-          <div className="bg-white rounded-2xl p-6 sm:p-8 shadow-sm border border-slate-200 hover:border-emerald-500/30 transition-colors">
-            <div className="flex items-center gap-4 mb-6">
-              <div className="w-12 h-12 bg-emerald-50 rounded-2xl flex items-center justify-center shrink-0">
-                <Gift className="w-6 h-6 text-emerald-600" />
-              </div>
-              <div>
-                <h2 className="text-xl font-bold text-slate-900">Manfaat Bergabung</h2>
-                <p className="text-sm text-slate-500">Keuntungan menjadi anggota</p>
-              </div>
-            </div>
-
-            {editing ? (
-              <textarea
-                value={formData.benefits}
-                onChange={(e) => setFormData({ ...formData, benefits: e.target.value })}
-                className="w-full p-4 border border-slate-200 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:border-transparent bg-slate-50 min-h-[120px]"
-                placeholder="Contoh: Networking dengan sesama pengusaha, akses ke mentor berpengalaman, peluang kolaborasi bisnis, informasi peluang investasi, belajar strategi marketing dan sales"
-              />
-            ) : (
-              <p className="text-slate-700 whitespace-pre-wrap leading-relaxed">
-                {community.benefits || <span className="text-slate-400 italic">Manfaat komunitas belum diisi.</span>}
-              </p>
-            )}
-          </div>
+          )}
         </div>
 
         {/* Edit Actions */}
@@ -314,6 +396,11 @@ export default function CommunityAboutPage() {
               onClick={() => {
                 setEditing(false);
                 setFormData({
+                  name: community.name || '',
+                  description: community.description || '',
+                  category: community.category || '',
+                  location: community.location || '',
+                  avatar_url: community.avatar_url || '',
                   vision: community.vision || '',
                   mission: community.mission || '',
                   target_members: community.target_members || '',

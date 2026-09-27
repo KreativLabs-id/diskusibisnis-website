@@ -21,7 +21,7 @@ export const getActiveAnnouncements = async (
         const showOn = req.query.showOn as string || 'all';
         const cacheScope = userId || deviceId || 'public';
         const cacheKey = cacheKeys.announcementActive(showOn, cacheScope);
-        const cached = apiCache.get<{ announcements: any[] }>(cacheKey);
+        const cached = await apiCache.get<{ announcements: any[] }>(cacheKey);
 
         if (cached) {
             res.json({
@@ -64,7 +64,7 @@ export const getActiveAnnouncements = async (
             status: 'success',
             data: { announcements }
         });
-        apiCache.set(cacheKey, { announcements }, 30000);
+        await apiCache.set(cacheKey, { announcements }, 30000);
     } catch (err) {
         next(err);
     }
@@ -131,7 +131,7 @@ export const dismissAnnouncement = async (
             status: 'success',
             message: 'Announcement dismissed'
         });
-        invalidateCache.announcements();
+        await invalidateCache.announcements();
     } catch (err) {
         next(err);
     }

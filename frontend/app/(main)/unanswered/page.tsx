@@ -81,7 +81,7 @@ export default function UnansweredPage() {
               <div className="h-10 bg-slate-200 dark:bg-slate-800 rounded-lg w-64 mb-4"></div>
               <div className="h-4 bg-slate-200 dark:bg-slate-800 rounded-lg w-96 max-w-full"></div>
             </div>
-            <div className="space-y-6 pt-4">
+            <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 overflow-hidden shadow-sm divide-y divide-slate-200 dark:divide-slate-800 pt-4">
               {[1, 2, 3, 4, 5].map((i) => (
                 <QuestionCardSkeleton key={i} />
               ))}
@@ -105,22 +105,22 @@ export default function UnansweredPage() {
           </p>
         </div>
 
-        {/* Integrated Filter - Glassmorphism */}
+        {/* Desktop: Integrated Filter */}
         <div 
-          className="sticky z-40 mb-12"
+          className="hidden lg:block sticky z-40 mb-6"
           style={{ top: 'calc(var(--header-height, 64px) + 0.5rem)' }}
         >
-          <div className="bg-white/70 dark:bg-slate-900/70 backdrop-blur-xl border border-white dark:border-slate-800/50 rounded-2xl p-2 shadow-xl shadow-slate-200/50 dark:shadow-none flex items-center justify-center">
-            <div className="flex gap-1 p-1 bg-slate-100/50 dark:bg-slate-800/50 rounded-xl overflow-x-auto scrollbar-hide [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none] w-full max-w-md">
+          <div className="bg-white/80 dark:bg-slate-900/80 backdrop-blur-md border border-slate-200 dark:border-slate-800 rounded-xl p-1.5 shadow-sm flex flex-row gap-2 justify-center">
+            <div className="flex gap-1 p-0.5 bg-slate-100 dark:bg-slate-800 rounded-lg overflow-x-auto scrollbar-hide">
               {sortOptions.map((option) => (
                 <button
                   key={option.value}
                   onClick={() => setSortBy(option.value as any)}
                   className={cn(
-                    "px-6 py-2.5 rounded-lg text-xs font-black uppercase tracking-wider transition-all whitespace-nowrap flex-1 flex items-center justify-center gap-2",
+                    "px-4 py-1.5 rounded-md text-xs font-semibold transition-colors flex items-center gap-1.5 whitespace-nowrap flex-shrink-0",
                     sortBy === option.value
-                      ? "bg-white dark:bg-slate-700 text-slate-900 dark:text-white shadow-sm"
-                      : "text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200"
+                      ? "bg-white dark:bg-slate-700 text-slate-900 dark:text-white shadow-xs"
+                      : "text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-300"
                   )}
                 >
                   <option.icon className="w-3.5 h-3.5" />
@@ -128,6 +128,30 @@ export default function UnansweredPage() {
                 </button>
               ))}
             </div>
+          </div>
+        </div>
+
+        {/* Mobile: Sticky Filter Tabs */}
+        <div 
+          className="block lg:hidden sticky z-30 mb-6 -mx-4 px-4 py-2 bg-[#f8fafc]/90 dark:bg-slate-950/90 backdrop-blur-md border-b border-slate-200/60 dark:border-slate-800/60 overflow-x-auto scrollbar-hide"
+          style={{ top: 'var(--header-height, 56px)' }}
+        >
+          <div className="flex gap-2 p-1 bg-slate-200/70 dark:bg-slate-900 rounded-lg w-max min-w-full">
+            {sortOptions.map((option) => (
+              <button
+                key={option.value}
+                onClick={() => setSortBy(option.value as any)}
+                className={cn(
+                  "px-4 py-1.5 rounded-md text-xs font-semibold transition-colors flex items-center gap-1.5 whitespace-nowrap flex-shrink-0",
+                  sortBy === option.value
+                    ? "bg-white dark:bg-slate-800 text-emerald-600 dark:text-emerald-400 shadow-xs"
+                    : "text-slate-500 hover:text-slate-700 dark:hover:text-slate-300"
+                )}
+              >
+                <option.icon className="w-3.5 h-3.5" />
+                {option.label}
+              </button>
+            ))}
           </div>
         </div>
 
@@ -151,30 +175,16 @@ export default function UnansweredPage() {
               </div>
             </div>
           ) : (
-            questions.map((question) => (
-              <div key={question.id} className="relative group/unanswered">
-                <QuestionCard question={question} />
-              </div>
-            ))
+            <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 overflow-hidden shadow-sm divide-y divide-slate-200 dark:divide-slate-800">
+              {questions.map((question) => (
+                <div key={question.id} className="relative group/unanswered">
+                  <QuestionCard question={question} />
+                </div>
+              ))}
+            </div>
           )}
         </div>
 
-        {/* Bottom Action */}
-        {questions.length > 0 && (
-          <div className="mt-20 p-8 sm:p-12 rounded-[3rem] bg-slate-900 dark:bg-white text-white dark:text-slate-900 relative overflow-hidden flex flex-col sm:flex-row items-center justify-between gap-8 text-center sm:text-left">
-            <div className="absolute top-0 right-0 w-64 h-64 bg-emerald-500/20 rounded-full blur-[100px]" />
-            <div className="relative z-10 max-w-xl">
-              <h3 className="text-2xl sm:text-3xl font-black mb-3">Jadilah Kontributor Terbaik</h3>
-              <p className="text-slate-400 dark:text-slate-500 font-medium">Setiap jawaban yang Anda berikan membangun reputasi dan membantu ekosistem UMKM Indonesia semakin kuat.</p>
-            </div>
-            <Link
-              href="/leaderboard"
-              className="relative z-10 px-8 py-4 bg-emerald-500 text-white dark:text-white rounded-full font-black text-sm uppercase tracking-widest hover:scale-105 hover:bg-emerald-400 transition-all shadow-xl shadow-emerald-500/20 flex items-center gap-2 whitespace-nowrap"
-            >
-              Lihat Leaderboard <ChevronRight className="w-4 h-4" />
-            </Link>
-          </div>
-        )}
       </div>
     </div>
   );

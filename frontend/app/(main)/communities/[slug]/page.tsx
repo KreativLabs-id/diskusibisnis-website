@@ -18,7 +18,9 @@ import {
   TrendingUp,
   Target,
   Edit,
-  X
+  X,
+  Lightbulb,
+  Gift
 } from 'lucide-react';
 import api from '@/lib/api';
 import { formatDate } from '@/lib/utils';
@@ -44,6 +46,7 @@ interface Community {
   mission?: string;
   target_members?: string;
   benefits?: string;
+  avatar_url?: string;
 }
 
 interface Member {
@@ -67,6 +70,7 @@ export default function CommunityDetailPage() {
   const [joining, setJoining] = useState(false);
   const joiningRef = useRef(false);
   const [activeTab, setActiveTab] = useState<'questions' | 'overview' | 'members'>('questions');
+  const [activeDropdown, setActiveDropdown] = useState<string | null>(null);
   const [alertModal, setAlertModal] = useState<{
     isOpen: boolean;
     type: 'success' | 'error' | 'warning' | 'info';
@@ -427,9 +431,17 @@ export default function CommunityDetailPage() {
             <div className="flex flex-col sm:flex-row gap-4 sm:gap-6 -mt-12 sm:-mt-16">
               {/* Avatar */}
               <div className="w-24 h-24 sm:w-32 sm:h-32 bg-white dark:bg-slate-800 rounded-2xl p-1.5 shadow-lg shrink-0 mx-auto sm:mx-0 z-10">
-                <div className="w-full h-full bg-emerald-100 dark:bg-emerald-900/40 rounded-xl flex items-center justify-center text-emerald-600 dark:text-emerald-400 font-bold text-3xl sm:text-4xl border border-emerald-100 dark:border-emerald-800/50">
-                  {community.name.charAt(0)}
-                </div>
+                {community.avatar_url ? (
+                  <img
+                    src={community.avatar_url}
+                    alt={community.name}
+                    className="w-full h-full object-cover rounded-xl border border-slate-100 dark:border-slate-700"
+                  />
+                ) : (
+                  <div className="w-full h-full bg-emerald-100 dark:bg-emerald-900/40 rounded-xl flex items-center justify-center text-emerald-600 dark:text-emerald-400 font-bold text-3xl sm:text-4xl border border-emerald-100 dark:border-emerald-800/50">
+                    {community.name.charAt(0)}
+                  </div>
+                )}
               </div>
 
               {/* Info */}
@@ -510,13 +522,13 @@ export default function CommunityDetailPage() {
                     )}
 
                     {canEditCommunity && (
-                      <button
-                        onClick={openEditModal}
+                      <Link
+                        href={`/communities/${community.slug}/about?edit=true`}
                         className="flex items-center justify-center gap-2 w-full px-4 py-2 bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 rounded-xl hover:bg-slate-200 dark:hover:bg-slate-700 transition-all font-medium text-sm"
                       >
                         <Edit className="w-4 h-4" />
                         <span>Edit Info</span>
-                      </button>
+                      </Link>
                     )}
                   </div>
                 </div>
@@ -534,7 +546,6 @@ export default function CommunityDetailPage() {
                 : 'bg-white dark:bg-slate-900 text-slate-600 dark:text-slate-400 hover:bg-white dark:hover:bg-slate-800 border border-white dark:border-slate-800'
               }`}
           >
-            <MessageSquare className="w-4 h-4" />
             Diskusi
             <span className={`ml-1 px-1.5 py-0.5 rounded-full text-[10px] ${activeTab === 'questions' ? 'bg-white/20 text-white' : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400'}`}>
               {questions.length}
@@ -547,7 +558,6 @@ export default function CommunityDetailPage() {
                 : 'bg-white dark:bg-slate-900 text-slate-600 dark:text-slate-400 hover:bg-white dark:hover:bg-slate-800 border border-white dark:border-slate-800'
               }`}
           >
-            <Tag className="w-4 h-4" />
             Tentang
           </button>
           <button
@@ -557,7 +567,6 @@ export default function CommunityDetailPage() {
                 : 'bg-white dark:bg-slate-900 text-slate-600 dark:text-slate-400 hover:bg-white dark:hover:bg-slate-800 border border-white dark:border-slate-800'
               }`}
           >
-            <Users className="w-4 h-4" />
             Anggota
             <span className={`ml-1 px-1.5 py-0.5 rounded-full text-[10px] ${activeTab === 'members' ? 'bg-white/20 text-white' : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400'}`}>
               {community.members_count}
@@ -569,12 +578,12 @@ export default function CommunityDetailPage() {
         <div className="min-h-[400px]">
           {activeTab === 'questions' && (
             <div className="space-y-6">
-              <div className="flex items-center justify-between">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                 <h3 className="text-lg font-bold text-slate-900 dark:text-white">Diskusi Terbaru</h3>
                 {community.is_member && (
                   <Link
                     href={`/ask?community=${community.slug}`}
-                    className="flex items-center gap-2 px-4 py-2 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 transition-colors text-sm font-medium shadow-sm"
+                    className="inline-flex items-center justify-center gap-2 px-4 py-2 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 transition-colors text-sm font-medium shadow-sm w-full sm:w-auto"
                   >
                     <MessageSquare className="w-4 h-4" />
                     Buat Pertanyaan
@@ -647,34 +656,58 @@ export default function CommunityDetailPage() {
           {activeTab === 'overview' && (
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
               <div className="lg:col-span-2 space-y-6">
-                <div className="bg-white/60 dark:bg-slate-900/40 backdrop-blur-md rounded-2xl border border-white dark:border-slate-800/60 p-6 sm:p-8 shadow-sm transition-colors">
-                  <div className="flex items-center justify-between mb-4">
-                    <h3 className="text-lg font-bold text-slate-900 dark:text-white">Tentang Komunitas</h3>
-                    <Link
-                      href={`/communities/${community.slug}/about`}
-                      className="text-sm font-medium text-emerald-600 hover:text-emerald-700 dark:text-emerald-500 hover:underline"
-                    >
-                      Lihat Selengkapnya →
-                    </Link>
-                  </div>
-                  <p className="text-slate-600 dark:text-slate-400 leading-relaxed whitespace-pre-wrap">
+                <div className="bg-white/80 dark:bg-slate-900/80 backdrop-blur-md rounded-xl border border-slate-200 dark:border-slate-800 p-6 sm:p-8 shadow-sm">
+                  <h3 className="text-lg font-bold text-slate-900 dark:text-white mb-4">Tentang Komunitas</h3>
+                  <p className="text-slate-700 dark:text-slate-300 leading-relaxed whitespace-pre-wrap mb-8">
                     {community.description}
                   </p>
 
-                  {community.vision && (
-                    <div className="mt-6 pt-6 border-t border-slate-200 dark:border-slate-800">
-                      <h4 className="font-bold text-slate-900 dark:text-white mb-2 flex items-center gap-2">
+                  <div className="space-y-6">
+                    <div>
+                      <h4 className="font-semibold text-slate-900 dark:text-white mb-2 flex items-center gap-2">
                         <Target className="w-4 h-4 text-emerald-600" />
                         Visi
                       </h4>
-                      <p className="text-slate-600 dark:text-slate-400 text-sm">{community.vision}</p>
+                      <p className="text-slate-600 dark:text-slate-400 text-sm leading-relaxed">
+                        {community.vision || <span className="text-slate-400 italic">Visi komunitas belum diisi.</span>}
+                      </p>
                     </div>
-                  )}
+
+                    <div>
+                      <h4 className="font-semibold text-slate-900 dark:text-white mb-2 flex items-center gap-2">
+                        <Lightbulb className="w-4 h-4 text-emerald-600" />
+                        Misi
+                      </h4>
+                      <p className="text-slate-600 dark:text-slate-400 text-sm leading-relaxed whitespace-pre-wrap">
+                        {community.mission || <span className="text-slate-400 italic">Misi komunitas belum diisi.</span>}
+                      </p>
+                    </div>
+
+                    <div>
+                      <h4 className="font-semibold text-slate-900 dark:text-white mb-2 flex items-center gap-2">
+                        <Users className="w-4 h-4 text-emerald-600" />
+                        Target Anggota
+                      </h4>
+                      <p className="text-slate-600 dark:text-slate-400 text-sm leading-relaxed whitespace-pre-wrap">
+                        {community.target_members || <span className="text-slate-400 italic">Target anggota belum diisi.</span>}
+                      </p>
+                    </div>
+
+                    <div>
+                      <h4 className="font-semibold text-slate-900 dark:text-white mb-2 flex items-center gap-2">
+                        <Gift className="w-4 h-4 text-emerald-600" />
+                        Manfaat Bergabung
+                      </h4>
+                      <p className="text-slate-600 dark:text-slate-400 text-sm leading-relaxed whitespace-pre-wrap">
+                        {community.benefits || <span className="text-slate-400 italic">Manfaat bergabung belum diisi.</span>}
+                      </p>
+                    </div>
+                  </div>
                 </div>
               </div>
 
               <div className="space-y-6">
-                <div className="bg-white/60 dark:bg-slate-900/40 backdrop-blur-md rounded-2xl border border-white dark:border-slate-800/60 p-6 sm:p-8 shadow-sm transition-colors">
+                <div className="bg-white/80 dark:bg-slate-900/80 backdrop-blur-md rounded-xl border border-slate-200 dark:border-slate-800 p-6 sm:p-8 shadow-sm">
                   <h3 className="font-bold text-slate-900 dark:text-white mb-4">Informasi</h3>
                   <div className="space-y-4">
                     <div className="flex items-center gap-3">
@@ -742,28 +775,45 @@ export default function CommunityDetailPage() {
                       </div>
 
                       {user && community.created_by === user.id && member.user_id !== user.id && (
-                        <div className="relative group">
-                          <button className="p-2 hover:bg-slate-100 rounded-full text-slate-400 hover:text-slate-600">
+                        <div className="relative">
+                          <button
+                            onClick={() => setActiveDropdown(activeDropdown === member.id ? null : member.id)}
+                            className="p-2 hover:bg-slate-100 rounded-full text-slate-400 hover:text-slate-600 focus:outline-none"
+                          >
                             <Settings className="w-4 h-4" />
                           </button>
-                          {/* Dropdown menu could go here, simplified for now */}
-                          <div className="absolute right-0 top-full mt-2 w-48 bg-white rounded-xl shadow-xl border border-slate-100 hidden group-hover:block z-10 p-1">
-                            {member.role === 'member' ? (
-                              <button
-                                onClick={() => handlePromoteMember(member.user_id)}
-                                className="w-full text-left px-3 py-2 text-sm hover:bg-emerald-50 text-slate-700 hover:text-emerald-700 rounded-lg"
-                              >
-                                Jadikan Admin
-                              </button>
-                            ) : (
-                              <button
-                                onClick={() => handleDemoteMember(member.user_id)}
-                                className="w-full text-left px-3 py-2 text-sm hover:bg-yellow-50 text-slate-700 hover:text-yellow-700 rounded-lg"
-                              >
-                                Turunkan Admin
-                              </button>
-                            )}
-                          </div>
+                          
+                          {activeDropdown === member.id && (
+                            <>
+                              <div
+                                className="fixed inset-0 z-0"
+                                onClick={() => setActiveDropdown(null)}
+                              ></div>
+                              <div className="absolute right-0 top-full mt-2 w-48 bg-white rounded-xl shadow-xl border border-slate-100 z-10 p-1">
+                                {member.role === 'member' ? (
+                                  <button
+                                    onClick={() => {
+                                      setActiveDropdown(null);
+                                      handlePromoteMember(member.user_id);
+                                    }}
+                                    className="w-full text-left px-3 py-2 text-sm hover:bg-emerald-50 text-slate-700 hover:text-emerald-700 rounded-lg"
+                                  >
+                                    Jadikan Admin
+                                  </button>
+                                ) : (
+                                  <button
+                                    onClick={() => {
+                                      setActiveDropdown(null);
+                                      handleDemoteMember(member.user_id);
+                                    }}
+                                    className="w-full text-left px-3 py-2 text-sm hover:bg-yellow-50 text-slate-700 hover:text-yellow-700 rounded-lg"
+                                  >
+                                    Turunkan Admin
+                                  </button>
+                                )}
+                              </div>
+                            </>
+                          )}
                         </div>
                       )}
                     </div>

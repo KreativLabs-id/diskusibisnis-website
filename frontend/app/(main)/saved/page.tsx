@@ -173,7 +173,7 @@ export default function SavedPage() {
 
                 {/* Content */}
                 {loading ? (
-                    <div className="space-y-4">
+                    <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 overflow-hidden shadow-sm divide-y divide-slate-200 dark:divide-slate-800">
                         {[1, 2, 3].map((i) => (
                             <QuestionCardSkeleton key={i} />
                         ))}
@@ -198,16 +198,17 @@ export default function SavedPage() {
                         </Link>
                     </div>
                 ) : (
-                    <div className="grid grid-cols-1 gap-6">
-                        <div className="flex items-center justify-between mb-2">
+                    <div className="space-y-6">
+                        <div className="flex items-center justify-between">
                             <p className="text-sm font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-widest">
                                 {bookmarks.length} pertanyaan tersimpan
                             </p>
                         </div>
 
-                        {bookmarks.map((question) => (
-                            <div key={question.id} className="relative group/bookmark">
-                                <QuestionCard question={question as any} />
+                        <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 overflow-hidden shadow-sm divide-y divide-slate-200 dark:divide-slate-800">
+                            {bookmarks.map((question) => (
+                                <div key={question.id} className="relative group/bookmark">
+                                    <QuestionCard question={question as any} />
                                 {/* Remove Bookmark Button */}
                                 <button
                                     onClick={(e) => handleRemoveBookmark(question.id, e)}
@@ -223,6 +224,7 @@ export default function SavedPage() {
                                 </button>
                             </div>
                         ))}
+                        </div>
                     </div>
                 )}
             </div>

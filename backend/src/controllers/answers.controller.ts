@@ -72,6 +72,14 @@ export const createAnswer = async (req: AuthRequest, res: Response): Promise<voi
       [questionId]
     );
 
+    // Give reputation to answerer (+2)
+    if (question.author_id !== user.id) {
+      await pool.query(
+        'UPDATE public.users SET reputation_points = COALESCE(reputation_points, 0) + 2 WHERE id = $1',
+        [user.id]
+      );
+    }
+
     // Get answerer name for notification
     const userResult = await pool.query(
       'SELECT display_name FROM public.users WHERE id = $1',
@@ -198,7 +206,7 @@ export const deleteAnswer = async (req: AuthRequest, res: Response): Promise<voi
     const answerId = req.params.id;
 
     const answerResult = await pool.query(
-      'SELECT author_id, question_id FROM public.answers WHERE id = $1',
+      'SELECT author_id, question_id, is_accepted FROM public.answers WHERE id = $1',
       [answerId]
     );
 
@@ -229,6 +237,13 @@ export const deleteAnswer = async (req: AuthRequest, res: Response): Promise<voi
     await pool.query(
       'UPDATE public.questions SET answers_count = GREATEST(COALESCE(answers_count, 1) - 1, 0) WHERE id = $1',
       [answer.question_id]
+    );
+
+    // Remove reputation (-2 for answer, -15 if it was accepted)
+    const pointsToRemove = answer.is_accepted ? 17 : 2;
+    await pool.query(
+      'UPDATE public.users SET reputation_points = GREATEST(COALESCE(reputation_points, 0) - $1, 0) WHERE id = $2',
+      [pointsToRemove, answer.author_id]
     );
 
     successResponse(res, null, 'Answer deleted successfully');
@@ -265,7 +280,7 @@ export const acceptAnswer = async (req: AuthRequest, res: Response): Promise<voi
 
     // Get answer and question details
     const answerResult = await client.query(`
-      SELECT a.id, a.question_id, a.is_accepted, q.author_id as question_author_id
+      SELECT a.id, a.question_id, a.is_accepted, a.author_id as answer_author_id, q.author_id as question_author_id
       FROM public.answers a
       JOIN public.questions q ON a.question_id = q.id
       WHERE a.id = $1
@@ -297,9 +312,28 @@ export const acceptAnswer = async (req: AuthRequest, res: Response): Promise<voi
           'UPDATE public.answers SET is_accepted = false WHERE id = $1',
           [answerId]
         );
+        // Remove reputation
+        await client.query(
+          'UPDATE public.users SET reputation_points = GREATEST(COALESCE(reputation_points, 0) - 15, 0) WHERE id = $1',
+          [answer.answer_author_id]
+        );
         action = 'unaccepted';
       } else {
         console.log('Accepting answer:', answerId);
+        
+        // Find if there is a previously accepted answer to remove points
+        const prevAccepted = await client.query(
+          'SELECT author_id FROM public.answers WHERE question_id = $1 AND is_accepted = true',
+          [answer.question_id]
+        );
+        
+        if (prevAccepted.rows.length > 0) {
+          await client.query(
+            'UPDATE public.users SET reputation_points = GREATEST(COALESCE(reputation_points, 0) - 15, 0) WHERE id = $1',
+            [prevAccepted.rows[0].author_id]
+          );
+        }
+
         // Unaccept all other answers for this question first
         await client.query(
           'UPDATE public.answers SET is_accepted = false WHERE question_id = $1',
@@ -311,6 +345,15 @@ export const acceptAnswer = async (req: AuthRequest, res: Response): Promise<voi
           'UPDATE public.answers SET is_accepted = true WHERE id = $1',
           [answerId]
         );
+        
+        // Add reputation to the newly accepted answer's author
+        if (answer.answer_author_id !== user.id) {
+          await client.query(
+            'UPDATE public.users SET reputation_points = COALESCE(reputation_points, 0) + 15 WHERE id = $1',
+            [answer.answer_author_id]
+          );
+        }
+        
         action = 'accepted';
       }
 

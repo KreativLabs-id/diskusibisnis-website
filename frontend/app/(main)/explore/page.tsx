@@ -102,28 +102,7 @@ export default function ExplorePage() {
                         </div>
                     </section>
 
-                    {/* Premium CTA / Info */}
-                    <section className="pt-8">
-                        <div className="group relative bg-slate-900 dark:bg-white rounded-2xl p-8 sm:p-12 overflow-hidden shadow-2xl text-center sm:text-left">
-                            <div className="absolute top-0 right-0 w-64 h-64 bg-emerald-500/20 rounded-full blur-[100px]" />
-                            <div className="relative z-10 flex flex-col sm:flex-row items-center justify-between gap-8">
-                                <div className="max-w-xl">
-                                    <h3 className="text-2xl sm:text-3xl font-bold text-white dark:text-slate-900 mb-3">
-                                        Punya pertanyaan spesifik?
-                                    </h3>
-                                    <p className="text-slate-400 dark:text-slate-500 font-medium">
-                                        Jangan ragu untuk memulai diskusi baru. Ribuan pebisnis siap berbagi pengalaman mereka dengan Anda.
-                                    </p>
-                                </div>
-                                <Link
-                                    href="/ask"
-                                    className="px-8 py-4 bg-emerald-500 text-white rounded-full font-bold text-sm shadow-xl shadow-emerald-500/20 whitespace-nowrap transition-all hover:scale-105"
-                                >
-                                    Tanya sekarang
-                                </Link>
-                            </div>
-                        </div>
-                    </section>
+
 
                     {/* Footer links - minimalist */}
                     <footer className="pt-12 border-t border-slate-200 dark:border-slate-800/60 text-center">

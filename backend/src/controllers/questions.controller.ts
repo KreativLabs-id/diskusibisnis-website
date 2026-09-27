@@ -35,7 +35,7 @@ export const getQuestions = async (req: AuthRequest, res: Response): Promise<voi
     // ✅ Check cache first for non-search requests (30 second cache)
     const cacheKey = `${cacheKeys.questions(sort + status, tag, page)}:user:${currentUserId || 'guest'}`;
     if (!search) {
-      const cached = apiCache.get<any>(cacheKey);
+      const cached = await apiCache.get<any>(cacheKey);
       if (cached) {
         if (config.debug.cache) {
           console.log(`[Cache HIT] ${cacheKey}`);
@@ -198,7 +198,7 @@ export const getQuestions = async (req: AuthRequest, res: Response): Promise<voi
 
     // ✅ Cache results for 10 seconds (reduced for faster vote updates)
     if (!search) {
-      apiCache.set(cacheKey, responseData, 10000);
+      await apiCache.set(cacheKey, responseData, 10000);
       if (config.debug.cache) {
         console.log(`[Cache SET] ${cacheKey}`);
       }
@@ -298,8 +298,8 @@ export const createQuestion = async (req: AuthRequest, res: Response): Promise<v
       await createMentions(user.id, 'question', question.id, content);
 
       // ✅ Invalidate questions cache so new question appears immediately
-      invalidateCache.questions();
-      invalidateCache.tags();
+      await invalidateCache.questions();
+      await invalidateCache.tags();
 
       successResponse(res, { question }, 'Question created successfully', 201);
     } catch (error) {
@@ -543,8 +543,8 @@ export const updateQuestion = async (req: AuthRequest, res: Response): Promise<v
       await client.query('COMMIT');
 
       // ✅ Invalidate cache
-      invalidateCache.allQuestions();
-      invalidateCache.tags();
+      await invalidateCache.allQuestions();
+      await invalidateCache.tags();
 
       successResponse(res, { question: updateResult.rows[0] }, 'Question updated successfully');
     } catch (error) {
@@ -600,8 +600,8 @@ export const deleteQuestion = async (req: AuthRequest, res: Response): Promise<v
     await pool.query('DELETE FROM public.questions WHERE id = $1', [questionId]);
 
     // ✅ Invalidate cache
-    invalidateCache.allQuestions();
-    invalidateCache.tags();
+    await invalidateCache.allQuestions();
+    await invalidateCache.tags();
 
     successResponse(res, null, 'Question deleted successfully');
   } catch (error) {
