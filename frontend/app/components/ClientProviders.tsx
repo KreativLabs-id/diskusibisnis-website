@@ -7,6 +7,7 @@ import { PWAUpdateModal } from '@/components/PWAUpdateModal';
 import { OfflineIndicator } from '@/components/OfflineIndicator';
 import { ThemeProvider } from '@/contexts/ThemeContext';
 import { SearchProvider } from '@/contexts/SearchContext';
+import { Suspense } from 'react';
 
 export default function ClientProviders({
   children,
@@ -17,12 +18,14 @@ export default function ClientProviders({
     <ThemeProvider>
       <AuthProvider>
         <NotificationProvider>
-          <SearchProvider>
-            <OfflineIndicator />
-            {children}
-            <PWAInstallPrompt />
-            <PWAUpdateModal />
-          </SearchProvider>
+          <Suspense fallback={null}>
+            <SearchProvider>
+              <OfflineIndicator />
+              {children}
+              <PWAInstallPrompt />
+              <PWAUpdateModal />
+            </SearchProvider>
+          </Suspense>
         </NotificationProvider>
       </AuthProvider>
     </ThemeProvider>
