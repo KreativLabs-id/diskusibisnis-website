@@ -70,15 +70,15 @@ export default function ProfileSidebar({ profile, isOwnProfile, stats }: Profile
         <div className="flex items-center gap-6 mb-5">
           <div className="flex flex-col">
             <span className="text-lg font-bold text-slate-900 dark:text-white">{profile.reputationPoints}</span>
-            <span className="text-[10px] font-semibold text-slate-500 uppercase tracking-wide">Reputasi</span>
+            <span className="text-xs font-medium text-slate-500">Reputasi</span>
           </div>
           <div className="flex flex-col">
             <span className="text-lg font-bold text-slate-900 dark:text-white">{stats.questionsCount}</span>
-            <span className="text-[10px] font-semibold text-slate-500 uppercase tracking-wide">Diskusi</span>
+            <span className="text-xs font-medium text-slate-500">Diskusi</span>
           </div>
           <div className="flex flex-col">
             <span className="text-lg font-bold text-slate-900 dark:text-white">{stats.answersCount}</span>
-            <span className="text-[10px] font-semibold text-slate-500 uppercase tracking-wide">Jawaban</span>
+            <span className="text-xs font-medium text-slate-500">Jawaban</span>
           </div>
         </div>
 

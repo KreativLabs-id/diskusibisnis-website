@@ -76,11 +76,31 @@ export default function TagsPage() {
       const response = await tagAPI.getAll();
       const tagsData = response.data?.data?.tags || response.data?.tags || [];
 
+      const fallbackDescriptions: Record<string, string> = {
+        'pemasaran': 'Strategi dan teknik memasarkan produk atau jasa',
+        'ekspansi': 'Panduan memperluas jangkauan dan skala bisnis',
+        'manajemen': 'Sistem pengaturan dan tata kelola sumber daya bisnis',
+        'kuliner': 'Diskusi seputar bisnis makanan, minuman, dan restoran',
+        'branding': 'Cara membangun identitas dan citra merek yang kuat',
+        'digital marketing': 'Taktik pemasaran melalui media digital dan internet',
+        'fashion': 'Tren, produksi, dan strategi bisnis pakaian',
+        'inspirasi': 'Cerita sukses, ide, dan motivasi untuk pengusaha',
+        'jasa': 'Strategi penawaran dan pengelolaan layanan profesional',
+        'pelayanan': 'Tips meningkatkan kepuasan dan loyalitas pelanggan',
+        'pemula': 'Panduan dasar memulai dan merintis usaha baru',
+        'tips bisnis': 'Saran praktis dan lifehack seputar dunia usaha',
+        'sdm': 'Manajemen karyawan, rekrutmen, dan budaya kerja',
+        'legalitas': 'Aspek hukum, izin usaha, dan kepatuhan regulasi',
+        'teknologi': 'Inovasi dan penerapan teknologi untuk efisiensi UMKM',
+        'f&b': 'Pengelolaan bisnis Food & Beverage dan katering',
+        'operasional': 'Manajemen kegiatan bisnis dan produksi sehari-hari'
+      };
+
       const mappedTags = tagsData.map((tag: any) => ({
         id: tag.id,
         name: tag.name,
         slug: tag.slug,
-        description: tag.description,
+        description: tag.description || fallbackDescriptions[tag.name.toLowerCase()] || `Topik diskusi seputar pengembangan dan wawasan ${tag.name}`,
         questionCount: tag.usage_count ?? tag.question_count ?? 0,
         createdAt: tag.created_at
       }));

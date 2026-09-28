@@ -527,7 +527,7 @@ export default function HomePage() {
               <div className="relative z-10">
                 <div className="flex items-center gap-2 mb-6">
                   <Hash className="h-5 w-5 text-emerald-600" />
-                  <h3 className="text-xs font-black uppercase tracking-[0.2em] text-slate-900 dark:text-slate-100">
+                  <h3 className="text-base font-semibold text-slate-900 dark:text-slate-100">
                     Topik Populer
                   </h3>
                 </div>
@@ -537,7 +537,7 @@ export default function HomePage() {
                       key={tag.slug}
                       href={`/?tag=${tag.slug}`}
                       className={cn(
-                        "inline-flex items-center gap-1.5 rounded-full px-4 py-2 text-[10px] font-black uppercase tracking-wider transition-all",
+                        "inline-flex items-center gap-1.5 rounded-full px-4 py-2 text-[13px] font-medium transition-all",
                         tagParam === tag.slug
                           ? "bg-emerald-600 text-white shadow-lg shadow-emerald-500/20"
                           : "bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400 hover:bg-emerald-500 hover:text-white dark:hover:bg-emerald-600"
@@ -557,7 +557,7 @@ export default function HomePage() {
               <div className="relative z-10">
                 <div className="flex items-center gap-2 mb-6">
                   <Sparkles className="h-5 w-5 text-emerald-400" />
-                  <h3 className="text-xs font-black uppercase tracking-[0.2em] text-white dark:text-slate-900">
+                  <h3 className="text-base font-semibold text-white dark:text-slate-900">
                     Tips Bertanya
                   </h3>
                 </div>
@@ -568,12 +568,12 @@ export default function HomePage() {
                     { title: "Tag relevan", text: "Agar lebih cepat dijawab." }
                   ].map((item, i) => (
                     <li key={i} className="flex gap-3">
-                      <span className="flex-shrink-0 w-6 h-6 rounded-full bg-emerald-500/20 flex items-center justify-center text-[10px] font-black text-emerald-400">
+                      <span className="flex-shrink-0 w-6 h-6 rounded-full bg-emerald-500/20 flex items-center justify-center text-xs font-bold text-emerald-400">
                         {i + 1}
                       </span>
                       <div>
-                        <div className="text-[11px] font-black text-white dark:text-slate-900 uppercase tracking-widest">{item.title}</div>
-                        <div className="text-[12px] text-slate-400 dark:text-slate-500 font-medium">{item.text}</div>
+                        <div className="text-[14px] font-semibold text-white dark:text-slate-900">{item.title}</div>
+                        <div className="text-[13px] text-slate-400 dark:text-slate-500">{item.text}</div>
                       </div>
                     </li>
                   ))}
@@ -586,17 +586,17 @@ export default function HomePage() {
               <div className="relative z-10">
                 <div className="flex items-center gap-2 mb-6">
                   <Trophy className="h-5 w-5 text-amber-500" />
-                  <h3 className="text-xs font-black uppercase tracking-[0.2em] text-slate-900 dark:text-slate-100">
+                  <h3 className="text-base font-semibold text-slate-900 dark:text-slate-100">
                     Aksi Cepat
                   </h3>
                 </div>
                 <div className="space-y-3">
                   <Link href="/unanswered" className="group/item flex items-center justify-between p-4 rounded-2xl bg-slate-100/50 dark:bg-slate-800/50 hover:bg-emerald-500 hover:text-white transition-all duration-300">
-                    <span className="text-xs font-black uppercase tracking-widest">Belum terjawab</span>
+                    <span className="text-[14px] font-semibold">Belum Terjawab</span>
                     <ChevronRight className="w-4 h-4 group-hover/item:translate-x-1 transition-transform" />
                   </Link>
                   <Link href="/leaderboard" className="group/item flex items-center justify-between p-4 rounded-2xl bg-slate-100/50 dark:bg-slate-800/50 hover:bg-emerald-500 hover:text-white transition-all duration-300">
-                    <span className="text-xs font-black uppercase tracking-widest">Kontributor top</span>
+                    <span className="text-[14px] font-semibold">Kontributor Top</span>
                     <ChevronRight className="w-4 h-4 group-hover/item:translate-x-1 transition-transform" />
                   </Link>
                 </div>

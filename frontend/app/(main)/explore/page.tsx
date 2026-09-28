@@ -104,23 +104,6 @@ export default function ExplorePage() {
 
 
 
-                    {/* Footer links - minimalist */}
-                    <footer className="pt-12 border-t border-slate-200 dark:border-slate-800/60 text-center">
-                        <div className="flex flex-wrap justify-center gap-x-8 gap-y-3 mb-6">
-                            {['Tentang', 'Komunitas', 'Privasi', 'Syarat', 'Bantuan'].map((item) => (
-                                <Link 
-                                    key={item} 
-                                    href={`/${item.toLowerCase()}`} 
-                                    className="text-xs font-bold text-slate-400 dark:text-slate-500 hover:text-emerald-500 transition-colors"
-                                >
-                                    {item}
-                                </Link>
-                            ))}
-                        </div>
-                        <p className="text-[10px] font-bold text-slate-300 dark:text-slate-700 uppercase tracking-[0.3em]">
-                            © 2026 DiskusiBisnis
-                        </p>
-                    </footer>
                 </div>
             </div>
         </div>

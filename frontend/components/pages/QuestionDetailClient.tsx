@@ -718,7 +718,7 @@ export default function QuestionDetailClient({ initialQuestion, questionId }: Qu
                                     
                                     {/* Author Box StackOverflow style */}
                                     <div className="bg-white dark:bg-slate-900 rounded-xl px-4 py-3 w-full sm:w-[240px] mt-2 sm:mt-0 sm:justify-self-end border border-slate-200 dark:border-slate-700 shadow-sm">
-                                        <div className="text-[11px] uppercase tracking-wide text-gray-500 mb-2">
+                                        <div className="text-xs font-medium text-slate-500 dark:text-slate-400 mb-2">
                                             Ditanya {formatDate(question.created_at)}
                                         </div>
                                         <Link href={getProfileHref({ username: question.author_username, author_name: question.author_name })} className="flex items-center gap-2 group">
@@ -772,6 +772,63 @@ export default function QuestionDetailClient({ initialQuestion, questionId }: Qu
                                 </div>
                             </div>
                         </div>
+                    </div>
+                </div>
+
+                {/* Answer Input */}
+                <div className="bg-white dark:bg-slate-900 pt-4 pb-8 border-b border-gray-100 dark:border-gray-800">
+                    <div ref={answerComposerRef} className="max-w-5xl mx-auto px-4 sm:px-6">
+                        <h3 className="text-xl font-semibold text-slate-900 dark:text-slate-100 mb-6 pt-4">
+                            Jawaban Anda
+                        </h3>
+
+                        {user ? (
+                            <form onSubmit={handleSubmitAnswer} className="mt-4 max-w-5xl">
+                                <div className="border border-slate-200 dark:border-slate-700 rounded-xl bg-white dark:bg-slate-900 overflow-visible transition-shadow">
+                                    <MentionInput
+                                        value={answerContent}
+                                        onChange={setAnswerContent}
+                                        onSubmit={handleSubmitAnswer}
+                                        placeholder="Tulis jawaban berbobot minimal 20 karakter..."
+                                        className="text-[15px] min-h-[200px]"
+                                        disabled={submitting}
+                                    />
+                                </div>
+                                <div className="mt-4 flex justify-between items-center bg-slate-50 dark:bg-slate-800/40 p-4 rounded-xl border border-slate-200 dark:border-slate-800">
+                                    <p className="text-[13px] text-slate-600 dark:text-slate-400 max-w-sm hidden sm:block">
+                                        Pastikan jawaban Anda terstruktur, jelas, dan memberikan solusi yang efektif. Gunakan pemformatan bila diperlukan.
+                                    </p>
+                                    <button
+                                        type="submit"
+                                        disabled={submitting || !answerContent.trim()}
+                                        className="px-6 py-2.5 bg-emerald-600 hover:bg-emerald-700 disabled:bg-slate-200 dark:disabled:bg-slate-800 disabled:text-slate-400 disabled:cursor-not-allowed text-white rounded-lg font-medium text-sm transition-colors shadow-sm"
+                                    >
+                                        {submitting ? 'Memposting...' : 'Posting Jawaban'}
+                                    </button>
+                                </div>
+                            </form>
+                        ) : (
+                            <div className="border border-slate-200 dark:border-slate-800 bg-slate-50/70 dark:bg-slate-900/60 rounded-xl p-8 flex flex-col items-center justify-center text-center mt-4">
+                                <h4 className="text-lg font-semibold text-slate-900 dark:text-slate-100 mb-2">Ingin menjawab pertanyaan ini?</h4>
+                                <p className="text-sm text-slate-600 dark:text-slate-400 mb-6 max-w-md leading-relaxed">
+                                    Silakan masuk untuk bergabung dalam diskusi, memberikan jawaban, dan mendapatkan poin reputasi.
+                                </p>
+                                <div className="flex gap-3">
+                                    <Link
+                                        href={`/login?callbackUrl=${encodeURIComponent(`/questions/${questionId}`)}`}
+                                        className="px-6 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg font-medium text-sm transition-colors shadow-sm"
+                                    >
+                                        Masuk
+                                    </Link>
+                                    <Link
+                                        href="/register"
+                                        className="px-6 py-2.5 bg-white dark:bg-slate-800 hover:bg-slate-50 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 border border-slate-200 dark:border-slate-700 rounded-lg font-medium text-sm transition-colors"
+                                    >
+                                        Daftar
+                                    </Link>
+                                </div>
+                            </div>
+                        )}
                     </div>
                 </div>
 
@@ -959,74 +1016,8 @@ export default function QuestionDetailClient({ initialQuestion, questionId }: Qu
                     ))}
                 </div>
 
-                {/* Answer Input */}
-                <div className="bg-white dark:bg-slate-900 pt-4 pb-12">
-                    <div ref={answerComposerRef} className="max-w-5xl mx-auto px-4 sm:px-6">
-                        <h3 className="text-xl font-medium text-gray-900 dark:text-gray-100 mb-6 pt-4">
-                            Jawaban Anda
-                        </h3>
 
-                        {user ? (
-                            <form onSubmit={handleSubmitAnswer} className="mt-4 max-w-5xl">
-                                <div className="border border-gray-300 dark:border-gray-700 rounded bg-white overflow-visible transition-shadow">
-                                    <MentionInput
-                                        value={answerContent}
-                                        onChange={setAnswerContent}
-                                        onSubmit={handleSubmitAnswer}
-                                        placeholder="Tulis jawaban berbobot minimal 20 karakter..."
-                                        className="text-[15px] min-h-[200px]"
-                                        disabled={submitting}
-                                    />
-                                </div>
-                                <div className="mt-4 flex justify-between items-center bg-gray-50 dark:bg-slate-800/40 p-4 rounded border border-gray-200 dark:border-gray-700">
-                                    <p className="text-[13px] text-gray-600 max-w-sm hidden sm:block">
-                                        Pastikan jawaban Anda terstruktur, jelas, dan memberikan solusi yang efektif. Gunakan pemformatan bila diperlukan.
-                                    </p>
-                                    <button
-                                        type="submit"
-                                        disabled={submitting || !answerContent.trim()}
-                                        className="px-6 py-2.5 bg-[#2F855A] text-white rounded font-medium text-[14px] hover:bg-[#276F4B] disabled:bg-gray-300 disabled:text-gray-500 transition-colors"
-                                    >
-                                        {submitting ? 'Memposting...' : 'Posting Jawaban'}
-                                    </button>
-                                </div>
-                            </form>
-                        ) : (
-                            <div className="border border-gray-200 dark:border-gray-800 bg-gray-50 dark:bg-slate-800/50 rounded p-8 flex flex-col items-center justify-center text-center mt-4">
-                                <h4 className="text-lg font-medium text-gray-900 dark:text-gray-100 mb-2">Ingin menjawab pertanyaan ini?</h4>
-                                <p className="text-[14px] text-gray-500 dark:text-gray-400 mb-6 max-w-md">
-                                    Silakan login untuk bergabung dalam diskusi, memberikan jawaban, dan mendapatkan poin reputasi.
-                                </p>
-                                <div className="flex gap-4">
-                                    <Link
-                                        href={`/login?callbackUrl=${encodeURIComponent(`/questions/${questionId}`)}`}
-                                        className="px-6 py-2.5 bg-[#2F855A] text-white rounded font-medium hover:bg-[#276F4B] transition-colors shadow-sm"
-                                    >
-                                        Log in
-                                    </Link>
-                                    <Link
-                                        href="/register"
-                                        className="px-6 py-2.5 bg-white text-gray-700 border border-gray-300 rounded font-medium hover:bg-gray-50 transition-colors"
-                                    >
-                                        Sign up
-                                    </Link>
-                                </div>
-                            </div>
-                        )}
-                    </div>
-                </div>
 
-                {user && showQuickReply && (
-                    <div className="fixed bottom-4 left-1/2 -translate-x-1/2 z-40 w-[calc(100%-2rem)] max-w-3xl">
-                        <button
-                            onClick={scrollToAnswerComposer}
-                            className="w-full rounded-full border border-gray-200 dark:border-slate-700 bg-white/95 dark:bg-slate-900/95 backdrop-blur px-4 py-3 text-left shadow-md hover:shadow-lg transition-all flex items-center justify-between gap-3"
-                        >
-                            <span className="text-sm text-gray-500 dark:text-gray-300 truncate">Tulis jawaban Anda...</span>
-                            <span className="shrink-0 px-4 py-1.5 rounded-full bg-slate-900 dark:bg-slate-100 text-white dark:text-slate-900 text-sm font-medium">Jawab</span>
-                        </button>
-                    </div>
-                )}
 
                 {/* Related Questions Section (New) */}
                 {relatedQuestions.length > 0 && (

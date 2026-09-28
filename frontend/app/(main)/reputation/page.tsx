@@ -154,12 +154,9 @@ export default function ReputationPage() {
         {/* Professional Minimalist Header */}
         <div className="hidden sm:flex mb-8 flex-col gap-1">
           <h1 className="text-2xl font-bold text-slate-900 dark:text-white flex items-center gap-2">
-            <div className="p-2 bg-emerald-50 dark:bg-emerald-900/30 text-emerald-600 dark:text-emerald-400 rounded-lg">
-              <Trophy className="w-5 h-5" />
-            </div>
             Reputasi Anda
           </h1>
-          <p className="text-sm text-slate-500 dark:text-slate-400 ml-10">
+          <p className="text-sm text-slate-500 dark:text-slate-400">
             Statistik pencapaian dan riwayat kontribusi Anda.
           </p>
         </div>

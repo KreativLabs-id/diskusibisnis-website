@@ -162,7 +162,6 @@ export default function SavedPage() {
                 <div className="mb-8 flex flex-col sm:flex-row sm:items-end justify-between gap-4">
                     <div className="flex flex-col gap-1">
                         <h1 className="text-2xl font-bold text-slate-900 dark:text-white flex items-center gap-3">
-                            <Bookmark className="w-6 h-6 text-emerald-600 dark:text-emerald-500" />
                             Tersimpan
                         </h1>
                         <p className="text-sm text-slate-500 dark:text-slate-400">

@@ -27,12 +27,13 @@ export const metadata: Metadata = {
   metadataBase: new URL(process.env.NEXT_PUBLIC_FRONTEND_URL || "http://localhost:3000"),
   icons: {
     icon: [
+      { url: '/favicondiskusibisnis.png', type: 'image/png' },
       { url: '/favicon.ico', sizes: 'any' },
       { url: '/icons/favicon-16x16.png', sizes: '16x16', type: 'image/png' },
       { url: '/icons/favicon-32x32.png', sizes: '32x32', type: 'image/png' },
       { url: '/icons/favicon-48x48.png', sizes: '48x48', type: 'image/png' },
     ],
-    shortcut: '/favicon.ico',
+    shortcut: '/favicondiskusibisnis.png',
     apple: [
       { url: '/icons/apple-touch-icon.png', sizes: '180x180', type: 'image/png' },
     ],
@@ -145,6 +146,7 @@ export default function RootLayout({
   return (
         <html lang="id" suppressHydrationWarning className={inter.variable}>
       <head>
+        <link rel="icon" type="image/png" href="/favicondiskusibisnis.png" />
         <link rel="icon" href="/favicon.ico" sizes="any" />
         <link rel="icon" type="image/png" sizes="16x16" href="/icons/favicon-16x16.png" />
         <link rel="icon" type="image/png" sizes="32x32" href="/icons/favicon-32x32.png" />

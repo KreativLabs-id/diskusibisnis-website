@@ -24,7 +24,7 @@ export default function VoteSection({
   showLoginHint = false
 }: VoteSectionProps) {
   const sizeClasses = {
-    small: 'text-lg',
+    small: 'text-[15px]',
     medium: 'text-xl sm:text-2xl',
     large: 'text-2xl sm:text-3xl'
   };
@@ -43,8 +43,10 @@ export default function VoteSection({
 
   return (
     <div className={`
-      flex items-center justify-center gap-2
-      ${orientation === 'vertical' ? 'flex-col' : 'flex-row sm:flex-col'}
+      flex items-center justify-center
+      ${orientation === 'vertical' 
+        ? 'flex-col gap-2' 
+        : 'flex-row gap-1 bg-slate-100 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700 rounded-full px-1 py-1 sm:flex-col sm:bg-transparent sm:dark:bg-transparent sm:border-none sm:p-0 sm:gap-2'}
     `}>
       {/* Upvote Button */}
       <button
@@ -58,7 +60,6 @@ export default function VoteSection({
           ${disabled ? 'cursor-not-allowed opacity-50' : 'cursor-pointer'}
         `}
         title={disabled ? 'Login untuk voting' : userVote === 'upvote' ? 'Batalkan upvote' : 'Upvote'}
-        disabled={disabled && !showLoginHint}
       >
         <ChevronUp
           className={iconSizeClasses[size]}
@@ -69,10 +70,10 @@ export default function VoteSection({
       {/* Vote Count */}
       <div className={`
         flex flex-col items-center justify-center
-        ${orientation === 'horizontal' ? 'mx-2' : 'my-1'}
+        ${orientation === 'horizontal' ? 'mx-1' : 'my-1'}
       `}>
         <div className={`
-          text-xl sm:text-2xl font-medium
+          ${sizeClasses[size]} font-medium
           ${userVote === 'upvote'
             ? 'text-emerald-600 dark:text-emerald-400'
             : userVote === 'downvote'
@@ -96,7 +97,6 @@ export default function VoteSection({
           ${disabled ? 'cursor-not-allowed opacity-50' : 'cursor-pointer'}
         `}
         title={disabled ? 'Login untuk voting' : userVote === 'downvote' ? 'Batalkan downvote' : 'Downvote'}
-        disabled={disabled && !showLoginHint}
       >
         <ChevronDown
           className={iconSizeClasses[size]}
@@ -107,7 +107,7 @@ export default function VoteSection({
       {/* Login hint for guests */}
       {disabled && showLoginHint && orientation === 'vertical' && (
         <div className="mt-2 text-[11px] text-gray-400 dark:text-gray-500 truncate">
-          login to vote
+          Login
         </div>
       )}
     </div>

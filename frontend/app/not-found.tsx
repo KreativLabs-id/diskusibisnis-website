@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import { Home, Compass, ArrowLeft, Search } from 'lucide-react';
+import { Home, Compass, Search } from 'lucide-react';
 
 // Force dynamic rendering
 export const dynamic = 'force-dynamic';
@@ -10,12 +10,12 @@ export default function NotFound() {
   return (
     <div className="min-h-screen flex flex-col items-center justify-center p-4 sm:p-6 bg-white dark:bg-slate-950 transition-colors duration-200">
       <div className="w-full max-w-md text-center">
-        
+
         {/* Minimalist Icon */}
         <div className="mx-auto mb-6 flex items-center justify-center text-emerald-600 dark:text-emerald-400">
           <Compass className="w-12 h-12 opacity-80" />
         </div>
-        
+
         <h1 className="text-4xl font-black text-slate-900 dark:text-slate-100 mb-3 tracking-tight">
           404
         </h1>
@@ -34,7 +34,7 @@ export default function NotFound() {
             <Home className="w-4 h-4" />
             Beranda
           </Link>
-          
+
           <Link
             href="/explore"
             className="flex items-center justify-center gap-2 w-full sm:w-auto py-2.5 px-6 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 rounded-full font-bold transition-all active:scale-[0.98] text-sm"
