@@ -15,7 +15,14 @@ import {
   Plus,
   Tag,
   LayoutGrid,
-  X
+  X,
+  Utensils,
+  Store,
+  Briefcase,
+  MonitorSmartphone,
+  Building,
+  Sprout,
+  Ship
 } from 'lucide-react';
 import { communityAPI } from '@/lib/api';
 import { cn, formatNumber } from '@/lib/utils';
@@ -63,11 +70,13 @@ export default function CommunitiesPage() {
 
   const categories = [
     { value: 'all', label: 'Semua Kategori' },
-    { value: 'Regional', label: 'Regional' },
-    { value: 'Marketing', label: 'Marketing' },
-    { value: 'Industri', label: 'Industri' },
-    { value: 'Perdagangan', label: 'Perdagangan' },
-    { value: 'Teknologi', label: 'Teknologi' }
+    { value: 'fnb', label: 'F&B & Kuliner' },
+    { value: 'retail', label: 'Retail & Toko' },
+    { value: 'jasa', label: 'Jasa & Agensi' },
+    { value: 'teknologi', label: 'Teknologi' },
+    { value: 'properti', label: 'Properti' },
+    { value: 'agribisnis', label: 'Agribisnis' },
+    { value: 'export', label: 'Ekspor Impor' }
   ];
 
   if (loading) {
@@ -123,95 +132,49 @@ export default function CommunitiesPage() {
           </Link>
         </div>
 
-        {/* Desktop: Integrated Search & Filter */}
-        <div 
-          className="hidden lg:block sticky z-40 mb-6"
-          style={{ top: 'calc(var(--header-height, 64px) + 0.5rem)' }}
-        >
-          <div className="bg-white/80 dark:bg-slate-900/80 backdrop-blur-md border border-slate-200 dark:border-slate-800 rounded-xl p-1.5 shadow-sm flex flex-row gap-2">
-            <div className="relative flex-1">
-              <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
-              <input
-                type="text"
-                placeholder="Cari komunitas berdasarkan nama atau topik..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full bg-transparent pl-10 pr-9 py-2 text-sm text-slate-900 dark:text-white placeholder:text-slate-400 outline-none"
-              />
-              {searchQuery && (
-                <button
-                  onClick={() => setSearchQuery('')}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 p-0.5 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 transition-colors"
-                  aria-label="Hapus pencarian"
-                >
-                  <X className="w-3.5 h-3.5" />
-                </button>
-              )}
-            </div>
-            <div className="flex gap-1 p-0.5 bg-slate-100 dark:bg-slate-800 rounded-lg overflow-x-auto scrollbar-hide max-w-2xl">
+        {/* Search & Filter Section */}
+        <div className="mb-10 space-y-5">
+          {/* Search Bar */}
+          <div className="relative max-w-2xl">
+            <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" />
+            <input
+              type="text"
+              placeholder="Cari komunitas berdasarkan nama atau topik..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="w-full bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl pl-12 pr-12 py-4 text-sm text-slate-900 dark:text-white placeholder:text-slate-400 outline-none focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/10 transition-all shadow-sm"
+            />
+            {searchQuery && (
+              <button
+                onClick={() => setSearchQuery('')}
+                className="absolute right-4 top-1/2 -translate-y-1/2 p-1.5 bg-slate-100 dark:bg-slate-800 text-slate-500 rounded-full hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors"
+                aria-label="Hapus pencarian"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            )}
+          </div>
+
+          {/* Categories Pills */}
+          <div className="relative -mx-4 px-4 sm:mx-0 sm:px-0">
+            <div className="flex gap-2.5 overflow-x-auto scrollbar-hide pb-2 snap-x">
               {categories.map((category) => (
-                  <button
-                    key={category.value}
-                    onClick={() => setSelectedCategory(category.value)}
-                    className={cn(
-                      "px-4 py-1.5 rounded-md text-xs font-semibold transition-colors whitespace-nowrap flex-shrink-0",
-                      selectedCategory === category.value
-                        ? "bg-white dark:bg-slate-700 text-slate-900 dark:text-white shadow-xs"
-                        : "text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-300"
-                    )}
-                  >
-                    {category.label}
-                  </button>
+                <button
+                  key={category.value}
+                  onClick={() => setSelectedCategory(category.value)}
+                  className={cn(
+                    "px-4 py-2 rounded-full text-[13px] font-semibold transition-all whitespace-nowrap border snap-start",
+                    selectedCategory === category.value
+                      ? "bg-emerald-600 border-emerald-600 text-white shadow-md shadow-emerald-500/20"
+                      : "bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 text-slate-600 dark:text-slate-300 hover:border-emerald-500 hover:text-emerald-600 dark:hover:text-emerald-400 shadow-sm"
+                  )}
+                >
+                  {category.label}
+                </button>
               ))}
             </div>
-          </div>
-        </div>
-
-        {/* Mobile: In-Page Search */}
-        <div className="block lg:hidden mb-3">
-          <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl p-1 shadow-xs flex items-center">
-            <div className="relative flex-1 flex items-center">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
-              <input
-                type="text"
-                placeholder="Cari komunitas..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full bg-transparent pl-9 pr-8 py-2 text-sm text-slate-900 dark:text-white placeholder:text-slate-400 outline-none"
-              />
-              {searchQuery && (
-                <button
-                  onClick={() => setSearchQuery('')}
-                  className="absolute right-2.5 top-1/2 -translate-y-1/2 p-0.5 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 transition-colors"
-                  aria-label="Hapus pencarian"
-                >
-                  <X className="w-3.5 h-3.5" />
-                </button>
-              )}
-            </div>
-          </div>
-        </div>
-
-        {/* Mobile: Sticky Filter Tabs */}
-        <div 
-          className="block lg:hidden sticky z-30 mb-6 -mx-4 px-4 py-2 bg-[#f8fafc]/90 dark:bg-slate-950/90 backdrop-blur-md border-b border-slate-200/60 dark:border-slate-800/60 overflow-x-auto scrollbar-hide"
-          style={{ top: 'var(--header-height, 56px)' }}
-        >
-          <div className="flex gap-2 p-1 bg-slate-200/70 dark:bg-slate-900 rounded-lg w-max min-w-full">
-              {categories.map((category) => (
-                  <button
-                    key={category.value}
-                    onClick={() => setSelectedCategory(category.value)}
-                    className={cn(
-                      "px-4 py-1.5 rounded-md text-xs font-semibold transition-colors whitespace-nowrap flex-shrink-0",
-                      selectedCategory === category.value
-                        ? "bg-white dark:bg-slate-800 text-emerald-600 dark:text-emerald-400 shadow-xs"
-                        : "text-slate-500 hover:text-slate-700 dark:hover:text-slate-300"
-                    )}
-                  >
-                    {category.label}
-                  </button>
-              ))}
+            {/* Edge fade gradient for scroll indicator */}
+            <div className="absolute top-0 right-0 bottom-2 w-12 bg-gradient-to-l from-[#f8fafc] dark:from-slate-950 to-transparent pointer-events-none sm:hidden"></div>
           </div>
         </div>
 
