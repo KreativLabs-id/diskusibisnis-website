@@ -22,14 +22,14 @@ export default function Navbar({ onMenuClick }: NavbarProps) {
   const { user, logout, loading, forceRefreshUser } = useAuth();
   const [showUserMenu, setShowUserMenu] = useState(false);
   const userMenuRef = useRef<HTMLDivElement>(null);
-  
+
   const searchCtx = useSearch();
   const searchInput = searchCtx?.searchInput ?? '';
   const isNavbarSearchOpen = searchCtx?.isNavbarSearchOpen ?? false;
   const isScrolled = searchCtx?.isScrolled ?? false;
-  const setIsNavbarSearchOpen = searchCtx?.setIsNavbarSearchOpen ?? (() => {});
-  const handleSearchChange = searchCtx?.handleSearchChange ?? (() => {});
-  const handleSearchClear = searchCtx?.handleSearchClear ?? (() => {});
+  const setIsNavbarSearchOpen = searchCtx?.setIsNavbarSearchOpen ?? (() => { });
+  const handleSearchChange = searchCtx?.handleSearchChange ?? (() => { });
+  const handleSearchClear = searchCtx?.handleSearchClear ?? (() => { });
 
   // Close dropdown when clicking outside
   useEffect(() => {
@@ -53,248 +53,248 @@ export default function Navbar({ onMenuClick }: NavbarProps) {
       <TopBanner />
       <nav className="w-full bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800 transition-colors duration-200 relative">
         <div className="container mx-auto px-3 sm:px-4">
-        <div className="flex items-center justify-between h-14 sm:h-16 gap-2">
-          {/* Mobile Search Active Mode */}
-          {isNavbarSearchOpen ? (
-            <div className="flex lg:hidden items-center gap-2 w-full py-1 animate-in fade-in duration-200">
-              <button
-                onClick={() => setIsNavbarSearchOpen(false)}
-                className="p-2 text-slate-500 hover:text-slate-800 dark:text-slate-400 dark:hover:text-slate-200 rounded-xl hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors shrink-0"
-                aria-label="Kembali"
-              >
-                <ArrowLeft className="w-5 h-5" />
-              </button>
-              <div className="relative flex-1">
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
-                <input
-                  type="text"
-                  autoFocus
-                  value={searchInput}
-                  onChange={(e) => {
-                    handleSearchChange(e);
-                    if (e.target.value.trim() !== '') searchCtx?.setIsSearchDropdownOpen(true);
-                    else searchCtx?.setIsSearchDropdownOpen(false);
-                  }}
-                  onKeyDown={searchCtx?.handleSearchSubmit}
-                  onFocus={() => {
-                    if (searchInput.trim() !== '') searchCtx?.setIsSearchDropdownOpen(true);
-                  }}
-                  placeholder="Cari diskusi, topik, atau kata kunci..."
-                  className="w-full bg-slate-100 dark:bg-slate-800 text-slate-900 dark:text-white pl-9 pr-9 py-2 rounded-xl text-sm outline-none focus:ring-2 focus:ring-emerald-500/30"
-                />
-                {searchInput && (
-                  <button
-                    onClick={handleSearchClear}
-                    className="absolute right-2.5 top-1/2 -translate-y-1/2 p-0.5 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200"
-                    aria-label="Hapus"
-                  >
-                    <X className="w-4 h-4" />
-                  </button>
-                )}
-                
-                {/* Global Search Dropdown */}
-                <GlobalSearchDropdown />
-              </div>
-            </div>
-          ) : (
-            <>
-              {/* Mobile Left Slot: Search Button */}
-              <div className="flex lg:hidden items-center shrink-0 w-9">
+          <div className="flex items-center justify-between h-14 sm:h-16 gap-2">
+            {/* Mobile Search Active Mode */}
+            {isNavbarSearchOpen ? (
+              <div className="flex lg:hidden items-center gap-2 w-full py-1 animate-in fade-in duration-200">
                 <button
-                  onClick={() => setIsNavbarSearchOpen(true)}
-                  className="p-2 rounded-xl text-slate-600 dark:text-slate-300 hover:text-emerald-600 dark:hover:text-emerald-400 hover:bg-slate-100 dark:hover:bg-slate-800 transition-all animate-in fade-in duration-200"
-                  aria-label="Cari diskusi"
+                  onClick={() => setIsNavbarSearchOpen(false)}
+                  className="p-2 text-slate-500 hover:text-slate-800 dark:text-slate-400 dark:hover:text-slate-200 rounded-xl hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors shrink-0"
+                  aria-label="Kembali"
                 >
-                  <Search className="w-5 h-5" />
+                  <ArrowLeft className="w-5 h-5" />
                 </button>
-              </div>
-
-              {/* Mobile Menu Button - Hidden as we use Bottom Nav & Discovery Page */}
-              <button
-                onClick={onMenuClick}
-                className="hidden lg:hidden p-2 rounded-lg hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors shrink-0"
-              >
-                <Menu className="w-5 h-5 sm:w-6 sm:h-6 text-slate-700 dark:text-slate-200" />
-              </button>
-
-              {/* Logo - Centered on mobile, left on desktop */}
-              <Link href="/" className="group flex-1 lg:flex-none text-center lg:text-left">
-                <span className="text-lg sm:text-xl lg:text-2xl font-bold bg-gradient-to-r from-emerald-600 to-emerald-700 bg-clip-text text-transparent group-hover:from-emerald-700 group-hover:to-emerald-800 transition-all duration-200">
-                  DiskusiBisnis
-                </span>
-              </Link>
-              
-              {/* Desktop Global Search */}
-              <div className="hidden lg:flex flex-1 max-w-xl mx-8 relative">
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
-                <input
-                  type="text"
-                  value={searchInput}
-                  onChange={(e) => {
-                    handleSearchChange(e);
-                    if (e.target.value.trim() !== '') searchCtx?.setIsSearchDropdownOpen(true);
-                    else searchCtx?.setIsSearchDropdownOpen(false);
-                  }}
-                  onKeyDown={searchCtx?.handleSearchSubmit}
-                  onFocus={() => {
-                    if (searchInput.trim() !== '') searchCtx?.setIsSearchDropdownOpen(true);
-                  }}
-                  placeholder="Cari diskusi, topik, komunitas..."
-                  className="w-full bg-slate-100 dark:bg-slate-800 text-slate-900 dark:text-white pl-10 pr-9 py-2 rounded-xl text-sm outline-none focus:ring-2 focus:ring-emerald-500/30 transition-shadow"
-                />
-                {searchInput && (
-                  <button
-                    onClick={handleSearchClear}
-                    className="absolute right-2.5 top-1/2 -translate-y-1/2 p-0.5 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200"
-                    aria-label="Hapus"
-                  >
-                    <X className="w-4 h-4" />
-                  </button>
-                )}
-                
-                {/* Global Search Dropdown */}
-                <GlobalSearchDropdown />
-              </div>
-            </>
-          )}
-
-          {/* Navigation - Mobile Optimized */}
-          <div className={`items-center justify-end gap-1.5 sm:gap-2 shrink-0 min-w-[36px] lg:min-w-0 ${isNavbarSearchOpen ? 'hidden lg:flex' : 'flex'}`}>
-            {loading ? (
-              <div className="hidden lg:flex w-8 h-8 items-center justify-center">
-                <div className="animate-spin rounded-full h-5 w-5 border-2 border-emerald-600 border-t-transparent"></div>
-              </div>
-            ) : user ? (
-              <>
-                {/* Desktop: Full Tanya Button */}
-                <Link
-                  href="/ask"
-                  className="hidden md:flex items-center gap-2 px-4 py-2 bg-emerald-600 text-white rounded-xl hover:bg-emerald-700 transition-all font-bold text-sm shadow-sm active:scale-95"
-                >
-                  <Plus className="w-4 h-4" />
-                  <span>Tanya Sesuatu</span>
-                </Link>
-
-                {/* Notification - All devices (Hidden on mobile) */}
-                <div className="hidden lg:block">
-                  <NotificationDropdown />
-                </div>
-
-                {/* User Menu */}
-                <div className="relative hidden lg:block" ref={userMenuRef}>
-                  <button
-                    onClick={() => setShowUserMenu(!showUserMenu)}
-                    className="flex items-center gap-2 p-1.5 sm:p-2 hover:bg-slate-50 dark:hover:bg-slate-800 rounded-xl transition-colors group"
-                  >
-                    <UserAvatar
-                      src={user.avatarUrl}
-                      alt={user.displayName || 'User'}
-                      size="sm"
-                      fallbackName={user.displayName}
-                      className="border-2 border-slate-100 dark:border-slate-700 group-hover:border-emerald-500 transition-colors"
-                    />
-                    <div className="text-left hidden lg:block">
-                      <span className="text-sm font-bold text-slate-900 dark:text-slate-100 block leading-tight">{user.displayName || 'User'}</span>
-                      {(user.reputationPoints || 0) >= 10 && (
-                        <span className="text-[10px] font-bold text-emerald-600 dark:text-emerald-400">
-                        {user.reputationPoints} poin
-                      </span>
-                      )}
-                    </div>
-                    <ChevronDown className="w-4 h-4 text-slate-400 dark:text-slate-500 hidden lg:block" />
-                  </button>
-
-                  {showUserMenu && (
-                    <div className="absolute right-0 mt-3 w-52 sm:w-64 bg-white/80 dark:bg-slate-900/80 backdrop-blur-md border border-slate-200 dark:border-slate-800 rounded-xl p-1.5 shadow-sm z-50 flex flex-col gap-1">
-                      <div className="px-3 py-3 mb-1 bg-slate-50/50 dark:bg-slate-800/50 rounded-lg">
-                        <div className="flex items-center gap-3">
-                          <UserAvatar
-                            src={user.avatarUrl}
-                            alt={user.displayName || 'User'}
-                            size="md"
-                            fallbackName={user.displayName}
-                            className="ring-2 ring-emerald-500/20"
-                          />
-                          <div className="min-w-0 flex-1">
-                            <div className="flex items-center gap-2">
-                              <p className="text-sm font-bold text-slate-900 dark:text-slate-100 truncate">{user.displayName || 'User'}</p>
-                              <VerifiedBadge isVerified={user.isVerified} size="sm" />
-                            </div>
-                            <div className="flex items-center mt-0.5">
-                              <span className="px-2 py-0.5 bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 rounded-md text-[10px] font-bold">
-                                {user.reputationPoints || 0} poin
-                              </span>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                      
-                      <Link
-                        href={getProfileHref(user)}
-                        className="flex items-center space-x-3 px-3 py-2 text-slate-700 dark:text-slate-200 hover:bg-white dark:hover:bg-slate-800 hover:text-emerald-600 dark:hover:text-emerald-400 transition-all duration-200 rounded-md"
-                        onClick={() => setShowUserMenu(false)}
-                      >
-                        <User className="w-4 h-4" />
-                        <span className="text-sm font-semibold">Profil Saya</span>
-                      </Link>
-                      
-                      {user.role === 'admin' && (
-                        <Link
-                          href="/admin"
-                          className="flex items-center space-x-3 px-3 py-2 text-emerald-700 dark:text-emerald-400 hover:bg-emerald-50 dark:hover:bg-emerald-900/20 transition-all duration-200 rounded-md bg-emerald-50/50 dark:bg-emerald-900/10"
-                          onClick={() => setShowUserMenu(false)}
-                        >
-                          <Shield className="w-4 h-4" />
-                          <span className="text-sm font-semibold">Panel Admin</span>
-                        </Link>
-                      )}
-                      
-                      <Link
-                        href="/settings"
-                        className="flex items-center space-x-3 px-3 py-2 text-slate-700 dark:text-slate-200 hover:bg-white dark:hover:bg-slate-800 hover:text-emerald-600 dark:hover:text-emerald-400 transition-all duration-200 rounded-md"
-                        onClick={() => setShowUserMenu(false)}
-                      >
-                        <Settings className="w-4 h-4" />
-                        <span className="text-sm font-semibold">Pengaturan</span>
-                      </Link>
-                      
-                      <div className="h-px bg-slate-200/60 dark:bg-slate-700/60 my-0.5" />
-                      
-                      <button
-                        onClick={logout}
-                        className="flex items-center space-x-3 w-full px-3 py-2 text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 transition-all duration-200 rounded-md"
-                      >
-                        <LogOut className="w-4 h-4" />
-                        <span className="text-sm font-semibold">Keluar</span>
-                      </button>
-                    </div>
+                <div className="relative flex-1">
+                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+                  <input
+                    type="text"
+                    autoFocus
+                    value={searchInput}
+                    onChange={(e) => {
+                      handleSearchChange(e);
+                      if (e.target.value.trim() !== '') searchCtx?.setIsSearchDropdownOpen(true);
+                      else searchCtx?.setIsSearchDropdownOpen(false);
+                    }}
+                    onKeyDown={searchCtx?.handleSearchSubmit}
+                    onFocus={() => {
+                      if (searchInput.trim() !== '') searchCtx?.setIsSearchDropdownOpen(true);
+                    }}
+                    placeholder="Cari diskusi, topik, atau kata kunci..."
+                    className="w-full bg-slate-100 dark:bg-slate-800 text-slate-900 dark:text-white pl-9 pr-9 py-2 rounded-xl text-sm outline-none focus:ring-2 focus:ring-emerald-500/30"
+                  />
+                  {searchInput && (
+                    <button
+                      onClick={handleSearchClear}
+                      className="absolute right-2.5 top-1/2 -translate-y-1/2 p-0.5 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200"
+                      aria-label="Hapus"
+                    >
+                      <X className="w-4 h-4" />
+                    </button>
                   )}
+
+                  {/* Global Search Dropdown */}
+                  <GlobalSearchDropdown />
                 </div>
-              </>
+              </div>
             ) : (
               <>
-                {/* Desktop: Login/Register buttons - Hidden on mobile as they are in bottom nav */}
-                <div className="hidden md:flex items-center gap-2 sm:gap-4">
-                  <Link
-                    href="/login"
-                    className="px-4 py-2 sm:px-5 sm:py-2.5 text-slate-600 dark:text-slate-300 hover:text-emerald-600 dark:hover:text-emerald-400 transition-all duration-200 font-bold text-xs sm:text-sm rounded-xl hover:bg-slate-50 dark:hover:bg-slate-800"
+                {/* Mobile Left Slot: Search Button */}
+                <div className="flex lg:hidden items-center shrink-0 w-9">
+                  <button
+                    onClick={() => setIsNavbarSearchOpen(true)}
+                    className="p-2 rounded-xl text-slate-600 dark:text-slate-300 hover:text-emerald-600 dark:hover:text-emerald-400 hover:bg-slate-100 dark:hover:bg-slate-800 transition-all animate-in fade-in duration-200"
+                    aria-label="Cari diskusi"
                   >
-                    Masuk
-                  </Link>
-                  <Link
-                    href="/register"
-                    className="px-4 py-2 sm:px-5 sm:py-2.5 bg-emerald-600 dark:bg-emerald-500 text-white rounded-xl hover:bg-emerald-700 dark:hover:bg-emerald-400 transition-all duration-200 font-bold text-xs sm:text-sm shadow-md shadow-emerald-500/20 active:scale-95"
-                  >
-                    Daftar
-                  </Link>
+                    <Search className="w-5 h-5" />
+                  </button>
+                </div>
+
+                {/* Mobile Menu Button - Hidden as we use Bottom Nav & Discovery Page */}
+                <button
+                  onClick={onMenuClick}
+                  className="hidden lg:hidden p-2 rounded-lg hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors shrink-0"
+                >
+                  <Menu className="w-5 h-5 sm:w-6 sm:h-6 text-slate-700 dark:text-slate-200" />
+                </button>
+
+                {/* Logo - Centered on mobile, left on desktop */}
+                <Link href="/" className="group flex-1 lg:flex-none text-center lg:text-left">
+                  <span className="text-lg sm:text-xl lg:text-2xl font-bold bg-gradient-to-r from-emerald-600 to-emerald-700 bg-clip-text text-transparent group-hover:from-emerald-700 group-hover:to-emerald-800 transition-all duration-200">
+                    DiskusiBisnis
+                  </span>
+                </Link>
+
+                {/* Desktop Global Search */}
+                <div className="hidden lg:flex flex-1 max-w-xl mx-8 relative">
+                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+                  <input
+                    type="text"
+                    value={searchInput}
+                    onChange={(e) => {
+                      handleSearchChange(e);
+                      if (e.target.value.trim() !== '') searchCtx?.setIsSearchDropdownOpen(true);
+                      else searchCtx?.setIsSearchDropdownOpen(false);
+                    }}
+                    onKeyDown={searchCtx?.handleSearchSubmit}
+                    onFocus={() => {
+                      if (searchInput.trim() !== '') searchCtx?.setIsSearchDropdownOpen(true);
+                    }}
+                    placeholder="Cari diskusi, topik, komunitas..."
+                    className="w-full bg-slate-100 dark:bg-slate-800 text-slate-900 dark:text-white pl-10 pr-9 py-2 rounded-xl text-sm outline-none focus:ring-2 focus:ring-emerald-500/30 transition-shadow"
+                  />
+                  {searchInput && (
+                    <button
+                      onClick={handleSearchClear}
+                      className="absolute right-2.5 top-1/2 -translate-y-1/2 p-0.5 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200"
+                      aria-label="Hapus"
+                    >
+                      <X className="w-4 h-4" />
+                    </button>
+                  )}
+
+                  {/* Global Search Dropdown */}
+                  <GlobalSearchDropdown />
                 </div>
               </>
             )}
+
+            {/* Navigation - Mobile Optimized */}
+            <div className={`items-center justify-end gap-1.5 sm:gap-2 shrink-0 min-w-[36px] lg:min-w-0 ${isNavbarSearchOpen ? 'hidden lg:flex' : 'flex'}`}>
+              {loading ? (
+                <div className="hidden lg:flex w-8 h-8 items-center justify-center">
+                  <div className="animate-spin rounded-full h-5 w-5 border-2 border-emerald-600 border-t-transparent"></div>
+                </div>
+              ) : user ? (
+                <>
+                  {/* Desktop: Full Tanya Button */}
+                  <Link
+                    href="/ask"
+                    className="hidden md:flex items-center gap-2 px-4 py-2 bg-emerald-600 text-white rounded-xl hover:bg-emerald-700 transition-all font-bold text-sm shadow-sm active:scale-95"
+                  >
+                    <Plus className="w-4 h-4" />
+                    <span>Tanya Sesuatu</span>
+                  </Link>
+
+                  {/* Notification - All devices (Hidden on mobile) */}
+                  <div className="hidden lg:block">
+                    <NotificationDropdown />
+                  </div>
+
+                  {/* User Menu */}
+                  <div className="relative hidden lg:block" ref={userMenuRef}>
+                    <button
+                      onClick={() => setShowUserMenu(!showUserMenu)}
+                      className="flex items-center gap-2 p-1.5 sm:p-2 hover:bg-slate-50 dark:hover:bg-slate-800 rounded-xl transition-colors group"
+                    >
+                      <UserAvatar
+                        src={user.avatarUrl}
+                        alt={user.displayName || 'User'}
+                        size="sm"
+                        fallbackName={user.displayName}
+                        className="border-2 border-slate-100 dark:border-slate-700 group-hover:border-emerald-500 transition-colors"
+                      />
+                      <div className="text-left hidden lg:block">
+                        <span className="text-sm font-bold text-slate-900 dark:text-slate-100 block leading-tight">{user.displayName || 'User'}</span>
+                        {(user.reputationPoints || 0) >= 10 && (
+                          <span className="text-[10px] font-bold text-emerald-600 dark:text-emerald-400">
+                            {user.reputationPoints} poin
+                          </span>
+                        )}
+                      </div>
+                      <ChevronDown className="w-4 h-4 text-slate-400 dark:text-slate-500 hidden lg:block" />
+                    </button>
+
+                    {showUserMenu && (
+                      <div className="absolute right-0 mt-3 w-52 sm:w-64 bg-white/80 dark:bg-slate-900/80 backdrop-blur-md border border-slate-200 dark:border-slate-800 rounded-xl p-1.5 shadow-sm z-50 flex flex-col gap-1">
+                        <div className="px-3 py-3 mb-1 bg-slate-50/50 dark:bg-slate-800/50 rounded-lg">
+                          <div className="flex items-center gap-3">
+                            <UserAvatar
+                              src={user.avatarUrl}
+                              alt={user.displayName || 'User'}
+                              size="md"
+                              fallbackName={user.displayName}
+                              className="ring-2 ring-emerald-500/20"
+                            />
+                            <div className="min-w-0 flex-1">
+                              <div className="flex items-center gap-2">
+                                <p className="text-sm font-bold text-slate-900 dark:text-slate-100 truncate">{user.displayName || 'User'}</p>
+                                <VerifiedBadge isVerified={user.isVerified} size="sm" />
+                              </div>
+                              <div className="flex items-center mt-0.5">
+                                <span className="px-2 py-0.5 bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 rounded-md text-[10px] font-bold">
+                                  {user.reputationPoints || 0} poin
+                                </span>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+
+                        <Link
+                          href={getProfileHref(user)}
+                          className="flex items-center space-x-3 px-3 py-2 text-slate-700 dark:text-slate-200 hover:bg-white dark:hover:bg-slate-800 hover:text-emerald-600 dark:hover:text-emerald-400 transition-all duration-200 rounded-md"
+                          onClick={() => setShowUserMenu(false)}
+                        >
+                          <User className="w-4 h-4" />
+                          <span className="text-sm font-semibold">Profil Saya</span>
+                        </Link>
+
+                        {user.role === 'admin' && (
+                          <Link
+                            href="/admin"
+                            className="flex items-center space-x-3 px-3 py-2 text-emerald-700 dark:text-emerald-400 hover:bg-emerald-50 dark:hover:bg-emerald-900/20 transition-all duration-200 rounded-md bg-emerald-50/50 dark:bg-emerald-900/10"
+                            onClick={() => setShowUserMenu(false)}
+                          >
+                            <Shield className="w-4 h-4" />
+                            <span className="text-sm font-semibold">Panel Admin</span>
+                          </Link>
+                        )}
+
+                        <Link
+                          href="/settings"
+                          className="flex items-center space-x-3 px-3 py-2 text-slate-700 dark:text-slate-200 hover:bg-white dark:hover:bg-slate-800 hover:text-emerald-600 dark:hover:text-emerald-400 transition-all duration-200 rounded-md"
+                          onClick={() => setShowUserMenu(false)}
+                        >
+                          <Settings className="w-4 h-4" />
+                          <span className="text-sm font-semibold">Pengaturan</span>
+                        </Link>
+
+                        <div className="h-px bg-slate-200/60 dark:bg-slate-700/60 my-0.5" />
+
+                        <button
+                          onClick={logout}
+                          className="flex items-center space-x-3 w-full px-3 py-2 text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 transition-all duration-200 rounded-md"
+                        >
+                          <LogOut className="w-4 h-4" />
+                          <span className="text-sm font-semibold">Keluar</span>
+                        </button>
+                      </div>
+                    )}
+                  </div>
+                </>
+              ) : (
+                <>
+                  {/* Desktop: Login/Register buttons - Hidden on mobile as they are in bottom nav */}
+                  <div className="hidden md:flex items-center gap-2 sm:gap-4">
+                    <Link
+                      href="/login"
+                      className="px-4 py-2 text-slate-600 dark:text-slate-300 hover:text-emerald-600 dark:hover:text-emerald-400 transition-colors font-bold text-sm rounded-full hover:bg-slate-50 dark:hover:bg-slate-800"
+                    >
+                      Masuk
+                    </Link>
+                    <Link
+                      href="/register"
+                      className="px-5 py-2 bg-emerald-600 dark:bg-emerald-500 text-white rounded-full font-bold text-sm hover:bg-emerald-700 dark:hover:bg-emerald-400 transition-colors"
+                    >
+                      Daftar
+                    </Link>
+                  </div>
+                </>
+              )}
+            </div>
+
           </div>
 
         </div>
-
-      </div>
 
       </nav>
     </header>
