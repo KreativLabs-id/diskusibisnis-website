@@ -27,6 +27,7 @@ interface Question {
   views_count: number;
   answers_count: number;
   has_accepted_answer: boolean;
+  has_user_answered?: boolean;
   user_vote?: 'upvote' | 'downvote' | null;
   userVote?: 'upvote' | 'downvote' | null;
   tags: Array<{ id: string; name: string; slug: string }>;
@@ -175,8 +176,10 @@ export default function QuestionCard({ question, onReport, currentUserId }: Ques
         </div>
 
         <div className={cn(
-          "flex items-center gap-1.5 px-3 py-2 rounded-full hover:bg-blue-50 dark:hover:bg-blue-900/20 transition-colors text-sm font-medium",
-          question.answers_count > 0 ? "text-blue-600 dark:text-blue-400" : "text-slate-500 dark:text-slate-400"
+          "flex items-center gap-1.5 px-3 py-2 rounded-full transition-colors text-sm font-medium",
+          question.has_user_answered 
+            ? "text-blue-600 dark:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/20" 
+            : "text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800"
         )}>
           <MessageCircle className="w-4 h-4" />
           <span>{formatNumber(question.answers_count || 0)}</span>

@@ -1,11 +1,19 @@
-'use client';
+"use client";
 
-import { useEffect, useState } from 'react';
-import { adminAPI } from '@/lib/api';
-import { MessageSquare, Search, Trash2, Eye, ThumbsUp, ThumbsDown, MessageCircle } from 'lucide-react';
-import Link from 'next/link';
-import AlertModal from '@/components/ui/AlertModal';
-import ConfirmModal from '@/components/ui/ConfirmModal';
+import { useEffect, useState } from "react";
+import { adminAPI } from "@/lib/api";
+import {
+  MessageSquare,
+  Search,
+  Trash2,
+  Eye,
+  ThumbsUp,
+  ThumbsDown,
+  MessageCircle,
+} from "lucide-react";
+import Link from "next/link";
+import AlertModal from "@/components/ui/AlertModal";
+import ConfirmModal from "@/components/ui/ConfirmModal";
 
 interface Question {
   id: string;
@@ -23,34 +31,38 @@ interface Question {
 
 // Helper function untuk format tanggal dalam bahasa Indonesia
 const formatDate = (dateString: string | null | undefined): string => {
-  if (!dateString) return '';
+  if (!dateString) return "";
   const date = new Date(dateString);
-  if (isNaN(date.getTime())) return '';
-  return date.toLocaleDateString('id-ID', {
-    day: 'numeric',
-    month: 'long',
-    year: 'numeric'
+  if (isNaN(date.getTime())) return "";
+  return date.toLocaleDateString("id-ID", {
+    day: "numeric",
+    month: "long",
+    year: "numeric",
   });
 };
 
 export default function AdminQuestions() {
   const [questions, setQuestions] = useState<Question[]>([]);
   const [questionsLoading, setQuestionsLoading] = useState(true);
-  const [searchTerm, setSearchTerm] = useState('');
+  const [searchTerm, setSearchTerm] = useState("");
   const [alertModal, setAlertModal] = useState<{
     isOpen: boolean;
-    type: 'success' | 'error' | 'warning' | 'info';
+    type: "success" | "error" | "warning" | "info";
     title: string;
     message: string;
-  }>({ isOpen: false, type: 'info', title: '', message: '' });
+  }>({ isOpen: false, type: "info", title: "", message: "" });
   const [confirmModal, setConfirmModal] = useState<{
     isOpen: boolean;
     title: string;
     message: string;
     onConfirm: () => void;
-  }>({ isOpen: false, title: '', message: '', onConfirm: () => {} });
+  }>({ isOpen: false, title: "", message: "", onConfirm: () => {} });
 
-  const showAlert = (type: 'success' | 'error' | 'warning' | 'info', title: string, message: string) => {
+  const showAlert = (
+    type: "success" | "error" | "warning" | "info",
+    title: string,
+    message: string,
+  ) => {
     setAlertModal({ isOpen: true, type, title, message });
   };
 
@@ -64,7 +76,7 @@ export default function AdminQuestions() {
       const response = await adminAPI.getQuestions();
       setQuestions(response.data.data.questions);
     } catch (error) {
-      console.error('Error fetching questions:', error);
+      console.error("Error fetching questions:", error);
     } finally {
       setQuestionsLoading(false);
     }
@@ -73,30 +85,31 @@ export default function AdminQuestions() {
   const handleDeleteQuestion = (questionId: string, title: string) => {
     setConfirmModal({
       isOpen: true,
-      title: 'Hapus Pertanyaan',
+      title: "Hapus Pertanyaan",
       message: `Apakah Anda yakin ingin menghapus pertanyaan "${title}"? Tindakan ini tidak dapat dibatalkan dan akan menghapus semua jawaban dan vote.`,
       onConfirm: async () => {
         try {
           await adminAPI.deleteQuestion(questionId);
-          showAlert('success', 'Berhasil', 'Pertanyaan telah dihapus');
+          showAlert("success", "Berhasil", "Pertanyaan telah dihapus");
           fetchQuestions(); // Refresh the list
         } catch (error) {
-          console.error('Error deleting question:', error);
-          showAlert('error', 'Gagal', 'Gagal menghapus pertanyaan');
+          console.error("Error deleting question:", error);
+          showAlert("error", "Gagal", "Gagal menghapus pertanyaan");
         }
-      }
+      },
     });
   };
 
-  const filteredQuestions = questions.filter(q => 
-    q.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    q.author_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    q.content.toLowerCase().includes(searchTerm.toLowerCase())
+  const filteredQuestions = questions.filter(
+    (q) =>
+      q.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      q.author_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      q.content.toLowerCase().includes(searchTerm.toLowerCase()),
   );
 
   const truncateText = (text: string, maxLength: number) => {
     if (text.length <= maxLength) return text;
-    return text.substring(0, maxLength) + '...';
+    return text.substring(0, maxLength) + "...";
   };
 
   return (
@@ -107,9 +120,13 @@ export default function AdminQuestions() {
           <div className="p-2 bg-green-100 dark:bg-green-900/30 rounded-lg">
             <MessageSquare className="w-6 h-6 text-green-600" />
           </div>
-          <h1 className="text-2xl font-bold text-slate-900 dark:text-white">Kelola Pertanyaan</h1>
+          <h1 className="text-2xl font-bold text-slate-900 dark:text-white">
+            Kelola Pertanyaan
+          </h1>
         </div>
-        <p className="text-slate-600 dark:text-slate-400">Tinjau dan moderasi pertanyaan yang diposting oleh pengguna</p>
+        <p className="text-slate-600 dark:text-slate-400">
+          Tinjau dan moderasi pertanyaan yang diposting oleh pengguna
+        </p>
       </div>
 
       {/* Search */}
@@ -138,9 +155,12 @@ export default function AdminQuestions() {
           </div>
         ) : (
           filteredQuestions.map((question) => (
-            <div key={question.id} className="bg-white rounded-xl border border-slate-200 p-6">
-              <div className="flex items-start justify-between">
-                <div className="flex-1">
+            <div
+              key={question.id}
+              className="bg-white rounded-xl border border-slate-200 p-4 sm:p-6"
+            >
+              <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4">
+                <div className="flex-1 min-w-0 w-full">
                   <div className="flex items-center gap-3 mb-3">
                     <h3 className="text-lg font-semibold text-slate-900 hover:text-green-600">
                       <Link href={`/questions/${question.id}`} target="_blank">
@@ -148,46 +168,52 @@ export default function AdminQuestions() {
                       </Link>
                     </h3>
                   </div>
-                  
+
                   <p className="text-slate-600 mb-4">
                     {truncateText(question.content, 200)}
                   </p>
-                  
-                  <div className="flex items-center gap-6 text-sm text-slate-500 mb-4">
+
+                  <div className="flex flex-wrap items-center gap-x-6 gap-y-2 text-sm text-slate-500 mb-4">
                     <div className="flex items-center gap-1">
-                      <Eye className="w-4 h-4" />
+                      <Eye className="w-4 h-4 shrink-0" />
                       <span>{question.views} dilihat</span>
                     </div>
                     <div className="flex items-center gap-1">
-                      <MessageCircle className="w-4 h-4" />
+                      <MessageCircle className="w-4 h-4 shrink-0" />
                       <span>{question.answer_count} jawaban</span>
                     </div>
                     <div className="flex items-center gap-1">
-                      <ThumbsUp className="w-4 h-4 text-green-600" />
+                      <ThumbsUp className="w-4 h-4 text-green-600 shrink-0" />
                       <span>{question.upvotes}</span>
                     </div>
                     <div className="flex items-center gap-1">
-                      <ThumbsDown className="w-4 h-4 text-red-600" />
+                      <ThumbsDown className="w-4 h-4 text-red-600 shrink-0" />
                       <span>{question.downvotes}</span>
                     </div>
                   </div>
-                  
-                  <div className="flex items-center justify-between">
-                    <div className="text-sm text-slate-500">
-                      <span className="font-medium">{question.author_name}</span>
-                      <span className="mx-2">•</span>
+
+                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                    <div className="text-sm text-slate-500 flex flex-wrap items-center gap-x-2">
+                      <span className="font-medium">
+                        {question.author_name}
+                      </span>
+                      <span className="hidden sm:inline">•</span>
                       <span>{formatDate(question.created_at)}</span>
-                      {question.updated_at && question.updated_at !== question.created_at && formatDate(question.updated_at) && (
-                        <>
-                          <span className="mx-2">•</span>
-                          <span>Diperbarui {formatDate(question.updated_at)}</span>
-                        </>
-                      )}
+                      {question.updated_at &&
+                        question.updated_at !== question.created_at &&
+                        formatDate(question.updated_at) && (
+                          <>
+                            <span className="hidden sm:inline">•</span>
+                            <span>
+                              (Diperbarui {formatDate(question.updated_at)})
+                            </span>
+                          </>
+                        )}
                     </div>
                   </div>
                 </div>
-                
-                <div className="flex items-center gap-2 ml-4">
+
+                <div className="flex items-center gap-2 sm:ml-4 w-full sm:w-auto justify-end border-t border-slate-100 sm:border-0 pt-4 sm:pt-0 mt-2 sm:mt-0 shrink-0">
                   <Link
                     href={`/questions/${question.id}`}
                     target="_blank"
@@ -197,7 +223,9 @@ export default function AdminQuestions() {
                     <Eye className="w-4 h-4" />
                   </Link>
                   <button
-                    onClick={() => handleDeleteQuestion(question.id, question.title)}
+                    onClick={() =>
+                      handleDeleteQuestion(question.id, question.title)
+                    }
                     className="p-2 hover:bg-red-100 text-red-600 rounded-lg transition-colors"
                     title="Hapus pertanyaan"
                   >
@@ -212,7 +240,8 @@ export default function AdminQuestions() {
 
       {/* Summary */}
       <div className="mt-6 text-sm text-slate-500">
-        Menampilkan {filteredQuestions.length} dari {questions.length} pertanyaan
+        Menampilkan {filteredQuestions.length} dari {questions.length}{" "}
+        pertanyaan
       </div>
 
       {/* Alert Modal */}

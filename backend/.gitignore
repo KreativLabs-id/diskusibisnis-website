@@ -58,3 +58,5 @@ backup.sql
 # Debug artifacts
 .clinic/
 .v8flags*
+
+scripts/

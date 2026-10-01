@@ -181,13 +181,10 @@ export const getUserQuestions = async (req: AuthRequest, res: Response): Promise
     const result = await pool.query(`
       SELECT 
         q.id, q.title, q.content, q.views_count, q.is_closed, q.created_at,
-        COUNT(DISTINCT a.id) as answers_count,
-        COUNT(DISTINCT CASE WHEN v.vote_type = 'upvote' THEN v.id END) as upvotes_count
+        (SELECT COUNT(id) FROM public.answers WHERE question_id = q.id) as answers_count,
+        (SELECT COUNT(id) FROM public.votes WHERE question_id = q.id AND vote_type = 'upvote') as upvotes_count
       FROM public.questions q
-      LEFT JOIN public.answers a ON q.id = a.question_id
-      LEFT JOIN public.votes v ON v.question_id = q.id
       WHERE q.author_id = $1
-      GROUP BY q.id
       ORDER BY q.created_at DESC
       LIMIT $2 OFFSET $3
     `, [userId, limit, offset]);
@@ -247,12 +244,10 @@ export const getUserAnswers = async (req: AuthRequest, res: Response): Promise<v
       SELECT 
         a.id, a.content, a.is_accepted, a.created_at,
         q.id as question_id, q.title as question_title,
-        COUNT(DISTINCT CASE WHEN v.vote_type = 'upvote' THEN v.id END) as upvotes_count
+        (SELECT COUNT(id) FROM public.votes WHERE answer_id = a.id AND vote_type = 'upvote') as upvotes_count
       FROM public.answers a
       JOIN public.questions q ON a.question_id = q.id
-      LEFT JOIN public.votes v ON v.answer_id = a.id
       WHERE a.author_id = $1
-      GROUP BY a.id, q.id
       ORDER BY a.created_at DESC
       LIMIT $2 OFFSET $3
     `, [userId, limit, offset]);

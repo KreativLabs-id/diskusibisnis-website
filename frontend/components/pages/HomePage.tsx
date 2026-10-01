@@ -98,7 +98,7 @@ export default function HomePage() {
     }
   }, []);
 
-  const getCacheKey = (sort: string, tag: string | null) => `questions_cache_${user?.id || 'guest'}_${sort}_${tag || 'all'}`;
+  const getCacheKey = (sort: string, tag: string | null) => `questions_cache_v2_${user?.id || 'guest'}_${sort}_${tag || 'all'}`;
 
   const getFromCache = (key: string) => {
     try {
@@ -355,8 +355,8 @@ export default function HomePage() {
               {currentTag
                 ? `Menampilkan diskusi dengan topik ${currentTag.name}.`
                 : searchQuery
-                ? `${filteredQuestions.length} hasil dari ${questions.length} diskusi.`
-                : `Temukan wawasan dari ${questions.length} diskusi aktif UMKM Indonesia.`}
+                ? `Menampilkan hasil pencarian untuk "${searchQuery}".`
+                : `Temukan wawasan berharga dari berbagai diskusi aktif UMKM Indonesia.`}
             </p>
           </div>
           <Link

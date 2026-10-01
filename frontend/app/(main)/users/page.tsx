@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import Link from 'next/link';
 import { Users, Search, Award, ChevronRight, LayoutGrid,
   X, UserPlus
@@ -25,36 +25,68 @@ interface User {
 export default function UsersPage() {
   const [users, setUsers] = useState<User[]>([]);
   const [loading, setLoading] = useState(true);
+  const [page, setPage] = useState(1);
+  const [hasMore, setHasMore] = useState(true);
+  const [loadingMore, setLoadingMore] = useState(false);
+  const [totalUsers, setTotalUsers] = useState(0);
   const [searchQuery, setSearchQuery] = useState('');
+  const [debouncedSearch, setDebouncedSearch] = useState('');
 
   useEffect(() => {
-    fetchUsers();
-  }, []);
+    const timer = setTimeout(() => {
+      setDebouncedSearch(searchQuery);
+    }, 300);
+    return () => clearTimeout(timer);
+  }, [searchQuery]);
 
-  const fetchUsers = async () => {
+  const fetchUsers = useCallback(async (pageNum = 1, append = false) => {
     try {
-      setLoading(true);
-      const response = await userAPI.getAll({ sort: 'reputation' });
+      if (!append) setLoading(true);
+      else setLoadingMore(true);
 
-      // Extract users data correctly
+      const response = await userAPI.getAll({ 
+        sort: 'reputation', 
+        limit: 15, 
+        page: pageNum, 
+        search: debouncedSearch 
+      });
+
       let usersData = [];
+      let total = 0;
+      
       if (response.data.data && response.data.data.users) {
         usersData = response.data.data.users;
+        total = response.data.data.pagination?.total || 0;
       } else if (response.data.users) {
         usersData = response.data.users;
+        total = response.data.pagination?.total || 0;
       }
 
-      setUsers(usersData);
+      if (append) {
+        setUsers(prev => {
+           const existingIds = new Set(prev.map(u => u.id));
+           const filteredNew = usersData.filter((u: any) => !existingIds.has(u.id));
+           return [...prev, ...filteredNew];
+        });
+      } else {
+        setUsers(usersData);
+      }
+      
+      setTotalUsers(total);
+      setHasMore(usersData.length === 15);
+      setPage(pageNum);
     } catch (error) {
       console.error('Error fetching users:', error);
+      if (!append) setUsers([]);
     } finally {
       setLoading(false);
+      setLoadingMore(false);
     }
-  };
+  }, [debouncedSearch]);
 
-  const filteredUsers = users.filter(user =>
-    user.display_name.toLowerCase().includes(searchQuery.toLowerCase())
-  );
+  useEffect(() => {
+    fetchUsers(1, false);
+  }, [fetchUsers]);
 
   if (loading) {
     return (
@@ -95,7 +127,7 @@ export default function UsersPage() {
             Pebisnis & Ahli
           </h1>
           <p className="text-sm text-slate-500 dark:text-slate-400">
-            Terhubung dengan {users.length} pebisnis aktif di komunitas kami.
+            Terhubung dengan {totalUsers} pebisnis aktif di komunitas kami.
           </p>
         </div>
 
@@ -128,7 +160,7 @@ export default function UsersPage() {
         </div>
 
         {/* Users Grid */}
-        {filteredUsers.length === 0 ? (
+        {users.length === 0 ? (
           <div className="py-20 text-center">
             <div className="inline-flex w-16 h-16 bg-slate-100 dark:bg-slate-800 rounded-full items-center justify-center mb-4">
               <Search className="w-8 h-8 text-slate-400" />
@@ -137,8 +169,9 @@ export default function UsersPage() {
             <p className="text-sm text-slate-500 mt-1">Coba gunakan nama lain untuk pencarian kamu.</p>
           </div>
         ) : (
-          <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl overflow-hidden shadow-sm divide-y divide-slate-100 dark:divide-slate-800/60">
-            {filteredUsers.map((user) => (
+          <div className="space-y-4">
+            <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl overflow-hidden shadow-sm divide-y divide-slate-100 dark:divide-slate-800/60">
+              {users.map((user) => (
               <Link
                 key={user.id}
                 href={getProfileHref({ username: user.username, display_name: user.display_name })}
@@ -192,6 +225,18 @@ export default function UsersPage() {
                 <ChevronRight className="w-5 h-5 text-slate-300 dark:text-slate-600 group-hover:text-emerald-500 transition-colors shrink-0" />
               </Link>
             ))}
+            </div>
+            {hasMore && (
+              <div className="flex justify-center pt-4">
+                <button
+                  onClick={() => fetchUsers(page + 1, true)}
+                  disabled={loadingMore}
+                  className="px-6 py-2.5 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 rounded-full font-medium text-sm transition-colors disabled:opacity-50 flex items-center gap-2"
+                >
+                  {loadingMore ? 'Memuat...' : 'Muat Lebih Banyak'}
+                </button>
+              </div>
+            )}
           </div>
         )}
 

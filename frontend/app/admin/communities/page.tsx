@@ -1,9 +1,9 @@
-'use client';
+"use client";
 
-import { useEffect, useState } from 'react';
-import { adminAPI } from '@/lib/api';
-import { Users, Ban, Search, Eye, MessageSquare } from 'lucide-react';
-import Link from 'next/link';
+import { useEffect, useState } from "react";
+import { adminAPI } from "@/lib/api";
+import { Users, Ban, Search, Eye, MessageSquare } from "lucide-react";
+import Link from "next/link";
 
 interface Community {
   id: string;
@@ -20,7 +20,7 @@ interface Community {
 export default function AdminCommunities() {
   const [communities, setCommunities] = useState<Community[]>([]);
   const [communitiesLoading, setCommunitiesLoading] = useState(true);
-  const [searchTerm, setSearchTerm] = useState('');
+  const [searchTerm, setSearchTerm] = useState("");
 
   useEffect(() => {
     fetchCommunities();
@@ -32,7 +32,7 @@ export default function AdminCommunities() {
       const response = await adminAPI.getCommunities();
       setCommunities(response.data.data.communities);
     } catch (error) {
-      console.error('Error fetching communities:', error);
+      console.error("Error fetching communities:", error);
     } finally {
       setCommunitiesLoading(false);
     }
@@ -47,13 +47,14 @@ export default function AdminCommunities() {
       }
       fetchCommunities(); // Refresh the list
     } catch (error) {
-      console.error('Error updating community ban status:', error);
+      console.error("Error updating community ban status:", error);
     }
   };
 
-  const filteredCommunities = communities.filter(c => 
-    c.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    c.description.toLowerCase().includes(searchTerm.toLowerCase())
+  const filteredCommunities = communities.filter(
+    (c) =>
+      c.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      c.description.toLowerCase().includes(searchTerm.toLowerCase()),
   );
 
   return (
@@ -64,9 +65,13 @@ export default function AdminCommunities() {
           <div className="p-2 bg-purple-100 dark:bg-purple-900/30 rounded-lg">
             <Users className="w-6 h-6 text-purple-600" />
           </div>
-          <h1 className="text-2xl font-bold text-slate-900 dark:text-white">Community Management</h1>
+          <h1 className="text-2xl font-bold text-slate-900 dark:text-white">
+            Community Management
+          </h1>
         </div>
-        <p className="text-slate-600 dark:text-slate-400">Manage communities, ban/unban, and monitor activity</p>
+        <p className="text-slate-600 dark:text-slate-400">
+          Manage communities, ban/unban, and monitor activity
+        </p>
       </div>
 
       {/* Search */}
@@ -89,12 +94,24 @@ export default function AdminCommunities() {
           <table className="w-full">
             <thead className="bg-slate-50 border-b border-slate-200">
               <tr>
-                <th className="text-left py-4 px-6 font-semibold text-slate-900">Community</th>
-                <th className="text-left py-4 px-6 font-semibold text-slate-900">Members</th>
-                <th className="text-left py-4 px-6 font-semibold text-slate-900">Questions</th>
-                <th className="text-left py-4 px-6 font-semibold text-slate-900">Status</th>
-                <th className="text-left py-4 px-6 font-semibold text-slate-900">Created</th>
-                <th className="text-left py-4 px-6 font-semibold text-slate-900">Actions</th>
+                <th className="text-left py-4 px-6 font-semibold text-slate-900">
+                  Community
+                </th>
+                <th className="text-left py-4 px-6 font-semibold text-slate-900">
+                  Members
+                </th>
+                <th className="text-left py-4 px-6 font-semibold text-slate-900">
+                  Questions
+                </th>
+                <th className="text-left py-4 px-6 font-semibold text-slate-900">
+                  Status
+                </th>
+                <th className="text-left py-4 px-6 font-semibold text-slate-900">
+                  Created
+                </th>
+                <th className="text-left py-4 px-6 font-semibold text-slate-900">
+                  Actions
+                </th>
               </tr>
             </thead>
             <tbody>
@@ -112,12 +129,21 @@ export default function AdminCommunities() {
                 </tr>
               ) : (
                 filteredCommunities.map((c) => (
-                  <tr key={c.id} className="border-b border-slate-100 hover:bg-slate-50">
+                  <tr
+                    key={c.id}
+                    className="border-b border-slate-100 hover:bg-slate-50"
+                  >
                     <td className="py-4 px-6">
                       <div>
-                        <div className="font-medium text-slate-900">{c.name}</div>
-                        <div className="text-sm text-slate-500">{c.description}</div>
-                        <div className="text-xs text-slate-400 mt-1">/{c.slug}</div>
+                        <div className="font-medium text-slate-900">
+                          {c.name}
+                        </div>
+                        <div className="text-sm text-slate-500">
+                          {c.description}
+                        </div>
+                        <div className="text-xs text-slate-400 mt-1">
+                          /{c.slug}
+                        </div>
                       </div>
                     </td>
                     <td className="py-4 px-6">
@@ -129,21 +155,29 @@ export default function AdminCommunities() {
                     <td className="py-4 px-6">
                       <div className="flex items-center gap-1">
                         <MessageSquare className="w-4 h-4 text-slate-400" />
-                        <span className="text-slate-900">{c.question_count}</span>
+                        <span className="text-slate-900">
+                          {c.question_count}
+                        </span>
                       </div>
                     </td>
                     <td className="py-4 px-6">
-                      <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
-                        c.is_banned 
-                          ? 'bg-red-100 text-red-800' 
-                          : 'bg-green-100 text-green-800'
-                      }`}>
-                        {c.is_banned ? 'Banned' : 'Active'}
+                      <span
+                        className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
+                          c.is_banned
+                            ? "bg-red-100 text-red-800"
+                            : "bg-green-100 text-green-800"
+                        }`}
+                      >
+                        {c.is_banned ? "Banned" : "Active"}
                       </span>
                     </td>
                     <td className="py-4 px-6">
-                      <div className="text-slate-900">{new Date(c.created_at).toLocaleDateString()}</div>
-                      <div className="text-xs text-slate-500">by {c.created_by_name}</div>
+                      <div className="text-slate-900">
+                        {new Date(c.created_at).toLocaleDateString()}
+                      </div>
+                      <div className="text-xs text-slate-500">
+                        by {c.created_by_name}
+                      </div>
                     </td>
                     <td className="py-4 px-6">
                       <div className="flex items-center gap-2">
@@ -159,10 +193,12 @@ export default function AdminCommunities() {
                           onClick={() => handleBanCommunity(c.id, c.is_banned)}
                           className={`p-2 rounded-lg transition-colors ${
                             c.is_banned
-                              ? 'hover:bg-green-100 text-green-600'
-                              : 'hover:bg-orange-100 text-orange-600'
+                              ? "hover:bg-green-100 text-green-600"
+                              : "hover:bg-orange-100 text-orange-600"
                           }`}
-                          title={c.is_banned ? 'Unban community' : 'Ban community'}
+                          title={
+                            c.is_banned ? "Unban community" : "Ban community"
+                          }
                         >
                           <Ban className="w-4 h-4" />
                         </button>

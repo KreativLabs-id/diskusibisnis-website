@@ -90,6 +90,21 @@ export const createOrUpdateVote = async (req: AuthRequest, res: Response): Promi
             [targetId]
           );
 
+          // Deduct points before committing
+          const authorId = targetResult.rows[0].author_id;
+          if (authorId && authorId !== user.id) {
+            const reputationDiff = voteType === 'upvote' ? -10 : 2;
+            await client.query(
+              'UPDATE public.users SET reputation_points = GREATEST(COALESCE(reputation_points, 0) + $1, 0) WHERE id = $2',
+              [reputationDiff, authorId]
+            );
+          }
+          
+          await client.query(
+            `UPDATE public.${targetTable} SET upvotes_count = $1, downvotes_count = $2 WHERE id = $3`,
+            [parseInt(countsResult.rows[0].upvotes_count), parseInt(countsResult.rows[0].downvotes_count), targetId]
+          );
+
           await client.query('COMMIT');
 
           // ✅ Invalidate cache so the homepage shows updated vote counts
@@ -172,6 +187,11 @@ export const createOrUpdateVote = async (req: AuthRequest, res: Response): Promi
           [reputationDiff, authorId]
         );
       }
+      
+      await client.query(
+        `UPDATE public.${targetTable} SET upvotes_count = $1, downvotes_count = $2 WHERE id = $3`,
+        [parseInt(countsResult.rows[0].upvotes_count), parseInt(countsResult.rows[0].downvotes_count), targetId]
+      );
 
       await client.query('COMMIT');
 

@@ -392,19 +392,21 @@ export const getCommunityQuestions = async (req: AuthRequest, res: Response): Pr
       SELECT 
         q.id, q.title, q.content, q.views_count, q.is_closed, q.created_at,
         u.id as author_id, u.username as author_username, u.display_name as author_name, u.avatar_url as author_avatar,
-        COUNT(DISTINCT a.id) as answers_count,
-        COUNT(DISTINCT CASE WHEN v.vote_type = 'upvote' THEN v.id END) as upvotes_count,
+        (SELECT COUNT(id) FROM public.answers WHERE question_id = q.id) as answers_count,
+        (SELECT COUNT(id) FROM public.votes WHERE question_id = q.id AND vote_type = 'upvote') as upvotes_count,
         CASE 
           WHEN $4::uuid IS NOT NULL THEN 
-            (SELECT user_vote.vote_type FROM public.votes user_vote WHERE user_vote.question_id = q.id AND user_vote.user_id = $4)
+            (SELECT vote_type FROM public.votes WHERE question_id = q.id AND user_id = $4)
           ELSE NULL 
-        END as user_vote
+        END as user_vote,
+        CASE 
+          WHEN $4::uuid IS NOT NULL THEN 
+            EXISTS (SELECT 1 FROM public.answers WHERE question_id = q.id AND author_id = $4)
+          ELSE false 
+        END as has_user_answered
       FROM public.questions q
       LEFT JOIN public.users u ON q.author_id = u.id
-      LEFT JOIN public.answers a ON q.id = a.question_id
-      LEFT JOIN public.votes v ON v.question_id = q.id
       WHERE q.community_id = $1
-      GROUP BY q.id, u.id
       ORDER BY q.created_at DESC
       LIMIT $2 OFFSET $3
     `, [communityId, limit, offset, currentUserId]);

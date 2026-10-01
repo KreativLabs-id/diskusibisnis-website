@@ -28,18 +28,19 @@ export const getBookmarks = async (req: AuthRequest, res: Response): Promise<voi
         u.id as author_id, u.username as author_username, u.display_name as author_name, u.avatar_url as author_avatar,
         u.reputation_points as author_reputation,
         COALESCE(u.is_verified, false) as author_is_verified,
-        COUNT(DISTINCT a.id) as answers_count,
-        COUNT(DISTINCT CASE WHEN v.vote_type = 'upvote' THEN v.id END) as upvotes_count,
-        (SELECT user_vote.vote_type FROM public.votes user_vote WHERE user_vote.question_id = q.id AND user_vote.user_id = $1) as user_vote,
-        CASE WHEN COUNT(DISTINCT a_accepted.id) > 0 THEN true ELSE false END as has_accepted_answer
+        COALESCE(q.answers_count, 0) as answers_count,
+        COALESCE(q.upvotes_count, 0) as upvotes_count,
+        (SELECT vote_type FROM public.votes WHERE question_id = q.id AND user_id = $1) as user_vote,
+        COALESCE(q.has_accepted_answer, false) as has_accepted_answer,
+        CASE 
+          WHEN $1::uuid IS NOT NULL THEN 
+            EXISTS (SELECT 1 FROM public.answers WHERE question_id = q.id AND author_id = $1)
+          ELSE false 
+        END as has_user_answered
       FROM public.bookmarks b
       JOIN public.questions q ON b.question_id = q.id
       LEFT JOIN public.users u ON q.author_id = u.id
-      LEFT JOIN public.answers a ON q.id = a.question_id
-      LEFT JOIN public.answers a_accepted ON q.id = a_accepted.question_id AND a_accepted.is_accepted = true
-      LEFT JOIN public.votes v ON v.question_id = q.id
       WHERE b.user_id = $1
-      GROUP BY b.id, q.id, u.id
       ORDER BY b.created_at DESC
       LIMIT $2 OFFSET $3
     `, [user.id, limit, offset]);

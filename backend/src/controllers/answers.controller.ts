@@ -312,6 +312,11 @@ export const acceptAnswer = async (req: AuthRequest, res: Response): Promise<voi
           'UPDATE public.answers SET is_accepted = false WHERE id = $1',
           [answerId]
         );
+        // Update question
+        await client.query(
+          'UPDATE public.questions SET has_accepted_answer = false WHERE id = $1',
+          [answer.question_id]
+        );
         // Remove reputation
         await client.query(
           'UPDATE public.users SET reputation_points = GREATEST(COALESCE(reputation_points, 0) - 15, 0) WHERE id = $1',
@@ -344,6 +349,11 @@ export const acceptAnswer = async (req: AuthRequest, res: Response): Promise<voi
         await client.query(
           'UPDATE public.answers SET is_accepted = true WHERE id = $1',
           [answerId]
+        );
+        // Update question
+        await client.query(
+          'UPDATE public.questions SET has_accepted_answer = true WHERE id = $1',
+          [answer.question_id]
         );
         
         // Add reputation to the newly accepted answer's author

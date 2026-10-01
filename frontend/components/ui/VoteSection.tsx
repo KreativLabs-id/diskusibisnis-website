@@ -46,7 +46,7 @@ export default function VoteSection({
       flex items-center justify-center
       ${orientation === 'vertical' 
         ? 'flex-col gap-2' 
-        : 'flex-row gap-1 bg-slate-100 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700 rounded-full px-1 py-1 sm:flex-col sm:bg-transparent sm:dark:bg-transparent sm:border-none sm:p-0 sm:gap-2'}
+        : 'flex-row gap-1 bg-slate-100 dark:bg-slate-800/50 hover:bg-slate-200/60 dark:hover:bg-slate-800 transition-colors rounded-full px-1 py-1'}
     `}>
       {/* Upvote Button */}
       <button
@@ -69,20 +69,17 @@ export default function VoteSection({
 
       {/* Vote Count */}
       <div className={`
-        flex flex-col items-center justify-center
-        ${orientation === 'horizontal' ? 'mx-1' : 'my-1'}
+        flex items-center justify-center font-bold
+        ${orientation === 'horizontal' ? 'px-2' : 'py-1'}
+        ${sizeClasses[size]}
+        ${userVote === 'upvote'
+          ? 'text-emerald-600 dark:text-emerald-400'
+          : userVote === 'downvote'
+            ? 'text-red-500 dark:text-red-400'
+            : 'text-slate-700 dark:text-slate-300'
+        }
       `}>
-        <div className={`
-          ${sizeClasses[size]} font-medium
-          ${userVote === 'upvote'
-            ? 'text-emerald-600 dark:text-emerald-400'
-            : userVote === 'downvote'
-              ? 'text-red-500 dark:text-red-400'
-              : 'text-gray-700 dark:text-gray-300'
-          }
-        `}>
-          {voteCount}
-        </div>
+        {voteCount}
       </div>
 
       {/* Downvote Button */}

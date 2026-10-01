@@ -55,21 +55,21 @@ export const getQuestions = async (req: AuthRequest, res: Response): Promise<voi
         u.id as author_id, u.username as author_username, u.display_name as author_name, u.avatar_url as author_avatar,
         u.reputation_points as author_reputation, 
         COALESCE(u.is_verified, false) as author_is_verified,
-        COUNT(DISTINCT a.id) as answers_count,
-        COUNT(DISTINCT CASE WHEN v.vote_type = 'upvote' THEN v.id END) as upvotes_count,
+        COALESCE(q.answers_count, 0) as answers_count,
+        COALESCE(q.upvotes_count, 0) as upvotes_count,
         CASE 
           WHEN $1::uuid IS NOT NULL THEN 
             (SELECT user_vote.vote_type FROM public.votes user_vote WHERE user_vote.question_id = q.id AND user_vote.user_id = $1)
           ELSE NULL 
         END as user_vote,
-        CASE WHEN COUNT(DISTINCT a_accepted.id) > 0 THEN true ELSE false END as has_accepted_answer
+        COALESCE(q.has_accepted_answer, false) as has_accepted_answer,
+        CASE 
+          WHEN $1::uuid IS NOT NULL THEN 
+            EXISTS (SELECT 1 FROM public.answers WHERE question_id = q.id AND author_id = $1)
+          ELSE false 
+        END as has_user_answered
       FROM public.questions q
       LEFT JOIN public.users u ON q.author_id = u.id
-      LEFT JOIN public.answers a ON q.id = a.question_id
-      LEFT JOIN public.answers a_accepted ON q.id = a_accepted.question_id AND a_accepted.is_accepted = true
-      LEFT JOIN public.votes v ON v.question_id = q.id
-      LEFT JOIN public.question_tags qt ON q.id = qt.question_id
-      LEFT JOIN public.tags t ON qt.tag_id = t.id
       WHERE q.community_id IS NULL
     `;
 
@@ -83,7 +83,11 @@ export const getQuestions = async (req: AuthRequest, res: Response): Promise<voi
     }
 
     if (tag) {
-      baseQuery += ` AND t.name = $${paramIndex}`;
+      baseQuery += ` AND EXISTS (
+        SELECT 1 FROM public.question_tags qt 
+        JOIN public.tags t ON qt.tag_id = t.id 
+        WHERE qt.question_id = q.id AND t.name = $${paramIndex}
+      )`;
       queryParams.push(tag);
       paramIndex++;
     }
@@ -93,8 +97,6 @@ export const getQuestions = async (req: AuthRequest, res: Response): Promise<voi
     } else if (status === 'answered') {
       baseQuery += ` AND EXISTS (SELECT 1 FROM public.answers WHERE question_id = q.id)`;
     }
-
-    baseQuery += ` GROUP BY q.id, u.id`;
 
     // Add sorting
     switch (sort) {
@@ -332,15 +334,9 @@ export const getQuestionById = async (req: AuthRequest, res: Response): Promise<
         u.id as author_id, u.username as author_username, u.display_name as author_name, u.avatar_url as author_avatar,
         u.reputation_points as author_reputation, 
         COALESCE(u.is_verified, false) as author_is_verified,
-        COALESCE(
-          (SELECT COUNT(*) FROM public.votes v WHERE v.question_id = q.id AND v.vote_type = 'upvote'), 
-          0
-        ) as upvotes_count,
-        COALESCE(
-          (SELECT COUNT(*) FROM public.votes v WHERE v.question_id = q.id AND v.vote_type = 'downvote'), 
-          0
-        ) as downvotes_count,
-        COUNT(DISTINCT a.id) as answers_count,
+        COALESCE(q.upvotes_count, 0) as upvotes_count,
+        COALESCE(q.downvotes_count, 0) as downvotes_count,
+        COALESCE(q.answers_count, 0) as answers_count,
         CASE 
           WHEN $2::uuid IS NOT NULL THEN 
             (SELECT v.vote_type FROM public.votes v WHERE v.question_id = q.id AND v.user_id = $2)
@@ -350,12 +346,15 @@ export const getQuestionById = async (req: AuthRequest, res: Response): Promise<
           WHEN $2::uuid IS NOT NULL THEN 
             EXISTS(SELECT 1 FROM public.bookmarks b WHERE b.question_id = q.id AND b.user_id = $2)
           ELSE FALSE 
-        END as is_bookmarked
+        END as is_bookmarked,
+        CASE 
+          WHEN $2::uuid IS NOT NULL THEN 
+            EXISTS(SELECT 1 FROM public.answers WHERE question_id = q.id AND author_id = $2)
+          ELSE FALSE 
+        END as has_user_answered
       FROM public.questions q
       LEFT JOIN public.users u ON q.author_id = u.id
-      LEFT JOIN public.answers a ON q.id = a.question_id
       WHERE q.id = $1
-      GROUP BY q.id, u.id
     `, [questionId, currentUserId]);
 
     if (result.rows.length === 0) {
@@ -393,14 +392,8 @@ export const getQuestionById = async (req: AuthRequest, res: Response): Promise<
         u.id as author_id, u.username as author_username, u.display_name as author_name, u.avatar_url as author_avatar,
         u.reputation_points as author_reputation, 
         COALESCE(u.is_verified, false) as author_is_verified,
-        COALESCE(
-          (SELECT COUNT(*) FROM public.votes v WHERE v.answer_id = a.id AND v.vote_type = 'upvote'), 
-          0
-        ) as upvotes_count,
-        COALESCE(
-          (SELECT COUNT(*) FROM public.votes v WHERE v.answer_id = a.id AND v.vote_type = 'downvote'), 
-          0
-        ) as downvotes_count,
+        COALESCE(a.upvotes_count, 0) as upvotes_count,
+        COALESCE(a.downvotes_count, 0) as downvotes_count,
         CASE 
           WHEN $2::uuid IS NOT NULL THEN 
             (SELECT v.vote_type FROM public.votes v WHERE v.answer_id = a.id AND v.user_id = $2)
@@ -617,11 +610,22 @@ export const deleteQuestion = async (req: AuthRequest, res: Response): Promise<v
 export const incrementViewCount = async (req: AuthRequest, res: Response): Promise<void> => {
   try {
     const questionId = req.params.id;
+    const viewerId = req.user?.id || req.ip || 'unknown';
+    const cacheKey = `view:question:${questionId}:${viewerId}`;
+
+    const hasViewed = await apiCache.get(cacheKey);
+    if (hasViewed) {
+      successResponse(res, null, 'Already viewed');
+      return;
+    }
 
     await pool.query(
       'UPDATE public.questions SET views_count = COALESCE(views_count, 0) + 1 WHERE id = $1',
       [questionId]
     );
+
+    // Cache the view for 24 hours (86400000 ms)
+    await apiCache.set(cacheKey, true, 86400000);
 
     successResponse(res, null, 'View count incremented');
   } catch (error) {

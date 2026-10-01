@@ -87,6 +87,7 @@ export interface QuestionData {
     }>;
     user_vote?: 'upvote' | 'downvote' | null;
     is_bookmarked?: boolean;
+    has_user_answered?: boolean;
 }
 
 interface QuestionDetailClientProps {
@@ -757,7 +758,11 @@ export default function QuestionDetailClient({ initialQuestion, questionId }: Qu
                                     <div className="flex items-center gap-4">
                                         <button
                                             onClick={scrollToAnswerComposer}
-                                            className="flex items-center gap-1.5 text-[13px] text-gray-500 font-medium hover:text-emerald-600 transition-colors"
+                                            className={`flex items-center gap-1.5 text-[13px] font-medium transition-colors ${
+                                                question.has_user_answered
+                                                    ? 'text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300'
+                                                    : 'text-gray-500 hover:text-emerald-600'
+                                            }`}
                                         >
                                             <MessageSquare className="w-4 h-4" />
                                             <span>{question.answers?.length ?? question.answers_count ?? 0}</span>
@@ -841,35 +846,14 @@ export default function QuestionDetailClient({ initialQuestion, questionId }: Qu
                     </div>
                 </div>
 
-                <div className="bg-white dark:bg-slate-900">
+                <div className="bg-white dark:bg-slate-900 border-t border-slate-200 dark:border-slate-800">
                     {question.answers?.map((answer) => (
                         <div
                             key={answer.id}
-                            className={`${answer.is_accepted ? 'bg-slate-50/70 dark:bg-slate-800/30' : 'bg-white dark:bg-slate-900'}`}
+                            className={`border-b border-slate-200 dark:border-slate-800 ${answer.is_accepted ? 'bg-emerald-50/30 dark:bg-emerald-900/10' : 'bg-white dark:bg-slate-900'}`}
                         >
-                            <div className="max-w-5xl mx-auto px-4 sm:px-6 py-4 sm:py-5">
-                                <div className="rounded-xl border border-slate-200/90 dark:border-slate-700 bg-white dark:bg-slate-900 px-4 sm:px-5 py-5 sm:py-6 shadow-sm">
-                                <div className="flex gap-4 sm:gap-6">
-                                    {/* Desktop Vote (Left Side) */}
-                                    <div className="hidden sm:flex flex-col items-center gap-2 shrink-0 pt-1 w-12">
-                                        <VoteSection
-                                            voteCount={answer.upvotes_count || 0}
-                                            userVote={answer.user_vote}
-                                            onUpvote={() => handleVote('answer', answer.id, 'upvote')}
-                                            onDownvote={() => handleVote('answer', answer.id, 'downvote')}
-                                            disabled={!user}
-                                            showLoginHint={!user}
-                                            orientation="vertical"
-                                            size="medium"
-                                        />
-                                        {answer.is_accepted && (
-                                            <div className="mt-4 text-emerald-500" title="Jawaban Terbaik">
-                                                <CheckCircle className="w-8 h-8" />
-                                            </div>
-                                        )}
-                                    </div>
-
-                                    <div className="flex-1 min-w-0">
+                            <div className="max-w-5xl mx-auto px-4 sm:px-6 py-4">
+                                <div className="flex-1 min-w-0">
                                         {/* Answer Header */}
                                         <div className="flex items-start justify-between mb-3">
                                             <div className="flex items-center gap-3">
@@ -960,31 +944,11 @@ export default function QuestionDetailClient({ initialQuestion, questionId }: Qu
                                                 <button className="text-[13px] text-gray-500 hover:text-slate-800 dark:hover:text-slate-200 font-medium transition-colors">
                                                     Share
                                                 </button>
-                                                {user?.id === question.author_id && (
-                                                    <>
-                                                        <span className="text-gray-300">&bull;</span>
-                                                        <button
-                                                            onClick={() => handleAcceptAnswer(answer.id, answer.is_accepted)}
-                                                            className={`text-[13px] font-medium transition-colors ${answer.is_accepted ? 'text-emerald-600 hover:text-emerald-700' : 'text-gray-500 hover:text-slate-800 dark:hover:text-slate-200'}`}
-                                                        >
-                                                            {answer.is_accepted ? 'Batalkan Jawaban Terbaik' : 'Tandai Jawaban Terbaik'}
-                                                        </button>
-                                                    </>
-                                                )}
-                                                {user?.id === answer.author_id && !editingAnswerId && (
-                                                    <>
-                                                        <span className="text-gray-300">&bull;</span>
-                                                        <div className="flex items-center gap-3">
-                                                            <button onClick={() => handleEditAnswer(answer.id, answer.content)} className="text-[13px] text-gray-500 hover:text-slate-800 dark:hover:text-slate-200 font-medium transition-colors">Edit</button>
-                                                            <button onClick={() => handleDeleteAnswer(answer.id)} className="text-[13px] text-gray-500 hover:text-red-500 font-medium transition-colors">Hapus</button>
-                                                        </div>
-                                                    </>
-                                                )}
                                             </div>
                                         </div>
 
-                                        {/* Mobile Vote */}
-                                        <div className="flex items-center justify-between pt-4 mt-6 border-t border-gray-100 dark:border-gray-800 sm:hidden">
+                                        {/* Action Buttons (Unified Mobile & Desktop) */}
+                                        <div className="flex items-center justify-between pt-2 mt-3 -ml-2">
                                             <VoteSection
                                                 voteCount={answer.upvotes_count || 0}
                                                 userVote={answer.user_vote}
@@ -995,21 +959,29 @@ export default function QuestionDetailClient({ initialQuestion, questionId }: Qu
                                                 size="small"
                                             />
                                             {answer.is_accepted ? (
-                                                <span className="flex items-center gap-1 text-[12px] font-medium text-emerald-600 bg-emerald-50 dark:bg-emerald-900/30 px-2.5 py-1 rounded">
-                                                    <CheckCircle className="w-3.5 h-3.5" />
-                                                    Jawaban Terbaik
-                                                </span>
+                                                <div className="flex items-center gap-2">
+                                                    <span className="flex items-center gap-1 text-[12px] font-medium text-emerald-600 bg-emerald-50 dark:bg-emerald-900/30 px-2.5 py-1 rounded">
+                                                        <CheckCircle className="w-3.5 h-3.5" />
+                                                        Jawaban Terbaik
+                                                    </span>
+                                                    {user?.id === question.author_id && (
+                                                        <button
+                                                            onClick={() => handleAcceptAnswer(answer.id, true)}
+                                                            className="text-[12px] text-gray-500 hover:text-red-500 font-medium underline"
+                                                        >
+                                                            Batalkan
+                                                        </button>
+                                                    )}
+                                                </div>
                                             ) : user?.id === question.author_id ? (
                                                 <button
                                                     onClick={() => handleAcceptAnswer(answer.id, false)}
-                                                    className="text-[12px] text-gray-500 hover:text-emerald-600 font-medium"
+                                                    className="text-[12px] text-gray-500 hover:text-emerald-600 font-medium border border-gray-200 dark:border-gray-700 px-3 py-1 rounded-md transition-colors hover:bg-emerald-50 dark:hover:bg-emerald-900/20"
                                                 >
                                                     Terima Jawaban
                                                 </button>
                                             ) : null}
                                         </div>
-                                    </div>
-                                </div>
                                 </div>
                             </div>
                         </div>

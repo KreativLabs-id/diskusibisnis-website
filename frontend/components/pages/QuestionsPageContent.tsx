@@ -49,6 +49,9 @@ interface Question {
 export default function QuestionsPageContent() {
   const [questions, setQuestions] = useState<Question[]>([]);
   const [loading, setLoading] = useState(true);
+  const [page, setPage] = useState(1);
+  const [hasMore, setHasMore] = useState(true);
+  const [loadingMore, setLoadingMore] = useState(false);
   const [sortByState, setSortByState] = useState<'newest' | 'popular' | 'unanswered'>('newest');
 
   useEffect(() => {
@@ -88,25 +91,44 @@ export default function QuestionsPageContent() {
   const { user } = useAuth();
   const searchParams = useSearchParams();
 
-  const fetchQuestions = useCallback(async () => {
+  const fetchQuestions = useCallback(async (pageNum = 1, append = false) => {
     try {
-      setLoading(true);
+      if (!append) setLoading(true);
+      else setLoadingMore(true);
+
       const sort = searchParams.get('sort') || sortByState;
       const response = await questionAPI.getAll({
         sort,
-        limit: 20
+        limit: 15,
+        page: pageNum,
+        search: searchQuery
       });
-      setQuestions(response.data?.data?.questions || response.data?.questions || []);
+      
+      const newQuestions = response.data?.data?.questions || response.data?.questions || [];
+      
+      if (append) {
+        setQuestions(prev => {
+           const existingIds = new Set(prev.map(q => q.id));
+           const filteredNew = newQuestions.filter((q: any) => !existingIds.has(q.id));
+           return [...prev, ...filteredNew];
+        });
+      } else {
+        setQuestions(newQuestions);
+      }
+      
+      setHasMore(newQuestions.length === 15);
+      setPage(pageNum);
     } catch (error) {
       console.error('Error fetching questions:', error);
-      setQuestions([]);
+      if (!append) setQuestions([]);
     } finally {
       setLoading(false);
+      setLoadingMore(false);
     }
-  }, [sortByState, searchParams]);
+  }, [sortByState, searchParams, searchQuery]);
 
   useEffect(() => {
-    fetchQuestions();
+    fetchQuestions(1, false);
   }, [fetchQuestions]);
 
   useIsomorphicLayoutEffect(() => {
@@ -130,19 +152,6 @@ export default function QuestionsPageContent() {
     handleRestore();
   }, [questions.length, sortByState, searchQuery, loading]);
 
-  const filteredQuestions = questions.filter((question) => {
-    if (!searchQuery.trim()) return true;
-
-    const query = searchQuery.toLowerCase();
-    const titleMatch = question.title.toLowerCase().includes(query);
-    const contentMatch = question.content.toLowerCase().includes(query);
-    const tagMatch = question.tags.some(tag =>
-      tag.name.toLowerCase().includes(query) ||
-      tag.slug.toLowerCase().includes(query)
-    );
-
-    return titleMatch || contentMatch || tagMatch;
-  });
 
   const sortOptions = [
     { value: 'newest', label: 'Terbaru', icon: Clock },
@@ -151,7 +160,7 @@ export default function QuestionsPageContent() {
   ];
 
   const topTags = Array.from(
-    filteredQuestions
+    questions
       .flatMap((question) => question.tags || [])
       .reduce((acc, tag) => {
         const current = acc.get(tag.slug) || { ...tag, count: 0 };
@@ -181,7 +190,7 @@ export default function QuestionsPageContent() {
             Semua Pertanyaan
           </h1>
           <p className="text-sm text-slate-500 dark:text-slate-400">
-            Temukan wawasan dari {filteredQuestions.length} diskusi aktif UMKM.
+            Temukan wawasan dari diskusi aktif UMKM.
           </p>
         </div>
         <Link
@@ -271,7 +280,7 @@ export default function QuestionsPageContent() {
           </div>
           {loading ? (
             renderSkeleton
-          ) : filteredQuestions.length === 0 ? (
+          ) : questions.length === 0 ? (
             <div className="py-20 text-center bg-white/40 dark:bg-slate-900/40 backdrop-blur-md rounded-2xl border border-white dark:border-slate-800/60 p-12">
               <div className="inline-flex w-20 h-20 bg-slate-100 dark:bg-slate-800 rounded-full items-center justify-center mb-6">
                 <Search className="w-10 h-10 text-slate-300" />
@@ -286,11 +295,24 @@ export default function QuestionsPageContent() {
               </button>
             </div>
           ) : (
-            <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 overflow-hidden shadow-sm divide-y divide-slate-200 dark:divide-slate-800">
-              {filteredQuestions.map((question) => (
-                <QuestionCard key={question.id} question={question} />
-              ))}
-            </div>
+            <>
+              <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 overflow-hidden shadow-sm divide-y divide-slate-200 dark:divide-slate-800">
+                {questions.map((question) => (
+                  <QuestionCard key={question.id} question={question} />
+                ))}
+              </div>
+              {hasMore && (
+                <div className="flex justify-center pt-4">
+                  <button
+                    onClick={() => fetchQuestions(page + 1, true)}
+                    disabled={loadingMore}
+                    className="px-6 py-2.5 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 rounded-full font-medium text-sm transition-colors disabled:opacity-50 flex items-center gap-2"
+                  >
+                    {loadingMore ? 'Memuat...' : 'Muat Lebih Banyak'}
+                  </button>
+                </div>
+              )}
+            </>
           )}
         </div>
 

@@ -1,11 +1,19 @@
-'use client';
+"use client";
 
-import { useEffect, useState } from 'react';
-import { adminAPI } from '@/lib/api';
-import { Users, Ban, UserX, Search, CheckCircle, XCircle, Bell } from 'lucide-react';
-import VerifiedBadge from '@/components/ui/VerifiedBadge';
-import AlertModal from '@/components/ui/AlertModal';
-import ConfirmModal from '@/components/ui/ConfirmModal';
+import { useEffect, useState } from "react";
+import { adminAPI } from "@/lib/api";
+import {
+  Users,
+  Ban,
+  UserX,
+  Search,
+  CheckCircle,
+  XCircle,
+  Bell,
+} from "lucide-react";
+import VerifiedBadge from "@/components/ui/VerifiedBadge";
+import AlertModal from "@/components/ui/AlertModal";
+import ConfirmModal from "@/components/ui/ConfirmModal";
 
 interface User {
   id: string;
@@ -21,30 +29,34 @@ interface User {
 export default function AdminUsers() {
   const [users, setUsers] = useState<User[]>([]);
   const [usersLoading, setUsersLoading] = useState(true);
-  const [searchTerm, setSearchTerm] = useState('');
-  const [filterRole, setFilterRole] = useState('all');
-  const [filterStatus, setFilterStatus] = useState('all');
+  const [searchTerm, setSearchTerm] = useState("");
+  const [filterRole, setFilterRole] = useState("all");
+  const [filterStatus, setFilterStatus] = useState("all");
   const [alertModal, setAlertModal] = useState<{
     isOpen: boolean;
-    type: 'success' | 'error' | 'warning' | 'info';
+    type: "success" | "error" | "warning" | "info";
     title: string;
     message: string;
-  }>({ isOpen: false, type: 'info', title: '', message: '' });
+  }>({ isOpen: false, type: "info", title: "", message: "" });
   const [confirmModal, setConfirmModal] = useState<{
     isOpen: boolean;
     title: string;
     message: string;
     onConfirm: () => void;
-  }>({ isOpen: false, title: '', message: '', onConfirm: () => { } });
+  }>({ isOpen: false, title: "", message: "", onConfirm: () => {} });
 
   const [notificationModal, setNotificationModal] = useState<{
     isOpen: boolean;
     userId: string;
     title: string;
     message: string;
-  }>({ isOpen: false, userId: '', title: '', message: '' });
+  }>({ isOpen: false, userId: "", title: "", message: "" });
 
-  const showAlert = (type: 'success' | 'error' | 'warning' | 'info', title: string, message: string) => {
+  const showAlert = (
+    type: "success" | "error" | "warning" | "info",
+    title: string,
+    message: string,
+  ) => {
     setAlertModal({ isOpen: true, type, title, message });
   };
 
@@ -58,7 +70,7 @@ export default function AdminUsers() {
       const response = await adminAPI.getUsers();
       setUsers(response.data.data.users);
     } catch (error) {
-      console.error('Error fetching users:', error);
+      console.error("Error fetching users:", error);
     } finally {
       setUsersLoading(false);
     }
@@ -73,25 +85,26 @@ export default function AdminUsers() {
       }
       fetchUsers(); // Refresh the list
     } catch (error) {
-      console.error('Error updating user ban status:', error);
+      console.error("Error updating user ban status:", error);
     }
   };
 
   const handleDeleteUser = (userId: string) => {
     setConfirmModal({
       isOpen: true,
-      title: 'Delete User',
-      message: 'Are you sure you want to delete this user? This action cannot be undone.',
+      title: "Delete User",
+      message:
+        "Are you sure you want to delete this user? This action cannot be undone.",
       onConfirm: async () => {
         try {
           await adminAPI.deleteUser(userId);
-          showAlert('success', 'Success', 'User has been deleted');
+          showAlert("success", "Success", "User has been deleted");
           fetchUsers(); // Refresh the list
         } catch (error) {
-          console.error('Error deleting user:', error);
-          showAlert('error', 'Error', 'Failed to delete user');
+          console.error("Error deleting user:", error);
+          showAlert("error", "Error", "Failed to delete user");
         }
-      }
+      },
     });
   };
 
@@ -104,7 +117,7 @@ export default function AdminUsers() {
       }
       fetchUsers(); // Refresh the list
     } catch (error) {
-      console.error('Error updating user verification:', error);
+      console.error("Error updating user verification:", error);
     }
   };
 
@@ -112,23 +125,30 @@ export default function AdminUsers() {
     try {
       await adminAPI.sendNotification(notificationModal.userId, {
         title: notificationModal.title,
-        message: notificationModal.message
+        message: notificationModal.message,
       });
-      showAlert('success', 'Success', 'Notification sent successfully');
-      setNotificationModal({ isOpen: false, userId: '', title: '', message: '' });
+      showAlert("success", "Success", "Notification sent successfully");
+      setNotificationModal({
+        isOpen: false,
+        userId: "",
+        title: "",
+        message: "",
+      });
     } catch (error) {
-      console.error('Error sending notification:', error);
-      showAlert('error', 'Error', 'Failed to send notification');
+      console.error("Error sending notification:", error);
+      showAlert("error", "Error", "Failed to send notification");
     }
   };
 
-  const filteredUsers = users.filter(u => {
-    const matchesSearch = u.display_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+  const filteredUsers = users.filter((u) => {
+    const matchesSearch =
+      u.display_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
       u.email.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesRole = filterRole === 'all' || u.role === filterRole;
-    const matchesStatus = filterStatus === 'all' ||
-      (filterStatus === 'banned' && u.is_banned) ||
-      (filterStatus === 'active' && !u.is_banned);
+    const matchesRole = filterRole === "all" || u.role === filterRole;
+    const matchesStatus =
+      filterStatus === "all" ||
+      (filterStatus === "banned" && u.is_banned) ||
+      (filterStatus === "active" && !u.is_banned);
 
     return matchesSearch && matchesRole && matchesStatus;
   });
@@ -141,9 +161,13 @@ export default function AdminUsers() {
           <div className="p-2 bg-blue-100 dark:bg-blue-900/30 rounded-lg">
             <Users className="w-6 h-6 text-blue-600" />
           </div>
-          <h1 className="text-2xl font-bold text-slate-900 dark:text-white">User Management</h1>
+          <h1 className="text-2xl font-bold text-slate-900 dark:text-white">
+            User Management
+          </h1>
         </div>
-        <p className="text-slate-600 dark:text-slate-400">Manage user accounts, roles, and permissions</p>
+        <p className="text-slate-600 dark:text-slate-400">
+          Manage user accounts, roles, and permissions
+        </p>
       </div>
 
       {/* Filters */}
@@ -161,11 +185,11 @@ export default function AdminUsers() {
               />
             </div>
           </div>
-          <div className="flex gap-3">
+          <div className="flex flex-col sm:flex-row gap-3 w-full sm:w-auto">
             <select
               value={filterRole}
               onChange={(e) => setFilterRole(e.target.value)}
-              className="px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              className="px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent w-full sm:w-auto"
             >
               <option value="all">All Roles</option>
               <option value="user">User</option>
@@ -174,7 +198,7 @@ export default function AdminUsers() {
             <select
               value={filterStatus}
               onChange={(e) => setFilterStatus(e.target.value)}
-              className="px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              className="px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent w-full sm:w-auto"
             >
               <option value="all">All Status</option>
               <option value="active">Active</option>
@@ -190,13 +214,27 @@ export default function AdminUsers() {
           <table className="w-full">
             <thead className="bg-slate-50 border-b border-slate-200">
               <tr>
-                <th className="text-left py-4 px-6 font-semibold text-slate-900">User</th>
-                <th className="text-left py-4 px-6 font-semibold text-slate-900">Role</th>
-                <th className="text-left py-4 px-6 font-semibold text-slate-900">Reputation</th>
-                <th className="text-left py-4 px-6 font-semibold text-slate-900">Status</th>
-                <th className="text-left py-4 px-6 font-semibold text-slate-900">Verified</th>
-                <th className="text-left py-4 px-6 font-semibold text-slate-900">Joined</th>
-                <th className="text-left py-4 px-6 font-semibold text-slate-900">Actions</th>
+                <th className="text-left py-4 px-6 font-semibold text-slate-900">
+                  User
+                </th>
+                <th className="text-left py-4 px-6 font-semibold text-slate-900">
+                  Role
+                </th>
+                <th className="text-left py-4 px-6 font-semibold text-slate-900">
+                  Reputation
+                </th>
+                <th className="text-left py-4 px-6 font-semibold text-slate-900">
+                  Status
+                </th>
+                <th className="text-left py-4 px-6 font-semibold text-slate-900">
+                  Verified
+                </th>
+                <th className="text-left py-4 px-6 font-semibold text-slate-900">
+                  Joined
+                </th>
+                <th className="text-left py-4 px-6 font-semibold text-slate-900">
+                  Actions
+                </th>
               </tr>
             </thead>
             <tbody>
@@ -214,35 +252,50 @@ export default function AdminUsers() {
                 </tr>
               ) : (
                 filteredUsers.map((u) => (
-                  <tr key={u.id} className="border-b border-slate-100 hover:bg-slate-50">
+                  <tr
+                    key={u.id}
+                    className="border-b border-slate-100 hover:bg-slate-50"
+                  >
                     <td className="py-4 px-6">
                       <div>
-                        <div className="font-medium text-slate-900">{u.display_name}</div>
+                        <div className="font-medium text-slate-900">
+                          {u.display_name}
+                        </div>
                         <div className="text-sm text-slate-500">{u.email}</div>
                       </div>
                     </td>
                     <td className="py-4 px-6">
-                      <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${u.role === 'admin'
-                        ? 'bg-red-100 text-red-800'
-                        : 'bg-blue-100 text-blue-800'
-                        }`}>
+                      <span
+                        className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
+                          u.role === "admin"
+                            ? "bg-red-100 text-red-800"
+                            : "bg-blue-100 text-blue-800"
+                        }`}
+                      >
                         {u.role}
                       </span>
                     </td>
-                    <td className="py-4 px-6 text-slate-900">{u.reputation_points}</td>
+                    <td className="py-4 px-6 text-slate-900">
+                      {u.reputation_points}
+                    </td>
                     <td className="py-4 px-6">
-                      <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${u.is_banned
-                        ? 'bg-red-100 text-red-800'
-                        : 'bg-green-100 text-green-800'
-                        }`}>
-                        {u.is_banned ? 'Banned' : 'Active'}
+                      <span
+                        className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
+                          u.is_banned
+                            ? "bg-red-100 text-red-800"
+                            : "bg-green-100 text-green-800"
+                        }`}
+                      >
+                        {u.is_banned ? "Banned" : "Active"}
                       </span>
                     </td>
                     <td className="py-4 px-6">
                       <div className="flex items-center gap-2">
                         <VerifiedBadge isVerified={u.is_verified} size="sm" />
-                        <span className={`text-sm ${u.is_verified ? 'text-blue-600' : 'text-slate-500'}`}>
-                          {u.is_verified ? 'Verified' : 'Not Verified'}
+                        <span
+                          className={`text-sm ${u.is_verified ? "text-blue-600" : "text-slate-500"}`}
+                        >
+                          {u.is_verified ? "Verified" : "Not Verified"}
                         </span>
                       </div>
                     </td>
@@ -252,12 +305,14 @@ export default function AdminUsers() {
                     <td className="py-4 px-6">
                       <div className="flex items-center gap-2">
                         <button
-                          onClick={() => setNotificationModal({
-                            isOpen: true,
-                            userId: u.id,
-                            title: '',
-                            message: ''
-                          })}
+                          onClick={() =>
+                            setNotificationModal({
+                              isOpen: true,
+                              userId: u.id,
+                              title: "",
+                              message: "",
+                            })
+                          }
                           className="p-2 rounded-lg transition-colors hover:bg-yellow-100 text-yellow-600"
                           title="Send Notification"
                         >
@@ -265,22 +320,30 @@ export default function AdminUsers() {
                         </button>
                         <button
                           onClick={() => handleVerifyUser(u.id, u.is_verified)}
-                          className={`p-2 rounded-lg transition-colors ${u.is_verified
-                            ? 'hover:bg-orange-100 text-orange-600'
-                            : 'hover:bg-blue-100 text-blue-600'
-                            }`}
-                          title={u.is_verified ? 'Unverify user' : 'Verify user'}
-                          disabled={u.role === 'admin'}
+                          className={`p-2 rounded-lg transition-colors ${
+                            u.is_verified
+                              ? "hover:bg-orange-100 text-orange-600"
+                              : "hover:bg-blue-100 text-blue-600"
+                          }`}
+                          title={
+                            u.is_verified ? "Unverify user" : "Verify user"
+                          }
+                          disabled={u.role === "admin"}
                         >
-                          {u.is_verified ? <XCircle className="w-4 h-4" /> : <CheckCircle className="w-4 h-4" />}
+                          {u.is_verified ? (
+                            <XCircle className="w-4 h-4" />
+                          ) : (
+                            <CheckCircle className="w-4 h-4" />
+                          )}
                         </button>
                         <button
                           onClick={() => handleBanUser(u.id, u.is_banned)}
-                          className={`p-2 rounded-lg transition-colors ${u.is_banned
-                            ? 'hover:bg-green-100 text-green-600'
-                            : 'hover:bg-orange-100 text-orange-600'
-                            }`}
-                          title={u.is_banned ? 'Unban user' : 'Ban user'}
+                          className={`p-2 rounded-lg transition-colors ${
+                            u.is_banned
+                              ? "hover:bg-green-100 text-green-600"
+                              : "hover:bg-orange-100 text-orange-600"
+                          }`}
+                          title={u.is_banned ? "Unban user" : "Ban user"}
                         >
                           <Ban className="w-4 h-4" />
                         </button>
@@ -329,10 +392,18 @@ export default function AdminUsers() {
       {notificationModal.isOpen && (
         <div className="fixed inset-0 z-50 overflow-y-auto">
           <div className="flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
-            <div className="fixed inset-0 transition-opacity" aria-hidden="true">
+            <div
+              className="fixed inset-0 transition-opacity"
+              aria-hidden="true"
+            >
               <div className="absolute inset-0 bg-gray-500 opacity-75"></div>
             </div>
-            <span className="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
+            <span
+              className="hidden sm:inline-block sm:align-middle sm:h-screen"
+              aria-hidden="true"
+            >
+              &#8203;
+            </span>
             <div className="inline-block align-bottom bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full">
               <div className="bg-white px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
                 <div className="sm:flex sm:items-start">
@@ -349,20 +420,34 @@ export default function AdminUsers() {
                       </p>
                       <div className="space-y-4">
                         <div>
-                          <label className="block text-sm font-medium text-gray-700">Title</label>
+                          <label className="block text-sm font-medium text-gray-700">
+                            Title
+                          </label>
                           <input
                             type="text"
                             value={notificationModal.title}
-                            onChange={(e) => setNotificationModal({ ...notificationModal, title: e.target.value })}
+                            onChange={(e) =>
+                              setNotificationModal({
+                                ...notificationModal,
+                                title: e.target.value,
+                              })
+                            }
                             className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
                             placeholder="Notification Title"
                           />
                         </div>
                         <div>
-                          <label className="block text-sm font-medium text-gray-700">Message</label>
+                          <label className="block text-sm font-medium text-gray-700">
+                            Message
+                          </label>
                           <textarea
                             value={notificationModal.message}
-                            onChange={(e) => setNotificationModal({ ...notificationModal, message: e.target.value })}
+                            onChange={(e) =>
+                              setNotificationModal({
+                                ...notificationModal,
+                                message: e.target.value,
+                              })
+                            }
                             rows={3}
                             className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
                             placeholder="Notification Message"
@@ -377,14 +462,21 @@ export default function AdminUsers() {
                 <button
                   type="button"
                   onClick={handleSendNotification}
-                  disabled={!notificationModal.title || !notificationModal.message}
+                  disabled={
+                    !notificationModal.title || !notificationModal.message
+                  }
                   className="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-blue-600 text-base font-medium text-white hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 sm:ml-3 sm:w-auto sm:text-sm disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   Send
                 </button>
                 <button
                   type="button"
-                  onClick={() => setNotificationModal({ ...notificationModal, isOpen: false })}
+                  onClick={() =>
+                    setNotificationModal({
+                      ...notificationModal,
+                      isOpen: false,
+                    })
+                  }
                   className="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm"
                 >
                   Cancel
