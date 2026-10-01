@@ -537,7 +537,7 @@ export default function QuestionDetailClient({ initialQuestion, questionId }: Qu
 
     if (loading) {
         return (
-            <div className="min-h-screen bg-slate-50 dark:bg-slate-950 pb-20 transition-colors duration-200">
+            <div className="min-h-screen bg-white dark:bg-slate-950 pb-20 transition-colors duration-200">
                 <div className="max-w-4xl mx-auto px-4 py-8">
                     <div className="animate-pulse space-y-6">
                         <div className="h-8 bg-slate-200 dark:bg-slate-800 rounded w-1/3"></div>
@@ -551,7 +551,7 @@ export default function QuestionDetailClient({ initialQuestion, questionId }: Qu
 
     if (!question) {
         return (
-            <div className="min-h-screen bg-slate-50 dark:bg-slate-950 flex items-center justify-center transition-colors duration-200">
+            <div className="min-h-screen bg-white dark:bg-slate-950 flex items-center justify-center transition-colors duration-200">
                 <div className="text-center">
                     <p className="text-slate-600 dark:text-slate-400 font-medium">Pertanyaan tidak ditemukan</p>
                     <button

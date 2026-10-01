@@ -74,7 +74,7 @@ export default function CreateCommunityPage() {
   // Show loading skeleton while checking authentication
   if (authLoading) {
     return (
-      <div className="min-h-screen bg-slate-50 p-4">
+      <div className="min-h-screen bg-white dark:bg-slate-950 p-4">
         <div className="max-w-2xl mx-auto">
           <div className="bg-white rounded-xl border border-slate-200 p-6 animate-pulse">
             <div className="h-8 bg-slate-200 rounded w-64 mb-6" />
@@ -95,7 +95,7 @@ export default function CreateCommunityPage() {
   // Show login required if user is not authenticated
   if (!user) {
     return (
-      <div className="min-h-screen bg-slate-50 flex items-center justify-center">
+      <div className="min-h-screen bg-white dark:bg-slate-950 flex items-center justify-center">
         <div className="text-center">
           <Users className="w-16 h-16 text-slate-300 mx-auto mb-4" />
           <h2 className="text-2xl font-bold text-slate-900 mb-2">Login Diperlukan</h2>
@@ -112,7 +112,7 @@ export default function CreateCommunityPage() {
   }
 
   return (
-    <div className="min-h-screen bg-slate-50">
+    <div className="min-h-screen bg-white dark:bg-slate-950">
       <div className="max-w-3xl mx-auto px-4 py-8">
         {/* Header */}
         <div className="mb-8">

@@ -138,7 +138,7 @@ export default function ReputationPage() {
   }
 
   return (
-    <div className="min-h-screen bg-[#f8fafc] dark:bg-slate-950 pb-20 transition-colors duration-300">
+    <div className="min-h-screen bg-white dark:bg-slate-950 pb-20 transition-colors duration-300">
       {/* Mobile Header - Clean & Minimalist */}
       <div className="sticky top-0 z-30 bg-white/80 dark:bg-slate-900/80 backdrop-blur-md border-b border-slate-200 dark:border-slate-800 px-4 py-3 sm:hidden">
         <div className="flex items-center justify-between">

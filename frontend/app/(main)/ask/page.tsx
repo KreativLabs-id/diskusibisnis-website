@@ -152,7 +152,7 @@ export default function AskPage() {
 
   if (authLoading) {
     return (
-      <div className="min-h-screen bg-[#f8fafc] dark:bg-slate-950 transition-colors duration-200">
+      <div className="min-h-screen bg-white dark:bg-slate-950 transition-colors duration-200">
         <div className="max-w-3xl mx-auto px-4 py-8">
           <div className="animate-pulse space-y-4">
             <div className="h-8 bg-slate-200 dark:bg-slate-800 rounded-lg w-1/4"></div>
@@ -172,7 +172,7 @@ export default function AskPage() {
   }
 
   return (
-    <div className="min-h-screen bg-[#f8fafc] dark:bg-slate-950 transition-colors duration-200 pb-20">
+    <div className="min-h-screen bg-white dark:bg-slate-950 transition-colors duration-200 pb-20">
       <div className="max-w-3xl mx-auto px-4 py-4 sm:py-8">
         {/* Clean Header with Back button and Tips toggle */}
         <div className="flex items-center justify-between gap-3 mb-4">

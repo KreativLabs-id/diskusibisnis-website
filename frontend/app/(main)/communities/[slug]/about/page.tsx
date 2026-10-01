@@ -125,7 +125,7 @@ export default function CommunityAboutPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-slate-50 pb-20">
+      <div className="min-h-screen bg-white dark:bg-slate-950 pb-20">
         <div className="max-w-4xl mx-auto px-4 py-8">
           <div className="animate-pulse space-y-6">
             <div className="h-8 bg-slate-200 rounded w-1/3"></div>
@@ -142,7 +142,7 @@ export default function CommunityAboutPage() {
 
   if (!community) {
     return (
-      <div className="min-h-screen bg-slate-50 flex items-center justify-center">
+      <div className="min-h-screen bg-white dark:bg-slate-950 flex items-center justify-center">
         <div className="text-center">
           <p className="text-slate-600 font-medium">Komunitas tidak ditemukan</p>
           <button
@@ -157,7 +157,7 @@ export default function CommunityAboutPage() {
   }
 
   return (
-    <div className="min-h-screen bg-slate-50 pb-20">
+    <div className="min-h-screen bg-white dark:bg-slate-950 pb-20">
       {/* Mobile Header - Sticky */}
       <div className="sticky top-0 z-30 bg-white border-b border-slate-200 px-4 py-3 sm:hidden flex items-center justify-between shadow-sm">
         <div className="flex items-center gap-3">

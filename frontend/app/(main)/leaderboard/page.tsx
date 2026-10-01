@@ -29,7 +29,7 @@ export default function LeaderboardPage() {
 
     if (loading) {
         return (
-            <div className="min-h-screen bg-[#f8fafc] dark:bg-slate-950 pb-20">
+            <div className="min-h-screen bg-white dark:bg-slate-950 pb-20">
                 <div className="max-w-5xl mx-auto px-4 py-8 sm:py-14">
                     <div className="animate-pulse">
                         {/* Header Skeleton */}
@@ -94,7 +94,7 @@ export default function LeaderboardPage() {
     const restOfUsers = users.slice(3);
 
     return (
-        <div className="min-h-screen bg-[#f8fafc] dark:bg-slate-950 pb-20 transition-colors duration-300">
+        <div className="min-h-screen bg-white dark:bg-slate-950 pb-20 transition-colors duration-300">
             <div className="max-w-5xl mx-auto px-4 py-8 sm:py-14">
                 {/* Professional Minimalist Header - Optimized for Mobile */}
                 <div className="mb-8 text-center md:text-left flex flex-col gap-1">

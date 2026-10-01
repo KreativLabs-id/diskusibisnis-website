@@ -88,7 +88,7 @@ export default function ContactPage() {
 
   if (submitted) {
     return (
-      <div className="min-h-[80vh] flex items-center justify-center px-4 py-12 bg-slate-50 dark:bg-slate-950 transition-colors duration-200">
+      <div className="min-h-[80vh] flex items-center justify-center px-4 py-12 bg-white dark:bg-slate-950 transition-colors duration-200">
         <div className="max-w-md w-full text-center">
           <div className="w-20 h-20 bg-emerald-100 dark:bg-emerald-900/30 rounded-full flex items-center justify-center mx-auto mb-6">
             <CheckCircle className="w-10 h-10 text-emerald-600 dark:text-emerald-400" />
@@ -126,7 +126,7 @@ export default function ContactPage() {
   }
 
   return (
-    <div className="min-h-screen py-12 px-4 sm:px-6 lg:px-8 bg-slate-50 dark:bg-slate-950 transition-colors duration-200">
+    <div className="min-h-screen py-12 px-4 sm:px-6 lg:px-8 bg-white dark:bg-slate-950 transition-colors duration-200">
       <div className="max-w-3xl mx-auto">
         {/* Header Section */}
         <div className="mb-8 text-center flex flex-col gap-1 items-center">

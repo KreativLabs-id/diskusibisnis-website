@@ -8,6 +8,7 @@ import {
   Shield,
   LayoutDashboard,
   Users,
+  Users2,
   MessageSquare,
   AlertTriangle,
   Mail,
@@ -20,7 +21,7 @@ import {
   ArrowLeft,
   Menu,
   X,
-  Users2,
+  PanelTop,
 } from 'lucide-react';
 import UserAvatar from '@/components/ui/UserAvatar';
 
@@ -39,6 +40,7 @@ const adminNavItems: AdminNavItem[] = [
   { href: '/admin/support', icon: HeadphonesIcon, label: 'Support Tickets' },
   { href: '/admin/newsletter', icon: Mail, label: 'Newsletter' },
   { href: '/admin/notifications', icon: Bell, label: 'Broadcast' },
+  { href: '/admin/top-banner', icon: PanelTop, label: 'Top Banner' },
   { href: '/admin/popups', icon: ImageIcon, label: 'Popup Promo' },
   { href: '/admin/announcements', icon: Megaphone, label: 'Pengumuman' },
 ];

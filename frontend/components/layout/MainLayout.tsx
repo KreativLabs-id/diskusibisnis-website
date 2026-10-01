@@ -70,7 +70,7 @@ export default function MainLayout({ children }: MainLayoutProps) {
       >
         {/* Announcement Banner */}
         <div className="w-full">
-          <AnnouncementBanner showOn="all" />
+          <AnnouncementBanner />
         </div>
 
         {/* Main Content */}

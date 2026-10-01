@@ -208,7 +208,7 @@ export default function QuestionsPageContent() {
 
       {/* Mobile: Sticky Filter Tabs - Sticks to top when scrolling */}
       <div 
-        className="block lg:hidden sticky z-30 mb-4 -mx-4 px-4 py-2 bg-[#f8fafc]/90 dark:bg-slate-950/90 backdrop-blur-md border-b border-slate-200/60 dark:border-slate-800/60"
+        className="block lg:hidden sticky z-30 mb-4 -mx-4 px-4 py-2 bg-white/90 dark:bg-slate-950/90 backdrop-blur-md border-b border-slate-200/60 dark:border-slate-800/60"
         style={{ top: 'var(--header-height, 56px)' }}
       >
         <div className="grid grid-cols-3 gap-1 p-0.5 bg-slate-200/70 dark:bg-slate-900 rounded-lg">

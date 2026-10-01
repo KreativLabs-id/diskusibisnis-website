@@ -90,7 +90,7 @@ export default function UsersPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-[#f8fafc] dark:bg-slate-950 px-4 py-12">
+      <div className="min-h-screen bg-white dark:bg-slate-950 px-4 py-12">
         <div className="max-w-6xl mx-auto">
           <div className="animate-pulse space-y-8">
             <div className="flex items-center gap-4">
@@ -119,7 +119,7 @@ export default function UsersPage() {
   }
 
   return (
-    <div className="min-h-screen bg-[#f8fafc] dark:bg-slate-950 pb-20 transition-colors duration-300">
+    <div className="min-h-screen bg-white dark:bg-slate-950 pb-20 transition-colors duration-300">
       <div className="max-w-6xl mx-auto px-4 py-8 sm:py-14">
         {/* Professional Minimalist Header - Optimized for Mobile */}
         <div className="mb-8 flex flex-col gap-1">

@@ -16,6 +16,7 @@ import newsletterRoutes from './newsletter.routes';
 import appRoutes from './app.routes';
 import popupRoutes from './popup.routes';
 import announcementRoutes from './announcement.routes';
+import topBannerRoutes from './top-banner.routes';
 
 const router = Router();
 
@@ -37,5 +38,6 @@ router.use('/admin/newsletter', newsletterRoutes);
 router.use('/app', appRoutes);
 router.use('/popups', popupRoutes);
 router.use('/announcements', announcementRoutes);
+router.use('/top-banners', topBannerRoutes);
 
 export default router;

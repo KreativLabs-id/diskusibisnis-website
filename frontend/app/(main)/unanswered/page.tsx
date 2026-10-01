@@ -74,7 +74,7 @@ export default function UnansweredPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-[#f8fafc] dark:bg-slate-950 px-4 py-12">
+      <div className="min-h-screen bg-white dark:bg-slate-950 px-4 py-12">
         <div className="max-w-4xl mx-auto px-4 py-8 sm:py-14">
           <div className="animate-pulse space-y-8">
             <div className="mb-8 sm:mb-10">
@@ -93,7 +93,7 @@ export default function UnansweredPage() {
   }
 
   return (
-    <div className="min-h-screen bg-[#f8fafc] dark:bg-slate-950 pb-20 transition-colors duration-300">
+    <div className="min-h-screen bg-white dark:bg-slate-950 pb-20 transition-colors duration-300">
       <div className="max-w-4xl mx-auto px-4 py-8 sm:py-14">
         {/* Professional Minimalist Header - Optimized for Mobile */}
         <div className="mb-8 flex flex-col gap-1">
@@ -133,7 +133,7 @@ export default function UnansweredPage() {
 
         {/* Mobile: Sticky Filter Tabs */}
         <div 
-          className="block lg:hidden sticky z-30 mb-6 -mx-4 px-4 py-2 bg-[#f8fafc]/90 dark:bg-slate-950/90 backdrop-blur-md border-b border-slate-200/60 dark:border-slate-800/60 overflow-x-auto scrollbar-hide"
+          className="block lg:hidden sticky z-30 mb-6 -mx-4 px-4 py-2 bg-white/90 dark:bg-slate-950/90 backdrop-blur-md border-b border-slate-200/60 dark:border-slate-800/60 overflow-x-auto scrollbar-hide"
           style={{ top: 'var(--header-height, 56px)' }}
         >
           <div className="flex gap-2 p-1 bg-slate-200/70 dark:bg-slate-900 rounded-lg w-max min-w-full">

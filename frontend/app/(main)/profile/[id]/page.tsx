@@ -196,7 +196,7 @@ export default function ProfilePage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-[#FAFBFC] dark:bg-[#030712] transition-colors duration-200">
+      <div className="min-h-screen bg-white dark:bg-slate-950 transition-colors duration-200">
         <div className="h-32 sm:h-40 bg-slate-100 dark:bg-slate-800/50 relative overflow-hidden border-b border-slate-200/60 dark:border-slate-800/60 animate-pulse"></div>
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 -mt-8 pb-20 relative z-20">
           <div className="flex flex-col lg:flex-row gap-8 animate-pulse">
@@ -237,7 +237,7 @@ export default function ProfilePage() {
 
   if (!profile) {
     return (
-      <div className="min-h-screen bg-slate-50 dark:bg-slate-950 flex items-center justify-center transition-colors duration-200">
+      <div className="min-h-screen bg-white dark:bg-slate-950 flex items-center justify-center transition-colors duration-200">
         <div className="text-center">
           <User className="w-16 h-16 text-slate-300 dark:text-slate-600 mx-auto mb-4" />
           <h3 className="text-lg font-semibold text-slate-900 dark:text-slate-100 mb-2">Profil tidak ditemukan</h3>
@@ -249,13 +249,13 @@ export default function ProfilePage() {
   }
 
   return (
-    <div className="min-h-screen bg-[#f8fafc] dark:bg-slate-950 pb-20 transition-colors duration-300">
+    <div className="min-h-screen bg-white dark:bg-slate-950 pb-20 transition-colors duration-300">
       {/* Premium Profile Header Background */}
       <div className="h-40 sm:h-56 bg-slate-100 dark:bg-slate-900/50 relative overflow-hidden border-b border-white dark:border-slate-800/60">
         <div className="absolute inset-0 opacity-30 dark:opacity-10">
           <div className="absolute top-0 left-0 w-full h-full" style={{ backgroundImage: 'radial-gradient(circle at 2px 2px, #10b981 1.5px, transparent 0)', backgroundSize: '40px 40px' }}></div>
         </div>
-        <div className="absolute bottom-0 left-0 w-full h-32 bg-gradient-to-t from-[#f8fafc] dark:from-slate-950 to-transparent"></div>
+        <div className="absolute bottom-0 left-0 w-full h-32 bg-gradient-to-t from-white dark:from-slate-950 to-transparent"></div>
       </div>
 
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 -mt-20 sm:-mt-28 pb-20 relative z-20">

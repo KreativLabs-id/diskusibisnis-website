@@ -114,7 +114,7 @@ export default function SavedPage() {
     // Show loading while checking auth
     if (authLoading) {
         return (
-            <div className="min-h-screen flex items-center justify-center bg-slate-50 dark:bg-slate-950 transition-colors duration-200">
+            <div className="min-h-screen flex items-center justify-center bg-white dark:bg-slate-950 transition-colors duration-200">
                 <div className="text-center">
                     <Loader2 className="w-8 h-8 text-emerald-600 animate-spin mx-auto mb-4" />
                     <p className="text-slate-600 dark:text-slate-400">Memuat...</p>
@@ -126,7 +126,7 @@ export default function SavedPage() {
     // Show login prompt for guests
     if (!user) {
         return (
-            <div className="min-h-screen py-12 px-4 sm:px-6 lg:px-8 bg-slate-50 dark:bg-slate-950 transition-colors duration-200">
+            <div className="min-h-screen py-12 px-4 sm:px-6 lg:px-8 bg-white dark:bg-slate-950 transition-colors duration-200">
                 <div className="max-w-md mx-auto text-center">
                     <div className="w-20 h-20 bg-emerald-100 dark:bg-emerald-900/30 rounded-full flex items-center justify-center mx-auto mb-6">
                         <Bookmark className="w-10 h-10 text-emerald-600 dark:text-emerald-400" />
@@ -156,7 +156,7 @@ export default function SavedPage() {
     }
 
     return (
-        <div className="min-h-screen bg-[#f8fafc] dark:bg-slate-950 pb-20 transition-colors duration-300">
+        <div className="min-h-screen bg-white dark:bg-slate-950 pb-20 transition-colors duration-300">
             <div className="w-full max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 pb-12 pt-6 sm:pt-14">
                 {/* Professional Minimalist Header */}
                 <div className="mb-8 flex flex-col sm:flex-row sm:items-end justify-between gap-4">

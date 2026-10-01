@@ -196,7 +196,7 @@ export default function NotificationsPage() {
   };
 
   return (
-    <div className="min-h-screen bg-slate-50 dark:bg-slate-950 transition-colors duration-200">
+    <div className="min-h-screen bg-white dark:bg-slate-950 transition-colors duration-200">
       {/* Mobile Header - Sticky */}
       <div className="sticky top-0 z-30 bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800 px-4 py-3 sm:hidden flex items-center justify-between shadow-sm">
         <div className="flex items-center gap-3">

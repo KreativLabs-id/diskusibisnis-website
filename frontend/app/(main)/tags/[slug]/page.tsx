@@ -150,7 +150,7 @@ export default function TagDetailPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-[#f8fafc] dark:bg-slate-950 px-4 py-12">
+      <div className="min-h-screen bg-white dark:bg-slate-950 px-4 py-12">
         <div className="max-w-4xl mx-auto px-4 py-8 sm:py-14">
           <div className="animate-pulse space-y-8">
             <div className="mb-8 sm:mb-10">
@@ -171,7 +171,7 @@ export default function TagDetailPage() {
 
   if (error || !tag) {
     return (
-      <div className="min-h-screen bg-[#f8fafc] dark:bg-slate-950 flex items-center justify-center px-4 transition-colors duration-300">
+      <div className="min-h-screen bg-white dark:bg-slate-950 flex items-center justify-center px-4 transition-colors duration-300">
         <div className="text-center bg-white/40 dark:bg-slate-900/40 backdrop-blur-md rounded-2xl border border-white dark:border-slate-800/60 p-12">
           <Tag className="w-12 h-12 text-slate-300 mx-auto mb-4" />
           <h2 className="text-xl font-bold text-slate-900 dark:text-white mb-2">Topik Tidak Ditemukan</h2>
@@ -192,7 +192,7 @@ export default function TagDetailPage() {
   const displayedQuestionCount = questionsLoading ? (tag.questionCount ?? 0) : questions.length;
 
   return (
-    <div className="min-h-screen bg-[#f8fafc] dark:bg-slate-950 pb-20 transition-colors duration-300">
+    <div className="min-h-screen bg-white dark:bg-slate-950 pb-20 transition-colors duration-300">
       <div className="max-w-4xl mx-auto px-4 py-8 sm:py-14">
         {/* Professional Minimalist Header */}
         <div className="mb-8 flex flex-col gap-1">
