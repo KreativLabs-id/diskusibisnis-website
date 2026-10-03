@@ -3,6 +3,7 @@
 import React from 'react';
 import Image from 'next/image';
 import { User } from 'lucide-react';
+import { getImageUrl } from '@/lib/utils';
 
 interface UserAvatarProps {
   src?: string | null;
@@ -78,7 +79,7 @@ const UserAvatar: React.FC<UserAvatarProps> = ({
   return (
     <div className={`${sizeClass} relative rounded-full flex-shrink-0 overflow-hidden ${className}`}>
       <Image
-        src={src}
+        src={getImageUrl(src)}
         alt={alt}
         width={pixelSize}
         height={pixelSize}

@@ -23,7 +23,7 @@ import {
   Gift
 } from 'lucide-react';
 import api from '@/lib/api';
-import { formatDate } from '@/lib/utils';
+import { formatDate, getImageUrl } from '@/lib/utils';
 import VerifiedBadge from '@/components/ui/VerifiedBadge';
 import UserAvatar from '@/components/ui/UserAvatar';
 import AlertModal from '@/components/ui/AlertModal';
@@ -433,7 +433,7 @@ export default function CommunityDetailPage() {
               <div className="w-24 h-24 sm:w-32 sm:h-32 bg-white dark:bg-slate-800 rounded-2xl p-1.5 shadow-lg shrink-0 mx-auto sm:mx-0 z-10">
                 {community.avatar_url ? (
                   <img
-                    src={community.avatar_url}
+                    src={getImageUrl(community.avatar_url)}
                     alt={community.name}
                     className="w-full h-full object-cover rounded-xl border border-slate-100 dark:border-slate-700"
                   />

@@ -3,6 +3,7 @@
 import React, { useState } from 'react';
 import { X, ZoomIn, ChevronLeft, ChevronRight } from 'lucide-react';
 import Image from 'next/image';
+import { getImageUrl } from '@/lib/utils';
 
 // Generic blur placeholder - a light gray SVG
 const shimmerBlur = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciPjxyZWN0IHdpZHRoPSIxMDAlIiBoZWlnaHQ9IjEwMCUiIGZpbGw9IiNlMmU4ZjAiLz48L3N2Zz4=';
@@ -54,7 +55,7 @@ const ImageGallery: React.FC<ImageGalleryProps> = ({ images, className = '' }) =
           <div className="relative aspect-video w-full max-w-2xl rounded-lg overflow-hidden border border-gray-200 cursor-pointer group bg-slate-100"
             onClick={() => openLightbox(0)}>
             <Image
-              src={images[0]}
+              src={getImageUrl(images[0])}
               alt="Question image"
               fill
               className={`object-contain transition-opacity duration-300 ${loadedImages.has(0) ? 'opacity-100' : 'opacity-0'}`}
@@ -77,7 +78,7 @@ const ImageGallery: React.FC<ImageGalleryProps> = ({ images, className = '' }) =
                 className="relative aspect-video rounded-lg overflow-hidden border border-gray-200 cursor-pointer group bg-slate-100"
                 onClick={() => openLightbox(index)}>
                 <Image
-                  src={image}
+                  src={getImageUrl(image)}
                   alt={`Question image ${index + 1}`}
                   fill
                   className={`object-contain transition-opacity duration-300 ${loadedImages.has(index) ? 'opacity-100' : 'opacity-0'}`}
@@ -100,7 +101,7 @@ const ImageGallery: React.FC<ImageGalleryProps> = ({ images, className = '' }) =
             <div className="relative aspect-video col-span-2 rounded-lg overflow-hidden border border-gray-200 cursor-pointer group bg-slate-100"
               onClick={() => openLightbox(0)}>
               <Image
-                src={images[0]}
+                src={getImageUrl(images[0])}
                 alt="Question image 1"
                 fill
                 className={`object-contain transition-opacity duration-300 ${loadedImages.has(0) ? 'opacity-100' : 'opacity-0'}`}
@@ -119,7 +120,7 @@ const ImageGallery: React.FC<ImageGalleryProps> = ({ images, className = '' }) =
                 className="relative aspect-video rounded-lg overflow-hidden border border-gray-200 cursor-pointer group bg-slate-100"
                 onClick={() => openLightbox(index + 1)}>
                 <Image
-                  src={image}
+                  src={getImageUrl(image)}
                   alt={`Question image ${index + 2}`}
                   fill
                   className={`object-contain transition-opacity duration-300 ${loadedImages.has(index + 1) ? 'opacity-100' : 'opacity-0'}`}
@@ -143,7 +144,7 @@ const ImageGallery: React.FC<ImageGalleryProps> = ({ images, className = '' }) =
                 className="relative aspect-video rounded-lg overflow-hidden border border-gray-200 cursor-pointer group bg-slate-100"
                 onClick={() => openLightbox(index)}>
                 <Image
-                  src={image}
+                  src={getImageUrl(image)}
                   alt={`Question image ${index + 1}`}
                   fill
                   className={`object-contain transition-opacity duration-300 ${loadedImages.has(index) ? 'opacity-100' : 'opacity-0'}`}
@@ -172,7 +173,7 @@ const ImageGallery: React.FC<ImageGalleryProps> = ({ images, className = '' }) =
       {/* Lightbox Modal */}
       {selectedImageIndex !== null && (
         <div
-          className="fixed inset-0 z-50 bg-black bg-opacity-95 flex items-center justify-center p-4"
+          className="fixed inset-0 z-[100] bg-black bg-opacity-75 flex items-center justify-center p-4 backdrop-blur-sm"
           onClick={closeLightbox}
           onKeyDown={handleKeyDown}
           tabIndex={0}
@@ -209,7 +210,7 @@ const ImageGallery: React.FC<ImageGalleryProps> = ({ images, className = '' }) =
           )}
 
           {/* Image Counter */}
-          <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 px-4 py-2 bg-white bg-opacity-30 rounded-full">
+          <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 px-4 py-2 bg-black bg-opacity-50 backdrop-blur-sm rounded-full z-20">
             <span className="text-white text-sm font-medium">
               {selectedImageIndex + 1} / {images.length}
             </span>
@@ -217,17 +218,13 @@ const ImageGallery: React.FC<ImageGalleryProps> = ({ images, className = '' }) =
 
           {/* Image */}
           <div
-            className="relative max-w-7xl max-h-[90vh] w-full"
-            onClick={(e) => e.stopPropagation()}
+            className="relative w-full h-[90vh] flex items-center justify-center pointer-events-none"
           >
-            <Image
-              src={images[selectedImageIndex]}
+            <img
+              src={getImageUrl(images[selectedImageIndex])}
               alt={`Image ${selectedImageIndex + 1}`}
-              width={1920}
-              height={1080}
-              className="max-w-full max-h-[90vh] object-contain rounded-lg w-auto h-auto"
-              quality={90}
-              priority
+              className="max-w-full max-h-full object-contain rounded-lg shadow-2xl pointer-events-auto"
+              onClick={(e) => e.stopPropagation()}
             />
           </div>
         </div>

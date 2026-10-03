@@ -64,3 +64,12 @@ export function truncateText(text: string, maxLength: number): string {
   if (text.length <= maxLength) return text;
   return text.substring(0, maxLength) + '...';
 }
+
+export function getImageUrl(path: string | undefined | null): string {
+  if (!path) return '';
+  if (path.startsWith('http')) return path;
+  let backendUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api';
+  backendUrl = backendUrl.replace(/\/api$/, '');
+  const cleanPath = path.startsWith('/') ? path : '/' + path;
+  return backendUrl + cleanPath;
+}

@@ -25,7 +25,7 @@ import {
   Ship
 } from 'lucide-react';
 import { communityAPI } from '@/lib/api';
-import { cn, formatNumber } from '@/lib/utils';
+import { cn, formatNumber, getImageUrl } from '@/lib/utils';
 
 interface Community {
   id: string;
@@ -199,7 +199,7 @@ export default function CommunitiesPage() {
                 <div className="flex items-start gap-4 mb-3">
                   <div className="w-12 h-12 bg-emerald-50 dark:bg-emerald-900/20 rounded-lg flex items-center justify-center text-emerald-600 dark:text-emerald-400 shrink-0">
                     {community.avatar_url ? (
-                      <img src={community.avatar_url} alt={community.name} className="w-full h-full object-cover rounded-lg" />
+                      <img src={getImageUrl(community.avatar_url)} alt={community.name} className="w-full h-full object-cover rounded-lg" />
                     ) : (
                       <span className="text-xl font-bold">{community.name.charAt(0)}</span>
                     )}

@@ -27,6 +27,21 @@ const nextConfig = {
         pathname: '/**',
       },
       {
+        protocol: 'https',
+        hostname: 'humble-solace-production-4650.up.railway.app',
+        pathname: '/**',
+      },
+      {
+        protocol: 'https',
+        hostname: 'api.diskusibisnis.my.id',
+        pathname: '/**',
+      },
+      {
+        protocol: 'https',
+        hostname: 'diskusibisnis.my.id',
+        pathname: '/**',
+      },
+      {
         protocol: 'http',
         hostname: 'localhost',
       },

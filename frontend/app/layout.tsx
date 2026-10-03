@@ -71,17 +71,10 @@ export const metadata: Metadata = {
     description: "Platform diskusi dan forum tanya jawab untuk pemilik UMKM Indonesia. Bertanya, berbagi pengalaman, dan temukan solusi praktis untuk mengembangkan bisnis Anda bersama komunitas.",
     images: [
       {
-        url: '/icons/og-image.png',
+        url: '/og-imagediskusibisnis.png',
         width: 1200,
         height: 630,
         alt: 'DiskusiBisnis - Forum Q&A UMKM Indonesia',
-        type: 'image/png',
-      },
-      {
-        url: '/icons/icon-512x512.png',
-        width: 512,
-        height: 512,
-        alt: 'DiskusiBisnis Logo',
         type: 'image/png',
       },
     ],
@@ -92,7 +85,7 @@ export const metadata: Metadata = {
     creator: "@diskusibisnis",
     title: "DiskusiBisnis - Forum Q&A UMKM Indonesia",
     description: "Platform diskusi dan forum tanya jawab untuk pemilik UMKM Indonesia. Bertanya, berbagi pengalaman, dan temukan solusi praktis untuk mengembangkan bisnis Anda.",
-    images: ['/icons/og-image.png'],
+    images: ['/og-imagediskusibisnis.png'],
   },
   alternates: {
     canonical: process.env.NEXT_PUBLIC_FRONTEND_URL || "http://localhost:3000",
