@@ -45,7 +45,7 @@ const ensureTableExists = async () => {
  * Get active top banner for public website
  */
 export const getActiveTopBanner = async (
-    req: Request,
+    _req: Request,
     res: Response,
     next: NextFunction
 ): Promise<void> => {
@@ -75,7 +75,7 @@ export const getActiveTopBanner = async (
  * List all top banners for admin
  */
 export const getAllTopBanners = async (
-    req: Request,
+    _req: Request,
     res: Response,
     next: NextFunction
 ): Promise<void> => {
