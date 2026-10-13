@@ -237,11 +237,16 @@ export const createQuestion = async (req: AuthRequest, res: Response): Promise<v
       let communityId = null;
       if (community_slug) {
         const communityResult = await client.query(
-          'SELECT id FROM public.communities WHERE slug = $1',
+          'SELECT id FROM public.communities WHERE slug = $1 AND is_banned = FALSE',
           [community_slug]
         );
         if (communityResult.rows.length > 0) {
           communityId = communityResult.rows[0].id;
+        } else {
+          await client.query('ROLLBACK');
+          client.release();
+          errorResponse(res, 'Community not found or has been banned');
+          return;
         }
       }
 
@@ -294,6 +299,12 @@ export const createQuestion = async (req: AuthRequest, res: Response): Promise<v
         }
       }
 
+      // Award reputation for creating a question (+5 points)
+      await client.query(
+        'UPDATE public.users SET reputation_points = COALESCE(reputation_points, 0) + 5 WHERE id = $1',
+        [user.id]
+      );
+
       await client.query('COMMIT');
 
       // Create mentions after successful question creation
@@ -302,6 +313,7 @@ export const createQuestion = async (req: AuthRequest, res: Response): Promise<v
       // ✅ Invalidate questions cache so new question appears immediately
       await invalidateCache.questions();
       await invalidateCache.tags();
+      await invalidateCache.user(user.id);
 
       successResponse(res, { question }, 'Question created successfully', 201);
     } catch (error) {
@@ -592,9 +604,16 @@ export const deleteQuestion = async (req: AuthRequest, res: Response): Promise<v
 
     await pool.query('DELETE FROM public.questions WHERE id = $1', [questionId]);
 
+    // Deduct reputation points for deleted question (-5 points)
+    await pool.query(
+      'UPDATE public.users SET reputation_points = GREATEST(COALESCE(reputation_points, 0) - 5, 0) WHERE id = $1',
+      [question.author_id]
+    );
+
     // ✅ Invalidate cache
     await invalidateCache.allQuestions();
     await invalidateCache.tags();
+    await invalidateCache.user(question.author_id);
 
     successResponse(res, null, 'Question deleted successfully');
   } catch (error) {

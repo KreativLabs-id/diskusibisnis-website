@@ -56,3 +56,8 @@ coverage/
 # Secrets
 backend/config/firebase-admin-sdk.json
 .superpowers
+.env*
+
+# AI Configs
+AGENTS.md
+GEMINI.md

@@ -227,9 +227,9 @@ export const adminAPI = {
     api.get('/admin/newsletter/stats'),
   getNewsletterHistory: () =>
     api.get('/admin/newsletter/history'),
-  sendNewsletter: (data: { subject: string; content: string; previewHtml?: string }) =>
+  sendNewsletter: (data: { subject: string; content: string; previewHtml?: string; buttonText?: string; buttonUrl?: string }) =>
     api.post('/admin/newsletter/send', data),
-  sendTestNewsletter: (data: { email: string; subject: string; content: string; previewHtml?: string }) =>
+  sendTestNewsletter: (data: { email: string; subject: string; content: string; previewHtml?: string; buttonText?: string; buttonUrl?: string }) =>
     api.post('/admin/newsletter/test', data),
 };
 

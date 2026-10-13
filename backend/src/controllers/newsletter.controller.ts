@@ -82,7 +82,7 @@ export const getNewsletterHistory = async (_req: AuthRequest, res: Response): Pr
  */
 export const sendNewsletter = async (req: AuthRequest, res: Response): Promise<void> => {
     try {
-        const { subject, content, previewHtml } = req.body;
+        const { subject, content, previewHtml, buttonText, buttonUrl } = req.body;
         const adminId = req.user?.id;
 
         if (!subject || !content) {
@@ -138,7 +138,9 @@ export const sendNewsletter = async (req: AuthRequest, res: Response): Promise<v
                     subject,
                     content,
                     previewHtml || content,
-                    user.display_name || 'Subscriber'
+                    user.display_name || 'Subscriber',
+                    buttonText,
+                    buttonUrl
                 );
 
                 successCount++;
@@ -192,7 +194,7 @@ export const sendNewsletter = async (req: AuthRequest, res: Response): Promise<v
  */
 export const sendTestNewsletter = async (req: AuthRequest, res: Response): Promise<void> => {
     try {
-        const { email, subject, content, previewHtml } = req.body;
+        const { email, subject, content, previewHtml, buttonText, buttonUrl } = req.body;
 
         if (!email || !subject || !content) {
             errorResponse(res, 'Email, subject, dan konten wajib diisi', 400);
@@ -205,7 +207,9 @@ export const sendTestNewsletter = async (req: AuthRequest, res: Response): Promi
                 `[TEST] ${subject}`,
                 content,
                 previewHtml || content,
-                'Admin'
+                'Admin',
+                buttonText,
+                buttonUrl
             );
             successResponse(res, null, 'Email test berhasil dikirim');
         } catch (err: any) {

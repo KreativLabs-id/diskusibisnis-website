@@ -109,6 +109,9 @@ export const createOrUpdateVote = async (req: AuthRequest, res: Response): Promi
 
           // ✅ Invalidate cache so the homepage shows updated vote counts
           invalidateCache.questions();
+          if (authorId) {
+            invalidateCache.user(authorId);
+          }
 
           successResponse(res, {
             action: 'removed',
@@ -183,7 +186,7 @@ export const createOrUpdateVote = async (req: AuthRequest, res: Response): Promi
       // Prevent reputation farming by self-voting
       if (authorId && authorId !== user.id && reputationDiff !== 0) {
         await client.query(
-          'UPDATE public.users SET reputation_points = COALESCE(reputation_points, 0) + $1 WHERE id = $2',
+          'UPDATE public.users SET reputation_points = GREATEST(COALESCE(reputation_points, 0) + $1, 0) WHERE id = $2',
           [reputationDiff, authorId]
         );
       }
@@ -199,6 +202,9 @@ export const createOrUpdateVote = async (req: AuthRequest, res: Response): Promi
 
       // ✅ Invalidate cache so the homepage shows updated vote counts
       invalidateCache.questions();
+      if (authorId) {
+        invalidateCache.user(authorId);
+      }
 
       // ✅ Send response IMMEDIATELY - don't wait for notification
       successResponse(res, {

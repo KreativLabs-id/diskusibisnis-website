@@ -2,7 +2,7 @@ import { Response } from 'express';
 import pool from '../config/database';
 import { AuthRequest } from '../types';
 import { successResponse, errorResponse, notFoundResponse } from '../utils/response.utils';
-
+import { invalidateCache } from '../utils/cache';
 /**
  * Get admin statistics
  * GET /api/admin/stats
@@ -211,12 +211,15 @@ export const getAllQuestions = async (_req: AuthRequest, res: Response): Promise
   try {
     const result = await pool.query(`
       SELECT 
-        q.id, q.title, q.content, q.views_count, q.is_closed, q.created_at,
+        q.id, q.title, q.content, q.views_count as views, q.is_closed, q.created_at,
         u.id as author_id, u.display_name as author_name,
-        COUNT(DISTINCT a.id) as answers_count
+        COUNT(DISTINCT a.id)::int as answer_count,
+        COUNT(DISTINCT CASE WHEN v.vote_type = 'upvote' THEN v.id END)::int as upvotes,
+        COUNT(DISTINCT CASE WHEN v.vote_type = 'downvote' THEN v.id END)::int as downvotes
       FROM public.questions q
       LEFT JOIN public.users u ON q.author_id = u.id
       LEFT JOIN public.answers a ON q.id = a.question_id
+      LEFT JOIN public.votes v ON q.id = v.question_id
       GROUP BY q.id, u.id
       ORDER BY q.created_at DESC
     `);
@@ -297,11 +300,15 @@ export const getAllCommunities = async (_req: AuthRequest, res: Response): Promi
   try {
     const result = await pool.query(`
       SELECT 
-        c.id, c.name, c.slug, c.description, c.category, c.is_popular, c.created_at,
-        COUNT(DISTINCT cm.id) as members_count
+        c.id, c.name, c.slug, c.description, c.category, c.is_popular, c.created_at, c.is_banned,
+        u.display_name as created_by_name,
+        COUNT(DISTINCT cm.id)::int as member_count,
+        COUNT(DISTINCT q.id)::int as question_count
       FROM public.communities c
+      LEFT JOIN public.users u ON c.created_by = u.id
       LEFT JOIN public.community_members cm ON c.id = cm.community_id
-      GROUP BY c.id
+      LEFT JOIN public.questions q ON c.id = q.community_id
+      GROUP BY c.id, u.display_name
       ORDER BY c.created_at DESC
     `);
 
@@ -321,7 +328,7 @@ export const banCommunity = async (req: AuthRequest, res: Response): Promise<voi
     const communityId = req.params.id;
 
     const result = await pool.query(
-      'UPDATE public.communities SET is_banned = true WHERE id = $1',
+      'UPDATE public.communities SET is_banned = true WHERE id = $1 RETURNING slug',
       [communityId]
     );
 
@@ -329,6 +336,10 @@ export const banCommunity = async (req: AuthRequest, res: Response): Promise<voi
       notFoundResponse(res, 'Community not found');
       return;
     }
+
+    const { slug } = result.rows[0];
+    await invalidateCache.community(slug);
+    await invalidateCache.communities();
 
     successResponse(res, null, 'Community banned successfully');
   } catch (error) {
@@ -346,7 +357,7 @@ export const unbanCommunity = async (req: AuthRequest, res: Response): Promise<v
     const communityId = req.params.id;
 
     const result = await pool.query(
-      'UPDATE public.communities SET is_banned = false WHERE id = $1',
+      'UPDATE public.communities SET is_banned = false WHERE id = $1 RETURNING slug',
       [communityId]
     );
 
@@ -354,6 +365,10 @@ export const unbanCommunity = async (req: AuthRequest, res: Response): Promise<v
       notFoundResponse(res, 'Community not found');
       return;
     }
+
+    const { slug } = result.rows[0];
+    await invalidateCache.community(slug);
+    await invalidateCache.communities();
 
     successResponse(res, null, 'Community unbanned successfully');
   } catch (error) {

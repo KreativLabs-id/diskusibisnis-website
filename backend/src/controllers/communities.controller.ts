@@ -39,7 +39,7 @@ export const getCommunities = async (req: AuthRequest, res: Response): Promise<v
       FROM public.communities c
       LEFT JOIN public.community_members cm ON c.id = cm.community_id
       LEFT JOIN public.questions q ON c.id = q.community_id
-      WHERE 1=1
+      WHERE c.is_banned = FALSE
     `;
 
     if (memberOnly && currentUserId) {
@@ -197,7 +197,7 @@ export const getCommunityBySlug = async (req: AuthRequest, res: Response): Promi
         LEFT JOIN public.users u ON c.created_by = u.id
         LEFT JOIN public.community_members cm ON c.id = cm.community_id
         LEFT JOIN public.community_members user_cm ON c.id = user_cm.community_id AND user_cm.user_id = $2
-        WHERE c.slug = $1
+        WHERE c.slug = $1 AND c.is_banned = FALSE
         GROUP BY c.id, u.display_name, user_cm.user_id, user_cm.role
       `;
       params = [slug, currentUserId];
@@ -213,7 +213,7 @@ export const getCommunityBySlug = async (req: AuthRequest, res: Response): Promi
         FROM public.communities c
         LEFT JOIN public.users u ON c.created_by = u.id
         LEFT JOIN public.community_members cm ON c.id = cm.community_id
-        WHERE c.slug = $1
+        WHERE c.slug = $1 AND c.is_banned = FALSE
         GROUP BY c.id, u.display_name
       `;
       params = [slug];
@@ -263,7 +263,7 @@ export const joinCommunity = async (req: AuthRequest, res: Response): Promise<vo
 
     // Get community ID
     const communityResult = await pool.query(
-      'SELECT id FROM public.communities WHERE slug = $1',
+      'SELECT id FROM public.communities WHERE slug = $1 AND is_banned = FALSE',
       [slug]
     );
 
@@ -377,7 +377,7 @@ export const getCommunityQuestions = async (req: AuthRequest, res: Response): Pr
 
     // Get community ID
     const communityResult = await pool.query(
-      'SELECT id FROM public.communities WHERE slug = $1',
+      'SELECT id FROM public.communities WHERE slug = $1 AND is_banned = FALSE',
       [slug]
     );
 
@@ -446,7 +446,7 @@ export const getCommunityMembers = async (req: AuthRequest, res: Response): Prom
 
     // Get community ID
     const communityResult = await pool.query(
-      'SELECT id FROM public.communities WHERE slug = $1',
+      'SELECT id FROM public.communities WHERE slug = $1 AND is_banned = FALSE',
       [slug]
     );
 

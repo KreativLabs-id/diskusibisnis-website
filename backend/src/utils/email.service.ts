@@ -368,7 +368,9 @@ export const sendNewsletterEmail = async (
   subject: string,
   textContent: string,
   htmlContent: string,
-  recipientName: string
+  recipientName: string,
+  buttonText?: string,
+  buttonUrl?: string
 ): Promise<boolean> => {
   const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:3000';
 
@@ -378,59 +380,56 @@ export const sendNewsletterEmail = async (
     <head>
       ${getEmailHead(subject)}
     </head>
-    <body style="margin: 0; padding: 0; font-family: ${FONT_FAMILY}; background-color: #f4f4f5; -webkit-font-smoothing: antialiased;">
-      <table width="100%" cellpadding="0" cellspacing="0" style="background-color: #f4f4f5; padding: 60px 20px; font-family: ${FONT_FAMILY};">
+    <body style="margin: 0; padding: 0; font-family: ${FONT_FAMILY}; background-color: #fafafa; -webkit-font-smoothing: antialiased;">
+      <table width="100%" cellpadding="0" cellspacing="0" style="background-color: #fafafa; padding: 40px 20px; font-family: ${FONT_FAMILY};">
         <tr>
           <td align="center">
-            <table width="100%" cellpadding="0" cellspacing="0" style="max-width: 600px; background-color: #ffffff; border: 1px solid #e4e4e7; border-radius: 16px; margin: 0 auto; overflow: hidden;">
+            <table width="100%" cellpadding="0" cellspacing="0" style="max-width: 600px; background-color: #ffffff; border: 1px solid #eaeaea; border-radius: 12px; margin: 0 auto; overflow: hidden;">
               <!-- Header -->
               <tr>
-                <td style="padding: 48px 48px 32px; text-align: left; border-bottom: 1px solid #f4f4f5;">
-                  <div style="display: inline-block; padding: 8px 12px; background-color: #ecfdf5; border-radius: 8px; margin-bottom: 24px;">
-                    <span style="color: #059669; font-weight: 600; font-size: 12px; letter-spacing: 1px; text-transform: uppercase;">Newsletter</span>
-                  </div>
-                  <h1 style="margin: 0; color: #09090b; font-size: 28px; font-weight: 700; letter-spacing: -0.02em;">DiskusiBisnis</h1>
+                <td style="padding: 40px 40px 30px; text-align: left; border-bottom: 1px solid #f5f5f5;">
+                  <h1 style="margin: 0; color: #111111; font-size: 24px; font-weight: 700; letter-spacing: -0.02em;">DiskusiBisnis</h1>
                 </td>
               </tr>
               
               <!-- Content -->
               <tr>
-                <td style="padding: 48px; font-family: ${FONT_FAMILY};">
-                  <p style="margin: 0 0 24px; color: #52525b; font-size: 16px; line-height: 1.6;">
-                    Halo <strong style="color: #09090b; font-weight: 600;">${recipientName}</strong>,
+                <td style="padding: 40px; font-family: ${FONT_FAMILY};">
+                  <p style="margin: 0 0 24px; color: #444444; font-size: 16px; line-height: 1.6;">
+                    Halo <strong style="color: #111111; font-weight: 600;">${recipientName}</strong>,
                   </p>
                   
-                  <div style="color: #3f3f46; font-size: 16px; line-height: 1.8;">
+                  <div style="color: #444444; font-size: 16px; line-height: 1.8;">
                     ${htmlContent}
                   </div>
                 </td>
               </tr>
               
               <!-- CTA Button -->
+              ${buttonText && buttonUrl ? `
               <tr>
-                <td style="padding: 0 48px 48px;">
+                <td style="padding: 0 40px 40px;">
                   <table width="100%" cellpadding="0" cellspacing="0">
                     <tr>
                       <td align="left">
-                        <a href="${frontendUrl}" style="display: inline-block; padding: 16px 32px; background-color: #09090b; color: #ffffff; text-decoration: none; font-size: 15px; font-weight: 500; border-radius: 8px; transition: background-color 0.2s;">
-                          Kunjungi DiskusiBisnis
+                        <a href="${buttonUrl}" style="display: inline-block; padding: 14px 28px; background-color: #111111; color: #ffffff; text-decoration: none; font-size: 14px; font-weight: 500; border-radius: 8px; font-family: ${FONT_FAMILY}; transition: background-color 0.2s;">
+                          ${buttonText}
                         </a>
                       </td>
                     </tr>
                   </table>
                 </td>
               </tr>
+              ` : ''}
               
               <!-- Footer -->
               <tr>
-                <td style="padding: 40px 48px; background-color: #fafafa; border-top: 1px solid #e4e4e7;">
-                  <p style="margin: 0 0 12px; color: #71717a; font-size: 14px; line-height: 1.6;">
+                <td style="padding: 30px 40px; background-color: #f9f9f9; border-top: 1px solid #eaeaea;">
+                  <p style="margin: 0 0 12px; color: #666666; font-size: 13px; line-height: 1.6;">
                     Terima kasih telah menjadi bagian dari komunitas DiskusiBisnis.
                   </p>
-                  <p style="margin: 0 0 24px; color: #a1a1aa; font-size: 13px;">
-                    Email ini dikirim ke ${email}
-                  </p>
-                  <p style="margin: 0; color: #a1a1aa; font-size: 13px;">
+                  <p style="margin: 0; color: #999999; font-size: 12px;">
+                    Email ini dikirim ke ${email}<br/>
                     © ${new Date().getFullYear()} DiskusiBisnis. All rights reserved.
                   </p>
                 </td>

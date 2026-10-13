@@ -479,10 +479,16 @@ export const googleLogin = async (req: AuthRequest, res: Response): Promise<void
       googleId = payload.sub;
     }
 
+    // Ensure parameters are not undefined for pg
+    const pgEmail = email || null;
+    const pgGoogleId = googleId || null;
+    const pgName = name || pgEmail?.split('@')[0] || 'User';
+    const pgPicture = picture || null;
+
     // Check if user exists
     const userResult = await pool.query(
       'SELECT * FROM public.users WHERE email = $1 OR google_id = $2',
-      [email, googleId]
+      [pgEmail, pgGoogleId]
     );
 
     let user;
@@ -491,14 +497,14 @@ export const googleLogin = async (req: AuthRequest, res: Response): Promise<void
     if (userResult.rows.length === 0) {
       // Create new user - generate a unique username from email
       const username = await generateUniqueUsername(
-        normalizeUsername(email!.split('@')[0])
+        normalizeUsername(pgEmail!.split('@')[0])
       );
 
       const result = await pool.query(
         `INSERT INTO public.users (email, display_name, username, avatar_url, google_id, role, is_verified) 
          VALUES ($1, $2, $3, $4, $5, 'member', false) 
          RETURNING id, email, display_name, username, avatar_url, role, reputation_points, is_verified`,
-        [email, name || email?.split('@')[0], username, picture, googleId]
+        [pgEmail, pgName, username, pgPicture, pgGoogleId]
       );
       user = result.rows[0];
       isNewUser = true;
@@ -509,7 +515,7 @@ export const googleLogin = async (req: AuthRequest, res: Response): Promise<void
       if (!user.google_id) {
         await pool.query(
           'UPDATE public.users SET google_id = $1, avatar_url = COALESCE(avatar_url, $2) WHERE id = $3',
-          [googleId, picture, user.id]
+          [pgGoogleId, pgPicture, user.id]
         );
       }
 

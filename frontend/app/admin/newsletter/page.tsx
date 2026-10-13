@@ -48,6 +48,8 @@ export default function AdminNewsletter() {
   // Form state
   const [subject, setSubject] = useState("");
   const [content, setContent] = useState("");
+  const [buttonText, setButtonText] = useState("");
+  const [buttonUrl, setButtonUrl] = useState("");
   const [testEmail, setTestEmail] = useState("");
   const [sending, setSending] = useState(false);
   const [sendingTest, setSendingTest] = useState(false);
@@ -68,7 +70,7 @@ export default function AdminNewsletter() {
     title: string;
     message: string;
     onConfirm: () => void;
-  }>({ isOpen: false, title: "", message: "", onConfirm: () => {} });
+  }>({ isOpen: false, title: "", message: "", onConfirm: () => { } });
 
   // Preview modal
   const [showPreview, setShowPreview] = useState(false);
@@ -130,6 +132,8 @@ export default function AdminNewsletter() {
         subject,
         content,
         previewHtml: content,
+        buttonText,
+        buttonUrl,
       });
 
       setAlertModal({
@@ -172,13 +176,15 @@ export default function AdminNewsletter() {
             isOpen: false,
             title: "",
             message: "",
-            onConfirm: () => {},
+            onConfirm: () => { },
           });
 
           const response = await adminAPI.sendNewsletter({
             subject,
             content,
             previewHtml: content,
+            buttonText,
+            buttonUrl,
           });
 
           const data = response.data.data;
@@ -305,11 +311,10 @@ export default function AdminNewsletter() {
       <div className="flex gap-2 mb-6">
         <button
           onClick={() => setActiveTab("compose")}
-          className={`px-4 py-2.5 rounded-lg font-medium text-sm transition-all ${
-            activeTab === "compose"
+          className={`px-4 py-2.5 rounded-lg font-medium text-sm transition-all ${activeTab === "compose"
               ? "bg-purple-600 text-white shadow-md"
               : "bg-white text-slate-600 border border-slate-200 hover:bg-slate-50"
-          }`}
+            }`}
         >
           <span className="flex items-center gap-2">
             <Sparkles className="w-4 h-4" />
@@ -318,11 +323,10 @@ export default function AdminNewsletter() {
         </button>
         <button
           onClick={() => setActiveTab("history")}
-          className={`px-4 py-2.5 rounded-lg font-medium text-sm transition-all ${
-            activeTab === "history"
+          className={`px-4 py-2.5 rounded-lg font-medium text-sm transition-all ${activeTab === "history"
               ? "bg-purple-600 text-white shadow-md"
               : "bg-white text-slate-600 border border-slate-200 hover:bg-slate-50"
-          }`}
+            }`}
         >
           <span className="flex items-center gap-2">
             <History className="w-4 h-4" />
@@ -364,6 +368,33 @@ export default function AdminNewsletter() {
                     onChange={setContent}
                     placeholder="Tulis konten newsletter Anda di sini. Gunakan toolbar untuk memformat teks..."
                   />
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-2">
+                  <div>
+                    <label className="block text-sm font-medium text-slate-700 mb-2">
+                      Teks Tombol CTA (Opsional)
+                    </label>
+                    <input
+                      type="text"
+                      value={buttonText}
+                      onChange={(e) => setButtonText(e.target.value)}
+                      placeholder="Contoh: Baca Selengkapnya"
+                      className="w-full px-4 py-3 rounded-lg border border-slate-200 focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-slate-700 mb-2">
+                      Link Tombol (Opsional)
+                    </label>
+                    <input
+                      type="text"
+                      value={buttonUrl}
+                      onChange={(e) => setButtonUrl(e.target.value)}
+                      placeholder="https://..."
+                      className="w-full px-4 py-3 rounded-lg border border-slate-200 focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all"
+                    />
+                  </div>
                 </div>
               </div>
             </div>
@@ -783,41 +814,71 @@ export default function AdminNewsletter() {
             <div className="p-6 overflow-y-auto max-h-[calc(90vh-80px)]">
               <div className="bg-slate-100 rounded-lg p-4 mb-4">
                 <p className="text-sm text-slate-600">
-                  <strong>Subject:</strong> 📬 {subject || "(Belum diisi)"} -
+                  <strong>Subject:</strong> {subject || "(Belum diisi)"} -
                   DiskusiBisnis Newsletter
                 </p>
                 <p className="text-sm text-slate-600 mt-1">
                   <strong>From:</strong> newsletter@diskusibisnis.my.id
                 </p>
               </div>
-              <div
-                className="prose prose-sm max-w-none"
-                dangerouslySetInnerHTML={{
-                  __html: DOMPurify.sanitize(
-                    content ||
-                      '<p class="text-slate-400">Konten belum diisi...</p>',
-                    {
-                      ALLOWED_TAGS: [
-                        "p",
-                        "br",
-                        "strong",
-                        "em",
-                        "u",
-                        "h2",
-                        "h3",
-                        "ul",
-                        "ol",
-                        "li",
-                        "blockquote",
-                        "a",
-                        "span",
-                        "div",
-                      ],
-                      ALLOWED_ATTR: ["href", "target", "rel", "class"],
-                    },
-                  ),
-                }}
-              />
+              <div className="bg-[#fafafa] p-4 sm:p-10 font-sans border-t border-slate-200">
+                <div className="max-w-[600px] bg-white border border-[#eaeaea] rounded-xl mx-auto overflow-hidden shadow-sm">
+                  {/* Header */}
+                  <div className="px-10 pt-10 pb-7 text-left border-b border-[#f5f5f5]">
+                    <h1 className="m-0 text-[#111111] text-2xl font-bold tracking-tight">DiskusiBisnis</h1>
+                  </div>
+
+                  {/* Content */}
+                  <div className="p-10">
+                    <p className="m-0 mb-6 text-[#444444] text-base leading-relaxed">
+                      Halo <strong className="text-[#111111] font-semibold">[Nama Subscriber]</strong>,
+                    </p>
+
+                    <div
+                      className="text-[#444444] text-base leading-relaxed prose prose-sm max-w-none prose-p:my-2 prose-headings:text-[#111111] prose-a:text-blue-600 prose-a:no-underline"
+                      dangerouslySetInnerHTML={{
+                        __html: DOMPurify.sanitize(
+                          content ||
+                          '<p class="text-slate-400">Konten belum diisi...</p>',
+                          {
+                            ALLOWED_TAGS: [
+                              "b", "i", "em", "strong", "a", "p", "br",
+                              "ul", "ol", "li", "h1", "h2", "h3", "h4", "h5", "h6",
+                              "blockquote", "u", "span", "div"
+                            ],
+                            ALLOWED_ATTR: ["href", "target", "rel", "class", "style"],
+                          }
+                        ),
+                      }}
+                    />
+                  </div>
+
+                  {/* CTA Button */}
+                  {buttonText && buttonUrl && (
+                    <div className="px-10 pb-10 text-left">
+                      <a
+                        href={buttonUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="inline-block px-7 py-3.5 bg-[#111111] text-white no-underline text-sm font-medium rounded-lg transition-colors hover:bg-slate-800"
+                      >
+                        {buttonText}
+                      </a>
+                    </div>
+                  )}
+
+                  {/* Footer */}
+                  <div className="px-10 py-7 bg-[#f9f9f9] border-t border-[#eaeaea]">
+                    <p className="m-0 mb-3 text-[#666666] text-[13px] leading-relaxed">
+                      Terima kasih telah menjadi bagian dari komunitas DiskusiBisnis.
+                    </p>
+                    <p className="m-0 text-[#999999] text-xs leading-relaxed">
+                      Email ini dikirim ke subscriber@example.com<br />
+                      © {new Date().getFullYear()} DiskusiBisnis. All rights reserved.
+                    </p>
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
         </div>

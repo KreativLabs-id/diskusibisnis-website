@@ -27,7 +27,7 @@ const testDatabaseConnection = async () => {
 };
 
 // Start server immediately (don't wait for database)
-server.listen(PORT, async () => {
+server.listen(Number(PORT), '0.0.0.0', async () => {
   console.log('');
   console.log('╔════════════════════════════════════════════════════════════════╗');
   console.log('║                                                                ║');

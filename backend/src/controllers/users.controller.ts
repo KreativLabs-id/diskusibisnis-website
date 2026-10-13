@@ -289,11 +289,11 @@ export const getUserActivities = async (req: AuthRequest, res: Response): Promis
     // Get reputation activities
     const result = await pool.query(`
       SELECT * FROM (
-        -- Question upvotes (+5 points)
+        -- Question upvotes (+10 points)
         SELECT 
           v.id,
           'question_upvote' as type,
-          5 as points,
+          10 as points,
           'Pertanyaan Anda mendapat upvote' as description,
           v.created_at as date,
           q.title as "questionTitle",
@@ -340,11 +340,11 @@ export const getUserActivities = async (req: AuthRequest, res: Response): Promis
         
         UNION ALL
         
-        -- Question posted (+2 points)
+        -- Question posted (+5 points)
         SELECT 
           q.id,
           'question_posted' as type,
-          2 as points,
+          5 as points,
           'Pertanyaan diposting' as description,
           q.created_at as date,
           q.title as "questionTitle",
