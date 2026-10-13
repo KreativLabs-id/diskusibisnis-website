@@ -242,7 +242,7 @@ export default function ProfilePage() {
           <User className="w-16 h-16 text-slate-300 dark:text-slate-600 mx-auto mb-4" />
           <h3 className="text-lg font-semibold text-slate-900 dark:text-slate-100 mb-2">Profil tidak ditemukan</h3>
           <p className="text-sm text-slate-500 dark:text-slate-400">User yang Anda cari tidak ada</p>
-          <button onClick={() => router.back()} className="mt-4 text-emerald-600 dark:text-emerald-400 font-medium">Kembali</button>
+          <Link href="/" className="mt-4 inline-block text-emerald-600 dark:text-emerald-400 font-medium">Kembali ke Beranda</Link>
         </div>
       </div>
     );
@@ -354,7 +354,7 @@ export default function ProfilePage() {
                     answers.map((answer) => (
                       <Link
                         key={answer.id}
-                        href={`/questions/${answer.questionId}`}
+                        href={`/questions/${answer.questionId}#answer-${answer.id}`}
                         className="group block bg-white dark:bg-slate-900 border-b border-slate-100 dark:border-slate-800/60 p-4 sm:p-5 hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors"
                       >
                         {/* Top Meta: Time & Context */}

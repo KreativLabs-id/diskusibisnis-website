@@ -145,12 +145,12 @@ export default function CommunityAboutPage() {
       <div className="min-h-screen bg-white dark:bg-slate-950 flex items-center justify-center">
         <div className="text-center">
           <p className="text-slate-600 font-medium">Komunitas tidak ditemukan</p>
-          <button
-            onClick={() => router.back()}
-            className="mt-4 text-emerald-600 hover:text-emerald-700 font-medium"
+          <Link
+            href="/communities"
+            className="mt-4 inline-block text-emerald-600 hover:text-emerald-700 font-medium"
           >
-            Kembali
-          </button>
+            Kembali ke Komunitas
+          </Link>
         </div>
       </div>
     );
@@ -161,12 +161,12 @@ export default function CommunityAboutPage() {
       {/* Mobile Header - Sticky */}
       <div className="sticky top-0 z-30 bg-white border-b border-slate-200 px-4 py-3 sm:hidden flex items-center justify-between shadow-sm">
         <div className="flex items-center gap-3">
-          <button
-            onClick={() => router.back()}
+          <Link
+            href={`/communities/${params.slug}`}
             className="p-1 -ml-1 text-slate-600 hover:text-slate-900"
           >
             <ArrowLeft className="w-5 h-5" />
-          </button>
+          </Link>
           <h1 className="text-lg font-bold text-slate-900 truncate">Tentang Komunitas</h1>
         </div>
         {canEdit && !editing && (
@@ -182,13 +182,13 @@ export default function CommunityAboutPage() {
       <div className="max-w-4xl mx-auto px-4 py-6 sm:py-8">
         {/* Desktop Header */}
         <div className="hidden sm:flex items-center justify-between mb-8">
-          <button
-            onClick={() => router.back()}
+          <Link
+            href={`/communities/${params.slug}`}
             className="flex items-center gap-2 text-slate-500 hover:text-emerald-600 transition-colors group"
           >
             <ArrowLeft className="w-4 h-4 group-hover:-translate-x-1 transition-transform" />
-            <span className="font-medium">Kembali</span>
-          </button>
+            <span className="font-medium">Kembali ke Komunitas</span>
+          </Link>
 
           {canEdit && !editing && (
             <button

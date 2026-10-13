@@ -29,6 +29,12 @@ router.post(
     body('name').isLength({ min: 3, max: 100 }).withMessage('Name must be between 3-100 characters'),
     body('description').isLength({ min: 10, max: 500 }).withMessage('Description must be between 10-500 characters'),
     body('category').notEmpty().withMessage('Category is required'),
+    body('location').optional({ nullable: true }).isString().trim(),
+    body('avatar_url').optional({ nullable: true }).isString().trim(),
+    body('vision').optional({ nullable: true }).isString().trim(),
+    body('mission').optional({ nullable: true }).isString().trim(),
+    body('target_members').optional({ nullable: true }).isString().trim(),
+    body('benefits').optional({ nullable: true }).isString().trim(),
     validate
   ],
   createCommunity

@@ -249,7 +249,17 @@ export const communityAPI = {
     api.get('/communities', { params }),
   getById: (id: string) =>
     api.get(`/communities/${id}`),
-  create: (data: { name: string; description: string; category: string; location?: string }) =>
+  create: (data: {
+    name: string;
+    description: string;
+    category: string;
+    location?: string;
+    avatar_url?: string;
+    vision?: string;
+    mission?: string;
+    target_members?: string;
+    benefits?: string;
+  }) =>
     api.post('/communities', data),
   join: (id: string) =>
     api.post(`/communities/${id}/join`),

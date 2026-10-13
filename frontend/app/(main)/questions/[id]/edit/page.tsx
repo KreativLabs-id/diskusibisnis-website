@@ -144,13 +144,13 @@ export default function EditQuestionPage() {
     <div className="container mx-auto px-4 py-4 max-w-4xl">
       {/* Header */}
       <div className="flex items-center gap-4 mb-6">
-        <button
-          onClick={() => router.back()}
+        <Link
+          href={`/questions/${params.id}`}
           className="flex items-center gap-2 text-slate-600 hover:text-emerald-600 transition-colors p-2 hover:bg-emerald-50 rounded-lg"
         >
           <ArrowLeft className="w-5 h-5" />
           <span className="font-medium">Kembali</span>
-        </button>
+        </Link>
         <h1 className="text-2xl font-bold text-slate-900">Edit Pertanyaan</h1>
       </div>
 
@@ -233,13 +233,12 @@ export default function EditQuestionPage() {
 
         {/* Actions */}
         <div className="flex gap-3 justify-end">
-          <button
-            type="button"
-            onClick={() => router.back()}
-            className="px-6 py-3 border border-slate-300 text-slate-700 rounded-lg font-semibold hover:bg-slate-50 transition-colors"
+          <Link
+            href={`/questions/${params.id}`}
+            className="px-6 py-3 border border-slate-300 text-slate-700 rounded-lg font-semibold hover:bg-slate-50 transition-colors inline-block text-center"
           >
             Batal
-          </button>
+          </Link>
           <button
             type="submit"
             disabled={saving || !title.trim() || !content.trim()}

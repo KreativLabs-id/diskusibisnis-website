@@ -104,7 +104,7 @@ const nextConfig = {
       // Styles - allow self and inline (needed for styled-jsx, emotion, etc.)
       "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
       // Images - allow various sources
-      "img-src 'self' data: blob: https://*.supabase.co https://*.googleusercontent.com https://www.gravatar.com https://res.cloudinary.com https://www.googletagmanager.com https://www.google-analytics.com",
+      "img-src 'self' data: blob: https://*.supabase.co https://*.googleusercontent.com https://images.unsplash.com https://*.unsplash.com https://www.gravatar.com https://res.cloudinary.com https://www.googletagmanager.com https://www.google-analytics.com",
       // Fonts
       "font-src 'self' https://fonts.gstatic.com data:",
       // Connect (API, WebSocket)

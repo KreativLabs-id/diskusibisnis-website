@@ -179,7 +179,13 @@ export default function AskPage() {
           <div className="flex items-center gap-2 sm:gap-3 min-w-0">
             <button
               type="button"
-              onClick={() => router.push('/')}
+              onClick={() => {
+                if (communitySlug) {
+                  router.push(`/communities/${communitySlug}`);
+                } else {
+                  router.push('/');
+                }
+              }}
               className="p-1.5 -ml-1 text-slate-500 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white rounded-lg transition-colors"
               aria-label="Kembali"
             >

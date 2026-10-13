@@ -2,14 +2,16 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
+import Link from 'next/link';
 import { useAuth } from '@/contexts/AuthContext';
-import { ArrowLeft, Users, MapPin, Tag, FileText, Plus } from 'lucide-react';
+import { ArrowLeft, Users, MapPin, Tag, FileText, Plus, Target, Lightbulb, Gift, ImageIcon, CheckCircle } from 'lucide-react';
 import { communityAPI } from '@/lib/api';
 import AlertModal from '@/components/ui/AlertModal';
+import ImageUpload from '@/components/ui/ImageUpload';
 
 const categories = [
   'Regional',
-  'Marketing', 
+  'Marketing',
   'Industri',
   'Perdagangan',
   'Teknologi',
@@ -28,7 +30,12 @@ export default function CreateCommunityPage() {
     name: '',
     description: '',
     category: '',
-    location: ''
+    location: '',
+    avatar_url: '',
+    vision: '',
+    mission: '',
+    target_members: '',
+    benefits: ''
   });
   const [alertModal, setAlertModal] = useState<{
     isOpen: boolean;
@@ -51,10 +58,17 @@ export default function CreateCommunityPage() {
     setLoading(true);
     try {
       const response = await communityAPI.create(formData);
-      
+
       if (response.data.success) {
         showAlert('success', 'Berhasil', 'Komunitas berhasil dibuat!');
-        setTimeout(() => router.push('/communities'), 1500);
+        const slug = response.data.data?.community?.slug;
+        setTimeout(() => {
+          if (slug) {
+            router.push(`/communities/${slug}`);
+          } else {
+            router.push('/communities');
+          }
+        }, 1500);
       }
     } catch (error: any) {
       console.error('Error creating community:', error);
@@ -116,32 +130,53 @@ export default function CreateCommunityPage() {
       <div className="max-w-3xl mx-auto px-4 py-8">
         {/* Header */}
         <div className="mb-8">
-          <button
-            onClick={() => router.back()}
-            className="flex items-center gap-2 text-slate-600 hover:text-emerald-600 mb-4 transition-colors"
+          <Link
+            href="/communities"
+            className="inline-flex items-center gap-2 text-slate-600 dark:text-slate-400 hover:text-emerald-600 dark:hover:text-emerald-400 mb-4 transition-colors"
           >
             <ArrowLeft className="w-5 h-5" />
-            <span className="font-medium">Kembali</span>
-          </button>
-          
+            <span className="font-medium">Kembali ke Komunitas</span>
+          </Link>
+
           <div className="text-center">
-            <div className="w-16 h-16 bg-emerald-100 rounded-2xl flex items-center justify-center mx-auto mb-4">
-              <Plus className="w-8 h-8 text-emerald-600" />
-            </div>
-            <h1 className="text-3xl font-bold text-slate-900 mb-2">Buat Komunitas Baru</h1>
-            <p className="text-slate-600">
+            <h1 className="text-3xl font-bold text-slate-900 dark:text-white mb-2">Buat Komunitas Baru</h1>
+            <p className="text-slate-600 dark:text-slate-400">
               Bangun komunitas UMKM untuk berbagi pengalaman dan saling mendukung
             </p>
           </div>
         </div>
 
         {/* Form */}
-        <div className="bg-white rounded-2xl border border-slate-200 p-6 sm:p-8 shadow-sm">
+        <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 p-6 sm:p-8 shadow-sm">
           <form onSubmit={handleSubmit} className="space-y-8">
+            {/* Logo / Avatar Komunitas */}
+            <div>
+              <label className="flex items-center gap-2 text-sm font-medium text-slate-700 dark:text-slate-300 mb-3">
+                <ImageIcon className="w-4 h-4 text-emerald-600" />
+                Logo Komunitas (Opsional)
+              </label>
+              <ImageUpload
+                userId={user?.id || 'community'}
+                maxImages={1}
+                onImagesChange={(images) => {
+                  if (images.length > 0) {
+                    setFormData((prev) => ({ ...prev, avatar_url: images[0].url }));
+                  } else {
+                    setFormData((prev) => ({ ...prev, avatar_url: '' }));
+                  }
+                }}
+              />
+              {formData.avatar_url && (
+                <div className="mt-2 text-sm text-emerald-600 flex items-center gap-1.5 font-medium">
+                  <CheckCircle className="w-4 h-4" /> Logo komunitas berhasil diunggah
+                </div>
+              )}
+            </div>
+
             {/* Community Name */}
             <div>
-              <label htmlFor="name" className="flex items-center gap-2 text-sm font-medium text-slate-700 mb-3">
-                <Users className="w-4 h-4" />
+              <label htmlFor="name" className="flex items-center gap-2 text-sm font-medium text-slate-700 dark:text-slate-300 mb-3">
+                <Users className="w-4 h-4 text-emerald-600" />
                 Nama Komunitas <span className="text-red-500">*</span>
               </label>
               <input
@@ -151,7 +186,7 @@ export default function CreateCommunityPage() {
                 value={formData.name}
                 onChange={handleChange}
                 placeholder="Contoh: UMKM Bandung Kreatif"
-                className="w-full px-4 py-4 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-500 text-base"
+                className="w-full px-4 py-4 border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-500 text-slate-900 dark:text-white text-base"
                 required
                 maxLength={100}
               />
@@ -159,9 +194,9 @@ export default function CreateCommunityPage() {
 
             {/* Description */}
             <div>
-              <label htmlFor="description" className="flex items-center gap-2 text-sm font-medium text-slate-700 mb-3">
-                <FileText className="w-4 h-4" />
-                Deskripsi <span className="text-red-500">*</span>
+              <label htmlFor="description" className="flex items-center gap-2 text-sm font-medium text-slate-700 dark:text-slate-300 mb-3">
+                <FileText className="w-4 h-4 text-emerald-600" />
+                Deskripsi Singkat <span className="text-red-500">*</span>
               </label>
               <textarea
                 id="description"
@@ -169,20 +204,20 @@ export default function CreateCommunityPage() {
                 value={formData.description}
                 onChange={handleChange}
                 rows={4}
-                placeholder="Jelaskan tujuan komunitas, target anggota, dan aktivitas yang akan dilakukan..."
-                className="w-full px-4 py-4 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-500 text-base resize-none"
+                placeholder="Jelaskan tujuan komunitas, topik diskusi, dan gambaran umum kegiatan..."
+                className="w-full px-4 py-4 border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-500 text-slate-900 dark:text-white text-base resize-none"
                 required
                 maxLength={500}
               />
-              <p className="text-xs text-slate-500 mt-2">
+              <p className="text-xs text-slate-500 dark:text-slate-400 mt-2">
                 {formData.description.length}/500 karakter
               </p>
             </div>
 
             {/* Category */}
             <div>
-              <label htmlFor="category" className="flex items-center gap-2 text-sm font-medium text-slate-700 mb-3">
-                <Tag className="w-4 h-4" />
+              <label htmlFor="category" className="flex items-center gap-2 text-sm font-medium text-slate-700 dark:text-slate-300 mb-3">
+                <Tag className="w-4 h-4 text-emerald-600" />
                 Kategori <span className="text-red-500">*</span>
               </label>
               <select
@@ -190,7 +225,7 @@ export default function CreateCommunityPage() {
                 name="category"
                 value={formData.category}
                 onChange={handleChange}
-                className="w-full px-4 py-4 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-500 text-base bg-white"
+                className="w-full px-4 py-4 border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-500 text-slate-900 dark:text-white text-base"
                 required
               >
                 <option value="">Pilih kategori komunitas</option>
@@ -204,8 +239,8 @@ export default function CreateCommunityPage() {
 
             {/* Location */}
             <div>
-              <label htmlFor="location" className="flex items-center gap-2 text-sm font-medium text-slate-700 mb-3">
-                <MapPin className="w-4 h-4" />
+              <label htmlFor="location" className="flex items-center gap-2 text-sm font-medium text-slate-700 dark:text-slate-300 mb-3">
+                <MapPin className="w-4 h-4 text-emerald-600" />
                 Lokasi (Opsional)
               </label>
               <input
@@ -215,35 +250,127 @@ export default function CreateCommunityPage() {
                 value={formData.location}
                 onChange={handleChange}
                 placeholder="Jakarta, Bandung, atau Online"
-                className="w-full px-4 py-4 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-500 text-base"
+                className="w-full px-4 py-4 border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-500 text-slate-900 dark:text-white text-base"
                 maxLength={100}
               />
             </div>
 
-            {/* Quick Tips - Simplified */}
-            <div className="bg-slate-50 border border-slate-200 rounded-xl p-4">
+            {/* Detail Komunitas: Visi, Misi, Target Anggota, Manfaat */}
+            <div className="pt-6 border-t border-slate-200 dark:border-slate-800">
+              <div className="mb-6">
+                <h2 className="text-xl font-bold text-slate-900 dark:text-white flex items-center gap-2">
+                  <Target className="w-5 h-5 text-emerald-600" />
+                  Detail Komunitas (Visi, Misi, Target &amp; Manfaat)
+                </h2>
+                <p className="text-sm text-slate-600 dark:text-slate-400 mt-1">
+                  Informasi ini akan ditampilkan pada tab &ldquo;Tentang&rdquo; di halaman komunitas Anda. (Opsional)
+                </p>
+              </div>
+
+              <div className="space-y-6">
+                {/* Vision */}
+                <div>
+                  <label htmlFor="vision" className="flex items-center gap-2 text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
+                    <Target className="w-4 h-4 text-emerald-600" />
+                    Visi
+                  </label>
+                  <textarea
+                    id="vision"
+                    name="vision"
+                    value={formData.vision}
+                    onChange={handleChange}
+                    rows={3}
+                    placeholder="Contoh: Mengangkat standar kualitas dan harga jasa industri kreatif di Timur Jawa."
+                    className="w-full px-4 py-3.5 border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-500 text-slate-900 dark:text-white text-base resize-none"
+                  />
+                </div>
+
+                {/* Mission */}
+                <div>
+                  <label htmlFor="mission" className="flex items-center gap-2 text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
+                    <Lightbulb className="w-4 h-4 text-emerald-600" />
+                    Misi
+                  </label>
+                  <textarea
+                    id="mission"
+                    name="mission"
+                    value={formData.mission}
+                    onChange={handleChange}
+                    rows={4}
+                    placeholder={`Contoh:
+- Standarisasi harga jasa (biar nggak pada banting harga)
+- Bikin event kolaborasi tahunan
+- Sharing legalitas kontrak kerja`}
+                    className="w-full px-4 py-3.5 border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-500 text-slate-900 dark:text-white text-base resize-none leading-relaxed"
+                  />
+                  <p className="text-xs text-slate-500 dark:text-slate-400 mt-1.5">
+                    Tips: Awali tiap poin dengan tanda hubung (-) untuk tampilan poin-poin yang rapi.
+                  </p>
+                </div>
+
+                {/* Target Members */}
+                <div>
+                  <label htmlFor="target_members" className="flex items-center gap-2 text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
+                    <Users className="w-4 h-4 text-emerald-600" />
+                    Target Anggota
+                  </label>
+                  <textarea
+                    id="target_members"
+                    name="target_members"
+                    value={formData.target_members}
+                    onChange={handleChange}
+                    rows={3}
+                    placeholder="Contoh: Pelaku industri kreatif, agensi lokal, vendor pernikahan, seniman."
+                    className="w-full px-4 py-3.5 border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-500 text-slate-900 dark:text-white text-base resize-none"
+                  />
+                </div>
+
+                {/* Benefits */}
+                <div>
+                  <label htmlFor="benefits" className="flex items-center gap-2 text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
+                    <Gift className="w-4 h-4 text-emerald-600" />
+                    Manfaat Bergabung
+                  </label>
+                  <textarea
+                    id="benefits"
+                    name="benefits"
+                    value={formData.benefits}
+                    onChange={handleChange}
+                    rows={4}
+                    placeholder={`Contoh:
+- Sering dapet over-an job kalau tanggalnya bentrok
+- Rekomendasi vendor sewa alat yang murah dan amanah
+- Networking bareng EO besar`}
+                    className="w-full px-4 py-3.5 border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-500 text-slate-900 dark:text-white text-base resize-none leading-relaxed"
+                  />
+                  <p className="text-xs text-slate-500 dark:text-slate-400 mt-1.5">
+                    Tips: Awali tiap poin dengan tanda hubung (-) untuk tampilan poin-poin yang rapi.
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            {/* Quick Tips */}
+            <div className="bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-800 rounded-xl p-4">
               <div className="flex items-center gap-2 mb-2">
-                <div className="w-5 h-5 bg-emerald-600 rounded-full flex items-center justify-center">
+                <div className="w-5 h-5 bg-emerald-600 rounded-full flex items-center justify-center shrink-0">
                   <span className="text-white text-xs font-bold">i</span>
                 </div>
-                <h3 className="text-sm font-medium text-slate-900">Tips Singkat</h3>
+                <h3 className="text-sm font-medium text-slate-900 dark:text-white">Tips Komunitas Menarik</h3>
               </div>
-              <p className="text-sm text-slate-600">
-                Nama harus unik, deskripsi jelas, dan pilih kategori yang tepat. 
-                <button type="button" className="text-emerald-600 hover:text-emerald-700 font-medium ml-1">Pelajari selengkapnya</button>
+              <p className="text-sm text-slate-600 dark:text-slate-400">
+                Lengkapi Visi, Misi, dan Manfaat Bergabung agar calon anggota lebih mudah memahami tujuan komunitas Anda dan tertarik untuk bergabung.
               </p>
             </div>
 
             {/* Submit Button */}
-            <div className="flex items-center justify-between pt-4 border-t border-slate-200">
-              <button
-                type="button"
-                onClick={() => router.back()}
-                className="px-6 py-3 text-slate-700 hover:bg-slate-100 rounded-lg transition-colors font-medium"
-                disabled={loading}
+            <div className="flex items-center justify-between pt-4 border-t border-slate-200 dark:border-slate-800">
+              <Link
+                href="/communities"
+                className="px-6 py-3 text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg transition-colors font-medium"
               >
                 Batal
-              </button>
+              </Link>
               <button
                 type="submit"
                 disabled={loading || !formData.name || !formData.description || !formData.category}

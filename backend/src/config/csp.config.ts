@@ -66,6 +66,9 @@ export const contentSecurityPolicy = {
             'https://*.supabase.co',
             // Cloudinary (if used)
             'https://res.cloudinary.com',
+            // Unsplash images
+            'https://images.unsplash.com',
+            'https://*.unsplash.com',
             // Google (avatars)
             'https://*.googleusercontent.com',
             'https://lh3.googleusercontent.com',

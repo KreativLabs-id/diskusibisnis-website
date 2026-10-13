@@ -4,6 +4,7 @@ import { AuthRequest } from '../types';
 import { successResponse, errorResponse, notFoundResponse, forbiddenResponse } from '../utils/response.utils';
 import { generateUniqueSlug } from '../utils/slug.utils';
 import { apiCache, cacheKeys, invalidateCache } from '../utils/cache';
+import { hasTableColumn } from '../utils/schema.utils';
 
 /**
  * Get all communities
@@ -129,7 +130,17 @@ export const createCommunity = async (req: AuthRequest, res: Response): Promise<
       return;
     }
 
-    const { name, description, category, location, avatar_url } = req.body;
+    const {
+      name,
+      description,
+      category,
+      location,
+      avatar_url,
+      vision,
+      mission,
+      target_members,
+      benefits
+    } = req.body;
 
     // Check if community name already exists
     const existingCommunity = await pool.query(
@@ -147,10 +158,25 @@ export const createCommunity = async (req: AuthRequest, res: Response): Promise<
 
     // Create community
     const result = await pool.query(
-      `INSERT INTO public.communities (name, slug, description, category, location, avatar_url, created_by) 
-       VALUES ($1, $2, $3, $4, $5, $6, $7) 
-       RETURNING id, name, slug, description, category, location, avatar_url, created_at`,
-      [name, slug, description, category, location, avatar_url || null, user.id]
+      `INSERT INTO public.communities (
+        name, slug, description, category, location, avatar_url, created_by,
+        vision, mission, target_members, benefits
+      ) 
+       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11) 
+       RETURNING id, name, slug, description, category, location, avatar_url, created_at, vision, mission, target_members, benefits`,
+      [
+        name.trim(),
+        slug,
+        description.trim(),
+        category,
+        location ? location.trim() : null,
+        avatar_url || null,
+        user.id,
+        vision ? vision.trim() : null,
+        mission ? mission.trim() : null,
+        target_members ? target_members.trim() : null,
+        benefits ? benefits.trim() : null
+      ]
     );
 
     const community = result.rows[0];
@@ -388,12 +414,19 @@ export const getCommunityQuestions = async (req: AuthRequest, res: Response): Pr
 
     const communityId = communityResult.rows[0].id;
 
+    const hasImagesColumn = await hasTableColumn('public', 'questions', 'images');
+
     const result = await pool.query(`
       SELECT 
-        q.id, q.title, q.content, q.views_count, q.is_closed, q.created_at,
+        q.id, q.title, q.content, ${hasImagesColumn ? 'q.images' : 'NULL::jsonb AS images'},
+        COALESCE(q.views_count, 0) as views_count, 
+        q.is_closed, q.created_at, q.updated_at,
         u.id as author_id, u.username as author_username, u.display_name as author_name, u.avatar_url as author_avatar,
+        COALESCE(u.reputation_points, 0) as author_reputation,
+        COALESCE(u.is_verified, false) as author_is_verified,
         (SELECT COUNT(id) FROM public.answers WHERE question_id = q.id) as answers_count,
         (SELECT COUNT(id) FROM public.votes WHERE question_id = q.id AND vote_type = 'upvote') as upvotes_count,
+        COALESCE(q.has_accepted_answer, false) as has_accepted_answer,
         CASE 
           WHEN $4::uuid IS NOT NULL THEN 
             (SELECT vote_type FROM public.votes WHERE question_id = q.id AND user_id = $4)
@@ -418,8 +451,45 @@ export const getCommunityQuestions = async (req: AuthRequest, res: Response): Pr
 
     const total = parseInt(countResult.rows[0].total);
 
+    // Fetch tags for these questions
+    const questionIds = result.rows.map(q => q.id);
+    let questionsWithTags = result.rows;
+
+    if (questionIds.length > 0) {
+      const tagsResult = await pool.query(`
+        SELECT 
+          qt.question_id,
+          t.id, t.name, t.slug
+        FROM public.tags t
+        JOIN public.question_tags qt ON t.id = qt.tag_id
+        WHERE qt.question_id = ANY($1)
+        ORDER BY qt.question_id, t.name
+      `, [questionIds]);
+
+      const tagsByQuestion = tagsResult.rows.reduce((acc, row) => {
+        if (!acc[row.question_id]) {
+          acc[row.question_id] = [];
+        }
+        acc[row.question_id].push({
+          id: row.id,
+          name: row.name,
+          slug: row.slug
+        });
+        return acc;
+      }, {} as Record<string, any[]>);
+
+      questionsWithTags = result.rows.map(question => ({
+        ...question,
+        answers_count: parseInt(question.answers_count) || 0,
+        upvotes_count: parseInt(question.upvotes_count) || 0,
+        views_count: parseInt(question.views_count) || 0,
+        images: typeof question.images === 'string' ? JSON.parse(question.images) : question.images || [],
+        tags: tagsByQuestion[question.id] || []
+      }));
+    }
+
     successResponse(res, {
-      questions: result.rows,
+      questions: questionsWithTags,
       pagination: {
         page,
         limit,

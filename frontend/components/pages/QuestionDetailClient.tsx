@@ -131,6 +131,7 @@ export default function QuestionDetailClient({ initialQuestion, questionId }: Qu
     const [editingAnswerId, setEditingAnswerId] = useState<string | null>(null);
     const [editAnswerContent, setEditAnswerContent] = useState('');
     const [showQuickReply, setShowQuickReply] = useState(false);
+    const [highlightedAnswerId, setHighlightedAnswerId] = useState<string | null>(null);
     const answerComposerRef = useRef<HTMLDivElement | null>(null);
 
     const [alertModal, setAlertModal] = useState<{
@@ -268,6 +269,45 @@ export default function QuestionDetailClient({ initialQuestion, questionId }: Qu
             window.removeEventListener('resize', handleScroll);
         };
     }, [question?.id]);
+
+    // Auto scroll and highlight target answer when URL has #answer-[id]
+    useEffect(() => {
+        const scrollToAnswer = () => {
+            if (typeof window === 'undefined') return;
+            const hash = window.location.hash;
+            if (hash && hash.startsWith('#answer-')) {
+                const answerId = hash.replace('#answer-', '');
+                const targetElement = document.getElementById(`answer-${answerId}`);
+                if (targetElement) {
+                    targetElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    setHighlightedAnswerId(answerId);
+                    const timer = setTimeout(() => {
+                        setHighlightedAnswerId(null);
+                    }, 3500);
+                    return () => clearTimeout(timer);
+                }
+            }
+        };
+
+        const t1 = setTimeout(scrollToAnswer, 150);
+        const t2 = setTimeout(scrollToAnswer, 500);
+
+        window.addEventListener('hashchange', scrollToAnswer);
+        return () => {
+            clearTimeout(t1);
+            clearTimeout(t2);
+            window.removeEventListener('hashchange', scrollToAnswer);
+        };
+    }, [question?.answers]);
+
+    const handleShareAnswer = (answerId: string) => {
+        if (typeof window === 'undefined') return;
+        const url = `${window.location.origin}/questions/${questionId}#answer-${answerId}`;
+        if (navigator.clipboard) {
+            navigator.clipboard.writeText(url);
+            showAlert('success', 'Tautan Disalin', 'Tautan langsung ke jawaban berhasil disalin!');
+        }
+    };
 
     const scrollToAnswerComposer = () => {
         if (!answerComposerRef.current) return;
@@ -850,7 +890,14 @@ export default function QuestionDetailClient({ initialQuestion, questionId }: Qu
                     {question.answers?.map((answer) => (
                         <div
                             key={answer.id}
-                            className={`border-b border-slate-200 dark:border-slate-800 ${answer.is_accepted ? 'bg-emerald-50/30 dark:bg-emerald-900/10' : 'bg-white dark:bg-slate-900'}`}
+                            id={`answer-${answer.id}`}
+                            className={`border-b border-slate-200 dark:border-slate-800 scroll-mt-24 transition-all duration-700 ${
+                                highlightedAnswerId === answer.id
+                                    ? 'bg-emerald-50 dark:bg-emerald-950/40 ring-2 ring-emerald-500 shadow-sm'
+                                    : answer.is_accepted
+                                        ? 'bg-emerald-50/30 dark:bg-emerald-900/10'
+                                        : 'bg-white dark:bg-slate-900'
+                            }`}
                         >
                             <div className="max-w-5xl mx-auto px-4 sm:px-6 py-4">
                                 <div className="flex-1 min-w-0">
@@ -941,7 +988,10 @@ export default function QuestionDetailClient({ initialQuestion, questionId }: Qu
                                         {/* Answer Footer Row */}
                                         <div className="pt-3 mt-4 border-t border-slate-100 dark:border-slate-800">
                                             <div className="hidden sm:flex items-center gap-3">
-                                                <button className="text-[13px] text-gray-500 hover:text-slate-800 dark:hover:text-slate-200 font-medium transition-colors">
+                                                <button
+                                                    onClick={() => handleShareAnswer(answer.id)}
+                                                    className="text-[13px] text-gray-500 hover:text-slate-800 dark:hover:text-slate-200 font-medium transition-colors"
+                                                >
                                                     Share
                                                 </button>
                                             </div>

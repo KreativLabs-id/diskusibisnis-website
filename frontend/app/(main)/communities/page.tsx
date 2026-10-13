@@ -197,12 +197,27 @@ export default function CommunitiesPage() {
               >
                 {/* Header: Avatar, Name, Category */}
                 <div className="flex items-start gap-4 mb-3">
-                  <div className="w-12 h-12 bg-emerald-50 dark:bg-emerald-900/20 rounded-lg flex items-center justify-center text-emerald-600 dark:text-emerald-400 shrink-0">
+                  <div className="w-12 h-12 bg-emerald-50 dark:bg-emerald-900/20 rounded-lg flex items-center justify-center text-emerald-600 dark:text-emerald-400 shrink-0 overflow-hidden relative">
                     {community.avatar_url ? (
-                      <img src={getImageUrl(community.avatar_url)} alt={community.name} className="w-full h-full object-cover rounded-lg" />
-                    ) : (
-                      <span className="text-xl font-bold">{community.name.charAt(0)}</span>
-                    )}
+                      <img 
+                        src={getImageUrl(community.avatar_url)} 
+                        alt={community.name} 
+                        className="w-full h-full object-cover rounded-lg"
+                        referrerPolicy="no-referrer"
+                        onError={(e) => {
+                          const target = e.currentTarget;
+                          target.style.display = 'none';
+                          const fallback = target.nextElementSibling as HTMLElement | null;
+                          if (fallback) fallback.style.display = 'block';
+                        }}
+                      />
+                    ) : null}
+                    <span 
+                      className="text-xl font-bold uppercase" 
+                      style={{ display: community.avatar_url ? 'none' : 'block' }}
+                    >
+                      {community.name ? community.name.charAt(0) : 'K'}
+                    </span>
                   </div>
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2 mb-0.5">
