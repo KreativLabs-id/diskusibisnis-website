@@ -11,7 +11,8 @@ import {
   setPassword,
   requestRegisterOTP,
   verifyRegisterOTP,
-  requestChangePasswordOTP
+  requestChangePasswordOTP,
+  checkUsernameAvailability
 } from '../controllers/auth.controller';
 import { validate } from '../utils/validator.utils';
 import { requireAuth } from '../middlewares/auth.middleware';
@@ -22,6 +23,9 @@ import {
 } from '../middlewares/rate-limit.middleware';
 
 const router = Router();
+
+// Check username availability
+router.get('/check-username/:username', checkUsernameAvailability);
 
 // Request OTP for registration (with rate limiting)
 router.post(

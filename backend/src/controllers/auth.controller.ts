@@ -1,4 +1,4 @@
-import { Response } from 'express';
+import { Request, Response } from 'express';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import crypto from 'crypto';
@@ -891,5 +891,76 @@ export const setPassword = async (req: AuthRequest, res: Response): Promise<void
   } catch (error) {
     console.error('Set password error:', error);
     errorResponse(res, 'Server error');
+  }
+};
+
+/**
+ * Check username availability
+ * GET /api/auth/check-username/:username
+ */
+export const checkUsernameAvailability = async (req: Request, res: Response): Promise<void> => {
+  try {
+    const rawUsername = (req.params.username || '').toLowerCase().trim();
+
+    // Validate format
+    const usernameRegex = /^[a-z0-9_]+$/;
+    if (!usernameRegex.test(rawUsername)) {
+      successResponse(res, {
+        available: false,
+        message: 'Hanya boleh huruf kecil, angka, dan underscore'
+      });
+      return;
+    }
+
+    if (rawUsername.length < 3) {
+      successResponse(res, {
+        available: false,
+        message: 'Minimal 3 karakter'
+      });
+      return;
+    }
+
+    if (rawUsername.length > 30) {
+      successResponse(res, {
+        available: false,
+        message: 'Maksimal 30 karakter'
+      });
+      return;
+    }
+
+    // Check reserved usernames
+    const reservedUsernames = [
+      'admin', 'administrator', 'system', 'root', 'support', 'help', 'info',
+      'diskusi', 'diskusibisnis', 'moderator', 'mod', 'official'
+    ];
+    if (reservedUsernames.includes(rawUsername)) {
+      successResponse(res, {
+        available: false,
+        message: 'Username ini dicadangkan oleh sistem'
+      });
+      return;
+    }
+
+    // Check database
+    const existing = await pool.query(
+      'SELECT id FROM public.users WHERE LOWER(username) = $1 LIMIT 1',
+      [rawUsername]
+    );
+
+    if (existing.rows.length > 0) {
+      successResponse(res, {
+        available: false,
+        message: 'Username sudah digunakan'
+      });
+      return;
+    }
+
+    successResponse(res, {
+      available: true,
+      message: 'Username tersedia'
+    });
+  } catch (error) {
+    console.error('Check username error:', error);
+    errorResponse(res, 'Terjadi kesalahan saat memeriksa username');
   }
 };

@@ -1,14 +1,12 @@
 'use client';
 
 import dynamic from 'next/dynamic';
+import animationData from '@/public/lottie/404.json';
 
-const DotLottieReact = dynamic(
-  () => import('@lottiefiles/dotlottie-react').then((mod) => mod.DotLottieReact),
-  {
-    ssr: false,
-    loading: () => <div className="w-56 h-56 sm:w-64 sm:h-64 mx-auto" />,
-  }
-);
+const Lottie = dynamic(() => import('lottie-react'), {
+  ssr: false,
+  loading: () => <div className="w-60 h-60 sm:w-72 sm:h-72 mx-auto" />,
+});
 
 interface NotFoundAnimationProps {
   className?: string;
@@ -17,10 +15,10 @@ interface NotFoundAnimationProps {
 export default function NotFoundAnimation({ className = 'w-60 h-60 sm:w-72 sm:h-72 mx-auto' }: NotFoundAnimationProps) {
   return (
     <div className={className}>
-      <DotLottieReact
-        src="/404.lottie"
-        loop
-        autoplay
+      <Lottie
+        animationData={animationData}
+        loop={true}
+        autoplay={true}
       />
     </div>
   );

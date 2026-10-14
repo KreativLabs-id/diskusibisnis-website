@@ -7,6 +7,7 @@ import { PWAUpdateModal } from '@/components/PWAUpdateModal';
 import { OfflineIndicator } from '@/components/OfflineIndicator';
 import { ThemeProvider } from '@/contexts/ThemeContext';
 import { SearchProvider } from '@/contexts/SearchContext';
+import WelcomeGuideModal from '@/components/onboarding/WelcomeGuideModal';
 import { Suspense } from 'react';
 
 export default function ClientProviders({
@@ -22,6 +23,7 @@ export default function ClientProviders({
             <SearchProvider>
               <OfflineIndicator />
               {children}
+              <WelcomeGuideModal />
               <PWAInstallPrompt />
               <PWAUpdateModal />
             </SearchProvider>

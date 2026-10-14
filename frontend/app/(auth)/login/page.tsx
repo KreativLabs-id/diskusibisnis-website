@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { useAuth } from '@/contexts/AuthContext';
-import { AlertCircle, Eye, EyeOff } from 'lucide-react';
+import { AlertCircle, Eye, EyeOff, Mail, Lock } from 'lucide-react';
 import GoogleLoginButton from '@/components/ui/GoogleLoginButton';
 
 export default function LoginPage() {
@@ -82,93 +82,111 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="min-h-screen w-full flex flex-col lg:flex-row bg-white dark:bg-slate-900">
-      
-      {/* LEFT PANEL - Clean, Vibrant Brand Gradient */}
-      <div className="hidden lg:flex lg:w-1/2 relative bg-gradient-to-br from-emerald-500 via-emerald-600 to-emerald-700 text-white p-8 xl:p-12 flex-col justify-between overflow-hidden shrink-0 min-h-screen lg:[border-top-right-radius:4rem_6rem] lg:[border-bottom-right-radius:4rem_6rem] [transform:translateZ(0)] isolate shadow-[8px_0_36px_-6px_rgba(5,150,105,0.18)] z-10">
-        {/* Soft Background Glow */}
-        <div className="absolute top-1/4 -right-16 w-72 h-72 bg-emerald-400/30 rounded-full blur-3xl pointer-events-none" />
-        <div className="absolute -bottom-16 -left-16 w-72 h-72 bg-emerald-400/20 rounded-full blur-3xl pointer-events-none" />
+    <div className="min-h-screen lg:h-screen w-full flex flex-col lg:flex-row bg-white dark:bg-slate-900 overflow-y-auto lg:overflow-hidden">
 
-        {/* Top: Logo */}
-        <div className="relative z-10">
-          <Link href="/" className="inline-flex items-center gap-2.5 group w-fit">
-            <div className="w-9 h-9 bg-white/20 backdrop-blur-md rounded-xl p-2 flex items-center justify-center border border-white/20 shadow-sm group-hover:scale-105 transition-transform">
-              <img src="/logodiskusibisnisaja.png" alt="DiskusiBisnis" className="w-full h-full object-contain brightness-0 invert" />
+      {/* Hidden SVG Definitions for Custom Slanted Card Shape */}
+      <svg className="absolute w-0 h-0 pointer-events-none opacity-0" aria-hidden="true">
+        <defs>
+          <clipPath id="slantedHeroCard" clipPathUnits="objectBoundingBox">
+            <path d="M 0.08 0 L 0.92 0 Q 1.0 0.0 0.995 0.06 L 0.885 0.94 Q 0.88 1.0 0.80 1.0 L 0.08 1.0 Q 0 1.0 0 0.94 L 0 0.06 Q 0 0 0.08 0 Z" />
+          </clipPath>
+        </defs>
+      </svg>
+
+      {/* LEFT COLUMN: SLANTED ROUNDED HERO PHOTO CARD (Desktop Only, hidden on mobile) */}
+      <div className="hidden lg:flex lg:w-1/2 p-3 sm:p-5 lg:p-6 xl:p-8 items-center justify-center lg:h-screen shrink-0">
+        <div className="relative w-full h-[360px] sm:h-[440px] lg:h-[calc(100vh-3rem)] max-h-[820px] filter drop-shadow-[0_20px_35px_rgba(0,0,0,0.15)]">
+          
+          {/* Card Container with Slanted Shape on Desktop */}
+          <div 
+            className="relative w-full h-full rounded-[2rem] lg:rounded-none overflow-hidden flex flex-col justify-between p-6 sm:p-10 xl:p-12 text-white group"
+            style={{ WebkitClipPath: 'url(#slantedHeroCard)', clipPath: 'url(#slantedHeroCard)' }}
+          >
+            {/* Background Image with Hover Micro-Zoom */}
+            <div 
+              className="absolute inset-0 bg-cover bg-center transition-transform duration-700 group-hover:scale-105"
+              style={{ backgroundImage: `url('/images/auth-bg.jpg')` }}
+            />
+
+            {/* Dark Overlay Gradient for Perfect Contrast */}
+            <div className="absolute inset-0 bg-gradient-to-t from-slate-950/95 via-slate-950/45 to-slate-950/70" />
+
+            {/* SVG Crisp Non-Scaling Border Outline */}
+            <svg 
+              className="absolute inset-0 w-full h-full pointer-events-none z-20 hidden lg:block" 
+              viewBox="0 0 1 1" 
+              preserveAspectRatio="none"
+            >
+              <path 
+                d="M 0.08 0 L 0.92 0 Q 1.0 0.0 0.995 0.06 L 0.885 0.94 Q 0.88 1.0 0.80 1.0 L 0.08 1.0 Q 0 1.0 0 0.94 L 0 0.06 Q 0 0 0.08 0 Z" 
+                fill="none" 
+                stroke="rgba(255,255,255,0.25)" 
+                strokeWidth="1.5"
+                vectorEffect="non-scaling-stroke"
+              />
+            </svg>
+
+            {/* TOP SECTION: Typography Overlaid On Top (Exactly Like Reference) */}
+            <div className="relative z-10 flex items-start justify-between gap-4">
+              <div>
+                <p className="text-xs sm:text-sm font-extrabold tracking-widest text-emerald-400 uppercase drop-shadow-md">
+                  WELCOME TO
+                </p>
+                <h1 className="text-3xl sm:text-4xl xl:text-5xl font-black text-white tracking-tight mt-1 leading-tight drop-shadow-md">
+                  DiskusiBisnis
+                </h1>
+                <p className="text-xs sm:text-sm text-slate-200/90 font-medium mt-2.5 leading-relaxed max-w-sm drop-shadow-md">
+                  Wadah Kolaborasi, Berbagi Pengalaman & Solusi Pelaku UMKM Indonesia.
+                </p>
+              </div>
+
+              {/* Logo Badge in Top Right (Like 'N' in reference) */}
+              <Link 
+                href="/" 
+                className="w-12 h-12 sm:w-14 sm:h-14 bg-white/15 backdrop-blur-md rounded-2xl p-2.5 sm:p-3 border border-white/30 flex items-center justify-center shrink-0 shadow-xl hover:scale-105 transition-transform mr-2 sm:mr-4"
+              >
+                <img src="/logodiskusibisnisaja.png" alt="DiskusiBisnis" className="w-full h-full object-contain brightness-0 invert" />
+              </Link>
             </div>
-            <span className="text-lg font-bold tracking-tight text-white">DiskusiBisnis</span>
-          </Link>
-        </div>
 
-        {/* Lower-Middle: Pill, Headline, Subheading */}
-        <div className="relative z-10 mt-auto mb-6">
-          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/20 backdrop-blur-sm text-white text-xs font-medium mb-4 shadow-sm w-fit">
-            <span>Selamat Datang Kembali</span>
-            <span>👋</span>
-          </div>
-
-          <h1 className="text-2xl xl:text-3xl font-bold text-white tracking-tight leading-snug mb-2">
-            Mulai Langkah Bisnis Anda
-          </h1>
-          <p className="text-emerald-50/90 text-xs xl:text-sm leading-relaxed max-w-sm font-normal">
-            Masuk untuk melanjutkan diskusi, berbagi pengalaman, dan berkolaborasi bersama ribuan pelaku UMKM.
-          </p>
-        </div>
-
-        {/* Bottom: 3 Stepper Cards */}
-        <div className="relative z-10 grid grid-cols-3 gap-2.5 max-w-md">
-          {/* Card 1 - Active */}
-          <div className="rounded-xl p-3 bg-white text-slate-900 shadow-md flex flex-col justify-between min-h-[96px] transition-all">
-            <div className="w-5 h-5 rounded-full bg-emerald-600 text-white flex items-center justify-center text-[10px] font-bold">
-              1
+            {/* BOTTOM SECTION: Social Proof / Community Badge */}
+            <div className="relative z-10 mt-auto pt-6 hidden sm:block">
+              <div className="inline-flex items-center gap-2.5 px-4 py-2 rounded-full bg-black/30 backdrop-blur-md border border-white/20 text-xs sm:text-sm font-medium text-white/95 shadow-xl">
+                <span className="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse" />
+                <span>5.000+ Pelaku UMKM Telah Bergabung</span>
+              </div>
             </div>
-            <p className="text-xs font-semibold leading-tight text-slate-900 mt-2">
-              Masuk ke akun
-            </p>
-          </div>
-
-          {/* Card 2 */}
-          <div className="rounded-xl p-3 bg-white/15 backdrop-blur-sm border border-white/15 text-white flex flex-col justify-between min-h-[96px] transition-all">
-            <div className="w-5 h-5 rounded-full bg-white/20 text-white flex items-center justify-center text-[10px] font-bold">
-              2
-            </div>
-            <p className="text-xs font-medium leading-tight text-white/90 mt-2">
-              Pantau diskusi
-            </p>
-          </div>
-
-          {/* Card 3 */}
-          <div className="rounded-xl p-3 bg-white/15 backdrop-blur-sm border border-white/15 text-white flex flex-col justify-between min-h-[96px] transition-all">
-            <div className="w-5 h-5 rounded-full bg-white/20 text-white flex items-center justify-center text-[10px] font-bold">
-              3
-            </div>
-            <p className="text-xs font-medium leading-tight text-white/90 mt-2">
-              Kembangkan usaha
-            </p>
           </div>
         </div>
       </div>
 
-      {/* RIGHT PANEL - Compact Form */}
-      <div className="w-full lg:w-1/2 flex flex-col justify-center px-6 sm:px-10 lg:px-14 xl:px-20 py-8 min-h-screen bg-white dark:bg-slate-900">
-        
-        {/* Mobile Header Logo */}
-        <div className="lg:hidden text-center mb-6">
-          <Link href="/" className="inline-flex items-center gap-2 mb-1">
-            <div className="w-9 h-9 bg-emerald-600 rounded-xl p-2 flex items-center justify-center shadow-sm">
-              <img src="/logodiskusibisnisaja.png" alt="DiskusiBisnis" className="w-full h-full object-contain brightness-0 invert" />
-            </div>
-            <span className="text-lg font-bold text-slate-900 dark:text-white">DiskusiBisnis</span>
-          </Link>
-        </div>
-
+      {/* RIGHT COLUMN: LOGIN FORM (Full screen centered on mobile, 50% on desktop) */}
+      <div className="w-full lg:w-1/2 flex flex-col justify-center px-5 sm:px-8 lg:px-16 xl:px-24 py-8 min-h-screen lg:h-screen lg:overflow-y-auto bg-white dark:bg-slate-900">
         <div className="w-full max-w-sm mx-auto">
-          <h2 className="text-2xl font-bold text-slate-900 dark:text-white text-center mb-6 tracking-tight">
-            Masuk ke Akun
-          </h2>
 
+          {/* Mobile Header Logo (Only on mobile < lg) */}
+          <div className="lg:hidden text-center mb-6">
+            <Link href="/" className="inline-flex items-center gap-2.5 mb-2 group">
+              <div className="w-10 h-10 bg-emerald-600 rounded-xl p-2 flex items-center justify-center shadow-md">
+                <img src="/logodiskusibisnisaja.png" alt="DiskusiBisnis" className="w-full h-full object-contain brightness-0 invert" />
+              </div>
+              <span className="text-xl font-bold tracking-tight text-slate-900 dark:text-white">DiskusiBisnis</span>
+            </Link>
+          </div>
+
+          {/* Form Header */}
+          <div className="text-center lg:text-left mb-6">
+            <h2 className="text-2xl sm:text-3xl font-extrabold text-slate-900 dark:text-white tracking-tight">
+              Masuk ke Akun
+            </h2>
+            <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
+              Silakan masukkan email dan kata sandi Anda.
+            </p>
+          </div>
+
+          {/* Error Message */}
           {error && (
-            <div className="mb-4 p-3 bg-red-500/10 border border-red-500/20 rounded-xl flex items-start gap-2">
+            <div className="mb-4 p-3 bg-red-500/10 border border-red-500/20 rounded-xl flex items-start gap-2 animate-in fade-in">
               <AlertCircle className="w-4 h-4 text-red-500 flex-shrink-0 mt-0.5" />
               <p className="text-xs font-medium text-red-600 dark:text-red-400">{error}</p>
             </div>
@@ -180,14 +198,19 @@ export default function LoginPage() {
               <label className="block text-[11px] font-semibold text-slate-700 dark:text-slate-300 mb-1">
                 Alamat Email
               </label>
-              <input
-                type="email"
-                required
-                value={formData.email}
-                onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                className="w-full bg-slate-100 dark:bg-slate-800 border-0 rounded-xl px-3.5 py-2.5 text-sm text-slate-900 dark:text-white placeholder:text-slate-400 focus:ring-2 focus:ring-emerald-500/20 outline-none font-medium transition-all"
-                placeholder="nama@email.com"
-              />
+              <div className="relative">
+                <div className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none">
+                  <Mail className="w-4 h-4" />
+                </div>
+                <input
+                  type="email"
+                  required
+                  value={formData.email}
+                  onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                  className="w-full bg-slate-50 dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700/60 rounded-xl pl-10 pr-3.5 py-2.5 text-sm text-slate-900 dark:text-white placeholder:text-slate-400 focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 outline-none font-medium transition-all"
+                  placeholder="nama@email.com"
+                />
+              </div>
             </div>
 
             {/* Password */}
@@ -204,12 +227,15 @@ export default function LoginPage() {
                 </Link>
               </div>
               <div className="relative">
+                <div className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none">
+                  <Lock className="w-4 h-4" />
+                </div>
                 <input
                   type={showPassword ? 'text' : 'password'}
                   required
                   value={formData.password}
                   onChange={(e) => setFormData({ ...formData, password: e.target.value })}
-                  className="w-full bg-slate-100 dark:bg-slate-800 border-0 rounded-xl pl-3.5 pr-10 py-2.5 text-sm text-slate-900 dark:text-white placeholder:text-slate-400 focus:ring-2 focus:ring-emerald-500/20 outline-none font-medium transition-all"
+                  className="w-full bg-slate-50 dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700/60 rounded-xl pl-10 pr-10 py-2.5 text-sm text-slate-900 dark:text-white placeholder:text-slate-400 focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 outline-none font-medium transition-all"
                   placeholder="••••••••••••"
                 />
                 <button
@@ -243,7 +269,7 @@ export default function LoginPage() {
               <button
                 type="submit"
                 disabled={loading}
-                className="w-full py-2.5 px-4 bg-emerald-600 hover:bg-emerald-700 active:bg-emerald-800 text-white rounded-xl font-semibold text-sm shadow-sm active:scale-[0.99] transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center"
+                className="w-full py-2.5 px-4 bg-emerald-600 hover:bg-emerald-700 active:bg-emerald-800 text-white rounded-xl font-semibold text-sm shadow-sm active:scale-[0.99] transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center shadow-emerald-600/20"
               >
                 {loading ? (
                   <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
@@ -306,5 +332,5 @@ export default function LoginPage() {
       </div>
 
     </div>
-  );
+  )
 }

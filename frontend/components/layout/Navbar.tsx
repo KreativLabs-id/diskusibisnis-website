@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { useAuth } from '@/contexts/AuthContext';
-import { Search, Bell, User, LogOut, Settings, Plus, Menu, X, ChevronDown, Shield, ArrowLeft } from 'lucide-react';
+import { Search, Bell, User, LogOut, Settings, Plus, Menu, X, ChevronDown, Shield, ArrowLeft, HelpCircle } from 'lucide-react';
 import { useState, useEffect, useRef } from 'react';
 import NotificationDropdown from '@/components/ui/NotificationDropdown';
 import LoadingSpinner from '@/components/ui/LoadingSpinner';
@@ -257,6 +257,18 @@ export default function Navbar({ onMenuClick }: NavbarProps) {
                           <Settings className="w-4 h-4" />
                           <span className="text-sm font-semibold">Pengaturan</span>
                         </Link>
+
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setShowUserMenu(false);
+                            window.dispatchEvent(new CustomEvent('open-welcome-guide'));
+                          }}
+                          className="flex items-center space-x-3 w-full px-3 py-2 text-slate-700 dark:text-slate-200 hover:bg-white dark:hover:bg-slate-800 hover:text-emerald-600 dark:hover:text-emerald-400 transition-all duration-200 rounded-md text-left"
+                        >
+                          <HelpCircle className="w-4 h-4" />
+                          <span className="text-sm font-semibold">Panduan Komunitas</span>
+                        </button>
 
                         <div className="h-px bg-slate-200/60 dark:bg-slate-700/60 my-0.5" />
 
