@@ -61,3 +61,7 @@ backend/config/firebase-admin-sdk.json
 # AI Configs
 AGENTS.md
 GEMINI.md
+
+# CodeGraph local database & cache
+.codegraph/
+
